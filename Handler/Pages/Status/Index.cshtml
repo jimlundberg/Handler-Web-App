@@ -4,7 +4,7 @@
     ViewData["Title"] = "Status";
 }
 
-    <h2>Modeler Status</h2>
+<h2>Modeler Status</h2>
 
 <table class="center">
     <tr>
@@ -14,32 +14,14 @@
         <th>Time Started</th>
         <th>Time Completed</th>
     </tr>
-    <tr>
-        <td>1278061_202006181549</td>
-        <td>Complete</td>
-        <td>6/18/2020 8:15 PM</td>
-        <td>6/18/2020 8:15 PM</td>
-        <td>6/18/2020 9:13 PM</td>
-    </tr>
-    <tr>
-        <td>1202740_202006171645</td>
-        <td>Error</td>
-        <td>6/17/2020 9:15 PM</td>
-        <td>6/18/2020 9:15 PM</td>
-        <td>6/18/2020 10:04 PM</td>
-    </tr>
-    <tr>
-        <td>1202740_2020061700018</td>
-        <td>Error</td>
-        <td>6/17/2020 10:14 PM</td>
-        <td>6/18/2020 10:15 PM</td>
-        <td>6/18/2020 10:55 PM</td>
-    </tr>
-    <tr>
-        <td>1202740_2020061700018</td>
-        <td>Error</td>
-        <td>6/17/2020 1:40 AM</td>
-        <td>6/18/2020 1:41 AM</td>
-        <td>6/18/2020 4:04 AM</td>
-    </tr>
+    @foreach (var status in Model.statusData)
+    {
+        <tr>
+            <td>@status.Job</td>
+            <td>@status.JobStatus</td>
+            <td>@status.TimeReceived</td>
+            <td>@status.TimeStarted</td>
+            <td>@status.TimeCompleted</td>
+        </tr>
+    }
 </table>

@@ -21,7 +21,7 @@ namespace Handler.Pages
 
         public void OnGet()
         {
-            Message = "Modeling Handler at " + DateTime.Now.ToLocalTime();
+            Message = "Modeling Handler time: " + DateTime.Now.ToLocalTime();
         }
     }
 }
