@@ -18,6 +18,7 @@ namespace Handler.Pages.Status
         {
             this.statusRepository = statusRepository;
         }
+
         public void OnGet()
         {
             statusData = statusRepository.GetAllStatus();
