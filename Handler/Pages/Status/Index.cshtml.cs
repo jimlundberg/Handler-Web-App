@@ -12,7 +12,7 @@ namespace Handler.Pages.Status
     public class IndexModel : PageModel
     {
         private readonly IStatusRepository statusRepository;
-        public IEnumerable<StatusData> statusData { get; set; }
+        public IEnumerable<StatusModels.StatusData> statusData { get; set; }
 
         public IndexModel(IStatusRepository statusRepository)
         {
@@ -21,7 +21,7 @@ namespace Handler.Pages.Status
 
         public void OnGet()
         {
-            statusData = statusRepository.GetAllStatus();
+            statusData = statusRepository.GetJobStatus();
         }
     }
 }

@@ -17,5 +17,14 @@ namespace StatusModels
         public string FinishedDir { get; set; }
         public string ErrorDir { get; set; }
         public string ModelerRootDir { get; set; }
+        public int CPUCores { get; set; }
+        public string Modeler { get; set; }
+        public int MaxTimeLimit { get; set; }
+        public int StartPort { get; set; }
+        public string LogFile { get; set; }
+        public string UnitNumber { get; set; }
+        public int NumFilesConsumed { get; set; }
+        public int NumFilesProduced { get; set; }
+        public int NumFilesToTransfer { get; set; }
     }
 }
