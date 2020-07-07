@@ -7,12 +7,13 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Xml;
 using System.Threading;
+using System.Net.Sockets;
 using System.Timers;
 using StatusModels;
 
 namespace Status.Services
 {
-    class IniFile
+    public class IniFile
     {
         string Path;
         string EXE = Assembly.GetExecutingAssembly().GetName().Name;
@@ -130,7 +131,7 @@ namespace Status.Services
         }
     }
 
-    class CommandLineGenerator
+    public class CommandLineGenerator
     {
         private string cmd;
         private string Executable = "Executable";
@@ -142,9 +143,9 @@ namespace Status.Services
 
         public string GetCurrentDirector() { return Directory.GetCurrentDirectory(); }
         public void SetExecutableDir(string _Executable) { Executable = _Executable; }
-        public void SetRepositoryDir(string _ProcessingDir) { ProcessingDir = _ProcessingDir; }
-        public void SetStartPort(string _StartPort) { StartPort = "-p " + _StartPort; }
-        public void SetCpuCores(string _CpuCores) { CpuCores = "-s " + _CpuCores; }
+        public void SetRepositoryDir(string _ProcessingDir) { ProcessingDir = "-d " + _ProcessingDir; }
+        public void SetStartPort(int _StartPort) { StartPort = "-p " + _StartPort.ToString(); }
+        public void SetCpuCores(int _CpuCores) { CpuCores = "-s " + _CpuCores.ToString(); }
         public string AddToCommandLine(string addCmd) { return (cmd += addCmd); }
 
         public void ExecuteCommand()
@@ -161,6 +162,84 @@ namespace Status.Services
             proc.WaitForExit();
             var exitCode = proc.ExitCode;
             proc.Close();
+        }
+    }
+
+    public class TcpIpConnection
+    {
+        static void Connect(String server, Int32 port, String message)
+        {
+            try
+            {
+                // Create a TcpClient.
+                // Note, for this client to work you need to have a TcpServer
+                // connected to the same address as specified by the server, port
+                // combination.
+                TcpClient client = new TcpClient(server, port);
+
+                // Translate the passed message into ASCII and store it as a Byte array.
+                Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
+
+                // Get a client stream for reading and writing.
+                //  Stream stream = client.GetStream();
+
+                NetworkStream stream = client.GetStream();
+
+                // Send the message to the connected TcpServer.
+                stream.Write(data, 0, data.Length);
+
+                Console.WriteLine("Sent: {0}", message);
+
+                // Receive the TcpServer.response.
+
+                // Buffer to store the response bytes.
+                data = new Byte[256];
+
+                // String to store the response ASCII representation.
+                String responseData = String.Empty;
+
+                // Read the first batch of the TcpServer response bytes.
+                Int32 bytes = stream.Read(data, 0, data.Length);
+                responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
+                Console.WriteLine("Received: {0}", responseData);
+
+                // Close everything.
+                stream.Close();
+                client.Close();
+            }
+            catch (ArgumentNullException e)
+            {
+                Console.WriteLine("ArgumentNullException: {0}", e);
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine("SocketException: {0}", e);
+            }
+
+            Console.WriteLine("\n Press Enter to exit...");
+            Console.Read();
+        }
+
+        public static System.Timers.Timer aTimer;
+
+        public static void SetTimer()
+        {
+            // Create a timer with a five second interval.
+            aTimer = new System.Timers.Timer(60000);
+
+            // Hook up the Elapsed event for the timer. 
+            aTimer.Elapsed += OnTimedEvent;
+            aTimer.AutoReset = true;
+            aTimer.Enabled = true;
+        }
+        public static void OnTimedEvent(Object source, ElapsedEventArgs e)
+        {
+            Console.WriteLine("Modeler status requested at {0:HH:mm:ss.fff}",
+                              e.SignalTime);
+
+            // Check modeler status
+            Connect("127.0.0.1", 3000, "status");
+            Console.ReadLine();
         }
     }
 
@@ -191,7 +270,12 @@ namespace Status.Services
                     LogFile = "Log File Field",
                     NumFilesConsumed = 0,
                     NumFilesProduced = 0,
-                    NumFilesToTransfer = 0
+                    NumFilesToTransfer = 0,
+                    Transfered1 = "Transfered1",
+                    Transfered2 = "Transfered2",
+                    Transfered3 = "Transfered3",
+                    Transfered4 = "Transfered4",
+                    Transfered5 = "Transfered5"
                 }
             };
         }
@@ -220,9 +304,8 @@ namespace Status.Services
             MonitorDataRepository();
 
             // Read local .ini file data
+            string IniFileName = @"C:\SSMCharacterizationHandler\Application\Config.ini";
             StatusMonitorData monitorData = new StatusMonitorData();
-
-            string IniFileName = @"C:\SSMCharacterizationHandler\Application\config.ini";
             var IniParser = new IniFile(IniFileName);
             monitorData.IniFileName = IniFileName;
             monitorData.Modeler = IniParser.Read("Process", "Modeler");
@@ -231,15 +314,93 @@ namespace Status.Services
             monitorData.RepositoryDir = IniParser.Read("Paths", "Repository");
             monitorData.FinishedDir = IniParser.Read("Paths", "Finished");
             monitorData.ErrorDir = IniParser.Read("Paths", "Error");
-            monitorData.ModelerRootDir = IniParser.Read("Paths", "ModelerRoot");
+          //monitorData.ModelerRootDir = IniParser.Read("Paths", "ModelerRoot");
+            monitorData.ModelerRootDir = @"C:\SSMCharacterizationHandler\Modelers";
             monitorData.CPUCores = Int32.Parse(IniParser.Read("Process", "CPUCores"));
             monitorData.StartPort = Int32.Parse(IniParser.Read("Process", "StartPort"));
             string timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
             monitorData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
 
+            // Read Xml File data
+            string XmlFileName = @"C:\SSMCharacterizationHandler\Application\Data.xml";
+            XmlDocument XmlDoc = new XmlDocument();
+            XmlDoc.Load(XmlFileName);
+            monitorData.XmlFileName = XmlFileName;
+
+            XmlNode UnitNumberNode = XmlDoc.DocumentElement.SelectSingleNode("/CONFIG_3155301-034/listitem/value");
+            XmlNode ModelerNode = XmlDoc.DocumentElement.SelectSingleNode("/CONFIG_3155301-034/FileConfiguration/Modeler");
+            XmlNode ConsumedNode = XmlDoc.DocumentElement.SelectSingleNode("/CONFIG_3155301-034/FileConfiguration/Consumed");
+            XmlNode ProducedNode = XmlDoc.DocumentElement.SelectSingleNode("/CONFIG_3155301-034/FileConfiguration/Produced");
+            XmlNode TransferedNode = XmlDoc.DocumentElement.SelectSingleNode("/CONFIG_3155301-034/FileConfiguration/Transfered");
+
+            monitorData.Job = UnitNumberNode.InnerText;
+            monitorData.UnitNumber = UnitNumberNode.InnerText;
+            monitorData.Modeler = ModelerNode.InnerText;
+            monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
+            monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
+            int NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
+            monitorData.NumFilesToTransfer = NumFilesToTransfer;
+
+            List<string> TransferedFiles = new List<string>(NumFilesToTransfer);
+            List<XmlNode> TransFeredFileXml = new List<XmlNode>();
+            for (int i = 1; i < NumFilesToTransfer + 1; i++)
+            {
+                TransferedFiles.Add("/CONFIG_3155301-034/FileConfiguration/Transfered" + i.ToString());
+                XmlNode TransferedFileXml = XmlDoc.DocumentElement.SelectSingleNode(TransferedFiles[i - 1]);
+
+                switch (i)
+                {
+                    case 1:
+                        monitorData.Transfered1 = TransferedFileXml.InnerText;
+                        break;
+
+                    case 2:
+                        monitorData.Transfered2 = TransferedFileXml.InnerText;
+                        break;
+
+                    case 3:
+                        monitorData.Transfered3 = TransferedFileXml.InnerText;
+                        break;
+
+                    case 4:
+                        monitorData.Transfered4 = TransferedFileXml.InnerText;
+                        break;
+
+                    case 5:
+                        monitorData.Transfered5 = TransferedFileXml.InnerText;
+                        break;
+                }
+            }
+
+            // Load and execute command line generator
+            CommandLineGenerator cl = new CommandLineGenerator();
+            cl.SetExecutableDir(monitorData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
+            cl.SetRepositoryDir(monitorData.ProcessingDir);
+            cl.SetStartPort(monitorData.StartPort);
+            cl.SetCpuCores(monitorData.CPUCores);
+            cl.ExecuteCommand();
+
+            // Timed listen for Modeler TCP/IP response
+            //TcpIpConnection.SetTimer();
+
+            //Console.WriteLine("Press enter to read Modeler TCP/IP");
+            //string response = Console.ReadLine();
+            //Console.WriteLine("Scan TCP/IP at {0:HH:mm:ss.fff}", DateTime.Now);
+            //Console.WriteLine(response);
+
+            //TcpIpConnection.aTimer.Stop();
+            //TcpIpConnection.aTimer.Dispose();
+
+            // Monitor for files
+            Console.WriteLine("Monitoring for files...");
+            if (MonitorFiles.MonitorDirectory(monitorData.ProcessingDir, monitorData.NumFilesConsumed, monitorData.MaxTimeLimit))
+            {
+                // Move file when directory complete
+                MoveFiles.Copy(monitorData.ProcessingDir, monitorData.FinishedDir);
+            }
+
             _monitorList.Clear();
             _monitorList.Add(monitorData);
-
             return _monitorList;
         }
 
