@@ -3,6 +3,17 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
+    <StartupObject>Handler.Program</StartupObject>
+    <SignAssembly>false</SignAssembly>
+    <Company>Advanced Energy</Company>
+    <Authors>Jim Lundberg</Authors>
+    <Description>Handles the Modeler throughput</Description>
+    <Copyright>2020 Advanced Energy</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <DocumentationFile>C:\SSMCharacterizationHandler\Application\Handler\Handler\Handler.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

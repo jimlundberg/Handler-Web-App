@@ -5,11 +5,12 @@ namespace StatusModels
     public enum JobStatus
     {
         NONE,
-        STARTED,
-        RUNNING,
+        JOB_STARTED,
         EXECUTING,
-        MONITORING,
-        COPYING,
-        COMPLETED
+        MONITORING_INPUT,
+        COPYING_TO_PROCESSING,
+        MONITORING_PROCESSING,
+        COPYING_TO_ARCHIVE,
+        COMPLETE
     }
 }
