@@ -16,24 +16,14 @@ namespace Handler.Pages
         private readonly ILogger<IndexModel> _logger;
         public string Message { get; set; }
 
-        private readonly IStatusRepository statusMonitorRepository;
-
-        public IEnumerable<StatusMonitorData> statusMonitorData { get; set; }
-
         public IndexModel(ILogger<IndexModel> logger)
         {
             _logger = logger;
         }
 
-        public IndexModel(IStatusRepository monitorDataRepository)
-        {
-            this.statusMonitorRepository = monitorDataRepository;
-        }
-
         public void OnGet()
         {
             Message = "Modeling Handler time: " + DateTime.Now.ToLocalTime();
-            statusMonitorData = statusMonitorRepository.GetMonitorStatus();
         }
     }
 }

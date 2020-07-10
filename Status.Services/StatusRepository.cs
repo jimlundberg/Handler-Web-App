@@ -429,7 +429,7 @@ namespace Status.Services
             statusData.JobStatus = JobStatus.JOB_STARTED;
             statusData.TimeStarted = DateTime.Now;
             _statusList.Add(statusData);
-            Console.WriteLine("JOB STARTED");
+            Console.WriteLine("status = JOB STARTED");
 
             // Read Xml file data
             XmlDocument XmlDoc = new XmlDocument();
