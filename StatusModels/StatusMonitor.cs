@@ -17,7 +17,7 @@ namespace StatusModels
         public string RepositoryDir { get; set; }
         public string FinishedDir { get; set; }
         public string ErrorDir { get; set; }
-        public string ModelersDir { get; set; }
+        public string ModelerRootDir { get; set; }
         public int CPUCores { get; set; }
         public string Modeler { get; set; }
         public int MaxTimeLimit { get; set; }
