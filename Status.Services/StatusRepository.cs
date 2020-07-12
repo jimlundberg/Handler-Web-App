@@ -171,12 +171,22 @@ namespace Status.Services
         {
             DirectoryInfo Source = new DirectoryInfo(sourceDirectory);
             DirectoryInfo Target = new DirectoryInfo(targetDirectory);
-            if (Target.Exists)
+            if (Directory.Exists(targetDirectory))
             {
                 try
                 {
+                    // Delete all files first
+                    string[] files = Directory.GetFiles(targetDirectory);
+                    foreach (string file in files)
+                    {
+                        File.Delete(file);
+                        Console.WriteLine($"{file} is deleted.");
+                    }
+
+                    // Delete the Target directory
                     File.SetAttributes(targetDirectory, FileAttributes.Normal);
-                    File.Delete(targetDirectory);
+                    Thread.Sleep(100);
+                    Target.Delete(true);
                 }
                 catch (UnauthorizedAccessException)
                 {
@@ -184,7 +194,8 @@ namespace Status.Services
                     if ((attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
                     {
                         attributes &= ~FileAttributes.ReadOnly;
-                        File.SetAttributes(targetDirectory, FileAttributes.Normal);
+                        File.SetAttributes(targetDirectory, attributes);
+                        Thread.Sleep(500);
                         File.Delete(targetDirectory);
                     }
                     else
@@ -193,15 +204,27 @@ namespace Status.Services
                     }
                 }
             }
-            Console.WriteLine(@"Copying {0} -> {1}", sourceDirectory, targetDirectory);
+            else 
+            {
+                Directory.CreateDirectory(targetDirectory);
+                Thread.Sleep(100);
+            }
+
             Source.MoveTo(targetDirectory);
+            Console.WriteLine(@"Copied {0} -> {1}", sourceDirectory, targetDirectory);
         }
 
         public static void CopyFile(string sourceFile, string targetFile)
         {
             FileInfo Source = new FileInfo(sourceFile);
-            Console.WriteLine(@"Copying {0} -> {1}", sourceFile, targetFile);
+            if (File.Exists(targetFile))
+            {
+                File.Delete(targetFile);
+                Thread.Sleep(500);
+            }
+
             Source.CopyTo(targetFile);
+            Console.WriteLine(@"Copied {0} -> {1}", sourceFile, targetFile);
         }
 
         public static void CopyAllFiles(DirectoryInfo source, DirectoryInfo target)
@@ -401,22 +424,22 @@ namespace Status.Services
             };
         }
 
-        public void StatusEntry(String job, JobStatus status, JobTime timeSlot)
+        public void StatusEntry(String job, JobStatus status, JobType timeSlot)
         {
             StatusData entry = new StatusData();
             entry.Job = job;
             entry.JobStatus = status;
             switch (timeSlot)
             {
-                case JobTime.TIME_START:
+                case JobType.TIME_START:
                     entry.TimeStarted = DateTime.Now;
                     break;
 
-                case JobTime.TIME_RECIEVED:
+                case JobType.TIME_RECIEVED:
                     entry.TimeReceived = DateTime.Now;
                     break;
 
-                case JobTime.TIME_COMPLETE:
+                case JobType.TIME_COMPLETE:
                     entry.TimeCompleted = DateTime.Now;
                     break;
             }
@@ -477,7 +500,7 @@ namespace Status.Services
             monitorData.XmlFileName = scanDir.XmlFileName;
 
             // Add initial entry to status list
-            StatusEntry(monitorData.Job, JobStatus.MONITORING_INPUT, JobTime.TIME_START);
+            StatusEntry(monitorData.Job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
 
             // Read Xml file data
             XmlDocument XmlDoc = new XmlDocument();
@@ -510,7 +533,7 @@ namespace Status.Services
             }
 
             // Add entry to status list
-            StatusEntry(monitorData.Job, JobStatus.MONITORING_INPUT, JobTime.TIME_RECIEVED);
+            StatusEntry(monitorData.Job, JobStatus.MONITORING_INPUT, JobType.TIME_RECIEVED);
 
             // Monitor the Input directory until it has the total number of consumed files
             String InputBufferDir = monitorData.JobDirectory + @"\" + monitorData.Job;
@@ -518,14 +541,14 @@ namespace Status.Services
             MonitorDirectoryFiles.MonitorDirectory(InputBufferDir, monitorData.NumFilesConsumed, monitorData.MaxTimeLimit);
 
             // Add entry to status list
-            StatusEntry(monitorData.Job, JobStatus.COPYING_TO_PROCESSING, JobTime.TIME_RECIEVED);
+            StatusEntry(monitorData.Job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_RECIEVED);
 
             // Move files from Input directory to the Processing directory, creating it first if needed
             String ProcessingBufferDir = monitorData.ProcessingDir + @"\" + monitorData.Job;
             MoveFiles.MoveDir(InputBufferDir, ProcessingBufferDir);
 
             // Add entry to status list
-            StatusEntry(monitorData.Job, JobStatus.EXECUTING, JobTime.TIME_RECIEVED);
+            StatusEntry(monitorData.Job, JobStatus.EXECUTING, JobType.TIME_RECIEVED);
 #if Foo
             // Load and execute command line generator
             CommandLineGenerator cl = new CommandLineGenerator();
@@ -558,13 +581,16 @@ namespace Status.Services
             while (true);
 #endif
             // Add entry to status list
-            StatusEntry(monitorData.Job, JobStatus.MONITORING_PROCESSING, JobTime.TIME_RECIEVED);
+            StatusEntry(monitorData.Job, JobStatus.MONITORING_PROCESSING, JobType.TIME_RECIEVED);
 
             // Monitor for complete set of files in the Processing Buffer
             Console.WriteLine("Monitoring for Processing output files...");
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             if (MonitorDirectoryFiles.MonitorDirectory(ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, monitorData.MaxTimeLimit))
             {
+                // Add copy entry to status list
+                StatusEntry(monitorData.Job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_RECIEVED);
+
                 // Check .Xml output file for pass/fail
                 bool XmlFileFound = false;
                 string XmlFileName = "";
@@ -572,7 +598,7 @@ namespace Status.Services
                 // Check for Data.xml in the Processing Directory
                 do
                 {
-                    string[] files = System.IO.Directory.GetFiles(monitorData.ProcessingDir, "*.xml");
+                    string[] files = System.IO.Directory.GetFiles(ProcessingBufferDir, "Data.xml");
                     if (files.Length > 0)
                     {
                         XmlFileName = files[0];
@@ -583,9 +609,6 @@ namespace Status.Services
                 }
                 while (XmlFileFound == false);
 
-                // Add copy entry to status list
-                StatusEntry(monitorData.Job, JobStatus.COPYING_TO_ARCHIVE, JobTime.TIME_RECIEVED);
-
                 // Read output Xml file data
                 XmlDocument XmlOutputDoc = new XmlDocument();
                 XmlDoc.Load(XmlFileName);
@@ -595,14 +618,21 @@ namespace Status.Services
                 string passFail = OverallResult.InnerText;
                 if (passFail == "Pass")
                 {
-                    // Move Processing Buffer FIle to the Finished directory if passed
+                    // Move Processing Buffer Files to the Finished directory if passed
                     MoveFiles.CopyDir(ProcessingBufferDir, monitorData.FinishedDir + @"\" + monitorData.Job);
+
+                    // If the Repository directory does not exist, create it
+                    bool exists = System.IO.Directory.Exists(monitorData.RepositoryDir + @"\" + monitorData.JobName);
+                    if (!exists)
+                    {
+                        System.IO.Directory.CreateDirectory(monitorData.RepositoryDir + @"\" + monitorData.JobName);
+                    }
 
                     // Copy the Transfered files to the repository directory 
                     for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
                     {
-                        MoveFiles.CopyFile(monitorData.ProcessingDir + @"\" + monitorData.transferedFileList[i], 
-                                           monitorData.RepositoryDir + @"\" + monitorData.transferedFileList[i]);
+                        MoveFiles.CopyFile(monitorData.ProcessingDir + @"\" + monitorData.Job + @"\" + monitorData.transferedFileList[i],
+                                           monitorData.RepositoryDir + @"\" + monitorData.JobName + @"\" + monitorData.transferedFileList[i]);
                     }
                 }
                 else if (passFail == "Fail")
@@ -612,7 +642,7 @@ namespace Status.Services
                 }
 
                 // Add entry to status list
-                StatusEntry(monitorData.Job, JobStatus.COMPLETE, JobTime.TIME_COMPLETE);
+                StatusEntry(monitorData.Job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
             }
 
             _monitorList.Clear();

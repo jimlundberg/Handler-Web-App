@@ -14,7 +14,7 @@ namespace StatusModels
         COMPLETE
     }
 
-    public enum JobTime
+    public enum JobType
     {
         NONE,
         TIME_START,
