@@ -397,7 +397,6 @@ namespace Status.Services
                     JobDirectory = "Job Directory Field",
                     IniFileName = ".ini File Name Field",
                     XmlFileName = ".xML File Name Field",
-                    UploadDir = "Upload Directory Field",
                     ProcessingDir = "Processing Directory Field",
                     RepositoryDir = "Archieve Directory Field",
                     FinishedDir = "Finished Directory Field",
