@@ -31,10 +31,12 @@
         <li>Num Files Consumed = @config.NumFilesConsumed</li>
         <li>Num Files Produced = @config.NumFilesProduced</li>
         <li>Num Files To Transfer = @config.NumFilesToTransfer</li>
-        <li>Transfered1 = @config.Transfered1</li>
-        <li>Transfered2 = @config.Transfered2</li>
-        <li>Transfered3 = @config.Transfered3</li>
-        <li>Transfered4 = @config.Transfered4</li>
-        <li>Transfered5 = @config.Transfered5</li>
+        @if (@config.transferedFileList != null)
+        {
+            @foreach (var file in @config.transferedFileList)
+            {
+                <li>Transfer file = @file</li>        
+            }
+        }
     }
 </ul>

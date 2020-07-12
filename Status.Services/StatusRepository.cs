@@ -160,31 +160,66 @@ namespace Status.Services
 
     public class MoveFiles
     {
-        public static void Copy(string sourceDirectory, string targetDirectory)
+        public static void CopyDir(string sourceDirectory, string targetDirectory)
         {
-            DirectoryInfo diSource = new DirectoryInfo(sourceDirectory);
-            DirectoryInfo diTarget = new DirectoryInfo(targetDirectory);
-
-            CopyAll(diSource, diTarget);
+            DirectoryInfo Source = new DirectoryInfo(sourceDirectory);
+            DirectoryInfo Target = new DirectoryInfo(targetDirectory);
+            CopyAllFiles(Source, Target);
         }
 
-        public static void CopyAll(DirectoryInfo source, DirectoryInfo target)
+        public static void MoveDir(string sourceDirectory, string targetDirectory)
+        {
+            DirectoryInfo Source = new DirectoryInfo(sourceDirectory);
+            DirectoryInfo Target = new DirectoryInfo(targetDirectory);
+            if (Target.Exists)
+            {
+                try
+                {
+                    File.SetAttributes(targetDirectory, FileAttributes.Normal);
+                    File.Delete(targetDirectory);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    FileAttributes attributes = File.GetAttributes(targetDirectory);
+                    if ((attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
+                    {
+                        attributes &= ~FileAttributes.ReadOnly;
+                        File.SetAttributes(targetDirectory, FileAttributes.Normal);
+                        File.Delete(targetDirectory);
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+            Console.WriteLine(@"Copying {0} -> {1}", sourceDirectory, targetDirectory);
+            Source.MoveTo(targetDirectory);
+        }
+
+        public static void CopyFile(string sourceFile, string targetFile)
+        {
+            FileInfo Source = new FileInfo(sourceFile);
+            Console.WriteLine(@"Copying {0} -> {1}", sourceFile, targetFile);
+            Source.CopyTo(targetFile);
+        }
+
+        public static void CopyAllFiles(DirectoryInfo source, DirectoryInfo target)
         {
             Directory.CreateDirectory(target.FullName);
 
             // Copy each file into the new directory.
             foreach (FileInfo fi in source.GetFiles())
             {
-                Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
+                Console.WriteLine(@"Copying {0} -> {1}", target.FullName, fi.Name);
                 fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
             }
 
             // Copy each subdirectory using recursion.
-            foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
+            foreach (DirectoryInfo SourceSubDir in source.GetDirectories())
             {
-                DirectoryInfo nextTargetSubDir =
-                    target.CreateSubdirectory(diSourceSubDir.Name);
-                CopyAll(diSourceSubDir, nextTargetSubDir);
+                DirectoryInfo nextTargetSubDir = target.CreateSubdirectory(SourceSubDir.Name);
+                CopyAllFiles(SourceSubDir, nextTargetSubDir);
             }
         }
     }
@@ -210,9 +245,9 @@ namespace Status.Services
             var proc = new Process();
             proc.StartInfo.FileName = Executable;
             proc.StartInfo.Arguments = string.Format(@"{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
-            proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.UseShellExecute = true;
             proc.StartInfo.RedirectStandardOutput = true;
-            Console.WriteLine("\n{0} {1}", proc.StartInfo.FileName, proc.StartInfo.Arguments);
+          //Console.WriteLine("\n{0} {1}", proc.StartInfo.FileName, proc.StartInfo.Arguments);
             proc.Start();
 
             string outPut = proc.StandardOutput.ReadToEnd();
@@ -353,12 +388,7 @@ namespace Status.Services
                     LogFile = "Log File Field",
                     NumFilesConsumed = 0,
                     NumFilesProduced = 0,
-                    NumFilesToTransfer = 0,
-                    Transfered1 = "Transfered1",
-                    Transfered2 = "Transfered2",
-                    Transfered3 = "Transfered3",
-                    Transfered4 = "Transfered4",
-                    Transfered5 = "Transfered5"
+                    NumFilesToTransfer = 0
                 }
             };
         }
@@ -369,6 +399,28 @@ namespace Status.Services
             {
                 new StatusData() { Job = "1307106_202002181300", JobStatus = JobStatus.JOB_STARTED, TimeReceived = DateTime.Now,  TimeStarted = DateTime.Now,  TimeCompleted = DateTime.Now }
             };
+        }
+
+        public void StatusEntry(String job, JobStatus status, JobTime timeSlot)
+        {
+            StatusData entry = new StatusData();
+            entry.Job = job;
+            entry.JobStatus = status;
+            switch (timeSlot)
+            {
+                case JobTime.TIME_START:
+                    entry.TimeStarted = DateTime.Now;
+                    break;
+
+                case JobTime.TIME_RECIEVED:
+                    entry.TimeReceived = DateTime.Now;
+                    break;
+
+                case JobTime.TIME_COMPLETE:
+                    entry.TimeCompleted = DateTime.Now;
+                    break;
+            }
+            _statusList.Add(entry);
         }
 
         public IEnumerable<StatusMonitorData> GetMonitorStatus()
@@ -425,11 +477,7 @@ namespace Status.Services
             monitorData.XmlFileName = scanDir.XmlFileName;
 
             // Add initial entry to status list
-            statusData.Job = monitorData.Job;
-            statusData.JobStatus = JobStatus.JOB_STARTED;
-            statusData.TimeStarted = DateTime.Now;
-            _statusList.Add(statusData);
-            Console.WriteLine("status = JOB STARTED");
+            StatusEntry(monitorData.Job, JobStatus.MONITORING_INPUT, JobTime.TIME_START);
 
             // Read Xml file data
             XmlDocument XmlDoc = new XmlDocument();
@@ -451,27 +499,18 @@ namespace Status.Services
             int NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
             monitorData.NumFilesToTransfer = NumFilesToTransfer;
 
-            List<string> TransferedFiles = new List<string>(NumFilesToTransfer);
+            monitorData.transferedFileList = new List<string>(NumFilesToTransfer);
             List<XmlNode> TransFeredFileXml = new List<XmlNode>();
+            monitorData.transferedFileList = new List<String>();
             for (int i = 1; i < NumFilesToTransfer + 1; i++)
             {
-                TransferedFiles.Add("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
-                XmlNode TransferedFileXml = XmlDoc.DocumentElement.SelectSingleNode(TransferedFiles[i - 1]);
-
-                switch (i)
-                {
-                    case 1: monitorData.Transfered1 = TransferedFileXml.InnerText; break;
-                    case 2: monitorData.Transfered2 = TransferedFileXml.InnerText; break;
-                    case 3: monitorData.Transfered3 = TransferedFileXml.InnerText; break;
-                    case 4: monitorData.Transfered4 = TransferedFileXml.InnerText; break;
-                    case 5: monitorData.Transfered5 = TransferedFileXml.InnerText; break;
-                }
+                String transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
+                XmlNode TransferedFileXml = XmlDoc.DocumentElement.SelectSingleNode(transferFileNodeName);
+                monitorData.transferedFileList.Add(TransferedFileXml.InnerText);
             }
 
             // Add entry to status list
-            statusData.JobStatus = JobStatus.MONITORING_INPUT;
-            statusData.TimeReceived = DateTime.Now;
-            _statusList.Add(statusData);
+            StatusEntry(monitorData.Job, JobStatus.MONITORING_INPUT, JobTime.TIME_RECIEVED);
 
             // Monitor the Input directory until it has the total number of consumed files
             String InputBufferDir = monitorData.JobDirectory + @"\" + monitorData.Job;
@@ -479,28 +518,15 @@ namespace Status.Services
             MonitorDirectoryFiles.MonitorDirectory(InputBufferDir, monitorData.NumFilesConsumed, monitorData.MaxTimeLimit);
 
             // Add entry to status list
-            statusData.JobStatus = JobStatus.COPYING_TO_PROCESSING;
-            statusData.TimeReceived = DateTime.Now;
-            _statusList.Add(statusData);
-            Console.WriteLine("status = COPYING TO PROCESSING");
+            StatusEntry(monitorData.Job, JobStatus.COPYING_TO_PROCESSING, JobTime.TIME_RECIEVED);
 
             // Move files from Input directory to the Processing directory, creating it first if needed
             String ProcessingBufferDir = monitorData.ProcessingDir + @"\" + monitorData.Job;
-            if (File.Exists(ProcessingBufferDir))
-            {
-                File.Delete(ProcessingBufferDir);
-            }
-            Directory.CreateDirectory(ProcessingBufferDir);
-
-            // Move the Job files into the Process Buffer for Modeler usage
-            MoveFiles.Copy(InputBufferDir, ProcessingBufferDir);
+            MoveFiles.MoveDir(InputBufferDir, ProcessingBufferDir);
 
             // Add entry to status list
-            statusData.JobStatus = JobStatus.EXECUTING;
-            statusData.TimeReceived = DateTime.Now;
-            _statusList.Add(statusData);
-            Console.WriteLine("status = JOB EXECUTING");
-
+            StatusEntry(monitorData.Job, JobStatus.EXECUTING, JobTime.TIME_RECIEVED);
+#if Foo
             // Load and execute command line generator
             CommandLineGenerator cl = new CommandLineGenerator();
             cl.SetExecutableFile(monitorData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
@@ -530,12 +556,9 @@ namespace Status.Services
                 Thread.Sleep(30000);
             }
             while (true);
-
+#endif
             // Add entry to status list
-            statusData.JobStatus = JobStatus.MONITORING_PROCESSING;
-            statusData.TimeReceived = DateTime.Now;
-            _statusList.Add(statusData);
-            Console.WriteLine("status = MONITORING PROCESSING");
+            StatusEntry(monitorData.Job, JobStatus.MONITORING_PROCESSING, JobTime.TIME_RECIEVED);
 
             // Monitor for complete set of files in the Processing Buffer
             Console.WriteLine("Monitoring for Processing output files...");
@@ -560,11 +583,8 @@ namespace Status.Services
                 }
                 while (XmlFileFound == false);
 
-                // Add entry to status list
-                statusData.JobStatus = JobStatus.COPYING_TO_ARCHIVE;
-                statusData.TimeReceived = DateTime.Now;
-                _statusList.Add(statusData);
-                Console.WriteLine("status = COPYING TO ARCHIVE");
+                // Add copy entry to status list
+                StatusEntry(monitorData.Job, JobStatus.COPYING_TO_ARCHIVE, JobTime.TIME_RECIEVED);
 
                 // Read output Xml file data
                 XmlDocument XmlOutputDoc = new XmlDocument();
@@ -575,20 +595,24 @@ namespace Status.Services
                 string passFail = OverallResult.InnerText;
                 if (passFail == "Pass")
                 {
-                    // Move fils to the Archieve directory if passed
-                    MoveFiles.Copy(ProcessingBufferDir, monitorData.FinishedDir + @"\" + monitorData.Job);
+                    // Move Processing Buffer FIle to the Finished directory if passed
+                    MoveFiles.CopyDir(ProcessingBufferDir, monitorData.FinishedDir + @"\" + monitorData.Job);
+
+                    // Copy the Transfered files to the repository directory 
+                    for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
+                    {
+                        MoveFiles.CopyFile(monitorData.ProcessingDir + @"\" + monitorData.transferedFileList[i], 
+                                           monitorData.RepositoryDir + @"\" + monitorData.transferedFileList[i]);
+                    }
                 }
                 else if (passFail == "Fail")
                 {
                     // Move fils to the Error directory if failed
-                    MoveFiles.Copy(ProcessingBufferDir, monitorData.ErrorDir + @"\" + monitorData.Job);
+                    MoveFiles.CopyDir(ProcessingBufferDir, monitorData.ErrorDir + @"\" + monitorData.Job);
                 }
 
                 // Add entry to status list
-                statusData.JobStatus = JobStatus.COMPLETE;
-                statusData.TimeCompleted = DateTime.Now;
-                _statusList.Add(statusData);
-                Console.WriteLine("status = JOB COMPLETE");
+                StatusEntry(monitorData.Job, JobStatus.COMPLETE, JobTime.TIME_COMPLETE);
             }
 
             _monitorList.Clear();

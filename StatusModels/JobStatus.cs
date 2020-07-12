@@ -13,4 +13,12 @@ namespace StatusModels
         COPYING_TO_ARCHIVE,
         COMPLETE
     }
+
+    public enum JobTime
+    {
+        NONE,
+        TIME_START,
+        TIME_RECIEVED,
+        TIME_COMPLETE
+    }
 }

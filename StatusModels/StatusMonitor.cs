@@ -27,10 +27,6 @@ namespace StatusModels
         public int NumFilesConsumed { get; set; }
         public int NumFilesProduced { get; set; }
         public int NumFilesToTransfer { get; set; }
-        public string Transfered1 { get; set; }
-        public string Transfered2 { get; set; }
-        public string Transfered3 { get; set; }
-        public string Transfered4 { get; set; }
-        public string Transfered5 { get; set; }
+        public List<String> transferedFileList { get; set; }
     }
 }
