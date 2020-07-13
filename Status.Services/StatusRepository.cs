@@ -112,7 +112,7 @@ namespace Status.Services
                         string[] files = System.IO.Directory.GetFiles(dir, "*.xml");
                         if (files.Length > 0)
                         {
-                            XmlFileName = files[0];
+                            XmlFileName = Path.GetFileName(files[0]);
                             XmlFileFound = true;
                         }
 
@@ -203,11 +203,6 @@ namespace Status.Services
                         throw;
                     }
                 }
-            }
-            else 
-            {
-                Directory.CreateDirectory(targetDirectory);
-                Thread.Sleep(100);
             }
 
             Source.MoveTo(targetDirectory);
@@ -484,43 +479,47 @@ namespace Status.Services
             }
             while (foundNewDirectory == false);
 
-            // Display 
-            Console.WriteLine("");
-            Console.WriteLine("Found new Job: " + scanDir.Job);
-            Console.WriteLine("Found new JobName: " + scanDir.JobName);
-            Console.WriteLine("Found new Timestamp: " + scanDir.TimeStamp);
-            Console.WriteLine("Found new Job Xml File: " + scanDir.XmlFileName);
+            // Add initial entry to status list
+            StatusEntry(monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED);
 
-            // Set data found
+            // Set data found 
             monitorData.Job = scanDir.Job;
             monitorData.JobDirectory = scanDir.DirectoryName;
             monitorData.JobName = scanDir.JobName;
             monitorData.TimeStamp = scanDir.TimeStamp;
             monitorData.XmlFileName = scanDir.XmlFileName;
 
+            // Display data found
+            Console.WriteLine("");
+            Console.WriteLine("Found new Job: " + scanDir.Job);
+            Console.WriteLine("Found new JobName: " + scanDir.JobName);
+            Console.WriteLine("Found new Timestamp: " + scanDir.TimeStamp);
+            Console.WriteLine("Found new Job Xml File: " + scanDir.XmlFileName);
+
             // Add initial entry to status list
             StatusEntry(monitorData.Job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
 
-            // Read Xml file data
+            // Read Job Xml file and get the top node name
             XmlDocument XmlDoc = new XmlDocument();
-            XmlDoc.Load(scanDir.XmlFileName);
-
-            // Get the Xml file top node name
+            String xmlFileName = monitorData.JobDirectory + @"\" + scanDir.Job + @"\" + scanDir.XmlFileName;
+            XmlDoc.Load(xmlFileName);
             XmlElement root = XmlDoc.DocumentElement;
-            String TopNode = root.LocalName;
+            String TopNode = root.LocalName; 
 
-            // Get number of files and names of files to transfer from Job .xml file
+            // Get nodes for the number of files and names of files to transfer from Job .xml file
             XmlNode ConsumedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Consumed");
             XmlNode ProducedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Produced");
             XmlNode TransferedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Transfered");
             XmlNode ModelerNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
 
+            // Get the modeler and number of files to transfer
             monitorData.Modeler = ModelerNode.InnerText;
             monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
             monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
             int NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
             monitorData.NumFilesToTransfer = NumFilesToTransfer;
 
+            // Create the Transfered file list from the Xml file entries
             monitorData.transferedFileList = new List<string>(NumFilesToTransfer);
             List<XmlNode> TransFeredFileXml = new List<XmlNode>();
             monitorData.transferedFileList = new List<String>();
@@ -592,7 +591,6 @@ namespace Status.Services
 
                 // Check .Xml output file for pass/fail
                 bool XmlFileFound = false;
-                string XmlFileName = "";
 
                 // Check for Data.xml in the Processing Directory
                 do
@@ -600,7 +598,7 @@ namespace Status.Services
                     string[] files = System.IO.Directory.GetFiles(ProcessingBufferDir, "Data.xml");
                     if (files.Length > 0)
                     {
-                        XmlFileName = files[0];
+                        xmlFileName = files[0];
                         XmlFileFound = true;
                     }
 
@@ -610,7 +608,7 @@ namespace Status.Services
 
                 // Read output Xml file data
                 XmlDocument XmlOutputDoc = new XmlDocument();
-                XmlDoc.Load(XmlFileName);
+                XmlDoc.Load(xmlFileName);
 
                 // Get the pass or fail data from the OverallResult node
                 XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
