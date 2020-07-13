@@ -187,6 +187,7 @@ namespace Status.Services
                     File.SetAttributes(targetDirectory, FileAttributes.Normal);
                     Thread.Sleep(100);
                     Target.Delete(true);
+                    Thread.Sleep(100);
                 }
                 catch (UnauthorizedAccessException)
                 {
@@ -197,6 +198,7 @@ namespace Status.Services
                         File.SetAttributes(targetDirectory, attributes);
                         Thread.Sleep(500);
                         File.Delete(targetDirectory);
+                        Thread.Sleep(500);
                     }
                     else
                     {
@@ -479,9 +481,6 @@ namespace Status.Services
             }
             while (foundNewDirectory == false);
 
-            // Add initial entry to status list
-            StatusEntry(monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED);
-
             // Set data found 
             monitorData.Job = scanDir.Job;
             monitorData.JobDirectory = scanDir.DirectoryName;
@@ -497,7 +496,7 @@ namespace Status.Services
             Console.WriteLine("Found new Job Xml File: " + scanDir.XmlFileName);
 
             // Add initial entry to status list
-            StatusEntry(monitorData.Job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
+            StatusEntry(monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED);
 
             // Read Job Xml file and get the top node name
             XmlDocument XmlDoc = new XmlDocument();
@@ -518,6 +517,9 @@ namespace Status.Services
             monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
             int NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
             monitorData.NumFilesToTransfer = NumFilesToTransfer;
+
+            // Add initial entry to status list
+            StatusEntry(monitorData.Job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
 
             // Create the Transfered file list from the Xml file entries
             monitorData.transferedFileList = new List<string>(NumFilesToTransfer);
