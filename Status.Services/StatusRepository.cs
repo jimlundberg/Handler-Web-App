@@ -63,7 +63,7 @@ namespace Status.Services
         private readonly IEnumerable<String> CurrentDirectoryList;
         public string DirectoryName;
         public string JobDirectory;
-        public string JobName;
+        public string SerialNumber;
         public string Job;
         public string TimeStamp;
         public string XmlFileName;
@@ -101,7 +101,7 @@ namespace Status.Services
                 {
                     JobDirectory = dir;
                     Job = JobDirectory.Remove(0, DirectoryName.Length + 1);
-                    JobName = Job.Substring(0, Job.IndexOf("_"));
+                    SerialNumber = Job.Substring(0, Job.IndexOf("_"));
                     int start = Job.IndexOf("_") + 1;
                     TimeStamp = Job.Substring(start, Job.Length - start);
                     Console.WriteLine("Found new directory " + JobDirectory);
@@ -390,7 +390,7 @@ namespace Status.Services
             {
                 new StatusMonitorData() {
                     Job = "Job Field",
-                    JobName = "Job Name Field",
+                    SerialNumber = "Serial Number Field",
                     TimeStamp = "Time Stamp Field",
                     JobDirectory = "Job Directory Field",
                     IniFileName = ".ini File Name Field",
@@ -485,15 +485,15 @@ namespace Status.Services
             // Set data found 
             monitorData.Job = scanDir.Job;
             monitorData.JobDirectory = scanDir.DirectoryName;
-            monitorData.JobName = scanDir.JobName;
+            monitorData.SerialNumber = scanDir.SerialNumber;
             monitorData.TimeStamp = scanDir.TimeStamp;
             monitorData.XmlFileName = scanDir.XmlFileName;
 
             // Display data found
             Console.WriteLine("");
             Console.WriteLine("Found new Job: " + scanDir.Job);
-            Console.WriteLine("Found new JobName: " + scanDir.JobName);
-            Console.WriteLine("Found new Timestamp: " + scanDir.TimeStamp);
+            Console.WriteLine("Found new Serial Number: " + scanDir.SerialNumber);
+            Console.WriteLine("Found new Time Stamp: " + scanDir.TimeStamp);
             Console.WriteLine("Found new Job Xml File: " + scanDir.XmlFileName);
 
             // Add initial entry to status list
@@ -627,20 +627,20 @@ namespace Status.Services
                 if (passFail == "Pass")
                 {
                     // Move Processing Buffer Files to the Finished directory if passed
-                    MoveFiles.CopyDir(ProcessingBufferDir, monitorData.FinishedDir + @"\" + monitorData.JobName);
+                    MoveFiles.CopyDir(ProcessingBufferDir, monitorData.FinishedDir + @"\" + monitorData.SerialNumber);
 
                     // If the Repository directory does not exist, create it
-                    bool exists = System.IO.Directory.Exists(monitorData.RepositoryDir + @"\" + monitorData.JobName);
+                    bool exists = System.IO.Directory.Exists(monitorData.RepositoryDir + @"\" + monitorData.SerialNumber);
                     if (!exists)
                     {
-                        System.IO.Directory.CreateDirectory(monitorData.RepositoryDir + @"\" + monitorData.JobName);
+                        System.IO.Directory.CreateDirectory(monitorData.RepositoryDir + @"\" + monitorData.SerialNumber);
                     }
 
                     // Copy the Transfered files to the repository directory 
                     for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
                     {
                         MoveFiles.CopyFile(monitorData.ProcessingDir + @"\" + monitorData.Job + @"\" + monitorData.transferedFileList[i],
-                                           monitorData.RepositoryDir + @"\" + monitorData.JobName + @"\" + monitorData.transferedFileList[i]);
+                                           monitorData.RepositoryDir + @"\" + monitorData.SerialNumber + @"\" + monitorData.transferedFileList[i]);
                     }
                 }
                 else if (passFail == "Fail")

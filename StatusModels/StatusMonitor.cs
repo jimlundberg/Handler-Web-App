@@ -7,7 +7,7 @@ namespace StatusModels
     public class StatusMonitorData
     {
         public string Job { get; set; }
-        public string JobName { get; set; }
+        public string SerialNumber { get; set; }
         public string TimeStamp { get; set; }
         public string JobDirectory { get; set; }
         public string IniFileName { get; set; }
