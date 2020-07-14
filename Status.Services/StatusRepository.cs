@@ -75,13 +75,19 @@ namespace Status.Services
 
             try
             {
-                Console.WriteLine("Current Directories:");
-
                 // Get Current baseline directory list
                 CurrentDirectoryList = Directory.GetDirectories(directoryName, "*", SearchOption.TopDirectoryOnly);
-                foreach (string dir in CurrentDirectoryList)
+                if (CurrentDirectoryList.Count() > 0)
                 {
-                    Console.WriteLine(dir);
+                    Console.WriteLine("\nFound the following jobs:");
+                    foreach (string dir in CurrentDirectoryList)
+                    {
+                        Console.WriteLine(dir);
+                    }
+                }
+                else 
+                {
+                    Console.WriteLine("\nWaiting for new job(s)...");
                 }
             }
             catch (Exception e)
@@ -626,22 +632,22 @@ namespace Status.Services
                 string passFail = OverallResult.InnerText;
                 if (passFail == "Pass")
                 {
-                    // Move Processing Buffer Files to the Finished directory if passed
-                    MoveFiles.CopyDir(ProcessingBufferDir, monitorData.FinishedDir + @"\" + monitorData.SerialNumber);
-
-                    // If the Repository directory does not exist, create it
-                    bool exists = System.IO.Directory.Exists(monitorData.RepositoryDir + @"\" + monitorData.SerialNumber);
+                    // If the Finished directory does not exist, create it
+                    bool exists = System.IO.Directory.Exists(monitorData.FinishedDir + @"\" + monitorData.SerialNumber);
                     if (!exists)
                     {
-                        System.IO.Directory.CreateDirectory(monitorData.RepositoryDir + @"\" + monitorData.SerialNumber);
+                        System.IO.Directory.CreateDirectory(monitorData.FinishedDir + @"\" + monitorData.SerialNumber);
                     }
 
-                    // Copy the Transfered files to the repository directory 
+                    // Copy the Transfered files to the Finished directory 
                     for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
                     {
                         MoveFiles.CopyFile(monitorData.ProcessingDir + @"\" + monitorData.Job + @"\" + monitorData.transferedFileList[i],
-                                           monitorData.RepositoryDir + @"\" + monitorData.SerialNumber + @"\" + monitorData.transferedFileList[i]);
+                                           monitorData.FinishedDir   + @"\" + monitorData.SerialNumber + @"\" + monitorData.transferedFileList[i]);
                     }
+
+                    // Move Processing Buffer Files to the Repository directory if passed
+                    MoveFiles.CopyDir(ProcessingBufferDir, monitorData.RepositoryDir + @"\" + monitorData.SerialNumber);
                 }
                 else if (passFail == "Fail")
                 {
