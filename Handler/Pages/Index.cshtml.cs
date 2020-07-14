@@ -23,7 +23,7 @@ namespace Handler.Pages
 
         public void OnGet()
         {
-            Message = "Modeling Handler time: " + DateTime.Now.ToLocalTime();
+            Message = "Modeling Handler " + DateTime.Now.ToLocalTime();
         }
     }
 }
