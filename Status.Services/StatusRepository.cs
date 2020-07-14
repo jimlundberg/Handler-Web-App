@@ -536,9 +536,6 @@ namespace Status.Services
                 monitorData.transferedFileList.Add(TransferedFileXml.InnerText);
             }
 
-            // Add entry of received job to status list
-            StatusEntry(monitorData.Job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
-
             // Monitor the Input directory until it has the total number of consumed files
             String InputBufferDir = monitorData.JobDirectory + @"\" + monitorData.Job;
             bool found = File.Exists(InputBufferDir);
@@ -630,7 +627,7 @@ namespace Status.Services
                 if (passFail == "Pass")
                 {
                     // Move Processing Buffer Files to the Finished directory if passed
-                    MoveFiles.CopyDir(ProcessingBufferDir, monitorData.FinishedDir + @"\" + monitorData.Job);
+                    MoveFiles.CopyDir(ProcessingBufferDir, monitorData.FinishedDir + @"\" + monitorData.JobName);
 
                     // If the Repository directory does not exist, create it
                     bool exists = System.IO.Directory.Exists(monitorData.RepositoryDir + @"\" + monitorData.JobName);
