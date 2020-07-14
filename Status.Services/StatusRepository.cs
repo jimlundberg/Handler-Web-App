@@ -448,7 +448,7 @@ namespace Status.Services
             MonitorDataRepository();
 
             // Check that Config.ini file exists
-            string IniFileName = @"C:\SSMCharacterizationHandler\Application\Handler\Config.ini";
+            string IniFileName = @"C:\SSMCharacterizationHandler\Handler\Config.ini";
             if (File.Exists(IniFileName) == false)
             {
                 throw new System.InvalidOperationException("Config.ini file does not exist in the Handler directory");
@@ -464,9 +464,9 @@ namespace Status.Services
             monitorData.FinishedDir = IniParser.Read("Paths", "Finished");
             monitorData.ErrorDir = IniParser.Read("Paths", "Error");
             monitorData.ModelerRootDir = IniParser.Read("Paths", "ModelerRootDir");
-            monitorData.Modeler = IniParser.Read("Process", "Modeler");
             monitorData.CPUCores = Int32.Parse(IniParser.Read("Process", "CPUCores"));
             monitorData.StartPort = Int32.Parse(IniParser.Read("Process", "StartPort"));
+            monitorData.LogFile = IniParser.Read("Process", "LogFile");
 
             string timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
             monitorData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
@@ -517,6 +517,7 @@ namespace Status.Services
             monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
             int NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
             monitorData.NumFilesToTransfer = NumFilesToTransfer;
+            monitorData.Modeler = ModelerNode.InnerText;
 
             // Add initial entry to status list
             StatusEntry(monitorData.Job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
@@ -549,7 +550,7 @@ namespace Status.Services
 
             // Add entry to status list
             StatusEntry(monitorData.Job, JobStatus.EXECUTING, JobType.TIME_RECIEVED);
-#if Foo
+
             // Load and execute command line generator
             CommandLineGenerator cl = new CommandLineGenerator();
             cl.SetExecutableFile(monitorData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
@@ -579,7 +580,7 @@ namespace Status.Services
                 Thread.Sleep(30000);
             }
             while (true);
-#endif
+
             // Add entry to status list
             StatusEntry(monitorData.Job, JobStatus.MONITORING_PROCESSING, JobType.TIME_RECIEVED);
 
