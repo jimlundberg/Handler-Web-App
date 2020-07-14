@@ -11,6 +11,7 @@ using System.Net.Sockets;
 using System.Timers;
 using StatusModels;
 using System.Linq;
+using System.Net;
 
 namespace Status.Services
 {
@@ -265,7 +266,7 @@ namespace Status.Services
             var proc = new Process();
             proc.StartInfo.FileName = Executable;
             proc.StartInfo.Arguments = string.Format(@"{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
-            proc.StartInfo.UseShellExecute = true;
+            proc.StartInfo.UseShellExecute = false;
             proc.StartInfo.RedirectStandardOutput = true;
           //Console.WriteLine("\n{0} {1}", proc.StartInfo.FileName, proc.StartInfo.Arguments);
             proc.Start();
@@ -503,15 +504,17 @@ namespace Status.Services
             String xmlFileName = monitorData.JobDirectory + @"\" + scanDir.Job + @"\" + scanDir.XmlFileName;
             XmlDoc.Load(xmlFileName);
             XmlElement root = XmlDoc.DocumentElement;
-            String TopNode = root.LocalName; 
+            String TopNode = root.LocalName;
 
             // Get nodes for the number of files and names of files to transfer from Job .xml file
+            XmlNode UnitNumberdNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/listitem/value");
             XmlNode ConsumedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Consumed");
             XmlNode ProducedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Produced");
             XmlNode TransferedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Transfered");
             XmlNode ModelerNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
 
             // Get the modeler and number of files to transfer
+            monitorData.UnitNumber = UnitNumberdNode.InnerText;
             monitorData.Modeler = ModelerNode.InnerText;
             monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
             monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
@@ -533,8 +536,8 @@ namespace Status.Services
                 monitorData.transferedFileList.Add(TransferedFileXml.InnerText);
             }
 
-            // Add entry to status list
-            StatusEntry(monitorData.Job, JobStatus.MONITORING_INPUT, JobType.TIME_RECIEVED);
+            // Add entry of received job to status list
+            StatusEntry(monitorData.Job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
 
             // Monitor the Input directory until it has the total number of consumed files
             String InputBufferDir = monitorData.JobDirectory + @"\" + monitorData.Job;
@@ -542,47 +545,55 @@ namespace Status.Services
             MonitorDirectoryFiles.MonitorDirectory(InputBufferDir, monitorData.NumFilesConsumed, monitorData.MaxTimeLimit);
 
             // Add entry to status list
-            StatusEntry(monitorData.Job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_RECIEVED);
+            StatusEntry(monitorData.Job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
 
             // Move files from Input directory to the Processing directory, creating it first if needed
             String ProcessingBufferDir = monitorData.ProcessingDir + @"\" + monitorData.Job;
             MoveFiles.MoveDir(InputBufferDir, ProcessingBufferDir);
 
             // Add entry to status list
-            StatusEntry(monitorData.Job, JobStatus.EXECUTING, JobType.TIME_RECIEVED);
+            StatusEntry(monitorData.Job, JobStatus.EXECUTING, JobType.TIME_START);
 
             // Load and execute command line generator
-            CommandLineGenerator cl = new CommandLineGenerator();
-            cl.SetExecutableFile(monitorData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
-            cl.SetRepositoryDir(ProcessingBufferDir);
-            cl.SetStartPort(monitorData.StartPort);
-            cl.SetCpuCores(monitorData.CPUCores);
-            CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
-            Thread thread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
-            thread.Start();
-            //thread.Join();  // Join makes you wait for thread to complete
+            //CommandLineGenerator cl = new CommandLineGenerator();
+            //cl.SetExecutableFile(monitorData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
+            //cl.SetRepositoryDir(ProcessingBufferDir);
+            //cl.SetStartPort(monitorData.StartPort);
+            //cl.SetCpuCores(monitorData.CPUCores);
+            //CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
+            //Thread thread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
+            //thread.Start();
 
-            do
-            {
-                // Timed listen for Modeler TCP/IP response
-                TcpIpConnection.SetTimer();
+            //do
+            //{
+            //    // Timed listen for Modeler TCP/IP response
+            //    TcpIpConnection.SetTimer();
+            //    string response;
+            //    do
+            //    {
+            //        response = Console.ReadLine();
+            //        Console.WriteLine("Scan TCP/IP at {0:HH:mm:ss.fff}", DateTime.Now);
+            //        Console.WriteLine(response);
 
-             // Console.WriteLine("Press enter to read Modeler TCP/IP");
-                string response = Console.ReadLine();
-                Console.WriteLine("Scan TCP/IP at {0:HH:mm:ss.fff}", DateTime.Now);
-                Console.WriteLine(response);
+            //        // Not sure what the messages are yet
+            //        switch (response)
+            //        {
+            //            case "Complete":
+            //                break;
+            //        }
 
-                // Not sure what the messages are yet
-                if (response == "Complete") break;
+            //        Thread.Sleep(5000);
+            //    }
+            //    while (response != "Complete");
 
-                TcpIpConnection.aTimer.Stop();
-                TcpIpConnection.aTimer.Dispose();
-                Thread.Sleep(30000);
-            }
-            while (true);
+            //    TcpIpConnection.aTimer.Stop();
+            //    TcpIpConnection.aTimer.Dispose();
+            //    Thread.Sleep(30000);
+            //}
+            //while (true);
 
             // Add entry to status list
-            StatusEntry(monitorData.Job, JobStatus.MONITORING_PROCESSING, JobType.TIME_RECIEVED);
+            StatusEntry(monitorData.Job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
 
             // Monitor for complete set of files in the Processing Buffer
             Console.WriteLine("Monitoring for Processing output files...");
@@ -590,7 +601,7 @@ namespace Status.Services
             if (MonitorDirectoryFiles.MonitorDirectory(ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, monitorData.MaxTimeLimit))
             {
                 // Add copy entry to status list
-                StatusEntry(monitorData.Job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_RECIEVED);
+                StatusEntry(monitorData.Job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START);
 
                 // Check .Xml output file for pass/fail
                 bool XmlFileFound = false;
@@ -656,4 +667,3 @@ namespace Status.Services
         }
     }
 }
-
