@@ -17,43 +17,43 @@ namespace Status.Services
 {
     public class IniFile
     {
-        string Path;
-        string EXE = Assembly.GetExecutingAssembly().GetName().Name;
+        String Path;
+        String EXE = Assembly.GetExecutingAssembly().GetName().Name;
 
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
-        static extern long WritePrivateProfileString(string Key, string Section, string Value, string FilePath);
+        static extern long WritePrivateProfileString(String Key, String Section, String Value, String FilePath);
 
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
-        static extern int GetPrivateProfileString(string Key, string Section, string Default, StringBuilder RetVal, int Size, string FilePath);
+        static extern int GetPrivateProfileString(String Key, String Section, String Default, StringBuilder RetVal, int Size, String FilePath);
 
-        public IniFile(string IniPath = null)
+        public IniFile(String IniPath = null)
         {
             Path = new FileInfo(IniPath ?? EXE + ".ini").FullName;
         }
 
-        public string Read(string Section, string Key = null)
+        public String Read(String Section, String Key = null)
         {
             StringBuilder RetVal = new StringBuilder(255);
             int length = GetPrivateProfileString(Section ?? EXE, Key, "", RetVal, 255, Path);
             return RetVal.ToString();
         }
 
-        public void Write(string Key, string Value, string Section = null)
+        public void Write(String Key, String Value, String Section = null)
         {
             WritePrivateProfileString(Section ?? EXE, Key, Value, Path);
         }
 
-        public void DeleteKey(string Key, string Section = null)
+        public void DeleteKey(String Key, String Section = null)
         {
             Write(Key, null, Section ?? EXE);
         }
 
-        public void DeleteSection(string Section = null)
+        public void DeleteSection(String Section = null)
         {
             Write(null, null, Section ?? EXE);
         }
 
-        public bool KeyExists(string Key, string Section = null)
+        public bool KeyExists(String Key, String Section = null)
         {
             return Read(Key, Section).Length > 0;
         }
@@ -61,14 +61,14 @@ namespace Status.Services
     public class ScanInputBufferDirectory
     {
         private readonly IEnumerable<String> CurrentDirectoryList;
-        public string DirectoryName;
-        public string JobDirectory;
-        public string SerialNumber;
-        public string Job;
-        public string TimeStamp;
-        public string XmlFileName;
+        public String DirectoryName;
+        public String JobDirectory;
+        public String JobSerialNumber;
+        public String Job;
+        public String TimeStamp;
+        public String XmlFileName;
 
-        public ScanInputBufferDirectory(string directoryName)
+        public ScanInputBufferDirectory(String directoryName)
         {
             // Save directory name for class use
             DirectoryName = directoryName;
@@ -80,7 +80,7 @@ namespace Status.Services
                 if (CurrentDirectoryList.Count() > 0)
                 {
                     Console.WriteLine("\nFound the following jobs:");
-                    foreach (string dir in CurrentDirectoryList)
+                    foreach (String dir in CurrentDirectoryList)
                     {
                         Console.WriteLine(dir);
                     }
@@ -101,13 +101,13 @@ namespace Status.Services
             try
             {
                 // Get new directory list
-                string[] newDirectoryList = Directory.GetDirectories(DirectoryName, "*", SearchOption.TopDirectoryOnly);
+                String[] newDirectoryList = Directory.GetDirectories(DirectoryName, "*", SearchOption.TopDirectoryOnly);
                 IEnumerable<String> differenceQuery = newDirectoryList.Except(CurrentDirectoryList);
                 foreach (String dir in differenceQuery)
                 {
                     JobDirectory = dir;
                     Job = JobDirectory.Remove(0, DirectoryName.Length + 1);
-                    SerialNumber = Job.Substring(0, Job.IndexOf("_"));
+                    JobSerialNumber = Job.Substring(0, Job.IndexOf("_"));
                     int start = Job.IndexOf("_") + 1;
                     TimeStamp = Job.Substring(start, Job.Length - start);
                     Console.WriteLine("Found new directory " + JobDirectory);
@@ -116,7 +116,7 @@ namespace Status.Services
                     bool XmlFileFound = false;
                     do
                     {
-                        string[] files = System.IO.Directory.GetFiles(dir, "*.xml");
+                        String[] files = System.IO.Directory.GetFiles(dir, "*.xml");
                         if (files.Length > 0)
                         {
                             XmlFileName = Path.GetFileName(files[0]);
@@ -165,16 +165,16 @@ namespace Status.Services
         }
     }
 
-    public class MoveFiles
+    public class FileHandling
     {
-        public static void CopyDir(string sourceDirectory, string targetDirectory)
+        public static void CopyDir(String sourceDirectory, String targetDirectory)
         {
             DirectoryInfo Source = new DirectoryInfo(sourceDirectory);
             DirectoryInfo Target = new DirectoryInfo(targetDirectory);
             CopyAllFiles(Source, Target);
         }
 
-        public static void MoveDir(string sourceDirectory, string targetDirectory)
+        public static void MoveDir(String sourceDirectory, String targetDirectory)
         {
             DirectoryInfo Source = new DirectoryInfo(sourceDirectory);
             DirectoryInfo Target = new DirectoryInfo(targetDirectory);
@@ -183,8 +183,8 @@ namespace Status.Services
                 try
                 {
                     // Delete all files first
-                    string[] files = Directory.GetFiles(targetDirectory);
-                    foreach (string file in files)
+                    String[] files = Directory.GetFiles(targetDirectory);
+                    foreach (String file in files)
                     {
                         File.Delete(file);
                         Console.WriteLine($"{file} is deleted.");
@@ -218,7 +218,7 @@ namespace Status.Services
             Console.WriteLine(@"Copied {0} -> {1}", sourceDirectory, targetDirectory);
         }
 
-        public static void CopyFile(string sourceFile, string targetFile)
+        public static void CopyFile(String sourceFile, String targetFile)
         {
             FileInfo Source = new FileInfo(sourceFile);
             if (File.Exists(targetFile))
@@ -253,31 +253,31 @@ namespace Status.Services
 
     public class CommandLineGenerator
     {
-        private string cmd;
-        private string Executable = "Executable";
-        private string ProcessingDir = "Processing dir";
-        private string StartPort = "Start Port";
-        private string CpuCores = "Cpu Cores";
+        private String cmd;
+        private String Executable = "Executable";
+        private String ProcessingDir = "Processing dir";
+        private String StartPort = "Start Port";
+        private String CpuCores = "Cpu Cores";
 
         public CommandLineGenerator() { }
-        public string GetCurrentDirector() { return Directory.GetCurrentDirectory(); }
-        public void SetExecutableFile(string _Executable) { Executable = _Executable; }
-        public void SetRepositoryDir(string _ProcessingDir) { ProcessingDir = "-d " + _ProcessingDir; }
+        public String GetCurrentDirector() { return Directory.GetCurrentDirectory(); }
+        public void SetExecutableFile(String _Executable) { Executable = _Executable; }
+        public void SetRepositoryDir(String _ProcessingDir) { ProcessingDir = "-d " + _ProcessingDir; }
         public void SetStartPort(int _StartPort) { StartPort = "-s " + _StartPort.ToString(); }
         public void SetCpuCores(int _CpuCores) { CpuCores = "-p " + _CpuCores.ToString(); }
-        public string AddToCommandLine(string addCmd) { return (cmd += addCmd); }
+        public String AddToCommandLine(String addCmd) { return (cmd += addCmd); }
 
         public void ExecuteCommand()
         {
             var proc = new Process();
             proc.StartInfo.FileName = Executable;
-            proc.StartInfo.Arguments = string.Format(@"{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
+            proc.StartInfo.Arguments = String.Format(@"{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
             proc.StartInfo.UseShellExecute = false;
             proc.StartInfo.RedirectStandardOutput = true;
           //Console.WriteLine("\n{0} {1}", proc.StartInfo.FileName, proc.StartInfo.Arguments);
             proc.Start();
 
-            string outPut = proc.StandardOutput.ReadToEnd();
+            String outPut = proc.StandardOutput.ReadToEnd();
             Console.WriteLine(outPut);
 
             proc.WaitForExit();
@@ -389,6 +389,7 @@ namespace Status.Services
         private List<StatusData> _statusList = new List<StatusData>();
         private StatusMonitorData monitorData = new StatusMonitorData();
         private StatusData statusData = new StatusData();
+        private int GlobalJobIndex = 0;
 
         public void MonitorDataRepository()
         {
@@ -396,25 +397,31 @@ namespace Status.Services
             {
                 new StatusMonitorData() {
                     Job = "Job Field",
-                    SerialNumber = "Serial Number Field",
+                    JobIndex = GlobalJobIndex,
+                    JobSerialNumber = "Job Serial Number Field",
                     TimeStamp = "Time Stamp Field",
                     JobDirectory = "Job Directory Field",
                     IniFileName = ".ini File Name Field",
-                    XmlFileName = ".xML File Name Field",
+                    InputDir = "Input File Name Field",
+                    UploadDir = "Upload Directory Field",
                     ProcessingDir = "Processing Directory Field",
                     RepositoryDir = "Archieve Directory Field",
                     FinishedDir = "Finished Directory Field",
                     ErrorDir = "Error Directory Field",
                     ModelerRootDir = "Modeler Root Directory Field",
+                    XmlFileName = ".xML File Name Field",
                     UnitNumber = "Unit Number Field",
-                    CPUCores = 0,
                     Modeler = "Modeler Field",
+                    CPUCores = 0,
+                    ExecutionLimit = 1,
+                    ExecutionCount = 0,
                     MaxTimeLimit = 0,
-                    StartPort = 0,
+                    StartPort = 3000,
                     LogFile = "Log File Field",
                     NumFilesConsumed = 0,
                     NumFilesProduced = 0,
-                    NumFilesToTransfer = 0
+                    NumFilesToTransfer = 0,
+                    transferedFileList = new List<String>()
                 }
             };
         }
@@ -423,7 +430,7 @@ namespace Status.Services
         {
             _statusList = new List<StatusData>()
             {
-                new StatusData() { Job = "1307106_202002181300", JobStatus = JobStatus.JOB_STARTED, TimeReceived = DateTime.Now,  TimeStarted = DateTime.Now,  TimeCompleted = DateTime.Now }
+                new StatusData() { Job = "Job Field", JobStatus = JobStatus.JOB_STARTED, TimeReceived = DateTime.Now,  TimeStarted = DateTime.Now,  TimeCompleted = DateTime.Now }
             };
         }
 
@@ -449,41 +456,15 @@ namespace Status.Services
             _statusList.Add(entry);
         }
 
-        public IEnumerable<StatusMonitorData> GetMonitorStatus()
+        public void ScanForJob()
         {
-            // Get initial data
-            MonitorDataRepository();
-
-            // Check that Config.ini file exists
-            string IniFileName = @"C:\SSMCharacterizationHandler\Handler\Config.ini";
-            if (File.Exists(IniFileName) == false)
-            {
-                throw new System.InvalidOperationException("Config.ini file does not exist in the Handler directory");
-            }
-
-            // Get information from the Config.ini file
-            var IniParser = new IniFile(IniFileName);
-            monitorData.IniFileName = IniFileName;
-            monitorData.Modeler = IniParser.Read("Process", "Modeler");
-            monitorData.UploadDir = IniParser.Read("Paths", "Upload");
-            monitorData.ProcessingDir = IniParser.Read("Paths", "Processing");
-            monitorData.RepositoryDir = IniParser.Read("Paths", "Repository");
-            monitorData.FinishedDir = IniParser.Read("Paths", "Finished");
-            monitorData.ErrorDir = IniParser.Read("Paths", "Error");
-            monitorData.ModelerRootDir = IniParser.Read("Paths", "ModelerRootDir");
-            monitorData.CPUCores = Int32.Parse(IniParser.Read("Process", "CPUCores"));
-            monitorData.StartPort = Int32.Parse(IniParser.Read("Process", "StartPort"));
-            monitorData.LogFile = IniParser.Read("Process", "LogFile");
-
-            string timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
-            monitorData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
-
             // Start scan for new directory in the Input Buffer
-            ScanInputBufferDirectory scanDir = new ScanInputBufferDirectory(@"C:\SSMCharacterizationHandler\Input Buffer");
+            ScanInputBufferDirectory scanDir = new ScanInputBufferDirectory(monitorData.InputDir);
             bool foundNewDirectory;
             do
             {
                 foundNewDirectory = scanDir.ScanForNewDirectory();
+                monitorData.ExecutionCount++;
                 Thread.Sleep(1000);
             }
             while (foundNewDirectory == false);
@@ -491,24 +472,31 @@ namespace Status.Services
             // Set data found 
             monitorData.Job = scanDir.Job;
             monitorData.JobDirectory = scanDir.DirectoryName;
-            monitorData.SerialNumber = scanDir.SerialNumber;
+            monitorData.JobSerialNumber = scanDir.JobSerialNumber;
             monitorData.TimeStamp = scanDir.TimeStamp;
             monitorData.XmlFileName = scanDir.XmlFileName;
+            monitorData.JobIndex = GlobalJobIndex++;
 
             // Display data found
             Console.WriteLine("");
-            Console.WriteLine("Found new Job: " + scanDir.Job);
-            Console.WriteLine("Found new Serial Number: " + scanDir.SerialNumber);
-            Console.WriteLine("Found new Time Stamp: " + scanDir.TimeStamp);
-            Console.WriteLine("Found new Job Xml File: " + scanDir.XmlFileName);
+            Console.WriteLine("Found new Job: " + monitorData.Job);
+            Console.WriteLine("New Job Directory: " + monitorData.JobDirectory);
+            Console.WriteLine("New Serial Number: " + monitorData.JobSerialNumber);
+            Console.WriteLine("New Time Stamp: " + monitorData.TimeStamp);
+            Console.WriteLine("New Job Xml File: " + monitorData.XmlFileName);
+
+            RunJob(monitorData.Job, monitorData.XmlFileName);
 
             // Add initial entry to status list
             StatusEntry(monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED);
+        }
 
+        public void RunJob(String job, String xmlFileName)
+        { 
             // Read Job Xml file and get the top node name
             XmlDocument XmlDoc = new XmlDocument();
-            String xmlFileName = monitorData.JobDirectory + @"\" + scanDir.Job + @"\" + scanDir.XmlFileName;
-            XmlDoc.Load(xmlFileName);
+            String xmlFile = monitorData.JobDirectory + @"\" + job + @"\" + xmlFileName;
+            XmlDoc.Load(xmlFile);
             XmlElement root = XmlDoc.DocumentElement;
             String TopNode = root.LocalName;
 
@@ -529,10 +517,10 @@ namespace Status.Services
             monitorData.Modeler = ModelerNode.InnerText;
 
             // Add initial entry to status list
-            StatusEntry(monitorData.Job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
+            StatusEntry(job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
 
             // Create the Transfered file list from the Xml file entries
-            monitorData.transferedFileList = new List<string>(NumFilesToTransfer);
+            monitorData.transferedFileList = new List<String>(NumFilesToTransfer);
             List<XmlNode> TransFeredFileXml = new List<XmlNode>();
             monitorData.transferedFileList = new List<String>();
             for (int i = 1; i < NumFilesToTransfer + 1; i++)
@@ -543,19 +531,19 @@ namespace Status.Services
             }
 
             // Monitor the Input directory until it has the total number of consumed files
-            String InputBufferDir = monitorData.JobDirectory + @"\" + monitorData.Job;
+            String InputBufferDir = monitorData.JobDirectory + @"\" + job;
             bool found = File.Exists(InputBufferDir);
             MonitorDirectoryFiles.MonitorDirectory(InputBufferDir, monitorData.NumFilesConsumed, monitorData.MaxTimeLimit);
 
             // Add entry to status list
-            StatusEntry(monitorData.Job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
+            StatusEntry(job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
 
             // Move files from Input directory to the Processing directory, creating it first if needed
-            String ProcessingBufferDir = monitorData.ProcessingDir + @"\" + monitorData.Job;
-            MoveFiles.MoveDir(InputBufferDir, ProcessingBufferDir);
+            String ProcessingBufferDir = monitorData.ProcessingDir + @"\" + job;
+            FileHandling.MoveDir(InputBufferDir, ProcessingBufferDir);
 
             // Add entry to status list
-            StatusEntry(monitorData.Job, JobStatus.EXECUTING, JobType.TIME_START);
+            StatusEntry(job, JobStatus.EXECUTING, JobType.TIME_START);
 
             // Load and execute command line generator
             //CommandLineGenerator cl = new CommandLineGenerator();
@@ -571,7 +559,7 @@ namespace Status.Services
             //{
             //    // Timed listen for Modeler TCP/IP response
             //    TcpIpConnection.SetTimer();
-            //    string response;
+            //    String response;
             //    do
             //    {
             //        response = Console.ReadLine();
@@ -596,7 +584,7 @@ namespace Status.Services
             //while (true);
 
             // Add entry to status list
-            StatusEntry(monitorData.Job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
+            StatusEntry(job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
 
             // Monitor for complete set of files in the Processing Buffer
             Console.WriteLine("Monitoring for Processing output files...");
@@ -604,7 +592,7 @@ namespace Status.Services
             if (MonitorDirectoryFiles.MonitorDirectory(ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, monitorData.MaxTimeLimit))
             {
                 // Add copy entry to status list
-                StatusEntry(monitorData.Job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START);
+                StatusEntry(job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START);
 
                 // Check .Xml output file for pass/fail
                 bool XmlFileFound = false;
@@ -612,7 +600,7 @@ namespace Status.Services
                 // Check for Data.xml in the Processing Directory
                 do
                 {
-                    string[] files = System.IO.Directory.GetFiles(ProcessingBufferDir, "Data.xml");
+                    String[] files = System.IO.Directory.GetFiles(ProcessingBufferDir, "Data.xml");
                     if (files.Length > 0)
                     {
                         xmlFileName = files[0];
@@ -629,38 +617,81 @@ namespace Status.Services
 
                 // Get the pass or fail data from the OverallResult node
                 XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
-                string passFail = OverallResult.InnerText;
+                String passFail = OverallResult.InnerText;
                 if (passFail == "Pass")
                 {
                     // If the Finished directory does not exist, create it
-                    bool exists = System.IO.Directory.Exists(monitorData.FinishedDir + @"\" + monitorData.SerialNumber);
+                    bool exists = System.IO.Directory.Exists(monitorData.FinishedDir + @"\" + monitorData.JobSerialNumber);
                     if (!exists)
                     {
-                        System.IO.Directory.CreateDirectory(monitorData.FinishedDir + @"\" + monitorData.SerialNumber);
+                        System.IO.Directory.CreateDirectory(monitorData.FinishedDir + @"\" + monitorData.JobSerialNumber);
                     }
 
                     // Copy the Transfered files to the Finished directory 
                     for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
                     {
-                        MoveFiles.CopyFile(monitorData.ProcessingDir + @"\" + monitorData.Job + @"\" + monitorData.transferedFileList[i],
-                                           monitorData.FinishedDir   + @"\" + monitorData.SerialNumber + @"\" + monitorData.transferedFileList[i]);
+                        FileHandling.CopyFile(monitorData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
+                                           monitorData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
                     }
 
                     // Move Processing Buffer Files to the Repository directory if passed
-                    MoveFiles.CopyDir(ProcessingBufferDir, monitorData.RepositoryDir + @"\" + monitorData.SerialNumber);
+                    FileHandling.MoveDir(ProcessingBufferDir, monitorData.RepositoryDir + @"\" + monitorData.JobSerialNumber);
                 }
                 else if (passFail == "Fail")
                 {
                     // Move fils to the Error directory if failed
-                    MoveFiles.CopyDir(ProcessingBufferDir, monitorData.ErrorDir + @"\" + monitorData.Job);
+                    FileHandling.CopyDir(ProcessingBufferDir, monitorData.ErrorDir + @"\" + job);
                 }
 
                 // Add entry to status list
-                StatusEntry(monitorData.Job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
+                StatusEntry(job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
             }
 
             _monitorList.Clear();
             _monitorList.Add(monitorData);
+        }
+
+        public IEnumerable<StatusMonitorData> GetMonitorStatus()
+        {
+            // Get initial data
+            MonitorDataRepository();
+
+            // Check that Config.ini file exists
+            String IniFileName = @"C:\SSMCharacterizationHandler\Handler\Config.ini";
+            if (File.Exists(IniFileName) == false)
+            {
+                throw new System.InvalidOperationException("Config.ini file does not exist in the Handler directory");
+            }
+
+            // Get information from the Config.ini file
+            var IniParser = new IniFile(IniFileName);
+            monitorData.IniFileName = IniFileName;
+            monitorData.InputDir = IniParser.Read("Paths", "Input");
+            monitorData.Modeler = IniParser.Read("Process", "Modeler");
+            monitorData.UploadDir = IniParser.Read("Paths", "Upload");
+            monitorData.ProcessingDir = IniParser.Read("Paths", "Processing");
+            monitorData.RepositoryDir = IniParser.Read("Paths", "Repository");
+            monitorData.FinishedDir = IniParser.Read("Paths", "Finished");
+            monitorData.ErrorDir = IniParser.Read("Paths", "Error");
+            monitorData.ModelerRootDir = IniParser.Read("Paths", "ModelerRootDir");
+            monitorData.CPUCores = Int32.Parse(IniParser.Read("Process", "CPUCores"));
+            monitorData.ExecutionLimit = Int32.Parse(IniParser.Read("Process", "ExecutionLimit"));
+            monitorData.StartPort = Int32.Parse(IniParser.Read("Process", "StartPort"));
+            monitorData.LogFile = IniParser.Read("Process", "LogFile");
+            String timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
+            monitorData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
+            monitorData.ExecutionCount = 0;
+
+            // Create MonitorData multirecord tracking database
+            List<StatusMonitorData> StatusMonitorDataList = new List<StatusMonitorData>();
+
+            // Monitor for jobs and keep count
+            do
+            {
+                ScanForJob();
+            }
+            while (monitorData.ExecutionCount < monitorData.ExecutionLimit);
+
             return _monitorList;
         }
 
