@@ -125,6 +125,7 @@ namespace Status.Services
                         }
 
                         Thread.Sleep(500);
+
                     }
                     while (XmlFileFound == false);
 
@@ -315,7 +316,7 @@ namespace Status.Services
         {
             try
             {
-                // set current port number
+                // Set current port number
                 PortNumber = port;
 
                 // Create a TcpClient.
@@ -327,7 +328,7 @@ namespace Status.Services
                 Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
 
                 // Get a client stream for reading and writing.
-                //  Stream stream = client.GetStream();
+                // Stream stream = client.GetStream();
                 NetworkStream stream = client.GetStream();
 
                 // Send the message to the connected TcpServer.
@@ -472,9 +473,6 @@ namespace Status.Services
             }
             while (foundNewDirectory == false);
 
-            // Increment execution count to track job by this as an index number
-            monitorData.ExecutionCount++;
-
             // Set data found 
             monitorData.Job = scanDir.Job;
             monitorData.JobDirectory = scanDir.DirectoryName;
@@ -491,7 +489,17 @@ namespace Status.Services
             Console.WriteLine("New Time Stamp        = " + monitorData.TimeStamp);
             Console.WriteLine("New Job Xml File      = " + monitorData.XmlFileName);
 
-            RunJob(monitorData.Job, monitorData.XmlFileName);
+            // Increment execution count to track job by this as an index number
+            monitorData.ExecutionCount++;
+
+            if (monitorData.ExecutionCount < monitorData.ExecutionLimit)
+            {
+                RunJob(monitorData.Job, monitorData.XmlFileName);
+            }
+            else
+            {
+                Console.WriteLine("Job Index {0} Exceeded Execution Limit of {1}", monitorData.ExecutionCount, monitorData.ExecutionLimit);
+            }
         }
 
         public void RunJob(String job, String xmlFile)
@@ -577,7 +585,7 @@ namespace Status.Services
             //CommandLineGenerator cl = new CommandLineGenerator();
             //cl.SetExecutableFile(monitorData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
             //cl.SetRepositoryDir(ProcessingBufferDir);
-            //cl.SetStartPort(monitorData.StartPort);
+            //cl.SetStartPort(monitorData.JobPortNumber);
             //cl.SetCpuCores(monitorData.CPUCores);
             //CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
             //Thread thread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
@@ -710,12 +718,11 @@ namespace Status.Services
             monitorData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             monitorData.ExecutionCount = 0;
 
-            // Monitor for jobs and keep count
-          //do
+            // Constantly xcan for new jobs after page activation
+//          while (true)
             {
                 ScanForJob();
             }
-          //while (true);
 
             return _monitorList;
         }
