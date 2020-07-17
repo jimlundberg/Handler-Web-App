@@ -12,6 +12,7 @@ using System.Timers;
 using StatusModels;
 using System.Linq;
 using System.Net;
+using System.Runtime.CompilerServices;
 
 namespace Status.Services
 {
@@ -306,30 +307,33 @@ namespace Status.Services
 
     public class TcpIpConnection
     {
+        public static System.Timers.Timer aTimer;
+        static public int portNumber;
+
         static void Connect(String server, Int32 port, String message)
         {
             try
             {
+                // set current port number
+                portNumber = port;
+
                 // Create a TcpClient.
                 // Note, for this client to work you need to have a TcpServer
-                // connected to the same address as specified by the server, port
-                // combination.
-                TcpClient client = new TcpClient(server, port);
+                // connected to the same address as specified by the server, port combination.
+                TcpClient client = new TcpClient(server, portNumber);
 
                 // Translate the passed message into ASCII and store it as a Byte array.
                 Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
 
                 // Get a client stream for reading and writing.
                 //  Stream stream = client.GetStream();
-
                 NetworkStream stream = client.GetStream();
 
                 // Send the message to the connected TcpServer.
                 stream.Write(data, 0, data.Length);
 
-                Console.WriteLine("Sent: {0}", message);
-
                 // Receive the TcpServer.response.
+                Console.WriteLine("Sent: {0}", message);
 
                 // Buffer to store the response bytes.
                 data = new Byte[256];
@@ -359,8 +363,6 @@ namespace Status.Services
             Console.Read();
         }
 
-        public static System.Timers.Timer aTimer;
-
         public static void SetTimer()
         {
             // Create a timer with a five second interval.
@@ -378,7 +380,7 @@ namespace Status.Services
                               e.SignalTime);
 
             // Check modeler status
-            Connect("127.0.0.1", 3000, "status");
+            Connect("127.0.0.1", portNumber, "status");
             Console.ReadLine();
         }
     }
@@ -486,13 +488,13 @@ namespace Status.Services
             Console.WriteLine("New Job Xml File: " + monitorData.XmlFileName);
 
             RunJob(monitorData.Job, monitorData.XmlFileName);
-
-            // Add initial entry to status list
-            StatusEntry(monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED);
         }
 
         public void RunJob(String job, String xmlFileName)
-        { 
+        {
+            // Add initial entry to status list
+            StatusEntry(monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED);
+
             // Read Job Xml file and get the top node name
             XmlDocument XmlDoc = new XmlDocument();
             String xmlFile = monitorData.JobDirectory + @"\" + job + @"\" + xmlFileName;
@@ -507,14 +509,22 @@ namespace Status.Services
             XmlNode TransferedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Transfered");
             XmlNode ModelerNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
 
-            // Get the modeler and number of files to transfer
-            monitorData.UnitNumber = UnitNumberdNode.InnerText;
-            monitorData.Modeler = ModelerNode.InnerText;
-            monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
-            monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
-            int NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
-            monitorData.NumFilesToTransfer = NumFilesToTransfer;
-            monitorData.Modeler = ModelerNode.InnerText;
+            int NumFilesToTransfer = 0;
+            try
+            {
+                // Get the modeler and number of files to transfer
+                monitorData.UnitNumber = UnitNumberdNode.InnerText;
+                monitorData.Modeler = ModelerNode.InnerText;
+                monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
+                monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
+                NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
+                monitorData.NumFilesToTransfer = NumFilesToTransfer;
+                monitorData.Modeler = ModelerNode.InnerText;
+            }
+            catch
+            {
+                Console.WriteLine("Missing Xml File data");
+            }
 
             // Add initial entry to status list
             StatusEntry(job, JobStatus.MONITORING_INPUT, JobType.TIME_START);

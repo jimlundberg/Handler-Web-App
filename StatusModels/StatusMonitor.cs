@@ -19,6 +19,7 @@ namespace StatusModels
         public String RepositoryDir { get; set; }
         public String FinishedDir { get; set; }
         public String ErrorDir { get; set; }
+        public String LogFile { get; set; }
         public String ModelerRootDir { get; set; }
         public String XmlFileName { get; set; }
         public String UnitNumber { get; set; }
@@ -28,7 +29,6 @@ namespace StatusModels
         public int ExecutionCount{ get; set; }
         public int MaxTimeLimit { get; set; }
         public int StartPort { get; set; }
-        public String LogFile { get; set; }
         public int NumFilesConsumed { get; set; }
         public int NumFilesProduced { get; set; }
         public int NumFilesToTransfer { get; set; }
