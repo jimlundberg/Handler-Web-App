@@ -14,7 +14,6 @@ namespace StatusModels
         public String JobDirectory { get; set; }
         public String IniFileName { get; set; }
         public String InputDir { get; set; }
-        public String UploadDir { get; set; }
         public String ProcessingDir { get; set; }
         public String RepositoryDir { get; set; }
         public String FinishedDir { get; set; }

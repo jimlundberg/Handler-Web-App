@@ -88,7 +88,7 @@ namespace Status.Services
                 }
                 else 
                 {
-                    Console.WriteLine("\nWaiting for new job(s)...");
+                    Console.WriteLine("\nWaiting for new job...");
                 }
             }
             catch (Exception e)
@@ -97,7 +97,7 @@ namespace Status.Services
             }
         }
 
-        public bool ScanForNewDirectory()
+        public bool ScanForNewJob()
         {
             try
             {
@@ -385,6 +385,237 @@ namespace Status.Services
         }
     }
 
+    public class JobRunThread
+    {
+        // State information used in the task.
+        private StatusMonitorData MonitorData;
+        private List<StatusData> StatusData;
+
+        // The constructor obtains the state information.
+        public JobRunThread(StatusMonitorData monitorData, List<StatusData> statusData)
+        {
+            MonitorData = monitorData;
+            StatusData = statusData;
+        }
+
+        // The thread procedure performs the task
+        public void ThreadProc()
+        {
+            RunJob(MonitorData, StatusData);
+        }
+
+        public void StatusEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot)
+        {
+            StatusData entry = new StatusData();
+            entry.Job = job;
+            entry.JobStatus = status;
+            switch (timeSlot)
+            {
+                case JobType.TIME_START:
+                    entry.TimeStarted = DateTime.Now;
+                    break;
+
+                case JobType.TIME_RECIEVED:
+                    entry.TimeReceived = DateTime.Now;
+                    break;
+
+                case JobType.TIME_COMPLETE:
+                    entry.TimeCompleted = DateTime.Now;
+                    break;
+            }
+
+            statusList.Add(entry);
+            Console.WriteLine("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
+        }
+
+        public void RunJob(StatusMonitorData monitorData, List<StatusData> statusData)
+        {
+            // Add initial entry to status list
+            StatusEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED);
+
+            // Wait until Xml file is copied to the Processing directory
+            String job = monitorData.Job;
+            String xmlFileName = monitorData.InputDir + @"\" + job + @"\" + monitorData.XmlFileName;
+            XmlDocument XmlDoc = new XmlDocument();
+            try
+            {
+                // Read Job Xml file
+                XmlDoc.Load(xmlFileName);
+            }
+            catch
+            {
+                Console.WriteLine("***** Missing Xml File data *****");
+            }
+
+            // Get the top node of the Xml file
+            XmlElement root = XmlDoc.DocumentElement;
+            String TopNode = root.LocalName;
+
+            // Get nodes for the number of files and names of files to transfer from Job .xml file
+            XmlNode UnitNumberdNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/listitem/value");
+            XmlNode ConsumedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Consumed");
+            XmlNode ProducedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Produced");
+            XmlNode TransferedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Transfered");
+            XmlNode ModelerNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
+
+            // Assign port number for this Job
+            monitorData.JobPortNumber = monitorData.StartPort + monitorData.JobIndex;
+
+            // Get the modeler and number of files to transfer
+            monitorData.UnitNumber = UnitNumberdNode.InnerText;
+            monitorData.Modeler = ModelerNode.InnerText;
+            monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
+            monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
+            int NumFilesToTransfer = 0;
+            NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
+            monitorData.NumFilesToTransfer = NumFilesToTransfer;
+
+            // Get the modeler and number of files to transfer
+            Console.WriteLine("Unit Number           = " + monitorData.UnitNumber);
+            Console.WriteLine("Modeler               = " + monitorData.Modeler);
+            Console.WriteLine("Num Files Consumed    = " + monitorData.NumFilesConsumed);
+            Console.WriteLine("Num Files Produced    = " + monitorData.NumFilesProduced);
+            Console.WriteLine("Num Files To Transfer = " + monitorData.NumFilesToTransfer);
+            Console.WriteLine("Num Files To Transfer = " + monitorData.NumFilesToTransfer);
+            Console.WriteLine("Job Port Number       = " + monitorData.JobPortNumber);
+
+            // Add initial entry to status list
+            StatusEntry(statusData, job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
+
+            // Create the Transfered file list from the Xml file entries
+            monitorData.transferedFileList = new List<String>(NumFilesToTransfer);
+            List<XmlNode> TransFeredFileXml = new List<XmlNode>();
+            monitorData.transferedFileList = new List<String>();
+            for (int i = 1; i < NumFilesToTransfer + 1; i++)
+            {
+                String transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
+                XmlNode TransferedFileXml = XmlDoc.DocumentElement.SelectSingleNode(transferFileNodeName);
+                monitorData.transferedFileList.Add(TransferedFileXml.InnerText);
+                Console.WriteLine("Transfer File{0}        = {1}", i, TransferedFileXml.InnerText);
+            }
+
+            // Monitor the Input directory until it has the total number of consumed files
+            String InputBufferDir = monitorData.JobDirectory + @"\" + job;
+            bool found = File.Exists(InputBufferDir);
+            MonitorDirectoryFiles.MonitorDirectory(InputBufferDir, monitorData.NumFilesConsumed, monitorData.MaxTimeLimit);
+
+            // Add entry to status list
+            StatusEntry(statusData, job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
+
+            // Move files from Input directory to the Processing directory, creating it first if needed
+            String ProcessingBufferDir = monitorData.ProcessingDir + @"\" + job;
+            FileHandling.MoveDir(InputBufferDir, ProcessingBufferDir);
+
+            // Add entry to status list
+            StatusEntry(statusData, job, JobStatus.EXECUTING, JobType.TIME_START);
+
+            // Load and execute command line generator
+            //CommandLineGenerator cl = new CommandLineGenerator();
+            //cl.SetExecutableFile(monitorData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
+            //cl.SetRepositoryDir(ProcessingBufferDir);
+            //cl.SetStartPort(monitorData.JobPortNumber);
+            //cl.SetCpuCores(monitorData.CPUCores);
+            //CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
+            //Thread thread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
+            //thread.Start();
+
+            //do
+            //{
+            //    // Timed listen for Modeler TCP/IP response
+            //    TcpIpConnection.SetTimer();
+            //    String response;
+            //    do
+            //    {
+            //        response = Console.ReadLine();
+            //        Console.WriteLine("Scan TCP/IP at {0:HH:mm:ss.fff}", DateTime.Now);
+            //        Console.WriteLine(response);
+
+            //        // Not sure what the messages are yet
+            //        switch (response)
+            //        {
+            //            case "Complete":
+            //                break;
+            //        }
+
+            //        Thread.Sleep(5000);
+            //    }
+            //    while (response != "Complete");
+
+            //    TcpIpConnection.aTimer.Stop();
+            //    TcpIpConnection.aTimer.Dispose();
+            //    Thread.Sleep(30000);
+            //}
+            //while (true);
+
+            // Add entry to status list
+            StatusEntry(statusData, job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
+
+            // Monitor for complete set of files in the Processing Buffer
+            Console.WriteLine("Monitoring for Processing output files...");
+            int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
+            if (MonitorDirectoryFiles.MonitorDirectory(ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, monitorData.MaxTimeLimit))
+            {
+                // Add copy entry to status list
+                StatusEntry(statusData, job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START);
+
+                // Check .Xml output file for pass/fail
+                bool XmlFileFound = false;
+
+                // Check for Data.xml in the Processing Directory
+                do
+                {
+                    String[] files = System.IO.Directory.GetFiles(ProcessingBufferDir, "Data.xml");
+                    if (files.Length > 0)
+                    {
+                        xmlFileName = files[0];
+                        XmlFileFound = true;
+                    }
+
+                    Thread.Sleep(500);
+                }
+                while (XmlFileFound == false);
+
+                // Read output Xml file data
+                XmlDocument XmlOutputDoc = new XmlDocument();
+                XmlDoc.Load(xmlFileName);
+
+                // Get the pass or fail data from the OverallResult node
+                XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
+                String passFail = OverallResult.InnerText;
+                if (passFail == "Pass")
+                {
+                    // If the Finished directory does not exist, create it
+                    bool exists = System.IO.Directory.Exists(monitorData.FinishedDir + @"\" + monitorData.JobSerialNumber);
+                    if (!exists)
+                    {
+                        System.IO.Directory.CreateDirectory(monitorData.FinishedDir + @"\" + monitorData.JobSerialNumber);
+                    }
+
+                    // Copy the Transfered files to the Finished directory 
+                    for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
+                    {
+                        FileHandling.CopyFile(monitorData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
+                                            monitorData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
+                    }
+
+                    // Move Processing Buffer Files to the Repository directory if passed
+                    FileHandling.MoveDir(ProcessingBufferDir, monitorData.RepositoryDir + @"\" + monitorData.JobSerialNumber);
+                }
+                else if (passFail == "Fail")
+                {
+                    // Move fils to the Error directory if failed
+                    FileHandling.CopyDir(ProcessingBufferDir, monitorData.ErrorDir + @"\" + job);
+                }
+
+                // Add entry to status list
+                StatusEntry(statusData, job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
+            }
+
+            //_monitorList.Clear();
+            //_monitorList.Add(monitorData);
+        }
+    }
+
     public class StatusRepository : IStatusRepository
     {
         private List<StatusMonitorData> _monitorList = new List<StatusMonitorData>();
@@ -405,7 +636,6 @@ namespace Status.Services
                     JobDirectory = "Job Directory Field",
                     IniFileName = ".ini File Name Field",
                     InputDir = "Input File Name Field",
-                    UploadDir = "Upload Directory Field",
                     ProcessingDir = "Processing Directory Field",
                     RepositoryDir = "Archieve Directory Field",
                     FinishedDir = "Finished Directory Field",
@@ -465,15 +695,15 @@ namespace Status.Services
         {
             // Start scan for new directory in the Input Buffer
             ScanInputBufferDirectory scanDir = new ScanInputBufferDirectory(monitorData.InputDir);
-            bool foundNewDirectory;
+            bool foundNewJob;
             do
             {
-                foundNewDirectory = scanDir.ScanForNewDirectory();
+                foundNewJob = scanDir.ScanForNewJob();
                 Thread.Sleep(1000);
             }
-            while (foundNewDirectory == false);
+            while (foundNewJob == false);
 
-            // Set data found 
+            // Set data found
             monitorData.Job = scanDir.Job;
             monitorData.JobDirectory = scanDir.DirectoryName;
             monitorData.JobSerialNumber = scanDir.JobSerialNumber;
@@ -492,199 +722,23 @@ namespace Status.Services
             // Increment execution count to track job by this as an index number
             monitorData.ExecutionCount++;
 
-            if (monitorData.ExecutionCount < monitorData.ExecutionLimit)
+            if (monitorData.ExecutionCount <= monitorData.ExecutionLimit)
             {
-                RunJob(monitorData.Job, monitorData.XmlFileName);
+                // Supply the state information required by the task.
+                JobRunThread jobThread = new JobRunThread(monitorData, _statusList);
+
+                // Create a thread to execute the task, and then start the thread.
+                Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
+                t.Start();
+                Console.WriteLine("Starting Job " + monitorData.Job);
+                t.Join();
+                Console.WriteLine("Job {0} has completed", monitorData.Job);
             }
             else
             {
-                Console.WriteLine("Job Index {0} Exceeded Execution Limit of {1}", monitorData.ExecutionCount, monitorData.ExecutionLimit);
+                Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
+                    monitorData.Job, monitorData.ExecutionCount, monitorData.ExecutionLimit);
             }
-        }
-
-        public void RunJob(String job, String xmlFile)
-        {
-            // Add initial entry to status list
-            StatusEntry(monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED);
-
-            // Wait until Xml file is copied to the Processing directory
-            String xmlFileName = monitorData.InputDir + @"\" + job + @"\" + xmlFile;
-            XmlDocument XmlDoc = new XmlDocument();
-            try
-            {
-                // Read Job Xml file
-                XmlDoc.Load(xmlFileName);
-            }
-            catch
-            {
-                Console.WriteLine("***** Missing Xml File data *****");
-            }
-
-            // Get the top node of the Xml file
-            XmlElement root = XmlDoc.DocumentElement;
-            String TopNode = root.LocalName;
-
-            // Get nodes for the number of files and names of files to transfer from Job .xml file
-            XmlNode UnitNumberdNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/listitem/value");
-            XmlNode ConsumedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Consumed");
-            XmlNode ProducedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Produced");
-            XmlNode TransferedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Transfered");
-            XmlNode ModelerNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
-
-            // Assign port number for this Job
-            monitorData.JobPortNumber = monitorData.StartPort + monitorData.JobIndex;
-
-            // Get the modeler and number of files to transfer
-            monitorData.UnitNumber = UnitNumberdNode.InnerText;
-            monitorData.Modeler = ModelerNode.InnerText;
-            monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
-            monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
-            int NumFilesToTransfer = 0;
-            NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
-            monitorData.NumFilesToTransfer = NumFilesToTransfer;
-
-            // Get the modeler and number of files to transfer
-            Console.WriteLine("Unit Number           = " + monitorData.UnitNumber);
-            Console.WriteLine("Modeler               = " + monitorData.Modeler);
-            Console.WriteLine("Num Files Consumed    = " + monitorData.NumFilesConsumed);
-            Console.WriteLine("Num Files Produced    = " + monitorData.NumFilesProduced);
-            Console.WriteLine("Num Files To Transfer = " + monitorData.NumFilesToTransfer);
-            Console.WriteLine("Num Files To Transfer = " + monitorData.NumFilesToTransfer);
-            Console.WriteLine("Job Port Number       = " + monitorData.JobPortNumber);
-
-            // Add initial entry to status list
-            StatusEntry(job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
-
-            // Create the Transfered file list from the Xml file entries
-            monitorData.transferedFileList = new List<String>(NumFilesToTransfer);
-            List<XmlNode> TransFeredFileXml = new List<XmlNode>();
-            monitorData.transferedFileList = new List<String>();
-            for (int i = 1; i < NumFilesToTransfer + 1; i++)
-            {
-                String transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
-                XmlNode TransferedFileXml = XmlDoc.DocumentElement.SelectSingleNode(transferFileNodeName);
-                monitorData.transferedFileList.Add(TransferedFileXml.InnerText);
-            }
-
-            // Monitor the Input directory until it has the total number of consumed files
-            String InputBufferDir = monitorData.JobDirectory + @"\" + job;
-            bool found = File.Exists(InputBufferDir);
-            MonitorDirectoryFiles.MonitorDirectory(InputBufferDir, monitorData.NumFilesConsumed, monitorData.MaxTimeLimit);
-
-            // Add entry to status list
-            StatusEntry(job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
-
-            // Move files from Input directory to the Processing directory, creating it first if needed
-            String ProcessingBufferDir = monitorData.ProcessingDir + @"\" + job;
-            FileHandling.MoveDir(InputBufferDir, ProcessingBufferDir);
-
-            // Add entry to status list
-            StatusEntry(job, JobStatus.EXECUTING, JobType.TIME_START);
-
-            // Load and execute command line generator
-            //CommandLineGenerator cl = new CommandLineGenerator();
-            //cl.SetExecutableFile(monitorData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
-            //cl.SetRepositoryDir(ProcessingBufferDir);
-            //cl.SetStartPort(monitorData.JobPortNumber);
-            //cl.SetCpuCores(monitorData.CPUCores);
-            //CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
-            //Thread thread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
-            //thread.Start();
-
-            //do
-            //{
-            //    // Timed listen for Modeler TCP/IP response
-            //    TcpIpConnection.SetTimer();
-            //    String response;
-            //    do
-            //    {
-            //        response = Console.ReadLine();
-            //        Console.WriteLine("Scan TCP/IP at {0:HH:mm:ss.fff}", DateTime.Now);
-            //        Console.WriteLine(response);
-
-            //        // Not sure what the messages are yet
-            //        switch (response)
-            //        {
-            //            case "Complete":
-            //                break;
-            //        }
-
-            //        Thread.Sleep(5000);
-            //    }
-            //    while (response != "Complete");
-
-            //    TcpIpConnection.aTimer.Stop();
-            //    TcpIpConnection.aTimer.Dispose();
-            //    Thread.Sleep(30000);
-            //}
-            //while (true);
-
-            // Add entry to status list
-            StatusEntry(job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
-
-            // Monitor for complete set of files in the Processing Buffer
-            Console.WriteLine("Monitoring for Processing output files...");
-            int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
-            if (MonitorDirectoryFiles.MonitorDirectory(ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, monitorData.MaxTimeLimit))
-            {
-                // Add copy entry to status list
-                StatusEntry(job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START);
-
-                // Check .Xml output file for pass/fail
-                bool XmlFileFound = false;
-
-                // Check for Data.xml in the Processing Directory
-                do
-                {
-                    String[] files = System.IO.Directory.GetFiles(ProcessingBufferDir, "Data.xml");
-                    if (files.Length > 0)
-                    {
-                        xmlFileName = files[0];
-                        XmlFileFound = true;
-                    }
-
-                    Thread.Sleep(500);
-                }
-                while (XmlFileFound == false);
-
-                // Read output Xml file data
-                XmlDocument XmlOutputDoc = new XmlDocument();
-                XmlDoc.Load(xmlFileName);
-
-                // Get the pass or fail data from the OverallResult node
-                XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
-                String passFail = OverallResult.InnerText;
-                if (passFail == "Pass")
-                {
-                    // If the Finished directory does not exist, create it
-                    bool exists = System.IO.Directory.Exists(monitorData.FinishedDir + @"\" + monitorData.JobSerialNumber);
-                    if (!exists)
-                    {
-                        System.IO.Directory.CreateDirectory(monitorData.FinishedDir + @"\" + monitorData.JobSerialNumber);
-                    }
-
-                    // Copy the Transfered files to the Finished directory 
-                    for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
-                    {
-                        FileHandling.CopyFile(monitorData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
-                                           monitorData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
-                    }
-
-                    // Move Processing Buffer Files to the Repository directory if passed
-                    FileHandling.MoveDir(ProcessingBufferDir, monitorData.RepositoryDir + @"\" + monitorData.JobSerialNumber);
-                }
-                else if (passFail == "Fail")
-                {
-                    // Move fils to the Error directory if failed
-                    FileHandling.CopyDir(ProcessingBufferDir, monitorData.ErrorDir + @"\" + job);
-                }
-
-                // Add entry to status list
-                StatusEntry(job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
-            }
-
-            _monitorList.Clear();
-            _monitorList.Add(monitorData);
         }
 
         public IEnumerable<StatusMonitorData> GetMonitorStatus()
@@ -704,7 +758,6 @@ namespace Status.Services
             monitorData.IniFileName = IniFileName;
             monitorData.InputDir = IniParser.Read("Paths", "Input");
             monitorData.Modeler = IniParser.Read("Process", "Modeler");
-            monitorData.UploadDir = IniParser.Read("Paths", "Upload");
             monitorData.ProcessingDir = IniParser.Read("Paths", "Processing");
             monitorData.RepositoryDir = IniParser.Read("Paths", "Repository");
             monitorData.FinishedDir = IniParser.Read("Paths", "Finished");
