@@ -444,7 +444,7 @@ namespace Status.Services
             }
             catch
             {
-                Console.WriteLine("***** Missing Xml File data *****");
+                throw new System.InvalidOperationException("Missing Xml File data");
             }
 
             // Get the top node of the Xml file
@@ -496,8 +496,14 @@ namespace Status.Services
 
             // Monitor the Input directory until it has the total number of consumed files
             String InputBufferDir = monitorData.JobDirectory + @"\" + job;
-            bool found = File.Exists(InputBufferDir);
-            MonitorDirectoryFiles.MonitorDirectory(InputBufferDir, monitorData.NumFilesConsumed, monitorData.MaxTimeLimit);
+            if (Directory.Exists(InputBufferDir))
+            {
+                MonitorDirectoryFiles.MonitorDirectory(InputBufferDir, monitorData.NumFilesConsumed, monitorData.MaxTimeLimit);
+            }
+            else
+            {
+                throw new System.InvalidOperationException("Could not find Input Buffer Directory ");
+            }
 
             // Add entry to status list
             StatusEntry(statusData, job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
@@ -693,51 +699,54 @@ namespace Status.Services
 
         public void ScanForJob()
         {
-            // Start scan for new directory in the Input Buffer
-            ScanInputBufferDirectory scanDir = new ScanInputBufferDirectory(monitorData.InputDir);
-            bool foundNewJob;
-            do
+            while (true) // Loop all the time
             {
-                foundNewJob = scanDir.ScanForNewJob();
-                Thread.Sleep(1000);
-            }
-            while (foundNewJob == false);
+                // Start scan for new directory in the Input Buffer
+                ScanInputBufferDirectory scanDir = new ScanInputBufferDirectory(monitorData.InputDir);
+                bool foundNewJob = false;
+                do
+                {
+                    foundNewJob = scanDir.ScanForNewJob();
+                    Thread.Sleep(1000);
+                }
+                while (foundNewJob == false);
 
-            // Set data found
-            monitorData.Job = scanDir.Job;
-            monitorData.JobDirectory = scanDir.DirectoryName;
-            monitorData.JobSerialNumber = scanDir.JobSerialNumber;
-            monitorData.TimeStamp = scanDir.TimeStamp;
-            monitorData.XmlFileName = scanDir.XmlFileName;
-            monitorData.JobIndex = GlobalJobIndex++;
+                // Set data found
+                monitorData.Job = scanDir.Job;
+                monitorData.JobDirectory = scanDir.DirectoryName;
+                monitorData.JobSerialNumber = scanDir.JobSerialNumber;
+                monitorData.TimeStamp = scanDir.TimeStamp;
+                monitorData.XmlFileName = scanDir.XmlFileName;
+                monitorData.JobIndex = GlobalJobIndex++;
 
-            // Display data found
-            Console.WriteLine("");
-            Console.WriteLine("Found new Job         = " + monitorData.Job);
-            Console.WriteLine("New Job Directory     = " + monitorData.JobDirectory);
-            Console.WriteLine("New Serial Number     = " + monitorData.JobSerialNumber);
-            Console.WriteLine("New Time Stamp        = " + monitorData.TimeStamp);
-            Console.WriteLine("New Job Xml File      = " + monitorData.XmlFileName);
+                // Display data found
+                Console.WriteLine("");
+                Console.WriteLine("Found new Job         = " + monitorData.Job);
+                Console.WriteLine("New Job Directory     = " + monitorData.JobDirectory);
+                Console.WriteLine("New Serial Number     = " + monitorData.JobSerialNumber);
+                Console.WriteLine("New Time Stamp        = " + monitorData.TimeStamp);
+                Console.WriteLine("New Job Xml File      = " + monitorData.XmlFileName);
 
-            // Increment execution count to track job by this as an index number
-            monitorData.ExecutionCount++;
+                // Increment execution count to track job by this as an index number
+                monitorData.ExecutionCount++;
 
-            if (monitorData.ExecutionCount <= monitorData.ExecutionLimit)
-            {
-                // Supply the state information required by the task.
-                JobRunThread jobThread = new JobRunThread(monitorData, _statusList);
+                if (monitorData.ExecutionCount <= monitorData.ExecutionLimit)
+                {
+                    // Supply the state information required by the task.
+                    JobRunThread jobThread = new JobRunThread(monitorData, _statusList);
 
-                // Create a thread to execute the task, and then start the thread.
-                Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
-                t.Start();
-                Console.WriteLine("Starting Job " + monitorData.Job);
-                t.Join();
-                Console.WriteLine("Job {0} has completed", monitorData.Job);
-            }
-            else
-            {
-                Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
-                    monitorData.Job, monitorData.ExecutionCount, monitorData.ExecutionLimit);
+                    // Create a thread to execute the task, and then start the thread.
+                    Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
+                    t.Start();
+                    Console.WriteLine("Starting Job " + monitorData.Job);
+                    t.Join();
+                    Console.WriteLine("Job {0} has completed", monitorData.Job);
+                }
+                else
+                {
+                    Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
+                        monitorData.Job, monitorData.ExecutionCount, monitorData.ExecutionLimit);
+                }
             }
         }
 
@@ -771,11 +780,8 @@ namespace Status.Services
             monitorData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             monitorData.ExecutionCount = 0;
 
-            // Constantly xcan for new jobs after page activation
-//          while (true)
-            {
-                ScanForJob();
-            }
+            // Start scan for new jobs after page activation
+            ScanForJob();
 
             return _monitorList;
         }
