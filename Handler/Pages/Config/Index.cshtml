@@ -4,7 +4,7 @@
     ViewData["Title"] = "Config Page";
 }
 
-<h2>Handler Configuration</h2>
+<h2>Job Handler Configuration</h2>
 
 <ul>
     @foreach (var config in Model.monitorData)
@@ -30,6 +30,7 @@
         <li>Execution Count = @config.ExecutionCount</li>
         <li>Max Time Limit = @config.MaxTimeLimit</li>
         <li>Start Port = @config.StartPort</li>
+        <li>Job Port Number Assigned = @config.JobPortNumber</li>
         <li>Num Files Consumed = @config.NumFilesConsumed</li>
         <li>Num Files Produced = @config.NumFilesProduced</li>
         <li>Num Files To Transfer = @config.NumFilesToTransfer</li>

@@ -29,6 +29,7 @@ namespace StatusModels
         public int ExecutionCount{ get; set; }
         public int MaxTimeLimit { get; set; }
         public int StartPort { get; set; }
+        public int JobPortNumber { get; set; }
         public int NumFilesConsumed { get; set; }
         public int NumFilesProduced { get; set; }
         public int NumFilesToTransfer { get; set; }

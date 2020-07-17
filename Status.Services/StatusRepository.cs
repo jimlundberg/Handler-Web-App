@@ -150,7 +150,8 @@ namespace Status.Services
             do
             {
                 int numberOfFilesFound = Directory.GetFiles(monitoredDir, "*", SearchOption.TopDirectoryOnly).Length;
-                Console.WriteLine("{0} has {1} files at {2} seconds", monitoredDir, numberOfFilesFound, numberOfSeconds);
+                Console.WriteLine("{0} has {1} files of {2} at {3} seconds",
+                    monitoredDir, numberOfFilesFound, numberOfFilesNeeded, numberOfSeconds);
                 if (numberOfFilesFound >= numberOfFilesNeeded)
                 {
                     Console.WriteLine("Recieved all {0} files", numberOfFilesFound);
@@ -308,19 +309,19 @@ namespace Status.Services
     public class TcpIpConnection
     {
         public static System.Timers.Timer aTimer;
-        static public int portNumber;
+        static public int PortNumber;
 
         static void Connect(String server, Int32 port, String message)
         {
             try
             {
                 // set current port number
-                portNumber = port;
+                PortNumber = port;
 
                 // Create a TcpClient.
                 // Note, for this client to work you need to have a TcpServer
                 // connected to the same address as specified by the server, port combination.
-                TcpClient client = new TcpClient(server, portNumber);
+                TcpClient client = new TcpClient(server, PortNumber);
 
                 // Translate the passed message into ASCII and store it as a Byte array.
                 Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
@@ -376,11 +377,9 @@ namespace Status.Services
 
         public static void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            Console.WriteLine("Modeler status requested at {0:HH:mm:ss.fff}",
-                              e.SignalTime);
-
             // Check modeler status
-            Connect("127.0.0.1", portNumber, "status");
+            Console.WriteLine("Modeler status sent at {0:HH:mm:ss.fff} on port {1}", e.SignalTime, PortNumber);
+            Connect("127.0.0.1", PortNumber, "status");
             Console.ReadLine();
         }
     }
@@ -410,16 +409,17 @@ namespace Status.Services
                     RepositoryDir = "Archieve Directory Field",
                     FinishedDir = "Finished Directory Field",
                     ErrorDir = "Error Directory Field",
+                    LogFile = "Log File Field",
                     ModelerRootDir = "Modeler Root Directory Field",
                     XmlFileName = ".xML File Name Field",
                     UnitNumber = "Unit Number Field",
                     Modeler = "Modeler Field",
                     CPUCores = 0,
-                    ExecutionLimit = 1,
+                    ExecutionLimit = 0,
                     ExecutionCount = 0,
                     MaxTimeLimit = 0,
-                    StartPort = 3000,
-                    LogFile = "Log File Field",
+                    StartPort = 0,
+                    JobPortNumber = 0,
                     NumFilesConsumed = 0,
                     NumFilesProduced = 0,
                     NumFilesToTransfer = 0,
@@ -456,6 +456,8 @@ namespace Status.Services
                     break;
             }
             _statusList.Add(entry);
+
+            Console.WriteLine("Status: Job {0} Job Status {1} Job Type {2}", job, status, timeSlot.ToString());
         }
 
         public void ScanForJob()
@@ -466,10 +468,12 @@ namespace Status.Services
             do
             {
                 foundNewDirectory = scanDir.ScanForNewDirectory();
-                monitorData.ExecutionCount++;
                 Thread.Sleep(1000);
             }
             while (foundNewDirectory == false);
+
+            // Increment execution count to track job by this as an index number
+            monitorData.ExecutionCount++;
 
             // Set data found 
             monitorData.Job = scanDir.Job;
@@ -481,24 +485,34 @@ namespace Status.Services
 
             // Display data found
             Console.WriteLine("");
-            Console.WriteLine("Found new Job: " + monitorData.Job);
-            Console.WriteLine("New Job Directory: " + monitorData.JobDirectory);
-            Console.WriteLine("New Serial Number: " + monitorData.JobSerialNumber);
-            Console.WriteLine("New Time Stamp: " + monitorData.TimeStamp);
-            Console.WriteLine("New Job Xml File: " + monitorData.XmlFileName);
+            Console.WriteLine("Found new Job         = " + monitorData.Job);
+            Console.WriteLine("New Job Directory     = " + monitorData.JobDirectory);
+            Console.WriteLine("New Serial Number     = " + monitorData.JobSerialNumber);
+            Console.WriteLine("New Time Stamp        = " + monitorData.TimeStamp);
+            Console.WriteLine("New Job Xml File      = " + monitorData.XmlFileName);
 
             RunJob(monitorData.Job, monitorData.XmlFileName);
         }
 
-        public void RunJob(String job, String xmlFileName)
+        public void RunJob(String job, String xmlFile)
         {
             // Add initial entry to status list
             StatusEntry(monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED);
 
-            // Read Job Xml file and get the top node name
+            // Wait until Xml file is copied to the Processing directory
+            String xmlFileName = monitorData.InputDir + @"\" + job + @"\" + xmlFile;
             XmlDocument XmlDoc = new XmlDocument();
-            String xmlFile = monitorData.JobDirectory + @"\" + job + @"\" + xmlFileName;
-            XmlDoc.Load(xmlFile);
+            try
+            {
+                // Read Job Xml file
+                XmlDoc.Load(xmlFileName);
+            }
+            catch
+            {
+                Console.WriteLine("***** Missing Xml File data *****");
+            }
+
+            // Get the top node of the Xml file
             XmlElement root = XmlDoc.DocumentElement;
             String TopNode = root.LocalName;
 
@@ -509,22 +523,26 @@ namespace Status.Services
             XmlNode TransferedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Transfered");
             XmlNode ModelerNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
 
+            // Assign port number for this Job
+            monitorData.JobPortNumber = monitorData.StartPort + monitorData.JobIndex;
+
+            // Get the modeler and number of files to transfer
+            monitorData.UnitNumber = UnitNumberdNode.InnerText;
+            monitorData.Modeler = ModelerNode.InnerText;
+            monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
+            monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
             int NumFilesToTransfer = 0;
-            try
-            {
-                // Get the modeler and number of files to transfer
-                monitorData.UnitNumber = UnitNumberdNode.InnerText;
-                monitorData.Modeler = ModelerNode.InnerText;
-                monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
-                monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
-                NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
-                monitorData.NumFilesToTransfer = NumFilesToTransfer;
-                monitorData.Modeler = ModelerNode.InnerText;
-            }
-            catch
-            {
-                Console.WriteLine("Missing Xml File data");
-            }
+            NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
+            monitorData.NumFilesToTransfer = NumFilesToTransfer;
+
+            // Get the modeler and number of files to transfer
+            Console.WriteLine("Unit Number           = " + monitorData.UnitNumber);
+            Console.WriteLine("Modeler               = " + monitorData.Modeler);
+            Console.WriteLine("Num Files Consumed    = " + monitorData.NumFilesConsumed);
+            Console.WriteLine("Num Files Produced    = " + monitorData.NumFilesProduced);
+            Console.WriteLine("Num Files To Transfer = " + monitorData.NumFilesToTransfer);
+            Console.WriteLine("Num Files To Transfer = " + monitorData.NumFilesToTransfer);
+            Console.WriteLine("Job Port Number       = " + monitorData.JobPortNumber);
 
             // Add initial entry to status list
             StatusEntry(job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
@@ -692,15 +710,12 @@ namespace Status.Services
             monitorData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             monitorData.ExecutionCount = 0;
 
-            // Create MonitorData multirecord tracking database
-            List<StatusMonitorData> StatusMonitorDataList = new List<StatusMonitorData>();
-
             // Monitor for jobs and keep count
-            do
+          //do
             {
                 ScanForJob();
             }
-            while (monitorData.ExecutionCount < monitorData.ExecutionLimit);
+          //while (true);
 
             return _monitorList;
         }
