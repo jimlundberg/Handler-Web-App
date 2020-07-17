@@ -737,10 +737,8 @@ namespace Status.Services
 
                     // Create a thread to execute the task, and then start the thread.
                     Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
-                    t.Start();
                     Console.WriteLine("Starting Job " + monitorData.Job);
-                    t.Join();
-                    Console.WriteLine("Job {0} has completed", monitorData.Job);
+                    t.Start();
                 }
                 else
                 {
