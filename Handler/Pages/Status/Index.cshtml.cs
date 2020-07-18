@@ -21,7 +21,7 @@ namespace Handler.Pages.Status
 
         public void OnGet()
         {
-            statusData = statusRepository.GetJobStatus();
+            statusData = statusRepository.GetJobStatus().Reverse();
         }
     }
 }

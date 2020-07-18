@@ -195,9 +195,9 @@ namespace Status.Services
 
                     // Delete the Target directory
                     File.SetAttributes(targetDirectory, FileAttributes.Normal);
-                    Thread.Sleep(100);
+                    Thread.Sleep(250);
                     Target.Delete(true);
-                    Thread.Sleep(100);
+                    Thread.Sleep(250);
                 }
                 catch (UnauthorizedAccessException)
                 {
