@@ -86,10 +86,6 @@ namespace Status.Services
                         Console.WriteLine(dir);
                     }
                 }
-                else 
-                {
-                    Console.WriteLine("\nWaiting for new job...");
-                }
             }
             catch (Exception e)
             {
@@ -472,14 +468,14 @@ namespace Status.Services
             Console.WriteLine("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
         }
 
-        public void RunJob(String directory, StatusMonitorData monitorData, List<StatusData> statusData)
+        public void RunJob(String scanDirectory, StatusMonitorData monitorData, List<StatusData> statusData)
         {
             // Add initial entry to status list
             StatusEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED);
 
-            // Wait until Xml file is copied to the Processing directory
+            // Wait until Xml file is copied to the directory being scanned
             String job = monitorData.Job;
-            String xmlFileName = directory + @"\" + job + @"\" + monitorData.XmlFileName;
+            String xmlFileName = scanDirectory + @"\" + job + @"\" + monitorData.XmlFileName;
             XmlDocument XmlDoc = new XmlDocument();
             try
             {
@@ -549,12 +545,16 @@ namespace Status.Services
                 throw new System.InvalidOperationException("Could not find Input Buffer Directory ");
             }
 
-            // Add entry to status list
-            StatusEntry(statusData, job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
-
-            // Move files from Input directory to the Processing directory, creating it first if needed
+            // If the directory is the Input Buffer, move the directory to Processing
             String ProcessingBufferDir = monitorData.ProcessingDir + @"\" + job;
-            FileHandling.MoveDir(InputBufferDir, ProcessingBufferDir);
+            if (scanDirectory == monitorData.InputDir)
+            {
+                // Add entry to status list
+                StatusEntry(statusData, job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
+
+                // Move files from Input directory to the Processing directory, creating it first if needed
+                FileHandling.MoveDir(InputBufferDir, ProcessingBufferDir);
+            }
 
             // Add entry to status list
             StatusEntry(statusData, job, JobStatus.EXECUTING, JobType.TIME_START);
@@ -747,6 +747,8 @@ namespace Status.Services
             ScanDirectory scanDir = new ScanDirectory(monitorData.ProcessingDir);
             if (scanDir.ScanForProcessingJobs())
             {
+                Console.WriteLine("\nFound unfinished jobs...");
+
                 // Set data found
                 monitorData.Job = scanDir.Job;
                 monitorData.JobDirectory = scanDir.DirectoryName;
@@ -779,6 +781,10 @@ namespace Status.Services
                         monitorData.Job, monitorData.ExecutionCount, monitorData.ExecutionLimit);
                 }
             }
+            else
+            {
+                Console.WriteLine("\nNo Unfinished Jobs found");
+            }
         }
 
         public void ScanForNewJobs()
@@ -788,6 +794,8 @@ namespace Status.Services
                 // Start scan for new directory in the Input Buffer
                 ScanDirectory scanDir = new ScanDirectory(monitorData.InputDir);
                 bool foundNewJob = false;
+
+                Console.WriteLine("\nWaiting for new job...");
                 do
                 {
                     foundNewJob = scanDir.ScanForInputJobs();
