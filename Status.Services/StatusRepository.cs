@@ -59,7 +59,7 @@ namespace Status.Services
             return Read(Key, Section).Length > 0;
         }
     }
-    public class ScanInputBufferDirectory
+    public class ScanDirectory
     {
         private readonly IEnumerable<String> CurrentDirectoryList;
         public String DirectoryName;
@@ -69,7 +69,7 @@ namespace Status.Services
         public String TimeStamp;
         public String XmlFileName;
 
-        public ScanInputBufferDirectory(String directoryName)
+        public ScanDirectory(String directoryName)
         {
             // Save directory name for class use
             DirectoryName = directoryName;
@@ -97,7 +97,49 @@ namespace Status.Services
             }
         }
 
-        public bool ScanForNewJob()
+        public bool ScanForProcessingJobs()
+        {
+            try
+            {
+                // Get new directory list
+                String[] directoryList = Directory.GetDirectories(DirectoryName, "*", SearchOption.TopDirectoryOnly);
+                foreach (String dir in directoryList)
+                {
+                    JobDirectory = dir;
+                    Job = JobDirectory.Remove(0, DirectoryName.Length + 1);
+                    JobSerialNumber = Job.Substring(0, Job.IndexOf("_"));
+                    int start = Job.IndexOf("_") + 1;
+                    TimeStamp = Job.Substring(start, Job.Length - start);
+                    Console.WriteLine("Found Processing directory " + JobDirectory);
+
+                    // Wait until the Xml file shows up
+                    bool XmlFileFound = false;
+                    do
+                    {
+                        String[] files = System.IO.Directory.GetFiles(dir, "*.xml");
+                        if (files.Length > 0)
+                        {
+                            XmlFileName = Path.GetFileName(files[0]);
+                            XmlFileFound = true;
+                        }
+
+                        Thread.Sleep(500);
+
+                    }
+                    while (XmlFileFound == false);
+
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Get Processing directory list failed: {0}", e.ToString());
+            }
+
+            return false;
+        }
+
+        public bool ScanForInputJobs()
         {
             try
             {
@@ -390,18 +432,20 @@ namespace Status.Services
         // State information used in the task.
         private StatusMonitorData MonitorData;
         private List<StatusData> StatusData;
+        private string DirectoryName;
 
         // The constructor obtains the state information.
-        public JobRunThread(StatusMonitorData monitorData, List<StatusData> statusData)
+        public JobRunThread(String directory, StatusMonitorData monitorData, List<StatusData> statusData)
         {
             MonitorData = monitorData;
             StatusData = statusData;
+            DirectoryName = directory;
         }
 
         // The thread procedure performs the task
         public void ThreadProc()
         {
-            RunJob(MonitorData, StatusData);
+            RunJob(DirectoryName, MonitorData, StatusData);
         }
 
         public void StatusEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot)
@@ -428,14 +472,14 @@ namespace Status.Services
             Console.WriteLine("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
         }
 
-        public void RunJob(StatusMonitorData monitorData, List<StatusData> statusData)
+        public void RunJob(String directory, StatusMonitorData monitorData, List<StatusData> statusData)
         {
             // Add initial entry to status list
             StatusEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED);
 
             // Wait until Xml file is copied to the Processing directory
             String job = monitorData.Job;
-            String xmlFileName = monitorData.InputDir + @"\" + job + @"\" + monitorData.XmlFileName;
+            String xmlFileName = directory + @"\" + job + @"\" + monitorData.XmlFileName;
             XmlDocument XmlDoc = new XmlDocument();
             try
             {
@@ -697,16 +741,56 @@ namespace Status.Services
             Console.WriteLine("Status: Job {0} Job Status {1} Job Type {2}", job, status, timeSlot.ToString());
         }
 
-        public void ScanForJob()
+        public void ScanForUnfinishedJobs()
+        {
+            // Start scan for new directory in the Input Buffer
+            ScanDirectory scanDir = new ScanDirectory(monitorData.ProcessingDir);
+            if (scanDir.ScanForProcessingJobs())
+            {
+                // Set data found
+                monitorData.Job = scanDir.Job;
+                monitorData.JobDirectory = scanDir.DirectoryName;
+                monitorData.JobSerialNumber = scanDir.JobSerialNumber;
+                monitorData.TimeStamp = scanDir.TimeStamp;
+                monitorData.XmlFileName = scanDir.XmlFileName;
+                monitorData.JobIndex = GlobalJobIndex++;
+
+                // Display data found
+                Console.WriteLine("");
+                Console.WriteLine("Found unfinished Job  = " + monitorData.Job);
+                Console.WriteLine("New Job Directory     = " + monitorData.JobDirectory);
+                Console.WriteLine("New Serial Number     = " + monitorData.JobSerialNumber);
+                Console.WriteLine("New Time Stamp        = " + monitorData.TimeStamp);
+                Console.WriteLine("New Job Xml File      = " + monitorData.XmlFileName);
+
+                if (monitorData.ExecutionCount <= monitorData.ExecutionLimit)
+                {
+                    // Supply the state information required by the task.
+                    JobRunThread jobThread = new JobRunThread(monitorData.ProcessingDir, monitorData, _statusList);
+
+                    // Create a thread to execute the task, and then start the thread.
+                    Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
+                    Console.WriteLine("Starting Job " + monitorData.Job);
+                    t.Start();
+                }
+                else
+                {
+                    Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
+                        monitorData.Job, monitorData.ExecutionCount, monitorData.ExecutionLimit);
+                }
+            }
+        }
+
+        public void ScanForNewJobs()
         {
             while (true) // Loop all the time
             {
                 // Start scan for new directory in the Input Buffer
-                ScanInputBufferDirectory scanDir = new ScanInputBufferDirectory(monitorData.InputDir);
+                ScanDirectory scanDir = new ScanDirectory(monitorData.InputDir);
                 bool foundNewJob = false;
                 do
                 {
-                    foundNewJob = scanDir.ScanForNewJob();
+                    foundNewJob = scanDir.ScanForInputJobs();
                     Thread.Sleep(1000);
                 }
                 while (foundNewJob == false);
@@ -733,7 +817,7 @@ namespace Status.Services
                 if (monitorData.ExecutionCount <= monitorData.ExecutionLimit)
                 {
                     // Supply the state information required by the task.
-                    JobRunThread jobThread = new JobRunThread(monitorData, _statusList);
+                    JobRunThread jobThread = new JobRunThread(monitorData.InputDir, monitorData, _statusList);
 
                     // Create a thread to execute the task, and then start the thread.
                     Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
@@ -778,8 +862,11 @@ namespace Status.Services
             monitorData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             monitorData.ExecutionCount = 0;
 
-            // Start scan for new jobs after page activation
-            ScanForJob();
+            // Scan for jobs not completed
+            ScanForUnfinishedJobs();
+
+            // Start scan for new jobs
+            ScanForNewJobs();
 
             return _monitorList;
         }
