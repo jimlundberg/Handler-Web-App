@@ -161,9 +161,7 @@ namespace Status.Services
                             XmlFileName = Path.GetFileName(files[0]);
                             XmlFileFound = true;
                         }
-
                         Thread.Sleep(500);
-
                     }
                     while (XmlFileFound == false);
 
@@ -181,7 +179,7 @@ namespace Status.Services
 
     public class MonitorDirectoryFiles
     {
-        public static bool MonitorDirectory(String monitoredDir, int numberOfFilesNeeded, int timeout)
+        public static bool MonitorDirectory(String monitoredDir, int numberOfFilesNeeded, int timeout, int scanTime)
         {
             bool filesFound = false;
             int numberOfSeconds = 0;
@@ -190,14 +188,14 @@ namespace Status.Services
             {
                 int numberOfFilesFound = Directory.GetFiles(monitoredDir, "*", SearchOption.TopDirectoryOnly).Length;
                 Console.WriteLine("{0} has {1} files of {2} at {3} seconds",
-                    monitoredDir, numberOfFilesFound, numberOfFilesNeeded, numberOfSeconds);
+                    monitoredDir, numberOfFilesFound, numberOfFilesNeeded, numberOfSeconds * (scanTime / 1000));
                 if (numberOfFilesFound >= numberOfFilesNeeded)
                 {
                     Console.WriteLine("Recieved all {0} files", numberOfFilesFound);
                     return true;
                 }
 
-                Thread.Sleep(1000);
+                Thread.Sleep(scanTime);
                 numberOfSeconds++;
             } 
             while ((filesFound == false) && (numberOfSeconds < timeout));
@@ -538,7 +536,8 @@ namespace Status.Services
             String InputBufferDir = monitorData.JobDirectory + @"\" + job;
             if (Directory.Exists(InputBufferDir))
             {
-                MonitorDirectoryFiles.MonitorDirectory(InputBufferDir, monitorData.NumFilesConsumed, monitorData.MaxTimeLimit);
+                MonitorDirectoryFiles.MonitorDirectory(
+                    InputBufferDir, monitorData.NumFilesConsumed, monitorData.MaxTimeLimit, monitorData.ScanTime);
             }
             else
             {
@@ -603,7 +602,8 @@ namespace Status.Services
             // Monitor for complete set of files in the Processing Buffer
             Console.WriteLine("Monitoring for Processing output files...");
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
-            if (MonitorDirectoryFiles.MonitorDirectory(ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, monitorData.MaxTimeLimit))
+            if (MonitorDirectoryFiles.MonitorDirectory(
+                ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, monitorData.MaxTimeLimit, monitorData.ScanTime))
             {
                 // Add copy entry to status list
                 StatusEntry(statusData, job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START);
@@ -866,6 +866,7 @@ namespace Status.Services
             monitorData.ExecutionLimit = Int32.Parse(IniParser.Read("Process", "ExecutionLimit"));
             monitorData.StartPort = Int32.Parse(IniParser.Read("Process", "StartPort"));
             monitorData.LogFile = IniParser.Read("Process", "LogFile");
+            monitorData.ScanTime = Int32.Parse(IniParser.Read("Process", "ScanTime"));
             String timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
             monitorData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             monitorData.ExecutionCount = 0;
