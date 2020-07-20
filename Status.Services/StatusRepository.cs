@@ -61,7 +61,6 @@ namespace Status.Services
     }
     public class ScanDirectory
     {
-        private readonly IEnumerable<String> CurrentDirectoryList;
         public String DirectoryName;
         public String JobDirectory;
         public String JobSerialNumber;
@@ -340,13 +339,15 @@ namespace Status.Services
     public class JobRunThread
     {
         // State information used in the task.
+        private IniFileData IniData;
         private StatusMonitorData MonitorData;
         private List<StatusData> StatusData;
         private string DirectoryName;
 
         // The constructor obtains the state information.
-        public JobRunThread(String directory, StatusMonitorData monitorData, List<StatusData> statusData)
+        public JobRunThread(String directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
         {
+            IniData = iniData;
             MonitorData = monitorData;
             StatusData = statusData;
             DirectoryName = directory;
@@ -355,7 +356,7 @@ namespace Status.Services
         // The thread procedure performs the task
         public void ThreadProc()
         {
-            RunJob(DirectoryName, MonitorData, StatusData);
+            RunJob(DirectoryName, IniData, MonitorData, StatusData);
         }
 
         public void StatusEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot)
@@ -382,7 +383,7 @@ namespace Status.Services
             Console.WriteLine("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
         }
 
-        public void RunJob(String scanDirectory, StatusMonitorData monitorData, List<StatusData> statusData)
+        public void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
         {
             // Add initial entry to status list
             StatusEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED);
@@ -413,7 +414,7 @@ namespace Status.Services
             XmlNode ModelerNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
 
             // Assign port number for this Job
-            monitorData.JobPortNumber = monitorData.StartPort + monitorData.JobIndex;
+            monitorData.JobPortNumber = iniData.StartPort + monitorData.JobIndex;
 
             // Get the modeler and number of files to transfer
             monitorData.UnitNumber = UnitNumberdNode.InnerText;
@@ -450,16 +451,16 @@ namespace Status.Services
 
             // If the directory is the Input Buffer, move the directory to Processing
             String InputBufferDir = monitorData.JobDirectory;
-            String ProcessingBufferDir = monitorData.ProcessingDir + @"\" + job;
+            String ProcessingBufferDir = iniData.ProcessingDir + @"\" + job;
 
             // If this job comes from the Input directory, run the scan and copy
-            if (scanDirectory == monitorData.InputDir)
+            if (scanDirectory == iniData.InputDir)
             {
                 // Monitor the Input directory until it has the total number of consumed files
                 if (Directory.Exists(InputBufferDir))
                 {
                     MonitorDirectoryFiles.MonitorDirectory(
-                        InputBufferDir, monitorData.NumFilesConsumed, monitorData.MaxTimeLimit, monitorData.ScanTime);
+                        InputBufferDir, monitorData.NumFilesConsumed, IniData.MaxTimeLimit, IniData.ScanTime);
                 }
                 else
                 {
@@ -521,7 +522,7 @@ namespace Status.Services
             Console.WriteLine("Monitoring for Processing output files...");
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             if (MonitorDirectoryFiles.MonitorDirectory(
-                ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, monitorData.MaxTimeLimit, monitorData.ScanTime))
+                ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, iniData.MaxTimeLimit, iniData.ScanTime))
             {
                 // Add copy entry to status list
                 StatusEntry(statusData, job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START);
@@ -553,26 +554,25 @@ namespace Status.Services
                 if (passFail == "Pass")
                 {
                     // If the Finished directory does not exist, create it
-                    bool exists = System.IO.Directory.Exists(monitorData.FinishedDir + @"\" + monitorData.JobSerialNumber);
-                    if (!exists)
+                    if (!System.IO.Directory.Exists(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber))
                     {
-                        System.IO.Directory.CreateDirectory(monitorData.FinishedDir + @"\" + monitorData.JobSerialNumber);
+                        System.IO.Directory.CreateDirectory(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber);
                     }
 
                     // Copy the Transfered files to the Finished directory 
                     for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
                     {
-                        FileHandling.CopyFile(monitorData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
-                            monitorData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
+                        FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
+                            iniData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
                     }
 
                     // Move Processing Buffer Files to the Repository directory if passed
-                    FileHandling.MoveDir(ProcessingBufferDir, monitorData.RepositoryDir + @"\" + monitorData.JobSerialNumber);
+                    FileHandling.MoveDir(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.JobSerialNumber);
                 }
                 else if (passFail == "Fail")
                 {
                     // Move fils to the Error directory if failed
-                    FileHandling.CopyDir(ProcessingBufferDir, monitorData.ErrorDir + @"\" + job);
+                    FileHandling.CopyDir(ProcessingBufferDir, iniData.ErrorDir + @"\" + job);
                 }
 
                 // Add entry to status list
@@ -586,15 +586,15 @@ namespace Status.Services
 
     public class StatusRepository : IStatusRepository
     {
-        private List<StatusMonitorData> monitorList = new List<StatusMonitorData>();
+        private IniFileData iniFileData = new IniFileData();
+        private List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
         private List<StatusData> statusList = new List<StatusData>();
-        private StatusMonitorData monitorData = new StatusMonitorData();
         private StatusData statusData = new StatusData();
         private int GlobalJobIndex = 0;
 
         public void MonitorDataRepository()
         {
-            monitorList = new List<StatusMonitorData>()
+            monitorData = new List<StatusMonitorData>()
             {
                 new StatusMonitorData() {
                     Job = "Job Field",
@@ -602,23 +602,9 @@ namespace Status.Services
                     JobSerialNumber = "Job Serial Number Field",
                     TimeStamp = "Time Stamp Field",
                     JobDirectory = "Job Directory Field",
-                    IniFileName = ".ini File Name Field",
-                    InputDir = "Input File Name Field",
-                    ProcessingDir = "Processing Directory Field",
-                    RepositoryDir = "Archieve Directory Field",
-                    FinishedDir = "Finished Directory Field",
-                    ErrorDir = "Error Directory Field",
-                    LogFile = "Log File Field",
-                    ModelerRootDir = "Modeler Root Directory Field",
                     XmlFileName = "XML File Name Field",
                     UnitNumber = "Unit Number Field",
                     Modeler = "Modeler Field",
-                    CPUCores = 4,
-                    ExecutionLimit = 1,
-                    ExecutionCount = 0,
-                    MaxTimeLimit = 30000,
-                    StartPort = 3000,
-                    ScanTime = 1000,
                     JobPortNumber = 3000,
                     NumFilesConsumed = 4,
                     NumFilesProduced = 4,
@@ -664,7 +650,7 @@ namespace Status.Services
         public void ScanForUnfinishedJobs()
         {
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
-            DirectoryInfo directory = new DirectoryInfo(monitorData.ProcessingDir);
+            DirectoryInfo directory = new DirectoryInfo(iniFileData.ProcessingDir);
             DirectoryInfo[] subdirs = directory.GetDirectories();
             if (subdirs.Length != 0)
             {
@@ -674,44 +660,44 @@ namespace Status.Services
                     String job = subdirs[i].Name;
 
                     // Start scan for new directory in the Input Buffer
-                    Thread.Sleep(1000);
-                    ScanDirectory scanDir = new ScanDirectory(monitorData.ProcessingDir);
-                    jobXmlData = scanDir.GetJobXmlData(monitorData.ProcessingDir + @"\" + job);
+                    ScanDirectory scanDir = new ScanDirectory(iniFileData.ProcessingDir);
+                    jobXmlData = scanDir.GetJobXmlData(iniFileData.ProcessingDir + @"\" + job);
 
                     // Store data found in Xml file into Monitor Data
-                    monitorData.Job = jobXmlData.Job;
-                    monitorData.JobDirectory = jobXmlData.JobDirectory;
-                    monitorData.JobSerialNumber = jobXmlData.JobSerialNumber;
-                    monitorData.TimeStamp = jobXmlData.TimeStamp;
-                    monitorData.XmlFileName = jobXmlData.XmlFileName;
-                    monitorData.JobIndex = GlobalJobIndex++;
+                    StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
+                    data.Job = jobXmlData.Job;
+                    data.JobDirectory = jobXmlData.JobDirectory;
+                    data.JobSerialNumber = jobXmlData.JobSerialNumber;
+                    data.TimeStamp = jobXmlData.TimeStamp;
+                    data.XmlFileName = jobXmlData.XmlFileName;
+                    data.JobIndex = GlobalJobIndex++;
 
                     // Display Monitor Data found
                     Console.WriteLine("");
-                    Console.WriteLine("Found unfinished Job  = " + monitorData.Job);
-                    Console.WriteLine("New Job Directory     = " + monitorData.JobDirectory);
-                    Console.WriteLine("New Serial Number     = " + monitorData.JobSerialNumber);
-                    Console.WriteLine("New Time Stamp        = " + monitorData.TimeStamp);
-                    Console.WriteLine("New Job Xml File      = " + monitorData.XmlFileName);
+                    Console.WriteLine("Found unfinished Job  = " + data.Job);
+                    Console.WriteLine("New Job Directory     = " + data.JobDirectory);
+                    Console.WriteLine("New Serial Number     = " + data.JobSerialNumber);
+                    Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
+                    Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
 
                     // Increment execution count to track job by this as an index number
-                    monitorData.ExecutionCount++;
+                    data.ExecutionCount++;
 
-                    if (monitorData.ExecutionCount <= monitorData.ExecutionLimit)
+                    if (data.ExecutionCount <= iniFileData.ExecutionLimit)
                     {
                         // Supply the state information required by the task.
-                        JobRunThread jobThread = new JobRunThread(monitorData.ProcessingDir, monitorData, statusList);
+                        JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList);
 
                         // Create a thread to execute the task, and then start the thread.
                         Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
-                        Console.WriteLine("Starting Job " + monitorData.Job);
+                        Console.WriteLine("Starting Job " + data.Job);
                         t.Start();
                         Thread.Sleep(1000);
                     }
                     else
                     {
                         Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
-                            monitorData.Job, monitorData.ExecutionCount, monitorData.ExecutionLimit);
+                            data.Job, data.ExecutionCount, iniFileData.ExecutionLimit);
                     }
                 }
             }
@@ -724,9 +710,9 @@ namespace Status.Services
         public void ScanForNewJobs()
         {
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
-            DirectoryInfo directory = new DirectoryInfo(monitorData.InputDir);
+            DirectoryInfo directory = new DirectoryInfo(iniFileData.InputDir);
 
-            Console.WriteLine("\nWaiting for new job...");
+            Console.WriteLine("\nWaiting for new job(s)...");
 
             while (true) // Loop all the time
             {
@@ -740,50 +726,51 @@ namespace Status.Services
 
                         // Start scan for new directory in the Input Buffer
                         Thread.Sleep(1000);
-                        ScanDirectory scanDir = new ScanDirectory(monitorData.InputDir);
-                        jobXmlData = scanDir.GetJobXmlData(monitorData.InputDir + @"\" + job);
+                        ScanDirectory scanDir = new ScanDirectory(iniFileData.InputDir);
+                        jobXmlData = scanDir.GetJobXmlData(iniFileData.InputDir + @"\" + job);
 
                         // Set data found
-                        monitorData.Job = jobXmlData.Job;
-                        monitorData.JobDirectory = jobXmlData.JobDirectory;
-                        monitorData.JobSerialNumber = jobXmlData.JobSerialNumber;
-                        monitorData.TimeStamp = jobXmlData.TimeStamp;
-                        monitorData.XmlFileName = jobXmlData.XmlFileName;
-                        monitorData.JobIndex = GlobalJobIndex++;
+                        StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
+                        data.Job = jobXmlData.Job;
+                        data.JobDirectory = jobXmlData.JobDirectory;
+                        data.JobSerialNumber = jobXmlData.JobSerialNumber;
+                        data.TimeStamp = jobXmlData.TimeStamp;
+                        data.XmlFileName = jobXmlData.XmlFileName;
+                        data.JobIndex = GlobalJobIndex++;
 
                         // Display data found
                         Console.WriteLine("");
-                        Console.WriteLine("Found new Job         = " + monitorData.Job);
-                        Console.WriteLine("New Job Directory     = " + monitorData.JobDirectory);
-                        Console.WriteLine("New Serial Number     = " + monitorData.JobSerialNumber);
-                        Console.WriteLine("New Time Stamp        = " + monitorData.TimeStamp);
-                        Console.WriteLine("New Job Xml File      = " + monitorData.XmlFileName);
+                        Console.WriteLine("Found new Job         = " + data.Job);
+                        Console.WriteLine("New Job Directory     = " + data.JobDirectory);
+                        Console.WriteLine("New Serial Number     = " + data.JobSerialNumber);
+                        Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
+                        Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
 
                         // Increment execution count to track job by this as an index number
-                        monitorData.ExecutionCount++;
+                        data.ExecutionCount++;
 
-                        if (monitorData.ExecutionCount <= monitorData.ExecutionLimit)
+                        if (data.ExecutionCount <= iniFileData.ExecutionLimit)
                         {
                             // Supply the state information required by the task.
-                            JobRunThread jobThread = new JobRunThread(monitorData.InputDir, monitorData, statusList);
+                            JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, data, statusList);
 
                             // Create a thread to execute the task, and then start the thread.
                             Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
-                            Console.WriteLine("Starting Job " + monitorData.Job);
+                            Console.WriteLine("Starting Job " + data.Job);
                             t.Start();
                             Thread.Sleep(1000);
                         }
                         else
                         {
                             Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
-                                monitorData.Job, monitorData.ExecutionCount, monitorData.ExecutionLimit);
+                                data.Job, data.ExecutionCount, iniFileData.ExecutionLimit);
                         }
                     }
                 }
             }
         }
 
-        public IEnumerable<StatusMonitorData> GetMonitorStatus()
+        public StatusModels.IniFileData GetMonitorStatus()
         {
             // Get initial data
             MonitorDataRepository();
@@ -797,22 +784,34 @@ namespace Status.Services
 
             // Get information from the Config.ini file
             var IniParser = new IniFile(IniFileName);
-            monitorData.IniFileName = IniFileName;
-            monitorData.InputDir = IniParser.Read("Paths", "Input");
-            monitorData.Modeler = IniParser.Read("Process", "Modeler");
-            monitorData.ProcessingDir = IniParser.Read("Paths", "Processing");
-            monitorData.RepositoryDir = IniParser.Read("Paths", "Repository");
-            monitorData.FinishedDir = IniParser.Read("Paths", "Finished");
-            monitorData.ErrorDir = IniParser.Read("Paths", "Error");
-            monitorData.ModelerRootDir = IniParser.Read("Paths", "ModelerRootDir");
-            monitorData.CPUCores = Int32.Parse(IniParser.Read("Process", "CPUCores"));
-            monitorData.ExecutionLimit = Int32.Parse(IniParser.Read("Process", "ExecutionLimit"));
-            monitorData.StartPort = Int32.Parse(IniParser.Read("Process", "StartPort"));
-            monitorData.LogFile = IniParser.Read("Process", "LogFile");
-            monitorData.ScanTime = Int32.Parse(IniParser.Read("Process", "ScanTime"));
+            iniFileData.IniFileName = IniFileName;
+            iniFileData.InputDir = IniParser.Read("Paths", "Input");
+            iniFileData.ProcessingDir = IniParser.Read("Paths", "Processing");
+            iniFileData.RepositoryDir = IniParser.Read("Paths", "Repository");
+            iniFileData.FinishedDir = IniParser.Read("Paths", "Finished");
+            iniFileData.ErrorDir = IniParser.Read("Paths", "Error");
+            iniFileData.ModelerRootDir = IniParser.Read("Paths", "ModelerRootDir");
+            iniFileData.CPUCores = Int32.Parse(IniParser.Read("Process", "CPUCores"));
+            iniFileData.ExecutionLimit = Int32.Parse(IniParser.Read("Process", "ExecutionLimit"));
+            iniFileData.StartPort = Int32.Parse(IniParser.Read("Process", "StartPort"));
+            iniFileData.LogFile = IniParser.Read("Process", "LogFile");
+            iniFileData.ScanTime = Int32.Parse(IniParser.Read("Process", "ScanTime"));
             String timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
-            monitorData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
-            monitorData.ExecutionCount = 0;
+            iniFileData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
+
+            Console.WriteLine("\nConfig.ini data found:");
+            Console.WriteLine("Input Dir       = " + iniFileData.InputDir);
+            Console.WriteLine("Processing Dir  = " + iniFileData.ProcessingDir);
+            Console.WriteLine("Repository Dir  = " + iniFileData.RepositoryDir);
+            Console.WriteLine("Finished Dir    = " + iniFileData.FinishedDir);
+            Console.WriteLine("Error Dir       = " + iniFileData.ErrorDir);
+            Console.WriteLine("Modeler Roo Dir = " + iniFileData.ModelerRootDir);
+            Console.WriteLine("CPU Cores       = " + iniFileData.CPUCores);
+            Console.WriteLine("Execution Limit = " + iniFileData.ExecutionLimit);
+            Console.WriteLine("Start Port      = " + iniFileData.StartPort);
+            Console.WriteLine("Log File        = " + iniFileData.LogFile);
+            Console.WriteLine("Scan Time       = " + iniFileData.ScanTime);
+            Console.WriteLine("Max Time Limit  = " + iniFileData.MaxTimeLimit);
 
             // Scan for jobs not completed
             ScanForUnfinishedJobs();
@@ -820,7 +819,7 @@ namespace Status.Services
             // Start scan for new jobs
             ScanForNewJobs();
 
-            return monitorList;
+            return iniFileData;
         }
 
         public IEnumerable<StatusData> GetJobStatus()

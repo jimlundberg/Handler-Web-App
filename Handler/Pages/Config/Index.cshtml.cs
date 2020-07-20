@@ -12,7 +12,7 @@ namespace Handler.Pages.Config
     public class SetupModel : PageModel
     {
         private readonly IStatusRepository MonitorDataRepository;
-        public IEnumerable<StatusModels.StatusMonitorData> monitorData { get; set; }
+        public StatusModels.IniFileData iniData { get; set; }
 
         public SetupModel(IStatusRepository monitorDataRepository)
         {
@@ -21,7 +21,7 @@ namespace Handler.Pages.Config
 
         public void OnGet()
         {
-            monitorData = MonitorDataRepository.GetMonitorStatus();
+            iniData = MonitorDataRepository.GetMonitorStatus();
         }
     }
 }

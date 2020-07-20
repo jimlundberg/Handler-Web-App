@@ -23,7 +23,7 @@ namespace Handler.Pages
 
         public void OnGet()
         {
-            Message = "Modeling Handler " + DateTime.Now.ToLocalTime();
+            Message = "Modeling Handler";
         }
         public void OnPostStartButton(int sessionCount)
         {

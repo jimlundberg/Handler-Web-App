@@ -7,6 +7,6 @@ namespace Status.Services
     public interface IStatusRepository
     {
         IEnumerable<StatusData> GetJobStatus();
-        IEnumerable<StatusMonitorData> GetMonitorStatus();
+        IniFileData GetMonitorStatus();
     }
 }
