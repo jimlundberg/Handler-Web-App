@@ -164,19 +164,8 @@ namespace Status.Services
                 }
                 catch (UnauthorizedAccessException)
                 {
-                    FileAttributes attributes = File.GetAttributes(targetDirectory);
-                    if ((attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
-                    {
-                        attributes &= ~FileAttributes.ReadOnly;
-                        File.SetAttributes(targetDirectory, attributes);
-                        Thread.Sleep(500);
-                        File.Delete(targetDirectory);
-                        Thread.Sleep(500);
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    // Bailing out to keep application running
+                    return;
                 }
             }
 
