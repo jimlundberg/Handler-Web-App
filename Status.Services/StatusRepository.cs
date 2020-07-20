@@ -73,107 +73,34 @@ namespace Status.Services
         {
             // Save directory name for class use
             DirectoryName = directoryName;
-
-            try
-            {
-                // Get Current baseline directory list
-                CurrentDirectoryList = Directory.GetDirectories(directoryName, "*", SearchOption.TopDirectoryOnly);
-                if (CurrentDirectoryList.Count() > 0)
-                {
-                    Console.WriteLine("\nFound the following jobs:");
-                    foreach (String dir in CurrentDirectoryList)
-                    {
-                        Console.WriteLine(dir);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Get current directory list failed: {0}", e.ToString());
-            }
         }
 
-        public bool ScanForProcessingJobs()
+        public StatusModels.JobXmlData GetJobXmlData(String jobDirectory)
         {
-            try
+            StatusModels.JobXmlData jobScanData = new StatusModels.JobXmlData();
+            jobScanData.JobDirectory = jobDirectory;
+            jobScanData.Job = jobScanData.JobDirectory.Remove(0, DirectoryName.Length + 1);
+            jobScanData.JobSerialNumber = jobScanData.Job.Substring(0, jobScanData.Job.IndexOf("_"));
+            int start = jobScanData.Job.IndexOf("_") + 1;
+            jobScanData.TimeStamp = jobScanData.Job.Substring(start, jobScanData.Job.Length - start);
+
+            // Wait until the Xml file shows up
+            bool XmlFileFound = false;
+            do
             {
-                // Get new directory list
-                String[] directoryList = Directory.GetDirectories(DirectoryName, "*", SearchOption.TopDirectoryOnly);
-                foreach (String dir in directoryList)
+                String[] files = System.IO.Directory.GetFiles(jobScanData.JobDirectory, "*.xml");
+                if (files.Length > 0)
                 {
-                    JobDirectory = dir;
-                    Job = JobDirectory.Remove(0, DirectoryName.Length + 1);
-                    JobSerialNumber = Job.Substring(0, Job.IndexOf("_"));
-                    int start = Job.IndexOf("_") + 1;
-                    TimeStamp = Job.Substring(start, Job.Length - start);
-                    Console.WriteLine("Found Processing directory " + JobDirectory);
-
-                    // Wait until the Xml file shows up
-                    bool XmlFileFound = false;
-                    do
-                    {
-                        String[] files = System.IO.Directory.GetFiles(dir, "*.xml");
-                        if (files.Length > 0)
-                        {
-                            XmlFileName = Path.GetFileName(files[0]);
-                            XmlFileFound = true;
-                        }
-
-                        Thread.Sleep(500);
-
-                    }
-                    while (XmlFileFound == false);
-
-                    return true;
+                    jobScanData.XmlFileName = Path.GetFileName(files[0]);
+                    XmlFileFound = true;
+                    return jobScanData;
                 }
+
+                Thread.Sleep(500);
             }
-            catch (Exception e)
-            {
-                Console.WriteLine("Get Processing directory list failed: {0}", e.ToString());
-            }
+            while (XmlFileFound == false);
 
-            return false;
-        }
-
-        public bool ScanForInputJobs()
-        {
-            try
-            {
-                // Get new directory list
-                String[] newDirectoryList = Directory.GetDirectories(DirectoryName, "*", SearchOption.TopDirectoryOnly);
-                IEnumerable<String> differenceQuery = newDirectoryList.Except(CurrentDirectoryList);
-                foreach (String dir in differenceQuery)
-                {
-                    JobDirectory = dir;
-                    Job = JobDirectory.Remove(0, DirectoryName.Length + 1);
-                    JobSerialNumber = Job.Substring(0, Job.IndexOf("_"));
-                    int start = Job.IndexOf("_") + 1;
-                    TimeStamp = Job.Substring(start, Job.Length - start);
-                    Console.WriteLine("Found new directory " + JobDirectory);
-
-                    // Wait until the Xml file shows up
-                    bool XmlFileFound = false;
-                    do
-                    {
-                        String[] files = System.IO.Directory.GetFiles(dir, "*.xml");
-                        if (files.Length > 0)
-                        {
-                            XmlFileName = Path.GetFileName(files[0]);
-                            XmlFileFound = true;
-                        }
-                        Thread.Sleep(500);
-                    }
-                    while (XmlFileFound == false);
-
-                    return true;
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Get new directory list failed: {0}", e.ToString());
-            }
-
-            return false;
+            return jobScanData;
         }
     }
 
@@ -532,22 +459,24 @@ namespace Status.Services
                 Console.WriteLine("Transfer File{0}        = {1}", i, TransferedFileXml.InnerText);
             }
 
-            // Monitor the Input directory until it has the total number of consumed files
-            String InputBufferDir = monitorData.JobDirectory + @"\" + job;
-            if (Directory.Exists(InputBufferDir))
-            {
-                MonitorDirectoryFiles.MonitorDirectory(
-                    InputBufferDir, monitorData.NumFilesConsumed, monitorData.MaxTimeLimit, monitorData.ScanTime);
-            }
-            else
-            {
-                throw new System.InvalidOperationException("Could not find Input Buffer Directory ");
-            }
-
             // If the directory is the Input Buffer, move the directory to Processing
+            String InputBufferDir = monitorData.JobDirectory;
             String ProcessingBufferDir = monitorData.ProcessingDir + @"\" + job;
+
+            // If this job comes from the Input directory, run the scan and copy
             if (scanDirectory == monitorData.InputDir)
             {
+                // Monitor the Input directory until it has the total number of consumed files
+                if (Directory.Exists(InputBufferDir))
+                {
+                    MonitorDirectoryFiles.MonitorDirectory(
+                        InputBufferDir, monitorData.NumFilesConsumed, monitorData.MaxTimeLimit, monitorData.ScanTime);
+                }
+                else
+                {
+                    throw new System.InvalidOperationException("Could not find Input Buffer Directory ");
+                }
+
                 // Add entry to status list
                 StatusEntry(statusData, job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
 
@@ -645,7 +574,7 @@ namespace Status.Services
                     for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
                     {
                         FileHandling.CopyFile(monitorData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
-                                            monitorData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
+                            monitorData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
                     }
 
                     // Move Processing Buffer Files to the Repository directory if passed
@@ -668,15 +597,15 @@ namespace Status.Services
 
     public class StatusRepository : IStatusRepository
     {
-        private List<StatusMonitorData> _monitorList = new List<StatusMonitorData>();
-        private List<StatusData> _statusList = new List<StatusData>();
+        private List<StatusMonitorData> monitorList = new List<StatusMonitorData>();
+        private List<StatusData> statusList = new List<StatusData>();
         private StatusMonitorData monitorData = new StatusMonitorData();
         private StatusData statusData = new StatusData();
         private int GlobalJobIndex = 0;
 
         public void MonitorDataRepository()
         {
-            _monitorList = new List<StatusMonitorData>()
+            monitorList = new List<StatusMonitorData>()
             {
                 new StatusMonitorData() {
                     Job = "Job Field",
@@ -692,18 +621,19 @@ namespace Status.Services
                     ErrorDir = "Error Directory Field",
                     LogFile = "Log File Field",
                     ModelerRootDir = "Modeler Root Directory Field",
-                    XmlFileName = ".xML File Name Field",
+                    XmlFileName = "XML File Name Field",
                     UnitNumber = "Unit Number Field",
                     Modeler = "Modeler Field",
-                    CPUCores = 0,
-                    ExecutionLimit = 0,
+                    CPUCores = 4,
+                    ExecutionLimit = 1,
                     ExecutionCount = 0,
-                    MaxTimeLimit = 0,
-                    StartPort = 0,
-                    JobPortNumber = 0,
-                    NumFilesConsumed = 0,
-                    NumFilesProduced = 0,
-                    NumFilesToTransfer = 0,
+                    MaxTimeLimit = 30000,
+                    StartPort = 3000,
+                    ScanTime = 1000,
+                    JobPortNumber = 3000,
+                    NumFilesConsumed = 4,
+                    NumFilesProduced = 4,
+                    NumFilesToTransfer = 3,
                     transferedFileList = new List<String>()
                 }
             };
@@ -711,9 +641,10 @@ namespace Status.Services
 
         public void StatuDataRepository()
         {
-            _statusList = new List<StatusData>()
+            statusList = new List<StatusData>()
             {
-                new StatusData() { Job = "Job Field", JobStatus = JobStatus.JOB_STARTED, TimeReceived = DateTime.Now,  TimeStarted = DateTime.Now,  TimeCompleted = DateTime.Now }
+                new StatusData() { Job = "Job Field", JobStatus = JobStatus.JOB_STARTED, 
+                    TimeReceived = DateTime.Now,  TimeStarted = DateTime.Now,  TimeCompleted = DateTime.Now }
             };
         }
 
@@ -736,49 +667,62 @@ namespace Status.Services
                     entry.TimeCompleted = DateTime.Now;
                     break;
             }
-            _statusList.Add(entry);
+            statusList.Add(entry);
 
             Console.WriteLine("Status: Job {0} Job Status {1} Job Type {2}", job, status, timeSlot.ToString());
         }
 
         public void ScanForUnfinishedJobs()
         {
-            // Start scan for new directory in the Input Buffer
-            ScanDirectory scanDir = new ScanDirectory(monitorData.ProcessingDir);
-            if (scanDir.ScanForProcessingJobs())
+            StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
+            DirectoryInfo directory = new DirectoryInfo(monitorData.ProcessingDir);
+            DirectoryInfo[] subdirs = directory.GetDirectories();
+            if (subdirs.Length != 0)
             {
                 Console.WriteLine("\nFound unfinished jobs...");
-
-                // Set data found
-                monitorData.Job = scanDir.Job;
-                monitorData.JobDirectory = scanDir.DirectoryName;
-                monitorData.JobSerialNumber = scanDir.JobSerialNumber;
-                monitorData.TimeStamp = scanDir.TimeStamp;
-                monitorData.XmlFileName = scanDir.XmlFileName;
-                monitorData.JobIndex = GlobalJobIndex++;
-
-                // Display data found
-                Console.WriteLine("");
-                Console.WriteLine("Found unfinished Job  = " + monitorData.Job);
-                Console.WriteLine("New Job Directory     = " + monitorData.JobDirectory);
-                Console.WriteLine("New Serial Number     = " + monitorData.JobSerialNumber);
-                Console.WriteLine("New Time Stamp        = " + monitorData.TimeStamp);
-                Console.WriteLine("New Job Xml File      = " + monitorData.XmlFileName);
-
-                if (monitorData.ExecutionCount <= monitorData.ExecutionLimit)
+                for (int i = 0; i < subdirs.Length; i++)
                 {
-                    // Supply the state information required by the task.
-                    JobRunThread jobThread = new JobRunThread(monitorData.ProcessingDir, monitorData, _statusList);
+                    String job = subdirs[i].Name;
 
-                    // Create a thread to execute the task, and then start the thread.
-                    Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
-                    Console.WriteLine("Starting Job " + monitorData.Job);
-                    t.Start();
-                }
-                else
-                {
-                    Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
-                        monitorData.Job, monitorData.ExecutionCount, monitorData.ExecutionLimit);
+                    // Start scan for new directory in the Input Buffer
+                    ScanDirectory scanDir = new ScanDirectory(monitorData.ProcessingDir);
+                    jobXmlData = scanDir.GetJobXmlData(monitorData.ProcessingDir + @"\" + job);
+
+                    // Store data found in Xml file into Monitor Data
+                    monitorData.Job = jobXmlData.Job;
+                    monitorData.JobDirectory = jobXmlData.JobDirectory;
+                    monitorData.JobSerialNumber = jobXmlData.JobSerialNumber;
+                    monitorData.TimeStamp = jobXmlData.TimeStamp;
+                    monitorData.XmlFileName = jobXmlData.XmlFileName;
+                    monitorData.JobIndex = GlobalJobIndex++;
+
+                    // Display Monitor Data found
+                    Console.WriteLine("");
+                    Console.WriteLine("Found unfinished Job  = " + monitorData.Job);
+                    Console.WriteLine("New Job Directory     = " + monitorData.JobDirectory);
+                    Console.WriteLine("New Serial Number     = " + monitorData.JobSerialNumber);
+                    Console.WriteLine("New Time Stamp        = " + monitorData.TimeStamp);
+                    Console.WriteLine("New Job Xml File      = " + monitorData.XmlFileName);
+
+                    // Increment execution count to track job by this as an index number
+                    monitorData.ExecutionCount++;
+
+                    if (monitorData.ExecutionCount <= monitorData.ExecutionLimit)
+                    {
+                        // Supply the state information required by the task.
+                        JobRunThread jobThread = new JobRunThread(monitorData.ProcessingDir, monitorData, statusList);
+
+                        // Create a thread to execute the task, and then start the thread.
+                        Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
+                        Console.WriteLine("Starting Job " + monitorData.Job);
+                        t.Start();
+                        Thread.Sleep(1000);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
+                            monitorData.Job, monitorData.ExecutionCount, monitorData.ExecutionLimit);
+                    }
                 }
             }
             else
@@ -789,53 +733,61 @@ namespace Status.Services
 
         public void ScanForNewJobs()
         {
+            StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
+            DirectoryInfo directory = new DirectoryInfo(monitorData.InputDir);
+
+            Console.WriteLine("\nWaiting for new job...");
+
             while (true) // Loop all the time
             {
-                // Start scan for new directory in the Input Buffer
-                ScanDirectory scanDir = new ScanDirectory(monitorData.InputDir);
-                bool foundNewJob = false;
-
-                Console.WriteLine("\nWaiting for new job...");
-                do
+                // Check if there are any directories
+                DirectoryInfo[] subdirs = directory.GetDirectories();
+                if (subdirs.Length != 0)
                 {
-                    foundNewJob = scanDir.ScanForInputJobs();
-                    Thread.Sleep(1000);
-                }
-                while (foundNewJob == false);
+                    for (int i = 0; i < subdirs.Length; i++)
+                    {
+                        String job = subdirs[i].Name;
 
-                // Set data found
-                monitorData.Job = scanDir.Job;
-                monitorData.JobDirectory = scanDir.DirectoryName;
-                monitorData.JobSerialNumber = scanDir.JobSerialNumber;
-                monitorData.TimeStamp = scanDir.TimeStamp;
-                monitorData.XmlFileName = scanDir.XmlFileName;
-                monitorData.JobIndex = GlobalJobIndex++;
+                        // Start scan for new directory in the Input Buffer
+                        ScanDirectory scanDir = new ScanDirectory(monitorData.InputDir);
+                        jobXmlData = scanDir.GetJobXmlData(monitorData.InputDir + @"\" + job);
 
-                // Display data found
-                Console.WriteLine("");
-                Console.WriteLine("Found new Job         = " + monitorData.Job);
-                Console.WriteLine("New Job Directory     = " + monitorData.JobDirectory);
-                Console.WriteLine("New Serial Number     = " + monitorData.JobSerialNumber);
-                Console.WriteLine("New Time Stamp        = " + monitorData.TimeStamp);
-                Console.WriteLine("New Job Xml File      = " + monitorData.XmlFileName);
+                        // Set data found
+                        monitorData.Job = jobXmlData.Job;
+                        monitorData.JobDirectory = jobXmlData.JobDirectory;
+                        monitorData.JobSerialNumber = jobXmlData.JobSerialNumber;
+                        monitorData.TimeStamp = jobXmlData.TimeStamp;
+                        monitorData.XmlFileName = jobXmlData.XmlFileName;
+                        monitorData.JobIndex = GlobalJobIndex++;
 
-                // Increment execution count to track job by this as an index number
-                monitorData.ExecutionCount++;
+                        // Display data found
+                        Console.WriteLine("");
+                        Console.WriteLine("Found new Job         = " + monitorData.Job);
+                        Console.WriteLine("New Job Directory     = " + monitorData.JobDirectory);
+                        Console.WriteLine("New Serial Number     = " + monitorData.JobSerialNumber);
+                        Console.WriteLine("New Time Stamp        = " + monitorData.TimeStamp);
+                        Console.WriteLine("New Job Xml File      = " + monitorData.XmlFileName);
 
-                if (monitorData.ExecutionCount <= monitorData.ExecutionLimit)
-                {
-                    // Supply the state information required by the task.
-                    JobRunThread jobThread = new JobRunThread(monitorData.InputDir, monitorData, _statusList);
+                        // Increment execution count to track job by this as an index number
+                        monitorData.ExecutionCount++;
 
-                    // Create a thread to execute the task, and then start the thread.
-                    Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
-                    Console.WriteLine("Starting Job " + monitorData.Job);
-                    t.Start();
-                }
-                else
-                {
-                    Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
-                        monitorData.Job, monitorData.ExecutionCount, monitorData.ExecutionLimit);
+                        if (monitorData.ExecutionCount <= monitorData.ExecutionLimit)
+                        {
+                            // Supply the state information required by the task.
+                            JobRunThread jobThread = new JobRunThread(monitorData.InputDir, monitorData, statusList);
+
+                            // Create a thread to execute the task, and then start the thread.
+                            Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
+                            Console.WriteLine("Starting Job " + monitorData.Job);
+                            t.Start();
+                            Thread.Sleep(1000);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
+                                monitorData.Job, monitorData.ExecutionCount, monitorData.ExecutionLimit);
+                        }
+                    }
                 }
             }
         }
@@ -877,12 +829,12 @@ namespace Status.Services
             // Start scan for new jobs
             ScanForNewJobs();
 
-            return _monitorList;
+            return monitorList;
         }
 
         public IEnumerable<StatusData> GetJobStatus()
         {
-            return _statusList;
+            return statusList;
         }
     }
 }
