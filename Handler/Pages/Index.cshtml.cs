@@ -25,5 +25,17 @@ namespace Handler.Pages
         {
             Message = "Modeling Handler " + DateTime.Now.ToLocalTime();
         }
+        public void OnPostStartButton(int sessionCount)
+        {
+            Console.WriteLine("Start Button pressed");
+        }
+        public void OnPostStopButton(int sessionCount)
+        {
+            Console.WriteLine("Stop Button pressed");
+        }
+        public void OnPostHistoryButton(int sessionCount)
+        {
+            Console.WriteLine("History Button pressed");
+        }
     }
 }

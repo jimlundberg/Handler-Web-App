@@ -5,5 +5,12 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">@Model.Message</h1>
+    <h1 class="display-6">@Model.Message</h1>
 </div>
+
+<form method="post">
+    <div>Handler Menu</div>
+    <input type="submit" value="Start" asp-page-handler="StartButton" />
+    <input type="submit" value="Stop" asp-page-handler="StopButton" />
+    <input type="submit" value="History" asp-page-handler="HistoryButton" />
+</form>
