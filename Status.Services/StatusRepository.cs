@@ -165,7 +165,7 @@ namespace Status.Services
                 catch (UnauthorizedAccessException)
                 {
                     // Bailing out to keep application running
-                    return;
+                    Console.WriteLine("Failed to delete " + targetDirectory);
                 }
             }
 
@@ -674,6 +674,7 @@ namespace Status.Services
                     String job = subdirs[i].Name;
 
                     // Start scan for new directory in the Input Buffer
+                    Thread.Sleep(1000);
                     ScanDirectory scanDir = new ScanDirectory(monitorData.ProcessingDir);
                     jobXmlData = scanDir.GetJobXmlData(monitorData.ProcessingDir + @"\" + job);
 
@@ -738,6 +739,7 @@ namespace Status.Services
                         String job = subdirs[i].Name;
 
                         // Start scan for new directory in the Input Buffer
+                        Thread.Sleep(1000);
                         ScanDirectory scanDir = new ScanDirectory(monitorData.InputDir);
                         jobXmlData = scanDir.GetJobXmlData(monitorData.InputDir + @"\" + job);
 
