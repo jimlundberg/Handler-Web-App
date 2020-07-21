@@ -715,6 +715,12 @@ namespace Status.Services
                         Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
                             data.Job, data.ExecutionCount, iniFileData.ExecutionLimit);
                     }
+
+                    // If Stop button pressed, set RunStop Flag to false to stop
+                    if (RunStop == false)
+                    {
+                        return;
+                    }
                 }
             }
             else

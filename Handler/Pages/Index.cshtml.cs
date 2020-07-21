@@ -24,17 +24,17 @@ namespace Handler.Pages
         public void OnGet()
         {
         }
-        public void OnPostStartButton(int sessionCount)
+        public void OnPostStartButton()
         {
             Console.WriteLine("Start Button pressed");
             iniData = MonitorDataRepository.GetMonitorStatus();
         }
-        public void OnPostStopButton(int sessionCount)
+        public void OnPostStopButton()
         {
             Console.WriteLine("Stop Button pressed");
             MonitorDataRepository.StopMonitor();
         }
-        public void OnPostHistoryButton(int sessionCount)
+        public void OnPostHistoryButton()
         {
             Console.WriteLine("History Button pressed");
         }
