@@ -13,6 +13,7 @@ using StatusModels;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Status.Services
 {
@@ -574,25 +575,26 @@ namespace Status.Services
                             iniData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
                     }
 
-                    // Move Processing Buffer Files to the Repository directory if passed
-                    FileHandling.MoveDir(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.JobSerialNumber);
+                    // Move Processing Buffer Files to the Repository directory when passed
+                    FileHandling.MoveDir(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job);
                 }
                 else if (passFail == "Fail")
                 {
+                    // If the Error directory does not exist, create it
                     if (!System.IO.Directory.Exists(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber))
                     {
                         System.IO.Directory.CreateDirectory(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber);
                     }
 
-                    // Copy the Transfered files to the Finished directory 
+                    // Copy the Transfered files to the Error directory 
                     for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
                     {
                         FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
                             iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
                     }
 
-                    // Move Processing Buffer Files to the Repository directory if passed
-                    FileHandling.MoveDir(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.JobSerialNumber);
+                    // Move Processing Buffer Files to the Repository directory when failed
+                    FileHandling.MoveDir(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job);
                 }
 
                 // Add entry to status list
@@ -608,7 +610,7 @@ namespace Status.Services
         private List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
         private List<StatusData> statusList = new List<StatusData>();
         private StatusData statusData = new StatusData();
-        private int GlobalJobIndex = 0;
+        public int GlobalJobIndex = 0;
         private bool RunStop = true;
 
         public void MonitorDataRepository()
@@ -738,12 +740,14 @@ namespace Status.Services
             private IniFileData IniData;
             private List<StatusData> StatusData;
             private bool endProcess = false;
+            private int GlobalJobIndex = 0;
 
             // The constructor obtains the state information.
-            public ProcessThread(IniFileData iniData, List<StatusData> statusData)
+            public ProcessThread(IniFileData iniData, List<StatusData> statusData, int globalJobIndex)
             {
                 IniData = iniData;
                 StatusData = statusData;
+                GlobalJobIndex = globalJobIndex;
             }
 
             public void StopProcess()
@@ -781,7 +785,7 @@ namespace Status.Services
                             data.JobSerialNumber = jobXmlData.JobSerialNumber;
                             data.TimeStamp = jobXmlData.TimeStamp;
                             data.XmlFileName = jobXmlData.XmlFileName;
-                          //data.JobIndex = GlobalJobIndex++;
+                            data.JobIndex = GlobalJobIndex++;
 
                             // Display data found
                             Console.WriteLine("");
@@ -823,6 +827,7 @@ namespace Status.Services
         public StatusModels.IniFileData GetMonitorStatus()
         {
             RunStop = true;
+            GlobalJobIndex = 0;
 
             // Get initial data
             MonitorDataRepository();
@@ -869,7 +874,7 @@ namespace Status.Services
             ScanForUnfinishedJobs();
 
             // Start scan for new jobs on it's own thread
-            processThread = new ProcessThread(iniFileData, statusList);
+            processThread = new ProcessThread(iniFileData, statusList, GlobalJobIndex);
             processThread.ScanForNewJobs();
 
             return iniFileData;
