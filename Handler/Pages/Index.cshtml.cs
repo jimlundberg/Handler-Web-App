@@ -13,8 +13,15 @@ namespace Handler.Pages
 {
     public class IndexModel : PageModel
     {
+        //private readonly ILogger<IndexModel> _logger;
+
         private readonly IStatusRepository MonitorDataRepository;
         public StatusModels.IniFileData iniData { get; set; }
+
+        //public IndexModel(ILogger<IndexModel> logger)
+        //{
+        //    _logger = logger;
+        //}
 
         public IndexModel(IStatusRepository monitorDataRepository)
         {
@@ -23,6 +30,11 @@ namespace Handler.Pages
 
         public void OnGet()
         {
+            //_logger.LogTrace("Log Trace");
+            //_logger.LogDebug("Log Debug");
+            //_logger.LogInformation("Log Information");
+            //_logger.LogError("Log Error");
+            //_logger.LogCritical("Log Critical");
         }
 
         public void OnPostStartButton()

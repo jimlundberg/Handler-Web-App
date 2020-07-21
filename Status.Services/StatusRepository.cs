@@ -113,8 +113,10 @@ namespace Status.Services
             do
             {
                 int numberOfFilesFound = Directory.GetFiles(monitoredDir, "*", SearchOption.TopDirectoryOnly).Length;
-                Console.WriteLine("{0} has {1} files of {2} at {3} seconds",
-                    monitoredDir, numberOfFilesFound, numberOfFilesNeeded, numberOfSeconds * (scanTime / 1000));
+                Console.WriteLine("{0} has {1} files of {2} at {3} min {4} sec",
+                    monitoredDir, numberOfFilesFound, numberOfFilesNeeded,
+                    ((numberOfSeconds * (scanTime / 1000)) / 60), ((numberOfSeconds * (scanTime / 1000)) % 60));
+
                 if (numberOfFilesFound >= numberOfFilesNeeded)
                 {
                     Console.WriteLine("Recieved all {0} files", numberOfFilesFound);
@@ -481,14 +483,17 @@ namespace Status.Services
             StatusEntry(statusData, job, JobStatus.EXECUTING, JobType.TIME_START);
 
             // Load and execute command line generator
-            //CommandLineGenerator cl = new CommandLineGenerator();
-            //cl.SetExecutableFile(monitorData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
-            //cl.SetRepositoryDir(ProcessingBufferDir);
-            //cl.SetStartPort(monitorData.JobPortNumber);
-            //cl.SetCpuCores(monitorData.CPUCores);
-            //CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
-            //Thread thread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
-            //thread.Start();
+            CommandLineGenerator cl = new CommandLineGenerator();
+            cl.SetExecutableFile(iniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
+            cl.SetRepositoryDir(ProcessingBufferDir);
+            cl.SetStartPort(monitorData.JobPortNumber);
+            cl.SetCpuCores(iniData.CPUCores);
+            CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
+            Thread thread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
+            thread.Start();
+
+            Console.WriteLine("***** Started Job {0} with Modeler {1} on port {2} with {3} CPU's",
+                ProcessingBufferDir, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
 
             //do
             //{
