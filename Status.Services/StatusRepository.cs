@@ -603,6 +603,7 @@ namespace Status.Services
 
     public class StatusRepository : IStatusRepository
     {
+        private ProcessThread processThread;
         private IniFileData iniFileData = new IniFileData();
         private List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
         private List<StatusData> statusList = new List<StatusData>();
@@ -736,6 +737,7 @@ namespace Status.Services
             // State information used in the task.
             private IniFileData IniData;
             private List<StatusData> StatusData;
+            private bool endProcess = false;
 
             // The constructor obtains the state information.
             public ProcessThread(IniFileData iniData, List<StatusData> statusData)
@@ -744,15 +746,21 @@ namespace Status.Services
                 StatusData = statusData;
             }
 
+            public void StopProcess()
+            {
+                endProcess = true;
+            }
+
             public void ScanForNewJobs()
             {
+                endProcess = false;
                 StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
                 DirectoryInfo directory = new DirectoryInfo(IniData.InputDir);
                 List<String> directoryList = new List<String>();
 
                 Console.WriteLine("\nWaiting for new job(s)...");
 
-                while (true) // Loop all the time
+                while (endProcess == false) // Loop until flag set
                 {
                     // Check if there are any directories
                     DirectoryInfo[] subdirs = directory.GetDirectories();
@@ -808,6 +816,7 @@ namespace Status.Services
                     // Sleep to allow job to finish before checking for more
                     Thread.Sleep(IniData.ScanTime);
                 }
+                Console.WriteLine("\nExiting job Scan...");
             }
         }
 
@@ -860,7 +869,7 @@ namespace Status.Services
             ScanForUnfinishedJobs();
 
             // Start scan for new jobs on it's own thread
-            ProcessThread processThread = new ProcessThread(iniFileData, statusList);
+            processThread = new ProcessThread(iniFileData, statusList);
             processThread.ScanForNewJobs();
 
             return iniFileData;
@@ -868,7 +877,7 @@ namespace Status.Services
 
         public void StopMonitor()
         {
-            RunStop = false;
+            processThread.StopProcess();
         }
 
         public IEnumerable<StatusData> GetJobStatus()
