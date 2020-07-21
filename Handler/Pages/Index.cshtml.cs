@@ -13,25 +13,26 @@ namespace Handler.Pages
 {
     public class IndexModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
-        public string Message { get; set; }
+        private readonly IStatusRepository MonitorDataRepository;
+        public StatusModels.IniFileData iniData { get; set; }
 
-        public IndexModel(ILogger<IndexModel> logger)
+        public IndexModel(IStatusRepository monitorDataRepository)
         {
-            _logger = logger;
+            this.MonitorDataRepository = monitorDataRepository;
         }
 
         public void OnGet()
         {
-            Message = "Modeling Handler";
         }
         public void OnPostStartButton(int sessionCount)
         {
             Console.WriteLine("Start Button pressed");
+            iniData = MonitorDataRepository.GetMonitorStatus();
         }
         public void OnPostStopButton(int sessionCount)
         {
             Console.WriteLine("Stop Button pressed");
+            MonitorDataRepository.StopMonitor();
         }
         public void OnPostHistoryButton(int sessionCount)
         {

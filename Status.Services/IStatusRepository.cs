@@ -8,5 +8,6 @@ namespace Status.Services
     {
         IEnumerable<StatusData> GetJobStatus();
         IniFileData GetMonitorStatus();
+        void StopMonitor();
     }
 }

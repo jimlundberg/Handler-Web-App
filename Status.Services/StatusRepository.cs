@@ -606,6 +606,7 @@ namespace Status.Services
         private List<StatusData> statusList = new List<StatusData>();
         private StatusData statusData = new StatusData();
         private int GlobalJobIndex = 0;
+        private bool RunStop = true;
 
         public void MonitorDataRepository()
         {
@@ -782,12 +783,22 @@ namespace Status.Services
                         }
                     }
                 }
+
+                // If Stop button pressed, set RunStop Flag to false to stop
+                if (RunStop == false)
+                {
+                    return;
+                }
+
+                // Sleep to allow job to finish before checking for more
                 Thread.Sleep(iniFileData.ScanTime);
             }
         }
 
         public StatusModels.IniFileData GetMonitorStatus()
         {
+            RunStop = true;
+
             // Get initial data
             MonitorDataRepository();
 
@@ -836,6 +847,11 @@ namespace Status.Services
             ScanForNewJobs();
 
             return iniFileData;
+        }
+
+        public void StopMonitor()
+        {
+            RunStop = false;
         }
 
         public IEnumerable<StatusData> GetJobStatus()
