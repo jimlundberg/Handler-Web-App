@@ -422,7 +422,10 @@ namespace Status.Services
             monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
             monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
             int NumFilesToTransfer = 0;
-            NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
+            if (TransferedNode != null)
+            {
+                NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
+            }
             monitorData.NumFilesToTransfer = NumFilesToTransfer;
 
             // Get the modeler and number of files to transfer
@@ -571,8 +574,20 @@ namespace Status.Services
                 }
                 else if (passFail == "Fail")
                 {
-                    // Move fils to the Error directory if failed
-                    FileHandling.CopyDir(ProcessingBufferDir, iniData.ErrorDir + @"\" + job);
+                    if (!System.IO.Directory.Exists(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber))
+                    {
+                        System.IO.Directory.CreateDirectory(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber);
+                    }
+
+                    // Copy the Transfered files to the Finished directory 
+                    for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
+                    {
+                        FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
+                            iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
+                    }
+
+                    // Move Processing Buffer Files to the Repository directory if passed
+                    FileHandling.MoveDir(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.JobSerialNumber);
                 }
 
                 // Add entry to status list
@@ -758,7 +773,7 @@ namespace Status.Services
                             Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
                             Console.WriteLine("Starting Job " + data.Job);
                             t.Start();
-                            Thread.Sleep(2000);
+                            Thread.Sleep(1000);
                         }
                         else
                         {
