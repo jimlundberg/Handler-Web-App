@@ -711,6 +711,7 @@ namespace Status.Services
         {
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
             DirectoryInfo directory = new DirectoryInfo(iniFileData.InputDir);
+            List<String> directoryList = new List<String>();
 
             Console.WriteLine("\nWaiting for new job(s)...");
 
@@ -725,7 +726,6 @@ namespace Status.Services
                         String job = subdirs[i].Name;
 
                         // Start scan for new directory in the Input Buffer
-                        Thread.Sleep(1000);
                         ScanDirectory scanDir = new ScanDirectory(iniFileData.InputDir);
                         jobXmlData = scanDir.GetJobXmlData(iniFileData.InputDir + @"\" + job);
 
@@ -758,7 +758,7 @@ namespace Status.Services
                             Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
                             Console.WriteLine("Starting Job " + data.Job);
                             t.Start();
-                            Thread.Sleep(1000);
+                            Thread.Sleep(2000);
                         }
                         else
                         {
@@ -767,6 +767,7 @@ namespace Status.Services
                         }
                     }
                 }
+                Thread.Sleep(iniFileData.ScanTime);
             }
         }
 
