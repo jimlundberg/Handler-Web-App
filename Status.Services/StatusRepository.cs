@@ -857,18 +857,18 @@ namespace Status.Services
             iniFileData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
 
             Console.WriteLine("\nConfig.ini data found:");
-            Console.WriteLine("Input Dir       = " + iniFileData.InputDir);
-            Console.WriteLine("Processing Dir  = " + iniFileData.ProcessingDir);
-            Console.WriteLine("Repository Dir  = " + iniFileData.RepositoryDir);
-            Console.WriteLine("Finished Dir    = " + iniFileData.FinishedDir);
-            Console.WriteLine("Error Dir       = " + iniFileData.ErrorDir);
-            Console.WriteLine("Modeler Roo Dir = " + iniFileData.ModelerRootDir);
-            Console.WriteLine("CPU Cores       = " + iniFileData.CPUCores);
-            Console.WriteLine("Execution Limit = " + iniFileData.ExecutionLimit);
-            Console.WriteLine("Start Port      = " + iniFileData.StartPort);
-            Console.WriteLine("Log File        = " + iniFileData.LogFile);
-            Console.WriteLine("Scan Time       = " + iniFileData.ScanTime);
-            Console.WriteLine("Max Time Limit  = " + iniFileData.MaxTimeLimit);
+            Console.WriteLine("Input Dir        = " + iniFileData.InputDir);
+            Console.WriteLine("Processing Dir   = " + iniFileData.ProcessingDir);
+            Console.WriteLine("Repository Dir   = " + iniFileData.RepositoryDir);
+            Console.WriteLine("Finished Dir     = " + iniFileData.FinishedDir);
+            Console.WriteLine("Error Dir        = " + iniFileData.ErrorDir);
+            Console.WriteLine("Modeler Root Dir = " + iniFileData.ModelerRootDir);
+            Console.WriteLine("CPU Cores        = " + iniFileData.CPUCores);
+            Console.WriteLine("Execution Limit  = " + iniFileData.ExecutionLimit);
+            Console.WriteLine("Start Port       = " + iniFileData.StartPort);
+            Console.WriteLine("Log File         = " + iniFileData.LogFile);
+            Console.WriteLine("Scan Time        = " + iniFileData.ScanTime);
+            Console.WriteLine("Max Time Limit   = " + iniFileData.MaxTimeLimit);
 
             // Scan for jobs not completed
             ScanForUnfinishedJobs();
@@ -882,7 +882,10 @@ namespace Status.Services
 
         public void StopMonitor()
         {
-            processThread.StopProcess();
+            if (processThread != null)
+            {
+                processThread.StopProcess();
+            }
         }
 
         public IEnumerable<StatusData> GetJobStatus()
