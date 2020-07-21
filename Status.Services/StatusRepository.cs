@@ -598,9 +598,6 @@ namespace Status.Services
                 // Add entry to status list
                 StatusEntry(statusData, job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
             }
-
-            //_monitorList.Clear();
-            //_monitorList.Add(monitorData);
         }
     }
 
@@ -734,75 +731,83 @@ namespace Status.Services
             }
         }
 
-        public void ScanForNewJobs()
+        public class ProcessThread
         {
-            StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
-            DirectoryInfo directory = new DirectoryInfo(iniFileData.InputDir);
-            List<String> directoryList = new List<String>();
+            // State information used in the task.
+            private IniFileData IniData;
+            private List<StatusData> StatusData;
 
-            Console.WriteLine("\nWaiting for new job(s)...");
-
-            while (true) // Loop all the time
+            // The constructor obtains the state information.
+            public ProcessThread(IniFileData iniData, List<StatusData> statusData)
             {
-                // Check if there are any directories
-                DirectoryInfo[] subdirs = directory.GetDirectories();
-                if (subdirs.Length != 0)
+                IniData = iniData;
+                StatusData = statusData;
+            }
+
+            public void ScanForNewJobs()
+            {
+                StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
+                DirectoryInfo directory = new DirectoryInfo(IniData.InputDir);
+                List<String> directoryList = new List<String>();
+
+                Console.WriteLine("\nWaiting for new job(s)...");
+
+                while (true) // Loop all the time
                 {
-                    for (int i = 0; i < subdirs.Length; i++)
+                    // Check if there are any directories
+                    DirectoryInfo[] subdirs = directory.GetDirectories();
+                    if (subdirs.Length != 0)
                     {
-                        String job = subdirs[i].Name;
-
-                        // Start scan for new directory in the Input Buffer
-                        ScanDirectory scanDir = new ScanDirectory(iniFileData.InputDir);
-                        jobXmlData = scanDir.GetJobXmlData(iniFileData.InputDir + @"\" + job);
-
-                        // Set data found
-                        StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
-                        data.Job = jobXmlData.Job;
-                        data.JobDirectory = jobXmlData.JobDirectory;
-                        data.JobSerialNumber = jobXmlData.JobSerialNumber;
-                        data.TimeStamp = jobXmlData.TimeStamp;
-                        data.XmlFileName = jobXmlData.XmlFileName;
-                        data.JobIndex = GlobalJobIndex++;
-
-                        // Display data found
-                        Console.WriteLine("");
-                        Console.WriteLine("Found new Job         = " + data.Job);
-                        Console.WriteLine("New Job Directory     = " + data.JobDirectory);
-                        Console.WriteLine("New Serial Number     = " + data.JobSerialNumber);
-                        Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
-                        Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
-
-                        // Increment execution count to track job by this as an index number
-                        data.ExecutionCount++;
-
-                        if (data.ExecutionCount <= iniFileData.ExecutionLimit)
+                        for (int i = 0; i < subdirs.Length; i++)
                         {
-                            // Supply the state information required by the task.
-                            JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, data, statusList);
+                            String job = subdirs[i].Name;
 
-                            // Create a thread to execute the task, and then start the thread.
-                            Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
-                            Console.WriteLine("Starting Job " + data.Job);
-                            t.Start();
-                            Thread.Sleep(1000);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
-                                data.Job, data.ExecutionCount, iniFileData.ExecutionLimit);
+                            // Start scan for new directory in the Input Buffer
+                            ScanDirectory scanDir = new ScanDirectory(IniData.InputDir);
+                            jobXmlData = scanDir.GetJobXmlData(IniData.InputDir + @"\" + job);
+
+                            // Set data found
+                            StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
+                            data.Job = jobXmlData.Job;
+                            data.JobDirectory = jobXmlData.JobDirectory;
+                            data.JobSerialNumber = jobXmlData.JobSerialNumber;
+                            data.TimeStamp = jobXmlData.TimeStamp;
+                            data.XmlFileName = jobXmlData.XmlFileName;
+                          //data.JobIndex = GlobalJobIndex++;
+
+                            // Display data found
+                            Console.WriteLine("");
+                            Console.WriteLine("Found new Job         = " + data.Job);
+                            Console.WriteLine("New Job Directory     = " + data.JobDirectory);
+                            Console.WriteLine("New Serial Number     = " + data.JobSerialNumber);
+                            Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
+                            Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
+
+                            // Increment execution count to track job by this as an index number
+                            data.ExecutionCount++;
+
+                            if (data.ExecutionCount <= IniData.ExecutionLimit)
+                            {
+                                // Supply the state information required by the task.
+                                JobRunThread jobThread = new JobRunThread(IniData.InputDir, IniData, data, StatusData);
+
+                                // Create a thread to execute the task, and then start the thread.
+                                Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
+                                Console.WriteLine("Starting Job " + data.Job);
+                                t.Start();
+                                Thread.Sleep(1000);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
+                                    data.Job, data.ExecutionCount, IniData.ExecutionLimit);
+                            }
                         }
                     }
-                }
 
-                // If Stop button pressed, set RunStop Flag to false to stop
-                if (RunStop == false)
-                {
-                    return;
+                    // Sleep to allow job to finish before checking for more
+                    Thread.Sleep(IniData.ScanTime);
                 }
-
-                // Sleep to allow job to finish before checking for more
-                Thread.Sleep(iniFileData.ScanTime);
             }
         }
 
@@ -854,8 +859,9 @@ namespace Status.Services
             // Scan for jobs not completed
             ScanForUnfinishedJobs();
 
-            // Start scan for new jobs
-            ScanForNewJobs();
+            // Start scan for new jobs on it's own thread
+            ProcessThread processThread = new ProcessThread(iniFileData, statusList);
+            processThread.ScanForNewJobs();
 
             return iniFileData;
         }
