@@ -18,6 +18,11 @@ namespace Handler.Pages
     {
         //private readonly ILogger<IndexModel> _logger;
 
+        /// <summary>
+        /// status data
+        /// </summary>
+        public IEnumerable<StatusModels.StatusData> statusData { get; set; }
+
         private readonly IStatusRepository MonitorDataRepository;
         /// <summary>
         /// Ini File Data
@@ -43,6 +48,8 @@ namespace Handler.Pages
         /// </summary>
         public void OnGet()
         {
+            statusData = MonitorDataRepository.GetJobStatus();
+
             //_logger.LogTrace("Log Trace");
             //_logger.LogDebug("Log Debug");
             //_logger.LogInformation("Log Information");
