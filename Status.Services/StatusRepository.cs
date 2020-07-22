@@ -494,7 +494,7 @@ namespace Status.Services
             thread.Start();
 
             Console.WriteLine("***** Started Job {0} with Modeler {1} on port {2} with {3} CPU's",
-                ProcessingBufferDir, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
+                monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
 
             //do
             //{
