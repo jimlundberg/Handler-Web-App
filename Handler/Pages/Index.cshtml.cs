@@ -16,31 +16,32 @@ namespace Handler.Pages
     /// </summary>
     public class IndexModel : PageModel
     {
-        //private readonly ILogger<IndexModel> _logger;
+        private readonly ILogger<IndexModel> _logger;
 
         /// <summary>
         /// status data
         /// </summary>
         public IEnumerable<StatusModels.StatusData> statusData { get; set; }
 
+        /// <summary>
+        /// Monitor Data Repository
+        /// </summary>
         private readonly IStatusRepository MonitorDataRepository;
+
         /// <summary>
         /// Ini File Data
         /// </summary>
         public StatusModels.IniFileData iniData { get; set; }
 
-        //public IndexModel(ILogger<IndexModel> logger)
-        //{
-        //    _logger = logger;
-        //}
-
         /// <summary>
         /// Index Model CTOR
         /// </summary>
         /// <param name="monitorDataRepository"></param>
-        public IndexModel(IStatusRepository monitorDataRepository)
+        /// <param name="logger"></param>
+        public IndexModel(IStatusRepository monitorDataRepository, ILogger<IndexModel> logger)
         {
             this.MonitorDataRepository = monitorDataRepository;
+            _logger = logger;
         }
 
         /// <summary>
@@ -50,11 +51,11 @@ namespace Handler.Pages
         {
             statusData = MonitorDataRepository.GetJobStatus();
 
-            //_logger.LogTrace("Log Trace");
-            //_logger.LogDebug("Log Debug");
-            //_logger.LogInformation("Log Information");
-            //_logger.LogError("Log Error");
-            //_logger.LogCritical("Log Critical");
+            _logger.LogTrace("Log Trace");
+            _logger.LogDebug("Log Debug");
+            _logger.LogInformation("Log Information");
+            _logger.LogError("Log Error");
+            _logger.LogCritical("Log Critical");
         }
 
         /// <summary>
