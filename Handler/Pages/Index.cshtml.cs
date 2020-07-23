@@ -49,7 +49,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnGet()
         {
-            statusData = MonitorDataRepository.GetJobStatus();
+            statusData = MonitorDataRepository.GetJobStatus().Reverse();
 
             _logger.LogTrace("Log Trace");
             _logger.LogDebug("Log Debug");
