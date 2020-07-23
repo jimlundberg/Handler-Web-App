@@ -16,7 +16,7 @@ namespace Handler.Pages
     /// </summary>
     public class IndexModel : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
+        public readonly ILogger<IndexModel> _logger;
 
         /// <summary>
         /// status data
