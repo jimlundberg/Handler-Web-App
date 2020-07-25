@@ -345,21 +345,23 @@ namespace Status.Services
         private IniFileData IniData;
         private StatusMonitorData MonitorData;
         private List<StatusData> StatusData;
-        private string DirectoryName;
+        private String DirectoryName;
+        private int NumberOfJobsExecuting = 0;
 
         // The constructor obtains the state information.
-        public JobRunThread(String directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
+        public JobRunThread(String directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, int numberOfJobsExecuting)
         {
             IniData = iniData;
             MonitorData = monitorData;
             StatusData = statusData;
             DirectoryName = directory;
+            NumberOfJobsExecuting = numberOfJobsExecuting;
         }
 
         // The thread procedure performs the task
         public void ThreadProc()
         {
-            RunJob(DirectoryName, IniData, MonitorData, StatusData);
+            RunJob(DirectoryName, IniData, MonitorData, StatusData, NumberOfJobsExecuting);
         }
 
         public void StatusEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot)
@@ -386,7 +388,7 @@ namespace Status.Services
             Console.WriteLine("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
         }
 
-        public void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
+        public void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, int numberOfJobsExecuting)
         {
             // Add initial entry to status list
             StatusEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED);
@@ -597,6 +599,8 @@ namespace Status.Services
                     FileHandling.MoveDir(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job);
                 }
 
+                numberOfJobsExecuting--;
+
                 // Add entry to status list
                 StatusEntry(statusData, job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
             }
@@ -611,6 +615,7 @@ namespace Status.Services
         private List<StatusData> statusList = new List<StatusData>();
         private StatusData statusData = new StatusData();
         public int GlobalJobIndex = 0;
+        public int NumberOfJobsExecuting = 0;
         private bool RunStop = true;
 
         public void MonitorDataRepository()
@@ -639,8 +644,11 @@ namespace Status.Services
         {
             statusList = new List<StatusData>()
             {
-                new StatusData() { Job = "Job Field", JobStatus = JobStatus.JOB_STARTED, 
-                    TimeReceived = DateTime.Now,  TimeStarted = DateTime.Now,  TimeCompleted = DateTime.Now }
+                new StatusData() { Job = "1185840_202003250942", JobStatus = JobStatus.JOB_STARTED, TimeReceived = DateTime.Now, TimeStarted = DateTime.MinValue, TimeCompleted = DateTime.MinValue },
+                new StatusData() { Job = "1185840_202003250942", JobStatus = JobStatus.COPYING_TO_PROCESSING, TimeReceived = DateTime.MinValue, TimeStarted = DateTime.Now, TimeCompleted = DateTime.MinValue },
+                new StatusData() { Job = "1185840_202003250942", JobStatus = JobStatus.EXECUTING, TimeReceived = DateTime.MinValue, TimeStarted = DateTime.Now, TimeCompleted = DateTime.MinValue },
+                new StatusData() { Job = "1185840_202003250942", JobStatus = JobStatus.COPYING_TO_ARCHIVE, TimeReceived = DateTime.MinValue, TimeStarted = DateTime.Now, TimeCompleted = DateTime.MinValue },
+                new StatusData() { Job = "1185840_202003250942", JobStatus = JobStatus.COMPLETE, TimeReceived = DateTime.MinValue, TimeStarted = DateTime.MinValue, TimeCompleted = DateTime.Now }
             };
         }
 
@@ -673,7 +681,7 @@ namespace Status.Services
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
             DirectoryInfo directory = new DirectoryInfo(iniFileData.ProcessingDir);
             DirectoryInfo[] subdirs = directory.GetDirectories();
-            if (subdirs.Length != 0)
+            if ((subdirs.Length != 0) && (NumberOfJobsExecuting < iniFileData.ExecutionLimit))
             {
                 Console.WriteLine("\nFound unfinished jobs...");
                 for (int i = 0; i < subdirs.Length; i++)
@@ -707,7 +715,8 @@ namespace Status.Services
                     if (data.ExecutionCount <= iniFileData.ExecutionLimit)
                     {
                         // Supply the state information required by the task.
-                        JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList);
+                        NumberOfJobsExecuting++;
+                        JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList, NumberOfJobsExecuting);
 
                         // Create a thread to execute the task, and then start the thread.
                         Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
@@ -741,13 +750,15 @@ namespace Status.Services
             private List<StatusData> StatusData;
             private bool endProcess = false;
             private int GlobalJobIndex = 0;
+            private int NumberOfJobsExecuting = 0;
 
             // The constructor obtains the state information.
-            public ProcessThread(IniFileData iniData, List<StatusData> statusData, int globalJobIndex)
+            public ProcessThread(IniFileData iniData, List<StatusData> statusData, int globalJobIndex, int numberOfJobsRunning)
             {
                 IniData = iniData;
                 StatusData = statusData;
                 GlobalJobIndex = globalJobIndex;
+                NumberOfJobsExecuting = numberOfJobsRunning;
             }
 
             public void StopProcess()
@@ -768,7 +779,7 @@ namespace Status.Services
                 {
                     // Check if there are any directories
                     DirectoryInfo[] subdirs = directory.GetDirectories();
-                    if (subdirs.Length != 0)
+                    if ((subdirs.Length != 0) && (NumberOfJobsExecuting < IniData.ExecutionLimit))
                     {
                         for (int i = 0; i < subdirs.Length; i++)
                         {
@@ -801,7 +812,8 @@ namespace Status.Services
                             if (data.ExecutionCount <= IniData.ExecutionLimit)
                             {
                                 // Supply the state information required by the task.
-                                JobRunThread jobThread = new JobRunThread(IniData.InputDir, IniData, data, StatusData);
+                                NumberOfJobsExecuting++;
+                                JobRunThread jobThread = new JobRunThread(IniData.InputDir, IniData, data, StatusData, NumberOfJobsExecuting);
 
                                 // Create a thread to execute the task, and then start the thread.
                                 Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
@@ -874,7 +886,7 @@ namespace Status.Services
             ScanForUnfinishedJobs();
 
             // Start scan for new jobs on it's own thread
-            processThread = new ProcessThread(iniFileData, statusList, GlobalJobIndex);
+            processThread = new ProcessThread(iniFileData, statusList, GlobalJobIndex, NumberOfJobsExecuting);
             processThread.ScanForNewJobs();
 
             return iniFileData;
