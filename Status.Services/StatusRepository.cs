@@ -709,25 +709,26 @@ namespace Status.Services
                     Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
                     Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
 
-                    // Increment execution count to track job by this as an index number
-                    data.ExecutionCount++;
-
-                    if (data.ExecutionCount <= iniFileData.ExecutionLimit)
+                    if (NumberOfJobsExecuting++ < iniFileData.ExecutionLimit)
                     {
-                        // Supply the state information required by the task.
-                        NumberOfJobsExecuting++;
+                        // Increment counts to track job execution and port id
+                        data.ExecutionCount++;
+
+                        Console.WriteLine("Job {0} Executing {1}", data.Job, NumberOfJobsExecuting);
+
                         JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList, NumberOfJobsExecuting);
 
                         // Create a thread to execute the task, and then start the thread.
                         Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
                         Console.WriteLine("Starting Job " + data.Job);
                         t.Start();
-                        Thread.Sleep(1000);
+                        Thread.Sleep(iniFileData.ScanTime);
                     }
                     else
                     {
-                        Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
-                            data.Job, data.ExecutionCount, iniFileData.ExecutionLimit);
+                        Console.WriteLine("Job {0} Executing {1} Exceeded Execution Limit of {2}",
+                            data.Job, NumberOfJobsExecuting, iniFileData.ExecutionLimit);
+                        Thread.Sleep(iniFileData.ScanTime);
                     }
 
                     // If Stop button pressed, set RunStop Flag to false to stop
@@ -779,7 +780,7 @@ namespace Status.Services
                 {
                     // Check if there are any directories
                     DirectoryInfo[] subdirs = directory.GetDirectories();
-                    if ((subdirs.Length != 0) && (NumberOfJobsExecuting < IniData.ExecutionLimit))
+                    if (subdirs.Length != 0)
                     {
                         for (int i = 0; i < subdirs.Length; i++)
                         {
@@ -806,25 +807,27 @@ namespace Status.Services
                             Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
                             Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
 
-                            // Increment execution count to track job by this as an index number
-                            data.ExecutionCount++;
-
-                            if (data.ExecutionCount <= IniData.ExecutionLimit)
+                            if (NumberOfJobsExecuting++ < IniData.ExecutionLimit)
                             {
+                                // Increment counts to track job execution and port id
+                                data.ExecutionCount++;
+
+                                Console.WriteLine("Job {0} Executing {1}", data.Job, NumberOfJobsExecuting);
+
                                 // Supply the state information required by the task.
-                                NumberOfJobsExecuting++;
                                 JobRunThread jobThread = new JobRunThread(IniData.InputDir, IniData, data, StatusData, NumberOfJobsExecuting);
 
                                 // Create a thread to execute the task, and then start the thread.
                                 Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
                                 Console.WriteLine("Starting Job " + data.Job);
                                 t.Start();
-                                Thread.Sleep(1000);
+                                Thread.Sleep(IniData.ScanTime);
                             }
                             else
                             {
-                                Console.WriteLine("Job {0} Index {1} Exceeded Execution Limit of {2}",
-                                    data.Job, data.ExecutionCount, IniData.ExecutionLimit);
+                                Console.WriteLine("Job {0} Executing {1} Exceeded Execution Limit of {2}",
+                                    data.Job, NumberOfJobsExecuting, IniData.ExecutionLimit);
+                                Thread.Sleep(IniData.ScanTime);
                             }
                         }
                     }
