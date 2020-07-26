@@ -626,9 +626,12 @@ namespace Status.Services
                                 break;
                         }
 
-                        string rowString = String.Format("{0}, {1}, {2}, {3}, {4}",
-                            statusList[i].Job, StatusList[i].JobStatus, StatusList[i].TimeReceived, StatusList[i].TimeStarted, StatusList[i].TimeCompleted);
-                        row.Add(rowString);
+                        row.Add(StatusList[i].Job);
+                        row.Add(StatusList[i].JobStatus.ToString());
+                        row.Add(StatusList[i].TimeReceived.ToString());
+                        row.Add(StatusList[i].TimeStarted.ToString());
+                        row.Add(StatusList[i].TimeCompleted.ToString());
+
                         writer.WriteRow(row);
                     }
                 }
