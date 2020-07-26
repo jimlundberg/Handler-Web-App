@@ -21,9 +21,9 @@ namespace ReadWriteCsvFile
     /// <summary>
     /// Class to store one CSV row
     /// </summary>
-    public class CsvRow : List<string>
+    public class CsvRow : List<String>
     {
-        public string LineText { get; set; }
+        public String LineText { get; set; }
     }
 
     /// <summary>
@@ -33,7 +33,7 @@ namespace ReadWriteCsvFile
     {
         public CsvFileWriter(Stream stream) : base(stream) { }
 
-        public CsvFileWriter(string filename) : base(filename) { }
+        public CsvFileWriter(String filename) : base(filename) { }
 
         /// <summary>
         /// Writes a single row to a CSV file.
@@ -43,7 +43,7 @@ namespace ReadWriteCsvFile
         {
             StringBuilder builder = new StringBuilder();
             bool firstColumn = true;
-            foreach (string value in row)
+            foreach (String value in row)
             {
                 // Add separator if this isn't the first value
                 if (!firstColumn)
@@ -75,7 +75,7 @@ namespace ReadWriteCsvFile
     {
         public CsvFileReader(Stream stream) : base(stream) { }
 
-        public CsvFileReader(string filename) : base(filename) { }
+        public CsvFileReader(String filename) : base(filename) { }
 
         /// <summary>
         /// Reads a row of data from a CSV file
@@ -95,7 +95,7 @@ namespace ReadWriteCsvFile
 
             while (pos < row.LineText.Length)
             {
-                string value;
+                String value;
 
                 // Special handling for quoted field
                 if (row.LineText[pos] == '"')
@@ -173,6 +173,9 @@ namespace ReadWriteCsvFile
 
 namespace Status.Services
 {
+    /// <summary>
+    /// Class to Read and Ini file data
+    /// </summary>
     public class IniFile
     {
         String Path;
@@ -216,6 +219,10 @@ namespace Status.Services
             return Read(Key, Section).Length > 0;
         }
     }
+
+    /// <summary>
+    /// Class to Scan a directory for new directories
+    /// </summary>
     public class ScanDirectory
     {
         public String DirectoryName;
@@ -260,6 +267,9 @@ namespace Status.Services
         }
     }
 
+    /// <summary>
+    /// Class to Monitor the number of files in a directory 
+    /// </summary>
     public class MonitorDirectoryFiles
     {
         public static bool MonitorDirectory(String monitoredDir, int numberOfFilesNeeded, int timeout, int scanTime)
@@ -289,6 +299,9 @@ namespace Status.Services
         }
     }
 
+    /// <summary>
+    /// Class for file copy, move and delete handling
+    /// </summary>
     public class FileHandling
     {
         public static void CopyDir(String sourceDirectory, String targetDirectory)
@@ -364,6 +377,9 @@ namespace Status.Services
         }
     }
 
+    /// <summary>
+    /// Class to generate and execute a command line start of the Modeler executable
+    /// </summary>
     public class CommandLineGenerator
     {
         private String cmd;
@@ -399,6 +415,9 @@ namespace Status.Services
         }
     }
 
+    /// <summary>
+    /// Class to run the Command Line Generator
+    /// </summary>
     public class CommandLineGeneratorThread
     {
         // Object used in the task.
@@ -417,6 +436,9 @@ namespace Status.Services
         }
     }
 
+    /// <summary>
+    /// Class to monitor and report status the TCP/IP connection to the Monitor application that is executing 
+    /// </summary>
     public class TcpIpConnection
     {
         public static System.Timers.Timer aTimer;
@@ -495,6 +517,9 @@ namespace Status.Services
         }
     }
 
+    /// <summary>
+    /// Class to run a Job as a thread
+    /// </summary>
     public class JobRunThread
     {
         // State information used in the task.
@@ -520,37 +545,208 @@ namespace Status.Services
             RunJob(DirectoryName, IniData, MonitorData, StatusData, NumberOfJobsExecuting);
         }
 
-        public void StatusEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot)
+        /// <summary>
+        /// Status Entry class
+        /// </summary>
+        class StatusEntry
         {
-            StatusData entry = new StatusData();
-            entry.Job = job;
-            entry.JobStatus = status;
-            switch (timeSlot)
+            List<StatusData> StatusList;
+            String Job;
+            JobStatus Status;
+            JobType TimeSlot;
+            String LogFileName;
+
+            public StatusEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
             {
-                case JobType.TIME_START:
-                    entry.TimeStarted = DateTime.Now;
-                    break;
-
-                case JobType.TIME_RECIEVED:
-                    entry.TimeReceived = DateTime.Now;
-                    break;
-
-                case JobType.TIME_COMPLETE:
-                    entry.TimeCompleted = DateTime.Now;
-                    break;
+                StatusList = statusList;
+                Job = job;
+                Status = status;
+                TimeSlot = timeSlot;
+                LogFileName = logFileName;
             }
 
-            statusList.Add(entry);
+            public void ListStatus(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot)
+            {
+                StatusData entry = new StatusData();
+                entry.Job = job;
+                entry.JobStatus = status;
+                switch (timeSlot)
+                {
+                    case JobType.TIME_RECIEVED:
+                        entry.TimeReceived = DateTime.Now;
+                        break;
+
+                    case JobType.TIME_START:
+                        entry.TimeStarted = DateTime.Now;
+                        break;
+
+                    case JobType.TIME_COMPLETE:
+                        entry.TimeCompleted = DateTime.Now;
+                        break;
+                }
+
+                statusList.Add(entry);
+
+                // Write entry to CSV file
+
+                Console.WriteLine("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
+            }
+
+            /// <summary>
+            /// Write Status data to the designated cvs data file
+            /// </summary>
+            /// <param name="statusList"></param>
+            /// <param name="job"></param>
+            /// <param name="status"></param>
+            /// <param name="timeSlot"></param>
+            public void WriteToCsvFile(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
+            {
+                DateTime timeReceived = DateTime.MinValue;
+                DateTime timeStarted = DateTime.MinValue;
+                DateTime timeCompleted = DateTime.MinValue;
+
+                // Write status data to CSV file
+                using (CsvFileWriter writer = new CsvFileWriter(logFileName))
+                {
+                    for (int i = 0; i < statusList.Count(); i++)
+                    {
+                        CsvRow row = new CsvRow();
+                        switch (timeSlot)
+                        {
+                            case JobType.TIME_RECIEVED:
+                                timeReceived = DateTime.Now;
+                                break;
+
+                            case JobType.TIME_START:
+                                timeStarted = DateTime.Now;
+                                break;
+
+                            case JobType.TIME_COMPLETE:
+                                timeCompleted = DateTime.Now;
+                                break;
+                        }
+
+                        string rowString = String.Format("{0}, {1}, {2}, {3}, {4}",
+                            statusList[i].Job, StatusList[i].JobStatus, StatusList[i].TimeReceived, StatusList[i].TimeStarted, StatusList[i].TimeCompleted);
+                        row.Add(rowString);
+                        writer.WriteRow(row);
+                    }
+                }
+            }
+
+            public List<StatusData> ReadFromCsvFile(String logFileName)
+            {
+                List<StatusData> statusData = new List<StatusData>();
+                StatusData rowData = new StatusData();
+                String[] rowString;
+                DateTime timeReceived = DateTime.MinValue;
+                DateTime timeStarted = DateTime.MinValue;
+                DateTime timeCompleted = DateTime.MinValue;
+
+                using (CsvFileReader reader = new CsvFileReader(logFileName))
+                {
+                    CsvRow row = new CsvRow();
+                    while (reader.ReadRow(row))
+                    {
+                        foreach (String s in row)
+                        {
+                            Console.WriteLine(s);
+                            rowString = s.Split(',');
+                            rowData.Job = rowString[0];
+
+                            String jobType = rowString[1];
+                            switch (jobType)
+                            {
+                                case "JOB_STARTED":
+                                    rowData.JobStatus = JobStatus.JOB_STARTED;
+                                    break;
+
+                                case "EXECUTING":
+                                    rowData.JobStatus = JobStatus.EXECUTING;
+                                    break;
+
+                                case "MONITORING_INPUT":
+                                    rowData.JobStatus = JobStatus.MONITORING_INPUT;
+                                    break;
+
+                                case "COPYING_TO_PROCESSING":
+                                    rowData.JobStatus = JobStatus.COPYING_TO_PROCESSING;
+                                    break;
+
+                                case "MONITORING_PROCESSING":
+                                    rowData.JobStatus = JobStatus.MONITORING_PROCESSING;
+                                    break;
+
+                                case "MONITORING_TCPIP":
+                                    rowData.JobStatus = JobStatus.MONITORING_TCPIP;
+                                    break;
+
+                                case "COPYING_TO_ARCHIVE":
+                                    rowData.JobStatus = JobStatus.COPYING_TO_ARCHIVE;
+                                    break;
+
+                                case "COMPLETE":
+                                    rowData.JobStatus = JobStatus.COMPLETE;
+                                    break;
+                            }
+
+                            // Get Time Recieved
+                            if (rowString[2] == "1/1/0001 12:00:00 AM")
+                            {
+                                rowData.TimeReceived = DateTime.MinValue;
+                            }
+                            else
+                            {
+                                rowData.TimeReceived = Convert.ToDateTime(rowString[2]);
+                            }
+
+                            // Get Time Started
+                            if (rowString[3] == "1 / 1 / 0001 12:00:00 AM")
+                            {
+                                rowData.TimeStarted = DateTime.MinValue;
+                            }
+                            else
+                            {
+                                rowData.TimeStarted = Convert.ToDateTime(rowString[3]);
+                            }
 
 
+                            // Get Time Complete
+                            if (rowString[4] == "1/1/0001 12:00:00 AM")
+                            {
+                                rowData.TimeCompleted = DateTime.MinValue;
+                            }
+                            else
+                            {
+                                rowData.TimeCompleted = Convert.ToDateTime(rowString[4]);
+                            }
+                        }
+                    }
+                }
 
-            Console.WriteLine("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
+                return statusData;
+            }
         }
 
+        public void StatusDataEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
+        {
+            StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, logFileName);
+            statusData.ListStatus(statusList, job, status, timeSlot);
+            statusData.WriteToCsvFile(statusList, job, status, timeSlot, logFileName);
+        }
+
+        /// <summary>
+        /// Process of running  job
+        /// </summary>
+        /// <param name="scanDirectory"></param>
+        /// <param name="iniData"></param>
+        /// <param name="monitorData"></param>
+        /// <param name="statusData"></param>
+        /// <param name="numberOfJobsExecuting"></param>
         public void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, int numberOfJobsExecuting)
         {
             // Add initial entry to status list
-            StatusEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED);
+            StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED, iniData.LogFile);
 
             // Wait until Xml file is copied to the directory being scanned
             String job = monitorData.Job;
@@ -602,7 +798,7 @@ namespace Status.Services
             Console.WriteLine("Job Port Number       = " + monitorData.JobPortNumber);
 
             // Add initial entry to status list
-            StatusEntry(statusData, job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
+            StatusDataEntry(statusData, job, JobStatus.MONITORING_INPUT, JobType.TIME_START, iniData.LogFile);
 
             // Create the Transfered file list from the Xml file entries
             monitorData.transferedFileList = new List<String>(NumFilesToTransfer);
@@ -635,14 +831,14 @@ namespace Status.Services
                 }
 
                 // Add entry to status list
-                StatusEntry(statusData, job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
+                StatusDataEntry(statusData, job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, iniData.LogFile);
 
                 // Move files from Input directory to the Processing directory, creating it first if needed
                 FileHandling.MoveDir(InputBufferDir, ProcessingBufferDir);
             }
 
             // Add entry to status list
-            StatusEntry(statusData, job, JobStatus.EXECUTING, JobType.TIME_START);
+            StatusDataEntry(statusData, job, JobStatus.EXECUTING, JobType.TIME_START, iniData.LogFile);
 
             // Load and execute command line generator
             CommandLineGenerator cl = new CommandLineGenerator();
@@ -686,7 +882,7 @@ namespace Status.Services
             //while (true);
 
             // Add entry to status list
-            StatusEntry(statusData, job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
+            StatusDataEntry(statusData, job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.LogFile);
 
             // Monitor for complete set of files in the Processing Buffer
             Console.WriteLine("Monitoring for Processing output files...");
@@ -695,7 +891,7 @@ namespace Status.Services
                 ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, iniData.MaxTimeLimit, iniData.ScanTime))
             {
                 // Add copy entry to status list
-                StatusEntry(statusData, job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START);
+                StatusDataEntry(statusData, job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.LogFile);
 
                 // Check .Xml output file for pass/fail
                 bool XmlFileFound = false;
@@ -761,11 +957,14 @@ namespace Status.Services
                 numberOfJobsExecuting--;
 
                 // Add entry to status list
-                StatusEntry(statusData, job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
+                StatusDataEntry(statusData, job, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.LogFile);
             }
         }
     }
 
+    /// <summary>
+    /// Status Data storage object
+    /// </summary>
     public class StatusRepository : IStatusRepository
     {
         private ProcessThread processThread;
@@ -777,6 +976,9 @@ namespace Status.Services
         public int NumberOfJobsExecuting = 0;
         private bool RunStop = true;
 
+        /// <summary>
+        /// Monitor Data buffer initialization
+        /// </summary>
         public void MonitorDataRepository()
         {
             monitorData = new List<StatusMonitorData>()
@@ -799,6 +1001,9 @@ namespace Status.Services
             };
         }
 
+        /// <summary>
+        /// Status data buffer initialization
+        /// </summary>
         public void StatuDataRepository()
         {
             statusList = new List<StatusData>()
@@ -811,6 +1016,12 @@ namespace Status.Services
             };
         }
 
+        /// <summary>
+        /// Status Entry handler
+        /// </summary>
+        /// <param name="job"></param>
+        /// <param name="status"></param>
+        /// <param name="timeSlot"></param>
         public void StatusEntry(String job, JobStatus status, JobType timeSlot)
         {
             StatusData entry = new StatusData();
@@ -835,6 +1046,9 @@ namespace Status.Services
             Console.WriteLine("Status: Job {0} Job Status {1} Job Type {2}", job, status, timeSlot.ToString());
         }
 
+        /// <summary>
+        /// Scan for Unfinished jobs in the Processing Buffer
+        /// </summary>
         public void ScanForUnfinishedJobs()
         {
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
@@ -903,6 +1117,9 @@ namespace Status.Services
             }
         }
 
+        /// <summary>
+        /// Class to run the whole monitoring process as a thread
+        /// </summary>
         public class ProcessThread
         {
             // State information used in the task.
@@ -913,6 +1130,13 @@ namespace Status.Services
             private int NumberOfJobsExecuting = 0;
 
             // The constructor obtains the state information.
+            /// <summary>
+            /// Process Thread constructor receiving data buffers
+            /// </summary>
+            /// <param name="iniData"></param>
+            /// <param name="statusData"></param>
+            /// <param name="globalJobIndex"></param>
+            /// <param name="numberOfJobsRunning"></param>
             public ProcessThread(IniFileData iniData, List<StatusData> statusData, int globalJobIndex, int numberOfJobsRunning)
             {
                 IniData = iniData;
@@ -921,11 +1145,17 @@ namespace Status.Services
                 NumberOfJobsExecuting = numberOfJobsRunning;
             }
 
+            /// <summary>
+            /// Method to set flag to stop the monitoring process
+            /// </summary>
             public void StopProcess()
             {
                 endProcess = true;
             }
 
+            /// <summary>
+            /// Method to scan for new jobs in the Input Buffer
+            /// </summary>
             public void ScanForNewJobs()
             {
                 endProcess = false;
@@ -998,6 +1228,10 @@ namespace Status.Services
             }
         }
 
+        /// <summary>
+        /// Get the Monitor Status Entry point
+        /// </summary>
+        /// <returns></returns>
         public StatusModels.IniFileData GetMonitorStatus()
         {
             RunStop = true;
@@ -1054,6 +1288,9 @@ namespace Status.Services
             return iniFileData;
         }
 
+        /// <summary>
+        /// Method to stop the Monitor process
+        /// </summary>
         public void StopMonitor()
         {
             if (processThread != null)
@@ -1062,6 +1299,10 @@ namespace Status.Services
             }
         }
 
+        /// <summary>
+        /// Method to return the status data to the requestor
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<StatusData> GetJobStatus()
         {
             return statusList;
