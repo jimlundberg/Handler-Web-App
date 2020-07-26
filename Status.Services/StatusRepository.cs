@@ -304,6 +304,11 @@ namespace Status.Services
     /// </summary>
     public class FileHandling
     {
+        /// <summary>
+        /// Copy a directory from source to target
+        /// </summary>
+        /// <param name="sourceDirectory"></param>
+        /// <param name="targetDirectory"></param>
         public static void CopyDir(String sourceDirectory, String targetDirectory)
         {
             DirectoryInfo Source = new DirectoryInfo(sourceDirectory);
@@ -311,6 +316,11 @@ namespace Status.Services
             CopyAllFiles(Source, Target);
         }
 
+        /// <summary>
+        /// Move a directory from source to target
+        /// </summary>
+        /// <param name="sourceDirectory"></param>
+        /// <param name="targetDirectory"></param>
         public static void MoveDir(String sourceDirectory, String targetDirectory)
         {
             DirectoryInfo Source = new DirectoryInfo(sourceDirectory);
@@ -344,6 +354,11 @@ namespace Status.Services
             Console.WriteLine(@"Copied {0} -> {1}", sourceDirectory, targetDirectory);
         }
 
+        /// <summary>
+        /// Copy file from source to target
+        /// </summary>
+        /// <param name="sourceFile"></param>
+        /// <param name="targetFile"></param>
         public static void CopyFile(String sourceFile, String targetFile)
         {
             FileInfo Source = new FileInfo(sourceFile);
@@ -357,6 +372,11 @@ namespace Status.Services
             Console.WriteLine(@"Copied {0} -> {1}", sourceFile, targetFile);
         }
 
+        /// <summary>
+        /// Copy all files from source to target directory
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="target"></param>
         public static void CopyAllFiles(DirectoryInfo source, DirectoryInfo target)
         {
             Directory.CreateDirectory(target.FullName);
@@ -548,13 +568,15 @@ namespace Status.Services
         /// <summary>
         /// Status Entry class
         /// </summary>
-        class StatusEntry
+        public class StatusEntry
         {
             List<StatusData> StatusList;
             String Job;
             JobStatus Status;
             JobType TimeSlot;
             String LogFileName;
+
+            public StatusEntry() { }
 
             public StatusEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
             {
@@ -601,9 +623,9 @@ namespace Status.Services
             /// <param name="timeSlot"></param>
             public void WriteToCsvFile(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
             {
-                DateTime timeReceived = DateTime.MinValue;
-                DateTime timeStarted = DateTime.MinValue;
-                DateTime timeCompleted = DateTime.MinValue;
+                DateTime timeReceived = new DateTime();
+                DateTime timeStarted = new DateTime();
+                DateTime timeCompleted = new DateTime();
 
                 // Write status data to CSV file
                 using (CsvFileWriter writer = new CsvFileWriter(logFileName))
@@ -1308,6 +1330,15 @@ namespace Status.Services
         /// <returns></returns>
         public IEnumerable<StatusData> GetJobStatus()
         {
+            return statusList;
+        }
+
+        public IEnumerable<StatusData> GetHistoryData()
+        {
+            //List<StatusData> statusList = new List<StatusData>();
+            //StatusEntry status = new StatusRepository();
+            //statusList = WriteToCsvFile()
+
             return statusList;
         }
     }
