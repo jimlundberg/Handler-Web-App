@@ -538,6 +538,195 @@ namespace Status.Services
     }
 
     /// <summary>
+    /// Status Entry class
+    /// </summary>
+    public class StatusEntry
+    {
+        List<StatusData> StatusList;
+        String Job;
+        JobStatus Status;
+        JobType TimeSlot;
+        String LogFileName;
+
+        public StatusEntry() { }
+
+        public StatusEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
+        {
+            StatusList = statusList;
+            Job = job;
+            Status = status;
+            TimeSlot = timeSlot;
+            LogFileName = logFileName;
+        }
+
+        public void ListStatus(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot)
+        {
+            StatusData entry = new StatusData();
+            entry.Job = job;
+            entry.JobStatus = status;
+            switch (timeSlot)
+            {
+                case JobType.TIME_RECIEVED:
+                    entry.TimeReceived = DateTime.Now;
+                    break;
+
+                case JobType.TIME_START:
+                    entry.TimeStarted = DateTime.Now;
+                    break;
+
+                case JobType.TIME_COMPLETE:
+                    entry.TimeCompleted = DateTime.Now;
+                    break;
+            }
+
+            statusList.Add(entry);
+
+            // Write entry to CSV file
+
+            Console.WriteLine("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
+        }
+
+        /// <summary>
+        /// Write Status data to the designated cvs data file
+        /// </summary>
+        /// <param name="statusList"></param>
+        /// <param name="job"></param>
+        /// <param name="status"></param>
+        /// <param name="timeSlot"></param>
+        public void WriteToCsvFile(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
+        {
+            DateTime timeReceived = new DateTime();
+            DateTime timeStarted = new DateTime();
+            DateTime timeCompleted = new DateTime();
+
+            // Write status data to CSV file
+            using (CsvFileWriter writer = new CsvFileWriter(logFileName))
+            {
+                for (int i = 0; i < statusList.Count(); i++)
+                {
+                    CsvRow row = new CsvRow();
+                    switch (timeSlot)
+                    {
+                        case JobType.TIME_RECIEVED:
+                            timeReceived = DateTime.Now;
+                            break;
+
+                        case JobType.TIME_START:
+                            timeStarted = DateTime.Now;
+                            break;
+
+                        case JobType.TIME_COMPLETE:
+                            timeCompleted = DateTime.Now;
+                            break;
+                    }
+
+                    row.Add(StatusList[i].Job);
+                    row.Add(StatusList[i].JobStatus.ToString());
+                    row.Add(StatusList[i].TimeReceived.ToString());
+                    row.Add(StatusList[i].TimeStarted.ToString());
+                    row.Add(StatusList[i].TimeCompleted.ToString());
+
+                    writer.WriteRow(row);
+                }
+            }
+        }
+
+        public List<StatusData> ReadFromCsvFile(String logFileName)
+        {
+            List<StatusData> statusDataTable = new List<StatusData>();
+            DateTime timeReceived = DateTime.MinValue;
+            DateTime timeStarted = DateTime.MinValue;
+            DateTime timeCompleted = DateTime.MinValue;
+
+            using (CsvFileReader reader = new CsvFileReader(logFileName))
+            {
+                CsvRow rowData = new CsvRow();
+                while (reader.ReadRow(rowData))
+                {
+                    Console.WriteLine(rowData.LineText);
+
+                    StatusData rowStatusData = new StatusData();
+                    rowStatusData.Job = rowData[0];
+
+                    String jobType = rowData[1];
+                    switch (jobType)
+                    {
+                        case "JOB_STARTED":
+                            rowStatusData.JobStatus = JobStatus.JOB_STARTED;
+                            break;
+
+                        case "EXECUTING":
+                            rowStatusData.JobStatus = JobStatus.EXECUTING;
+                            break;
+
+                        case "MONITORING_INPUT":
+                            rowStatusData.JobStatus = JobStatus.MONITORING_INPUT;
+                            break;
+
+                        case "COPYING_TO_PROCESSING":
+                            rowStatusData.JobStatus = JobStatus.COPYING_TO_PROCESSING;
+                            break;
+
+                        case "MONITORING_PROCESSING":
+                            rowStatusData.JobStatus = JobStatus.MONITORING_PROCESSING;
+                            break;
+
+                        case "MONITORING_TCPIP":
+                            rowStatusData.JobStatus = JobStatus.MONITORING_TCPIP;
+                            break;
+
+                        case "COPYING_TO_ARCHIVE":
+                            rowStatusData.JobStatus = JobStatus.COPYING_TO_ARCHIVE;
+                            break;
+
+                        case "COMPLETE":
+                            rowStatusData.JobStatus = JobStatus.COMPLETE;
+                            break;
+                    }
+
+                    // Get Time Recieved
+                    if (rowData[2] == "1/1/0001 12:00:00 AM")
+                    {
+                        rowStatusData.TimeReceived = DateTime.MinValue;
+                    }
+                    else
+                    {
+                        rowStatusData.TimeReceived = Convert.ToDateTime(rowData[2]);
+                    }
+
+                    // Get Time Started
+                    if (rowData[3] == "1/1/0001 12:00:00 AM")
+                    {
+                        rowStatusData.TimeStarted = DateTime.MinValue;
+                    }
+                    else
+                    {
+                        rowStatusData.TimeStarted = Convert.ToDateTime(rowData[3]);
+                    }
+
+
+                    // Get Time Complete
+                    if (rowData[4] == "1/1/0001 12:00:00 AM")
+                    {
+                        rowStatusData.TimeCompleted = DateTime.MinValue;
+                    }
+                    else
+                    {
+                        rowStatusData.TimeCompleted = Convert.ToDateTime(rowData[4]);
+                    }
+
+                    // Add data to status table
+                    statusDataTable.Add(rowStatusData);
+                }
+            }
+
+            // Return status table
+            return statusDataTable;
+        }
+    }
+
+
+    /// <summary>
     /// Class to run a Job as a thread
     /// </summary>
     public class JobRunThread
@@ -563,194 +752,6 @@ namespace Status.Services
         public void ThreadProc()
         {
             RunJob(DirectoryName, IniData, MonitorData, StatusData, NumberOfJobsExecuting);
-        }
-
-        /// <summary>
-        /// Status Entry class
-        /// </summary>
-        public class StatusEntry
-        {
-            List<StatusData> StatusList;
-            String Job;
-            JobStatus Status;
-            JobType TimeSlot;
-            String LogFileName;
-
-            public StatusEntry() { }
-
-            public StatusEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
-            {
-                StatusList = statusList;
-                Job = job;
-                Status = status;
-                TimeSlot = timeSlot;
-                LogFileName = logFileName;
-            }
-
-            public void ListStatus(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot)
-            {
-                StatusData entry = new StatusData();
-                entry.Job = job;
-                entry.JobStatus = status;
-                switch (timeSlot)
-                {
-                    case JobType.TIME_RECIEVED:
-                        entry.TimeReceived = DateTime.Now;
-                        break;
-
-                    case JobType.TIME_START:
-                        entry.TimeStarted = DateTime.Now;
-                        break;
-
-                    case JobType.TIME_COMPLETE:
-                        entry.TimeCompleted = DateTime.Now;
-                        break;
-                }
-
-                statusList.Add(entry);
-
-                // Write entry to CSV file
-
-                Console.WriteLine("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
-            }
-
-            /// <summary>
-            /// Write Status data to the designated cvs data file
-            /// </summary>
-            /// <param name="statusList"></param>
-            /// <param name="job"></param>
-            /// <param name="status"></param>
-            /// <param name="timeSlot"></param>
-            public void WriteToCsvFile(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
-            {
-                DateTime timeReceived = new DateTime();
-                DateTime timeStarted = new DateTime();
-                DateTime timeCompleted = new DateTime();
-
-                // Write status data to CSV file
-                using (CsvFileWriter writer = new CsvFileWriter(logFileName))
-                {
-                    for (int i = 0; i < statusList.Count(); i++)
-                    {
-                        CsvRow row = new CsvRow();
-                        switch (timeSlot)
-                        {
-                            case JobType.TIME_RECIEVED:
-                                timeReceived = DateTime.Now;
-                                break;
-
-                            case JobType.TIME_START:
-                                timeStarted = DateTime.Now;
-                                break;
-
-                            case JobType.TIME_COMPLETE:
-                                timeCompleted = DateTime.Now;
-                                break;
-                        }
-
-                        row.Add(StatusList[i].Job);
-                        row.Add(StatusList[i].JobStatus.ToString());
-                        row.Add(StatusList[i].TimeReceived.ToString());
-                        row.Add(StatusList[i].TimeStarted.ToString());
-                        row.Add(StatusList[i].TimeCompleted.ToString());
-
-                        writer.WriteRow(row);
-                    }
-                }
-            }
-
-            public List<StatusData> ReadFromCsvFile(String logFileName)
-            {
-                List<StatusData> statusData = new List<StatusData>();
-                StatusData rowData = new StatusData();
-                String[] rowString;
-                DateTime timeReceived = DateTime.MinValue;
-                DateTime timeStarted = DateTime.MinValue;
-                DateTime timeCompleted = DateTime.MinValue;
-
-                using (CsvFileReader reader = new CsvFileReader(logFileName))
-                {
-                    CsvRow row = new CsvRow();
-                    while (reader.ReadRow(row))
-                    {
-                        foreach (String s in row)
-                        {
-                            Console.WriteLine(s);
-                            rowString = s.Split(',');
-                            rowData.Job = rowString[0];
-
-                            String jobType = rowString[1];
-                            switch (jobType)
-                            {
-                                case "JOB_STARTED":
-                                    rowData.JobStatus = JobStatus.JOB_STARTED;
-                                    break;
-
-                                case "EXECUTING":
-                                    rowData.JobStatus = JobStatus.EXECUTING;
-                                    break;
-
-                                case "MONITORING_INPUT":
-                                    rowData.JobStatus = JobStatus.MONITORING_INPUT;
-                                    break;
-
-                                case "COPYING_TO_PROCESSING":
-                                    rowData.JobStatus = JobStatus.COPYING_TO_PROCESSING;
-                                    break;
-
-                                case "MONITORING_PROCESSING":
-                                    rowData.JobStatus = JobStatus.MONITORING_PROCESSING;
-                                    break;
-
-                                case "MONITORING_TCPIP":
-                                    rowData.JobStatus = JobStatus.MONITORING_TCPIP;
-                                    break;
-
-                                case "COPYING_TO_ARCHIVE":
-                                    rowData.JobStatus = JobStatus.COPYING_TO_ARCHIVE;
-                                    break;
-
-                                case "COMPLETE":
-                                    rowData.JobStatus = JobStatus.COMPLETE;
-                                    break;
-                            }
-
-                            // Get Time Recieved
-                            if (rowString[2] == "1/1/0001 12:00:00 AM")
-                            {
-                                rowData.TimeReceived = DateTime.MinValue;
-                            }
-                            else
-                            {
-                                rowData.TimeReceived = Convert.ToDateTime(rowString[2]);
-                            }
-
-                            // Get Time Started
-                            if (rowString[3] == "1 / 1 / 0001 12:00:00 AM")
-                            {
-                                rowData.TimeStarted = DateTime.MinValue;
-                            }
-                            else
-                            {
-                                rowData.TimeStarted = Convert.ToDateTime(rowString[3]);
-                            }
-
-
-                            // Get Time Complete
-                            if (rowString[4] == "1/1/0001 12:00:00 AM")
-                            {
-                                rowData.TimeCompleted = DateTime.MinValue;
-                            }
-                            else
-                            {
-                                rowData.TimeCompleted = Convert.ToDateTime(rowString[4]);
-                            }
-                        }
-                    }
-                }
-
-                return statusData;
-            }
         }
 
         public void StatusDataEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
@@ -1262,9 +1263,28 @@ namespace Status.Services
             RunStop = true;
             GlobalJobIndex = 0;
 
-            // Get initial data
+            // Check for unfinished jobs
             MonitorDataRepository();
 
+            // Get ini file data
+            GetIniFileData();
+
+            // Scan for jobs not completed
+            ScanForUnfinishedJobs();
+
+            // Start scan for new jobs on it's own thread
+            processThread = new ProcessThread(iniFileData, statusList, GlobalJobIndex, NumberOfJobsExecuting);
+            processThread.ScanForNewJobs();
+
+            return iniFileData;
+        }
+
+        /// <summary>
+        /// Get the Monitor Status Entry point
+        /// </summary>
+        /// <returns></returns>
+        public StatusModels.IniFileData GetIniFileData()
+        {
             // Check that Config.ini file exists
             String IniFileName = @"C:\SSMCharacterizationHandler\Handler\Config.ini";
             if (File.Exists(IniFileName) == false)
@@ -1303,13 +1323,6 @@ namespace Status.Services
             Console.WriteLine("Scan Time        = " + iniFileData.ScanTime);
             Console.WriteLine("Max Time Limit   = " + iniFileData.MaxTimeLimit);
 
-            // Scan for jobs not completed
-            ScanForUnfinishedJobs();
-
-            // Start scan for new jobs on it's own thread
-            processThread = new ProcessThread(iniFileData, statusList, GlobalJobIndex, NumberOfJobsExecuting);
-            processThread.ScanForNewJobs();
-
             return iniFileData;
         }
 
@@ -1335,10 +1348,10 @@ namespace Status.Services
 
         public IEnumerable<StatusData> GetHistoryData()
         {
-            //List<StatusData> statusList = new List<StatusData>();
-            //StatusEntry status = new StatusRepository();
-            //statusList = WriteToCsvFile()
-
+            List<StatusData> statusList = new List<StatusData>();
+            StatusEntry status = new StatusEntry();
+            iniFileData = GetIniFileData();
+            statusList = status.ReadFromCsvFile(iniFileData.LogFile);
             return statusList;
         }
     }

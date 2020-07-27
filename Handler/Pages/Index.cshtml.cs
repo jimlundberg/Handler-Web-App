@@ -82,6 +82,7 @@ namespace Handler.Pages
         public void OnPostHistoryButton()
         {
             Console.WriteLine("History Button pressed");
+            statusData = MonitorDataRepository.GetHistoryData().Reverse();
         }
     }
 }
