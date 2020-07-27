@@ -640,6 +640,7 @@ namespace Status.Services
 
             using (CsvFileReader reader = new CsvFileReader(logFileName))
             {
+                Console.WriteLine("\nReading CSV File:");
                 CsvRow rowData = new CsvRow();
                 while (reader.ReadRow(rowData))
                 {
