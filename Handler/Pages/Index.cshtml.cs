@@ -16,12 +16,15 @@ namespace Handler.Pages
     /// </summary>
     public class IndexModel : PageModel
     {
+        /// <summary>
+        /// ILogger member
+        /// </summary>
         public readonly ILogger<IndexModel> _logger;
 
         /// <summary>
         /// status data
         /// </summary>
-        public IEnumerable<StatusModels.StatusData> statusData { get; set; }
+        public IEnumerable<StatusWrapper.StatusData> statusData { get; set; }
 
         /// <summary>
         /// Monitor Data Repository
@@ -49,13 +52,13 @@ namespace Handler.Pages
         /// </summary>
         public void OnGet()
         {
-            statusData = MonitorDataRepository.GetJobStatus().Reverse();
+            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
 
-            _logger.LogTrace("Log Trace");
-            _logger.LogDebug("Log Debug");
-            _logger.LogInformation("Log Information");
-            _logger.LogError("Log Error");
-            _logger.LogCritical("Log Critical");
+            //_logger.LogTrace("Log Trace");
+            //_logger.LogDebug("Log Debug");
+            //_logger.LogInformation("Log Information");
+            //_logger.LogError("Log Error");
+            //_logger.LogCritical("Log Critical");
         }
 
         /// <summary>
@@ -82,7 +85,7 @@ namespace Handler.Pages
         public void OnPostHistoryButton()
         {
             Console.WriteLine("History Button pressed");
-            statusData = MonitorDataRepository.GetHistoryData().Reverse();
+            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetHistoryData().Reverse();
         }
     }
 }

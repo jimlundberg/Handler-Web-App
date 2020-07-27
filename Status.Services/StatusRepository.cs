@@ -542,7 +542,7 @@ namespace Status.Services
     /// </summary>
     public class StatusEntry
     {
-        List<StatusData> StatusList;
+        List<StatusWrapper.StatusData> StatusList;
         String Job;
         JobStatus Status;
         JobType TimeSlot;
@@ -550,7 +550,7 @@ namespace Status.Services
 
         public StatusEntry() { }
 
-        public StatusEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
+        public StatusEntry(List<StatusWrapper.StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
         {
             StatusList = statusList;
             Job = job;
@@ -559,9 +559,9 @@ namespace Status.Services
             LogFileName = logFileName;
         }
 
-        public void ListStatus(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot)
+        public void ListStatus(List<StatusWrapper.StatusData> statusList, String job, JobStatus status, JobType timeSlot)
         {
-            StatusData entry = new StatusData();
+            StatusWrapper.StatusData entry = new StatusWrapper.StatusData();
             entry.Job = job;
             entry.JobStatus = status;
             switch (timeSlot)
@@ -593,7 +593,7 @@ namespace Status.Services
         /// <param name="job"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
-        public void WriteToCsvFile(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
+        public void WriteToCsvFile(List<StatusWrapper.StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
         {
             DateTime timeReceived = new DateTime();
             DateTime timeStarted = new DateTime();
@@ -631,9 +631,9 @@ namespace Status.Services
             }
         }
 
-        public List<StatusData> ReadFromCsvFile(String logFileName)
+        public List<StatusWrapper.StatusData> ReadFromCsvFile(String logFileName)
         {
-            List<StatusData> statusDataTable = new List<StatusData>();
+            List<StatusWrapper.StatusData> statusDataTable = new List<StatusWrapper.StatusData>();
             DateTime timeReceived = DateTime.MinValue;
             DateTime timeStarted = DateTime.MinValue;
             DateTime timeCompleted = DateTime.MinValue;
@@ -646,7 +646,7 @@ namespace Status.Services
                 {
                     Console.WriteLine(rowData.LineText);
 
-                    StatusData rowStatusData = new StatusData();
+                    StatusWrapper.StatusData rowStatusData = new StatusWrapper.StatusData();
                     rowStatusData.Job = rowData[0];
 
                     String jobType = rowData[1];
@@ -735,12 +735,12 @@ namespace Status.Services
         // State information used in the task.
         private IniFileData IniData;
         private StatusMonitorData MonitorData;
-        private List<StatusData> StatusData;
+        private List<StatusWrapper.StatusData> StatusData;
         private String DirectoryName;
         private int NumberOfJobsExecuting = 0;
 
         // The constructor obtains the state information.
-        public JobRunThread(String directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, int numberOfJobsExecuting)
+        public JobRunThread(String directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData, ref int numberOfJobsExecuting)
         {
             IniData = iniData;
             MonitorData = monitorData;
@@ -752,10 +752,10 @@ namespace Status.Services
         // The thread procedure performs the task
         public void ThreadProc()
         {
-            RunJob(DirectoryName, IniData, MonitorData, StatusData, NumberOfJobsExecuting);
+            RunJob(DirectoryName, IniData, MonitorData, StatusData, ref NumberOfJobsExecuting);
         }
 
-        public void StatusDataEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
+        public void StatusDataEntry(List<StatusWrapper.StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
         {
             StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, logFileName);
             statusData.ListStatus(statusList, job, status, timeSlot);
@@ -770,7 +770,7 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="numberOfJobsExecuting"></param>
-        public void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, int numberOfJobsExecuting)
+        public void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData, ref int numberOfJobsExecuting)
         {
             // Add initial entry to status list
             StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED, iniData.LogFile);
@@ -997,8 +997,8 @@ namespace Status.Services
         private ProcessThread processThread;
         private IniFileData iniFileData = new IniFileData();
         private List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
-        private List<StatusData> statusList = new List<StatusData>();
-        private StatusData statusData = new StatusData();
+        private List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
+        private StatusWrapper.StatusData statusData = new StatusWrapper.StatusData();
         public int GlobalJobIndex = 0;
         public int NumberOfJobsExecuting = 0;
         private bool RunStop = true;
@@ -1033,44 +1033,10 @@ namespace Status.Services
         /// </summary>
         public void StatuDataRepository()
         {
-            statusList = new List<StatusData>()
+            statusList = new List<StatusWrapper.StatusData>()
             {
-                new StatusData() { Job = "1185840_202003250942", JobStatus = JobStatus.JOB_STARTED, TimeReceived = DateTime.Now, TimeStarted = DateTime.MinValue, TimeCompleted = DateTime.MinValue },
-                new StatusData() { Job = "1185840_202003250942", JobStatus = JobStatus.COPYING_TO_PROCESSING, TimeReceived = DateTime.MinValue, TimeStarted = DateTime.Now, TimeCompleted = DateTime.MinValue },
-                new StatusData() { Job = "1185840_202003250942", JobStatus = JobStatus.EXECUTING, TimeReceived = DateTime.MinValue, TimeStarted = DateTime.Now, TimeCompleted = DateTime.MinValue },
-                new StatusData() { Job = "1185840_202003250942", JobStatus = JobStatus.COPYING_TO_ARCHIVE, TimeReceived = DateTime.MinValue, TimeStarted = DateTime.Now, TimeCompleted = DateTime.MinValue },
-                new StatusData() { Job = "1185840_202003250942", JobStatus = JobStatus.COMPLETE, TimeReceived = DateTime.MinValue, TimeStarted = DateTime.MinValue, TimeCompleted = DateTime.Now }
+                new StatusWrapper.StatusData() { Job = "1185840_202003250942", JobStatus = JobStatus.JOB_STARTED, TimeReceived = DateTime.Now, TimeStarted = DateTime.MinValue, TimeCompleted = DateTime.MinValue }
             };
-        }
-
-        /// <summary>
-        /// Status Entry handler
-        /// </summary>
-        /// <param name="job"></param>
-        /// <param name="status"></param>
-        /// <param name="timeSlot"></param>
-        public void StatusEntry(String job, JobStatus status, JobType timeSlot)
-        {
-            StatusData entry = new StatusData();
-            entry.Job = job;
-            entry.JobStatus = status;
-            switch (timeSlot)
-            {
-                case JobType.TIME_START:
-                    entry.TimeStarted = DateTime.Now;
-                    break;
-
-                case JobType.TIME_RECIEVED:
-                    entry.TimeReceived = DateTime.Now;
-                    break;
-
-                case JobType.TIME_COMPLETE:
-                    entry.TimeCompleted = DateTime.Now;
-                    break;
-            }
-            statusList.Add(entry);
-
-            Console.WriteLine("Status: Job {0} Job Status {1} Job Type {2}", job, status, timeSlot.ToString());
         }
 
         /// <summary>
@@ -1116,7 +1082,7 @@ namespace Status.Services
 
                         Console.WriteLine("Job {0} Executing {1}", data.Job, NumberOfJobsExecuting);
 
-                        JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList, NumberOfJobsExecuting);
+                        JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList, ref NumberOfJobsExecuting);
 
                         // Create a thread to execute the task, and then start the thread.
                         Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
@@ -1151,10 +1117,10 @@ namespace Status.Services
         {
             // State information used in the task.
             private IniFileData IniData;
-            private List<StatusData> StatusData;
+            private List<StatusWrapper.StatusData> StatusData;
             private bool endProcess = false;
             private int GlobalJobIndex = 0;
-            private int NumberOfJobsExecuting = 0;
+            public int NumberOfJobsExecuting = 0;
 
             // The constructor obtains the state information.
             /// <summary>
@@ -1164,7 +1130,7 @@ namespace Status.Services
             /// <param name="statusData"></param>
             /// <param name="globalJobIndex"></param>
             /// <param name="numberOfJobsRunning"></param>
-            public ProcessThread(IniFileData iniData, List<StatusData> statusData, int globalJobIndex, int numberOfJobsRunning)
+            public ProcessThread(IniFileData iniData, List<StatusWrapper.StatusData> statusData, int globalJobIndex, ref int numberOfJobsRunning)
             {
                 IniData = iniData;
                 StatusData = statusData;
@@ -1231,7 +1197,7 @@ namespace Status.Services
                                 Console.WriteLine("Job {0} Executing {1}", data.Job, NumberOfJobsExecuting);
 
                                 // Supply the state information required by the task.
-                                JobRunThread jobThread = new JobRunThread(IniData.InputDir, IniData, data, StatusData, NumberOfJobsExecuting);
+                                JobRunThread jobThread = new JobRunThread(IniData.InputDir, IniData, data, StatusData, ref NumberOfJobsExecuting);
 
                                 // Create a thread to execute the task, and then start the thread.
                                 Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
@@ -1274,7 +1240,7 @@ namespace Status.Services
             ScanForUnfinishedJobs();
 
             // Start scan for new jobs on it's own thread
-            processThread = new ProcessThread(iniFileData, statusList, GlobalJobIndex, NumberOfJobsExecuting);
+            processThread = new ProcessThread(iniFileData, statusList, GlobalJobIndex, ref NumberOfJobsExecuting);
             processThread.ScanForNewJobs();
 
             return iniFileData;
@@ -1342,14 +1308,18 @@ namespace Status.Services
         /// Method to return the status data to the requestor
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<StatusData> GetJobStatus()
+        public IEnumerable<StatusWrapper.StatusData> GetJobStatus()
         {
             return statusList;
         }
 
-        public IEnumerable<StatusData> GetHistoryData()
+        /// <summary>
+        /// Get csV history data
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<StatusWrapper.StatusData> GetHistoryData()
         {
-            List<StatusData> statusList = new List<StatusData>();
+            List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
             StatusEntry status = new StatusEntry();
             iniFileData = GetIniFileData();
             statusList = status.ReadFromCsvFile(iniFileData.LogFile);
