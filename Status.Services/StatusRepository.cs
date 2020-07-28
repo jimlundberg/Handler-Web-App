@@ -1059,7 +1059,7 @@ namespace Status.Services
                 }
 
                 Counters.DecrementNumberOfJobsExecuting();
-                Console.WriteLine("*****Job {0} Complete, decrementing job count to {1}", monitorData.Job, Counters.NumberOfJobsExecuting);
+                Console.WriteLine("-----Job {0} Complete, decrementing job count to {1}", monitorData.Job, Counters.NumberOfJobsExecuting);
 
                 // Add entry to status list
                 StatusDataEntry(statusData, job, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.LogFile);
@@ -1165,7 +1165,7 @@ namespace Status.Services
                         Counters.IncrementNumberOfJobsExecuting();
                         data.ExecutionCount++;
 
-                        Console.WriteLine("Job {0} Executing {1}", data.Job, Counters.NumberOfJobsExecuting);
+                        Console.WriteLine("+++++Job {0} Executing {1}", data.Job, Counters.NumberOfJobsExecuting);
 
                         JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList);
 
@@ -1278,7 +1278,7 @@ namespace Status.Services
                                 Counters.IncrementNumberOfJobsExecuting();
                                 data.ExecutionCount++;
 
-                                Console.WriteLine("Job {0} Executing slot {1}", data.Job, Counters.NumberOfJobsExecuting);
+                                Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, Counters.NumberOfJobsExecuting);
 
                                 // Supply the state information required by the task.
                                 JobRunThread jobThread = new JobRunThread(IniData.InputDir, IniData, data, StatusData);
