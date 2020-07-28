@@ -4,7 +4,7 @@
     ViewData["Title"] = "Handler Web App";
 }
 
-@*<meta http-equiv="refresh" content="5">*@
+<meta http-equiv="refresh" content="5">
 
 <div class="text-center">
     <form method="post">
@@ -28,38 +28,40 @@
                 <th>Time Completed</th>
             </tr>
         </thead>
-        @foreach (var status in Model.statusData)
-        {
-            <tr>
-                <td>@status.Job</td>
-                <td>@status.JobStatus</td>
+        <tbody>
+            @foreach (var status in Model.statusData)
+            {
+                <tr>
+                    <td>@status.Job</td>
+                    <td>@status.JobStatus</td>
 
-                @if (@status.TimeReceived.Year > 1)
-                {
-                    <td>@status.TimeReceived</td>
-                }
-                else
-                {
-                    <td> </td>
-                }
+                    @if (@status.TimeReceived.Year > 1)
+                    {
+                        <td>@status.TimeReceived</td>
+                    }
+                    else
+                    {
+                        <td> </td>
+                    }
 
-                @if (@status.TimeStarted.Year > 1)
-                {
-                    <td>@status.TimeStarted</td>
-                }
-                else
-                {
-                    <td> </td>
-                }
+                    @if (@status.TimeStarted.Year > 1)
+                    {
+                        <td>@status.TimeStarted</td>
+                    }
+                    else
+                    {
+                        <td> </td>
+                    }
 
-                @if (@status.TimeCompleted.Year > 1)
-                {
-                    <td>@status.TimeCompleted</td>
-                }
-                else
-                {
-                    <td> </td>
-                }
-            </tr>
-        }
+                    @if (@status.TimeCompleted.Year > 1)
+                    {
+                        <td>@status.TimeCompleted</td>
+                    }
+                    else
+                    {
+                        <td> </td>
+                    }
+                </tr>
+            }
+        </tbody>
     </table>
