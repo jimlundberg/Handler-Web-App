@@ -19,7 +19,7 @@ namespace StatusModels
     {
         NONE,
         TIME_START,
-        TIME_RECIEVED,
+        TIME_RECEIVED,
         TIME_COMPLETE
     }
 }

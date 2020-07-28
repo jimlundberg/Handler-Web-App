@@ -566,7 +566,7 @@ namespace Status.Services
             entry.JobStatus = status;
             switch (timeSlot)
             {
-                case JobType.TIME_RECIEVED:
+                case JobType.TIME_RECEIVED:
                     entry.TimeReceived = DateTime.Now;
                     break;
 
@@ -607,7 +607,7 @@ namespace Status.Services
                     CsvRow row = new CsvRow();
                     switch (timeSlot)
                     {
-                        case JobType.TIME_RECIEVED:
+                        case JobType.TIME_RECEIVED:
                             timeReceived = DateTime.Now;
                             break;
 
@@ -773,7 +773,7 @@ namespace Status.Services
         public void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData, ref int numberOfJobsExecuting)
         {
             // Add initial entry to status list
-            StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECIEVED, iniData.LogFile);
+            StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.LogFile);
 
             // Wait until Xml file is copied to the directory being scanned
             String job = monitorData.Job;
@@ -1253,7 +1253,7 @@ namespace Status.Services
         public StatusModels.IniFileData GetIniFileData()
         {
             // Check that Config.ini file exists
-            String IniFileName = @"C:\SSMCharacterizationHandler\Handler\Config.ini";
+            String IniFileName = "Config.ini";
             if (File.Exists(IniFileName) == false)
             {
                 throw new System.InvalidOperationException("Config.ini file does not exist in the Handler directory");
