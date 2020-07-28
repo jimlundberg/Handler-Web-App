@@ -16,6 +16,9 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography.X509Certificates;
 using ReadWriteCsvFile;
 
+/// <summary>
+/// Read Write CSV Files handler
+/// </summary>
 namespace ReadWriteCsvFile
 {
     /// <summary>
@@ -171,8 +174,31 @@ namespace ReadWriteCsvFile
     }
 }
 
+/// <summary>
+/// Status data services
+/// </summary>
 namespace Status.Services
 {
+    public static class Counters
+    {
+        public static int NumberOfJobsExecuting = 0;
+
+        public static void IncrementNumberOfJobsExecuting()
+        {
+            NumberOfJobsExecuting++;
+        }
+
+        public static void DecrementNumberOfJobsExecuting()
+        {
+            NumberOfJobsExecuting--;
+        }
+
+        public static int GetNumberOfJobsExecuting()
+        {
+            return NumberOfJobsExecuting;
+        }
+    }
+
     /// <summary>
     /// Class to Read and Ini file data
     /// </summary>
@@ -232,12 +258,21 @@ namespace Status.Services
         public String TimeStamp;
         public String XmlFileName;
 
+        /// <summary>
+        /// ScanDirectory constructor
+        /// </summary>
+        /// <param name="directoryName"></param>
         public ScanDirectory(String directoryName)
         {
             // Save directory name for class use
             DirectoryName = directoryName;
         }
 
+        /// <summary>
+        /// Get the Job XML data
+        /// </summary>
+        /// <param name="jobDirectory"></param>
+        /// <returns></returns>
         public StatusModels.JobXmlData GetJobXmlData(String jobDirectory)
         {
             StatusModels.JobXmlData jobScanData = new StatusModels.JobXmlData();
@@ -272,6 +307,14 @@ namespace Status.Services
     /// </summary>
     public class MonitorDirectoryFiles
     {
+        /// <summary>
+        /// Monitor the Directory for a selected number of files with a timeout
+        /// </summary>
+        /// <param name="monitoredDir"></param>
+        /// <param name="numberOfFilesNeeded"></param>
+        /// <param name="timeout"></param>
+        /// <param name="scanTime"></param>
+        /// <returns></returns>
         public static bool MonitorDirectory(String monitoredDir, int numberOfFilesNeeded, int timeout, int scanTime)
         {
             bool filesFound = false;
@@ -416,6 +459,9 @@ namespace Status.Services
         public void SetCpuCores(int _CpuCores) { CpuCores = "-p " + _CpuCores.ToString(); }
         public String AddToCommandLine(String addCmd) { return (cmd += addCmd); }
 
+        /// <summary>
+        /// Execute the Modeler command line
+        /// </summary>
         public void ExecuteCommand()
         {
             var proc = new Process();
@@ -440,16 +486,23 @@ namespace Status.Services
     /// </summary>
     public class CommandLineGeneratorThread
     {
-        // Object used in the task.
+        /// <summary>
+        /// Object used in the task
+        /// </summary>
         private CommandLineGenerator commandLineGenerator;
 
-        // The constructor obtains the object information.
+        /// <summary>
+        /// The constructor obtains the object information 
+        /// </summary>
+        /// <param name="_commandLineGenerator"></param>
         public CommandLineGeneratorThread(CommandLineGenerator _commandLineGenerator)
         {
             commandLineGenerator = _commandLineGenerator;
         }
 
-        // The thread procedure performs the task using the command line object instance
+        /// <summary>
+        /// The thread procedure performs the task using the command line object instance 
+        /// </summary>
         public void ThreadProc()
         {
             commandLineGenerator.ExecuteCommand();
@@ -464,6 +517,12 @@ namespace Status.Services
         public static System.Timers.Timer aTimer;
         static public int PortNumber;
 
+        /// <summary>
+        /// Connect to TCP/IP Port
+        /// </summary>
+        /// <param name="server"></param>
+        /// <param name="port"></param>
+        /// <param name="message"></param>
         static void Connect(String server, Int32 port, String message)
         {
             try
@@ -550,6 +609,14 @@ namespace Status.Services
 
         public StatusEntry() { }
 
+        /// <summary>
+        /// StatusEntry Constructor
+        /// </summary>
+        /// <param name="statusList"></param>
+        /// <param name="job"></param>
+        /// <param name="status"></param>
+        /// <param name="timeSlot"></param>
+        /// <param name="logFileName"></param>
         public StatusEntry(List<StatusWrapper.StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
         {
             StatusList = statusList;
@@ -559,6 +626,13 @@ namespace Status.Services
             LogFileName = logFileName;
         }
 
+        /// <summary>
+        /// Log a Status and write to csv file
+        /// </summary>
+        /// <param name="statusList"></param>
+        /// <param name="job"></param>
+        /// <param name="status"></param>
+        /// <param name="timeSlot"></param>
         public void ListStatus(List<StatusWrapper.StatusData> statusList, String job, JobStatus status, JobType timeSlot)
         {
             StatusWrapper.StatusData entry = new StatusWrapper.StatusData();
@@ -620,6 +694,7 @@ namespace Status.Services
                             break;
                     }
 
+                    // Add data to local Status list
                     row.Add(StatusList[i].Job);
                     row.Add(StatusList[i].JobStatus.ToString());
                     row.Add(StatusList[i].TimeReceived.ToString());
@@ -631,6 +706,11 @@ namespace Status.Services
             }
         }
 
+        /// <summary>
+        /// Read Status Data from CSV File
+        /// </summary>
+        /// <param name="logFileName"></param>
+        /// <returns></returns>
         public List<StatusWrapper.StatusData> ReadFromCsvFile(String logFileName)
         {
             List<StatusWrapper.StatusData> statusDataTable = new List<StatusWrapper.StatusData>();
@@ -726,33 +806,35 @@ namespace Status.Services
         }
     }
 
-
     /// <summary>
     /// Class to run a Job as a thread
     /// </summary>
     public class JobRunThread
     {
-        // State information used in the task.
         private IniFileData IniData;
         private StatusMonitorData MonitorData;
         private List<StatusWrapper.StatusData> StatusData;
         private String DirectoryName;
-        private int NumberOfJobsExecuting = 0;
 
-        // The constructor obtains the state information.
-        public JobRunThread(String directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData, ref int numberOfJobsExecuting)
+        /// <summary>
+        /// Job Run Thread constructor obtains the state information
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <param name="iniData"></param>
+        /// <param name="monitorData"></param>
+        /// <param name="statusData"></param>
+        public JobRunThread(String directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData)
         {
             IniData = iniData;
             MonitorData = monitorData;
             StatusData = statusData;
             DirectoryName = directory;
-            NumberOfJobsExecuting = numberOfJobsExecuting;
         }
 
         // The thread procedure performs the task
         public void ThreadProc()
         {
-            RunJob(DirectoryName, IniData, MonitorData, StatusData, ref NumberOfJobsExecuting);
+            RunJob(DirectoryName, IniData, MonitorData, StatusData);
         }
 
         public void StatusDataEntry(List<StatusWrapper.StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
@@ -770,7 +852,7 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="numberOfJobsExecuting"></param>
-        public void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData, ref int numberOfJobsExecuting)
+        public void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData)
         {
             // Add initial entry to status list
             StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.LogFile);
@@ -981,7 +1063,7 @@ namespace Status.Services
                     FileHandling.MoveDir(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job);
                 }
 
-                numberOfJobsExecuting--;
+                Counters.DecrementNumberOfJobsExecuting();
 
                 // Add entry to status list
                 StatusDataEntry(statusData, job, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.LogFile);
@@ -1000,7 +1082,6 @@ namespace Status.Services
         private List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
         private StatusWrapper.StatusData statusData = new StatusWrapper.StatusData();
         public int GlobalJobIndex = 0;
-        public int NumberOfJobsExecuting = 0;
         private bool RunStop = true;
 
         /// <summary>
@@ -1047,7 +1128,7 @@ namespace Status.Services
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
             DirectoryInfo directory = new DirectoryInfo(iniFileData.ProcessingDir);
             DirectoryInfo[] subdirs = directory.GetDirectories();
-            if ((subdirs.Length != 0) && (NumberOfJobsExecuting < iniFileData.ExecutionLimit))
+            if ((subdirs.Length != 0) && (Counters.NumberOfJobsExecuting < iniFileData.ExecutionLimit))
             {
                 Console.WriteLine("\nFound unfinished jobs...");
                 for (int i = 0; i < subdirs.Length; i++)
@@ -1075,14 +1156,15 @@ namespace Status.Services
                     Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
                     Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
 
-                    if (NumberOfJobsExecuting++ < iniFileData.ExecutionLimit)
+                    Counters.IncrementNumberOfJobsExecuting();
+                    if (Counters.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
                     {
                         // Increment counts to track job execution and port id
                         data.ExecutionCount++;
 
-                        Console.WriteLine("Job {0} Executing {1}", data.Job, NumberOfJobsExecuting);
+                        Console.WriteLine("Job {0} Executing {1}", data.Job, Counters.NumberOfJobsExecuting);
 
-                        JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList, ref NumberOfJobsExecuting);
+                        JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList);
 
                         // Create a thread to execute the task, and then start the thread.
                         Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
@@ -1093,7 +1175,7 @@ namespace Status.Services
                     else
                     {
                         Console.WriteLine("Job {0} Executing {1} Exceeded Execution Limit of {2}",
-                            data.Job, NumberOfJobsExecuting, iniFileData.ExecutionLimit);
+                            data.Job, Counters.NumberOfJobsExecuting, iniFileData.ExecutionLimit);
                         Thread.Sleep(iniFileData.ScanTime);
                     }
 
@@ -1120,7 +1202,6 @@ namespace Status.Services
             private List<StatusWrapper.StatusData> StatusData;
             private bool endProcess = false;
             private int GlobalJobIndex = 0;
-            public int NumberOfJobsExecuting = 0;
 
             // The constructor obtains the state information.
             /// <summary>
@@ -1130,12 +1211,11 @@ namespace Status.Services
             /// <param name="statusData"></param>
             /// <param name="globalJobIndex"></param>
             /// <param name="numberOfJobsRunning"></param>
-            public ProcessThread(IniFileData iniData, List<StatusWrapper.StatusData> statusData, int globalJobIndex, ref int numberOfJobsRunning)
+            public ProcessThread(IniFileData iniData, List<StatusWrapper.StatusData> statusData, int globalJobIndex)
             {
                 IniData = iniData;
                 StatusData = statusData;
                 GlobalJobIndex = globalJobIndex;
-                NumberOfJobsExecuting = numberOfJobsRunning;
             }
 
             /// <summary>
@@ -1189,15 +1269,16 @@ namespace Status.Services
                             Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
                             Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
 
-                            if (NumberOfJobsExecuting++ < IniData.ExecutionLimit)
+                            Counters.IncrementNumberOfJobsExecuting();
+                            if (Counters.NumberOfJobsExecuting < IniData.ExecutionLimit)
                             {
                                 // Increment counts to track job execution and port id
                                 data.ExecutionCount++;
 
-                                Console.WriteLine("Job {0} Executing {1}", data.Job, NumberOfJobsExecuting);
+                                Console.WriteLine("Job {0} Executing slot {1}", data.Job, Counters.NumberOfJobsExecuting);
 
                                 // Supply the state information required by the task.
-                                JobRunThread jobThread = new JobRunThread(IniData.InputDir, IniData, data, StatusData, ref NumberOfJobsExecuting);
+                                JobRunThread jobThread = new JobRunThread(IniData.InputDir, IniData, data, StatusData);
 
                                 // Create a thread to execute the task, and then start the thread.
                                 Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
@@ -1207,8 +1288,8 @@ namespace Status.Services
                             }
                             else
                             {
-                                Console.WriteLine("Job {0} Executing {1} Exceeded Execution Limit of {2}",
-                                    data.Job, NumberOfJobsExecuting, IniData.ExecutionLimit);
+                                Console.WriteLine("Job {0} job count {1} trying to exceeded Execution Limit of {2}",
+                                    data.Job, Counters.NumberOfJobsExecuting, IniData.ExecutionLimit);
                                 Thread.Sleep(IniData.ScanTime);
                             }
                         }
@@ -1240,7 +1321,7 @@ namespace Status.Services
             ScanForUnfinishedJobs();
 
             // Start scan for new jobs on it's own thread
-            processThread = new ProcessThread(iniFileData, statusList, GlobalJobIndex, ref NumberOfJobsExecuting);
+            processThread = new ProcessThread(iniFileData, statusList, GlobalJobIndex);
             processThread.ScanForNewJobs();
 
             return iniFileData;
