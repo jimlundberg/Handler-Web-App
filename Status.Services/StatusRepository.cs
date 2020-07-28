@@ -192,11 +192,6 @@ namespace Status.Services
         {
             NumberOfJobsExecuting--;
         }
-
-        public static int GetNumberOfJobsExecuting()
-        {
-            return NumberOfJobsExecuting;
-        }
     }
 
     /// <summary>
@@ -1064,6 +1059,7 @@ namespace Status.Services
                 }
 
                 Counters.DecrementNumberOfJobsExecuting();
+                Console.WriteLine("*****Job {0} Complete, decrementing job count to {1}", monitorData.Job, Counters.NumberOfJobsExecuting);
 
                 // Add entry to status list
                 StatusDataEntry(statusData, job, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.LogFile);
@@ -1135,11 +1131,18 @@ namespace Status.Services
                 {
                     String job = subdirs[i].Name;
 
-                    // Start scan for new directory in the Input Buffer
+                    // Delete the data.xml file if present
+                    String dataXmlFile = iniFileData.ProcessingDir + @"\" + job + @"\" + "data.xml";
+                    if (File.Exists(dataXmlFile))
+                    {
+                        File.Delete(dataXmlFile);
+                    }
+
+                    // Start scan for job files in the Output Buffer
                     ScanDirectory scanDir = new ScanDirectory(iniFileData.ProcessingDir);
                     jobXmlData = scanDir.GetJobXmlData(iniFileData.ProcessingDir + @"\" + job);
 
-                    // Store data found in Xml file into Monitor Data
+                    // Get data found in Xml file into Monitor Data
                     StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
                     data.Job = jobXmlData.Job;
                     data.JobDirectory = jobXmlData.JobDirectory;
@@ -1156,10 +1159,10 @@ namespace Status.Services
                     Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
                     Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
 
-                    Counters.IncrementNumberOfJobsExecuting();
                     if (Counters.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
                     {
                         // Increment counts to track job execution and port id
+                        Counters.IncrementNumberOfJobsExecuting();
                         data.ExecutionCount++;
 
                         Console.WriteLine("Job {0} Executing {1}", data.Job, Counters.NumberOfJobsExecuting);
@@ -1269,10 +1272,10 @@ namespace Status.Services
                             Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
                             Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
 
-                            Counters.IncrementNumberOfJobsExecuting();
-                            if (Counters.NumberOfJobsExecuting < IniData.ExecutionLimit)
+                            if (Counters.NumberOfJobsExecuting <= IniData.ExecutionLimit)
                             {
-                                // Increment counts to track job execution and port id
+                                // Increment counters to track job execution and port id
+                                Counters.IncrementNumberOfJobsExecuting();
                                 data.ExecutionCount++;
 
                                 Console.WriteLine("Job {0} Executing slot {1}", data.Job, Counters.NumberOfJobsExecuting);
@@ -1288,6 +1291,7 @@ namespace Status.Services
                             }
                             else
                             {
+                                i--; // Retry job
                                 Console.WriteLine("Job {0} job count {1} trying to exceeded Execution Limit of {2}",
                                     data.Job, Counters.NumberOfJobsExecuting, IniData.ExecutionLimit);
                                 Thread.Sleep(IniData.ScanTime);
@@ -1358,18 +1362,18 @@ namespace Status.Services
             iniFileData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
 
             Console.WriteLine("\nConfig.ini data found:");
-            Console.WriteLine("Input Dir        = " + iniFileData.InputDir);
-            Console.WriteLine("Processing Dir   = " + iniFileData.ProcessingDir);
-            Console.WriteLine("Repository Dir   = " + iniFileData.RepositoryDir);
-            Console.WriteLine("Finished Dir     = " + iniFileData.FinishedDir);
-            Console.WriteLine("Error Dir        = " + iniFileData.ErrorDir);
-            Console.WriteLine("Modeler Root Dir = " + iniFileData.ModelerRootDir);
-            Console.WriteLine("CPU Cores        = " + iniFileData.CPUCores);
-            Console.WriteLine("Execution Limit  = " + iniFileData.ExecutionLimit);
-            Console.WriteLine("Start Port       = " + iniFileData.StartPort);
-            Console.WriteLine("Log File         = " + iniFileData.LogFile);
-            Console.WriteLine("Scan Time        = " + iniFileData.ScanTime);
-            Console.WriteLine("Max Time Limit   = " + iniFileData.MaxTimeLimit);
+            Console.WriteLine("Input Dir            = " + iniFileData.InputDir);
+            Console.WriteLine("Processing Dir       = " + iniFileData.ProcessingDir);
+            Console.WriteLine("Repository Dir       = " + iniFileData.RepositoryDir);
+            Console.WriteLine("Finished Dir         = " + iniFileData.FinishedDir);
+            Console.WriteLine("Error Dir            = " + iniFileData.ErrorDir);
+            Console.WriteLine("Modeler Root Dir     = " + iniFileData.ModelerRootDir);
+            Console.WriteLine("CPU Cores            = " + iniFileData.CPUCores);
+            Console.WriteLine("Execution Limit      = " + iniFileData.ExecutionLimit);
+            Console.WriteLine("Start Port           = " + iniFileData.StartPort);
+            Console.WriteLine("Log File             = " + iniFileData.LogFile);
+            Console.WriteLine("Scan Time            = " + iniFileData.ScanTime);
+            Console.WriteLine("Max Time Limit       = " + iniFileData.MaxTimeLimit);
 
             return iniFileData;
         }
