@@ -753,31 +753,6 @@ namespace Status.Services
             TcpIpConnection.PortNumber = MonitorData.JobPortNumber;
             TcpIpConnection.SetTimer();
             tcpIpConnection.Connect("127.0.0.1", TcpIpPortNumber, "status");
-
-            bool JobComplete = false;
-            String response;
-            do
-            {
-                response = Console.ReadLine();
-                Console.WriteLine("Modeler TCP/IP response from Port {0} at {1:HH:mm:ss.fff} is {2}", TcpIpPortNumber, DateTime.Now, response);
-
-                // Send status for response received
-                switch (response)
-                {
-                    case "Step 1 in process.":
-                        StatusEntry(StatusData, MonitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
-                        break;
-
-                    case "Whole process done, socket closed.":
-                        StatusEntry(StatusData, MonitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
-                        JobComplete = true;
-                        break;
-                }
-
-                Thread.Sleep(IniData.ScanTime);
-            }
-            while (JobComplete == false);
-
             TcpIpConnection.aTimer.Stop();
             TcpIpConnection.aTimer.Dispose();
         }
@@ -815,22 +790,43 @@ namespace Status.Services
                     // Stream stream = client.GetStream();
                     NetworkStream stream = client.GetStream();
 
-                    // Send the message to the connected TcpServer.
-                    stream.Write(data, 0, data.Length);
+                    bool jobComplete = false;
+                    do
+                    {
+                        // Send the message to the connected TcpServer.
+                        stream.Write(data, 0, data.Length);
 
-                    // Receive the TcpServer.response.
-                    Console.WriteLine("Sent: {0}", message);
+                        // Receive the TcpServer.response.
+                        Console.WriteLine("Sent: {0}", message);
 
-                    // Buffer to store the response bytes.
-                    data = new Byte[256];
+                        // Buffer to store the response bytes.
+                        data = new Byte[256];
 
-                    // String to store the response ASCII representation.
-                    String responseData = String.Empty;
+                        // String to store the response ASCII representation.
+                        String responseData = String.Empty;
 
-                    // Read the first batch of the TcpServer response bytes.
-                    Int32 bytes = stream.Read(data, 0, data.Length);
-                    responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
-                    Console.WriteLine("Received: {0}", responseData);
+                        // Read the first batch of the TcpServer response bytes.
+                        Int32 bytes = stream.Read(data, 0, data.Length);
+                        responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
+
+                        // Send status for response received
+                        switch (responseData)
+                        {
+                            case "Step 1 in process.":
+                                //StatusEntry(StatusData, MonitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
+                                Console.WriteLine("Received: {0}", responseData);
+                                break;
+
+                            case "Whole process done, socket closed.":
+                                //StatusEntry(StatusData, MonitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
+                                Console.WriteLine("Received: {0}", responseData);
+                                jobComplete = true;
+                                break;
+                        }
+
+                        Thread.Sleep(5000);
+                    }
+                    while (jobComplete == false);
 
                     // Close everything.
                     stream.Close();
@@ -1026,7 +1022,7 @@ namespace Status.Services
                 monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
 
             // Wait for Modeler application to start
-            Thread.Sleep(10000);
+            Thread.Sleep(15000);
 
             // Start TCP/IP monitor thread
             TcpIpThread tcpIpThread = new TcpIpThread(iniData, monitorData, statusData);
