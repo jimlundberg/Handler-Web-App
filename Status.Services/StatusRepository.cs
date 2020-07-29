@@ -10,10 +10,6 @@ using System.Threading;
 using System.Net.Sockets;
 using System.Timers;
 using StatusModels;
-using System.Linq;
-using System.Net;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
 using ReadWriteCsvFile;
 
 /// <summary>
@@ -200,7 +196,7 @@ namespace Status.Services
     public class IniFileHandler
     {
         String Path;
-        String EXE = Assembly.GetExecutingAssembly().GetName().Name;
+        readonly String EXE = Assembly.GetExecutingAssembly().GetName().Name;
 
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
         static extern long WritePrivateProfileString(String Key, String Section, String Value, String FilePath);
@@ -464,7 +460,7 @@ namespace Status.Services
             process.StartInfo.Arguments = String.Format(@"{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
-          //Console.WriteLine("\n{0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+            Console.WriteLine("\n{0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
             process.Start();
 
             String outPut = process.StandardOutput.ReadToEnd();
@@ -758,6 +754,7 @@ namespace Status.Services
             TcpIpConnection.SetTimer();
             tcpIpConnection.Connect("127.0.0.1", TcpIpPortNumber, "status");
 
+            bool JobComplete = false;
             String response;
             do
             {
@@ -771,18 +768,15 @@ namespace Status.Services
                         StatusEntry(StatusData, MonitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
                         break;
 
-                    case "Done step 4.":
+                    case "Whole process done, socket closed.":
                         StatusEntry(StatusData, MonitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
+                        JobComplete = true;
                         break;
-
-                    case "Done":
-                        StatusEntry(StatusData, MonitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
-                        return;
                 }
 
                 Thread.Sleep(IniData.ScanTime);
             }
-            while (response != "Complete");
+            while (JobComplete == false);
 
             TcpIpConnection.aTimer.Stop();
             TcpIpConnection.aTimer.Dispose();
