@@ -459,20 +459,20 @@ namespace Status.Services
         /// </summary>
         public void ExecuteCommand()
         {
-            var proc = new Process();
-            proc.StartInfo.FileName = Executable;
-            proc.StartInfo.Arguments = String.Format(@"{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.RedirectStandardOutput = true;
-          //Console.WriteLine("\n{0} {1}", proc.StartInfo.FileName, proc.StartInfo.Arguments);
-            proc.Start();
+            var process = new Process();
+            process.StartInfo.FileName = Executable;
+            process.StartInfo.Arguments = String.Format(@"{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+          //Console.WriteLine("\n{0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+            process.Start();
 
-            String outPut = proc.StandardOutput.ReadToEnd();
+            String outPut = process.StandardOutput.ReadToEnd();
             Console.WriteLine(outPut);
 
-            proc.WaitForExit();
-            var exitCode = proc.ExitCode;
-            proc.Close();
+            process.WaitForExit();
+            var exitCode = process.ExitCode;
+            process.Close();
         }
     }
 
@@ -682,7 +682,6 @@ namespace Status.Services
                             rowStatusData.TimeStarted = Convert.ToDateTime(rowData[3]);
                         }
 
-
                         // Get Time Complete
                         if (rowData[4] == "1/1/0001 12:00:00 AM")
                         {
@@ -763,7 +762,7 @@ namespace Status.Services
             do
             {
                 response = Console.ReadLine();
-                Console.WriteLine("Modeler TCP/IP response at {0:HH:mm:ss.fff} is {1}", DateTime.Now, response);
+                Console.WriteLine("Modeler TCP/IP response from Port {0} at {1:HH:mm:ss.fff} is {2}", TcpIpPortNumber, DateTime.Now, response);
 
                 // Send status for response received
                 switch (response)
@@ -772,9 +771,13 @@ namespace Status.Services
                         StatusEntry(StatusData, MonitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
                         break;
 
-                    case "Complete":
+                    case "Done step 4.":
                         StatusEntry(StatusData, MonitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
                         break;
+
+                    case "Done":
+                        StatusEntry(StatusData, MonitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
+                        return;
                 }
 
                 Thread.Sleep(IniData.ScanTime);
@@ -855,7 +858,7 @@ namespace Status.Services
             public static void SetTimer()
             {
                 // Create a timer with a five second interval.
-                aTimer = new System.Timers.Timer(60000);
+                aTimer = new System.Timers.Timer(15000);
 
                 // Hook up the Elapsed event for the timer. 
                 aTimer.Elapsed += OnTimedEvent;
@@ -1022,15 +1025,20 @@ namespace Status.Services
             cl.SetStartPort(monitorData.JobPortNumber);
             cl.SetCpuCores(iniData.CPUCores);
             CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
-            Thread thread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
-            thread.Start();
+            Thread modelerThread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
+            modelerThread.Start();
 
             Console.WriteLine("***** Started Job {0} with Modeler {1} on port {2} with {3} CPU's",
                 monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
 
+            // Wait for Modeler application to start
+            Thread.Sleep(10000);
+
             // Start TCP/IP monitor thread
             TcpIpThread tcpIpThread = new TcpIpThread(iniData, monitorData, statusData);
             tcpIpThread.TcpIpMonitor(monitorData.JobPortNumber);
+
+            Console.WriteLine("***** Started Tcp/Ip monitor of Job {0} with on port {1}", monitorData.Job, monitorData.JobPortNumber);
 
             // Add entry to status list
             StatusDataEntry(statusData, job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.LogFile);
@@ -1128,42 +1136,6 @@ namespace Status.Services
         private bool RunStop = true;
 
         /// <summary>
-        /// Monitor Data buffer initialization
-        /// </summary>
-        public void MonitorDataRepository()
-        {
-            monitorData = new List<StatusMonitorData>()
-            {
-                new StatusMonitorData() {
-                    Job = "Job Field",
-                    JobIndex = GlobalJobIndex,
-                    JobSerialNumber = "Job Serial Number Field",
-                    TimeStamp = "Time Stamp Field",
-                    JobDirectory = "Job Directory Field",
-                    XmlFileName = "XML File Name Field",
-                    UnitNumber = "Unit Number Field",
-                    Modeler = "Modeler Field",
-                    JobPortNumber = 3000,
-                    NumFilesConsumed = 4,
-                    NumFilesProduced = 4,
-                    NumFilesToTransfer = 3,
-                    transferedFileList = new List<String>()
-                }
-            };
-        }
-
-        /// <summary>
-        /// Status data buffer initialization
-        /// </summary>
-        public void StatuDataRepository()
-        {
-            statusList = new List<StatusWrapper.StatusData>()
-            {
-                new StatusWrapper.StatusData() { Job = "1185840_202003250942", JobStatus = JobStatus.JOB_STARTED, TimeReceived = DateTime.Now, TimeStarted = DateTime.MinValue, TimeCompleted = DateTime.MinValue }
-            };
-        }
-
-        /// <summary>
         /// Scan for Unfinished jobs in the Processing Buffer
         /// </summary>
         public void ScanForUnfinishedJobs()
@@ -1250,7 +1222,7 @@ namespace Status.Services
             // State information used in the task.
             private IniFileData IniData;
             private List<StatusWrapper.StatusData> StatusData;
-            private bool endProcess = false;
+            public volatile bool endProcess = false;
             private int GlobalJobIndex = 0;
 
             // The constructor obtains the state information.
@@ -1362,10 +1334,7 @@ namespace Status.Services
             RunStop = true;
             GlobalJobIndex = 0;
 
-            // Check for unfinished jobs
-            MonitorDataRepository();
-
-            // Get ini file data
+            // Get Config.ini file data
             GetIniFileData();
 
             // Scan for jobs not completed
