@@ -1382,13 +1382,13 @@ namespace Status.Services
             Console.WriteLine("Finished Dir          = " + iniFileData.FinishedDir);
             Console.WriteLine("Error Dir             = " + iniFileData.ErrorDir);
             Console.WriteLine("Modeler Root Dir      = " + iniFileData.ModelerRootDir);
-            Console.WriteLine("CPU Cores             = " + iniFileData.CPUCores);
-            Console.WriteLine("Execution Limit       = " + iniFileData.ExecutionLimit);
-            Console.WriteLine("Start Port            = " + iniFileData.StartPort);
             Console.WriteLine("Log File              = " + iniFileData.LogFile);
-            Console.WriteLine("Scan Time             = " + iniFileData.ScanTime);
-            Console.WriteLine("Max Time Limit        = " + iniFileData.MaxTimeLimit);
-            Console.WriteLine("Log File History      = " + iniFileData.LogFileHistory);
+            Console.WriteLine("CPU Cores             = " + iniFileData.CPUCores + " Cores");
+            Console.WriteLine("Execution Limit       = " + iniFileData.ExecutionLimit + " Jobs");
+            Console.WriteLine("Start Port            = " + iniFileData.StartPort);
+            Console.WriteLine("Scan Time             = " + iniFileData.ScanTime + " Miliseconds");
+            Console.WriteLine("Max Time Limit        = " + iniFileData.MaxTimeLimit + " Seconds");
+            Console.WriteLine("Log File History      = " + iniFileData.LogFileHistory + " Days");
 
             return iniFileData;
         }
