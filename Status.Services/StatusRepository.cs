@@ -703,9 +703,9 @@ namespace Status.Services
     public class TcpIpThread
     {
         // State information used in the task.
-        private IniFileData IniData;
-        private StatusMonitorData MonitorData;
-        private List<StatusWrapper.StatusData> StatusData;
+        static public IniFileData IniData;
+        static public StatusMonitorData MonitorData;
+        static public List<StatusWrapper.StatusData> StatusData;
 
         // The constructor obtains the state information.
         public TcpIpThread(IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData)
@@ -795,7 +795,8 @@ namespace Status.Services
                         stream.Write(data, 0, data.Length);
 
                         // Receive the TcpServer.response.
-                        Console.WriteLine("Sent: {0}", message);
+                        Console.WriteLine("Querying Modeler for Job {0} on port {1} at {2:HH:mm:ss.fff}", MonitorData.Job, PortNumber, DateTime.Now);
+                        Console.WriteLine("Senting: {0}", message);
 
                         // Buffer to store the response bytes.
                         data = new Byte[256];
@@ -806,25 +807,39 @@ namespace Status.Services
                         // Read the first batch of the TcpServer response bytes.
                         Int32 bytes = stream.Read(data, 0, data.Length);
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
+                        int sleepTime = 15000;
 
                         // Send status for response received
                         switch (responseData)
                         {
                             case "Step 1 in process.":
-                                //StatusEntry(StatusData, MonitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
-                                Console.WriteLine("Received: {0}", responseData);
+                            case "Step 2 in process.":
+                            case "Step 3 in process.":
+                            case "Step 4 in process.":
+                                Console.WriteLine("Received: {0} from Job {1}", responseData, MonitorData.Job);
+                                break;
+
+                            case "Step 5 in process.":
+                            case "Step 6 in process.":
+                                Console.WriteLine("Received: {0} from Job {1}", responseData, MonitorData.Job);
+                                sleepTime = 1000;
                                 break;
 
                             case "Whole process done, socket closed.":
-                                //StatusEntry(StatusData, MonitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
-                                Console.WriteLine("Received: {0}", responseData);
+                                Console.WriteLine("Received: {0} from Job {1}", responseData, MonitorData.Job);
                                 jobComplete = true;
+                                break;
+
+                            default:
+                                Console.WriteLine("$$$$$Received Weird Response: {0} from Job {1}", responseData, MonitorData.Job);
                                 break;
                         }
 
-                        Thread.Sleep(5000);
+                        Thread.Sleep(sleepTime);
                     }
                     while (jobComplete == false);
+
+                    Console.WriteLine("Exiting TCP/IP Scan of Job {0}", MonitorData.Job);
 
                     // Close everything.
                     stream.Close();
@@ -857,7 +872,6 @@ namespace Status.Services
             public static void OnTimedEvent(Object source, ElapsedEventArgs e)
             {
                 // Check modeler status
-                Console.WriteLine("Reading Modeler at {0:HH:mm:ss.fff} on port {1}", e.SignalTime, PortNumber);
                 Console.ReadLine();
             }
         }
@@ -1020,7 +1034,7 @@ namespace Status.Services
                 monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
 
             // Wait for Modeler application to start
-            Thread.Sleep(15000);
+            Thread.Sleep(30000);
 
             // Start TCP/IP monitor thread
             TcpIpThread tcpIpThread = new TcpIpThread(iniData, monitorData, statusData);
