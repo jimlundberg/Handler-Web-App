@@ -617,8 +617,6 @@ namespace Status.Services
                     CsvRow rowData = new CsvRow();
                     while (reader.ReadRow(rowData))
                     {
-                        Console.WriteLine(rowData.LineText);
-
                         StatusWrapper.StatusData rowStatusData = new StatusWrapper.StatusData();
                         rowStatusData.Job = rowData[0];
 
