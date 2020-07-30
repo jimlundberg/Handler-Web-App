@@ -22,11 +22,6 @@ namespace Handler.Pages
         public readonly ILogger<IndexModel> _logger;
 
         /// <summary>
-        /// Ini File Data
-        /// </summary>
-        public StatusModels.IniFileData iniData { get; set; }
-
-        /// <summary>
         /// status data
         /// </summary>
         public IEnumerable<StatusWrapper.StatusData> statusData { get; set; }
@@ -55,7 +50,8 @@ namespace Handler.Pages
         {
             if (firstTimeFlag == true)
             {
-                StatusModels.IniFileData iniFileData = MonitorDataRepository.GetIniFileData();
+                MonitorDataRepository.GetIniFileData();
+                MonitorDataRepository.CheckCsvFileHistory();
                 firstTimeFlag = false;
             }
 

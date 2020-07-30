@@ -7,7 +7,8 @@ namespace Status.Services
 {
     public interface IStatusRepository
     {
-        IniFileData GetIniFileData();
+        void GetIniFileData();
+        void CheckCsvFileHistory();
         IEnumerable<StatusData> GetHistoryData();
         IEnumerable<StatusData> GetJobStatus();
         void GetMonitorStatus();
