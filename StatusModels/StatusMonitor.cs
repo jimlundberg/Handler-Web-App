@@ -20,6 +20,7 @@ namespace StatusModels
         public int MaxTimeLimit { get; set; }
         public int ScanTime { get; set; }
         public int StartPort { get; set; }
+        public int LogFileHistory { get; set; }
     }
 
     public class StatusMonitorData

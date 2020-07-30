@@ -613,7 +613,6 @@ namespace Status.Services
             {
                 using (CsvFileReader reader = new CsvFileReader(logFileName))
                 {
-                    Console.WriteLine("\nReading CSV File:");
                     CsvRow rowData = new CsvRow();
                     while (reader.ReadRow(rowData))
                     {
@@ -789,6 +788,7 @@ namespace Status.Services
                     NetworkStream stream = client.GetStream();
 
                     bool jobComplete = false;
+                    int sleepTime = 15000;
                     do
                     {
                         // Send the message to the connected TcpServer.
@@ -807,7 +807,6 @@ namespace Status.Services
                         // Read the first batch of the TcpServer response bytes.
                         Int32 bytes = stream.Read(data, 0, data.Length);
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
-                        int sleepTime = 15000;
 
                         // Send status for response received
                         switch (responseData)
@@ -1040,7 +1039,7 @@ namespace Status.Services
             TcpIpThread tcpIpThread = new TcpIpThread(iniData, monitorData, statusData);
             tcpIpThread.TcpIpMonitor(monitorData.JobPortNumber);
 
-            Console.WriteLine("***** Started Tcp/Ip monitor of Job {0} with on port {1}", monitorData.Job, monitorData.JobPortNumber);
+            Console.WriteLine("\n***** Started Tcp/Ip monitor of Job {0} with on port {1}", monitorData.Job, monitorData.JobPortNumber);
 
             // Add entry to status list
             StatusDataEntry(statusData, job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.LogFile);
@@ -1194,7 +1193,7 @@ namespace Status.Services
                         Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
                         Console.WriteLine("Starting Job " + data.Job);
                         t.Start();
-                        Thread.Sleep(iniFileData.ScanTime);
+                        Thread.Sleep(30000);
                     }
                     else
                     {
@@ -1260,7 +1259,7 @@ namespace Status.Services
                 DirectoryInfo directory = new DirectoryInfo(IniData.InputDir);
                 List<String> directoryList = new List<String>();
 
-                Console.WriteLine("\nWaiting for new job(s)...");
+                Console.WriteLine("\nWaiting for new job(s)...\n");
 
                 while (endProcess == false) // Loop until flag set
                 {
@@ -1308,7 +1307,7 @@ namespace Status.Services
                                 Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
                                 Console.WriteLine("Starting Job " + data.Job);
                                 t.Start();
-                                Thread.Sleep(IniData.ScanTime);
+                                Thread.Sleep(30000);
                             }
                             else
                             {
@@ -1331,13 +1330,10 @@ namespace Status.Services
         /// Get the Monitor Status Entry point
         /// </summary>
         /// <returns></returns>
-        public StatusModels.IniFileData GetMonitorStatus()
+        public void GetMonitorStatus()
         {
             RunStop = true;
             GlobalJobIndex = 0;
-
-            // Get Config.ini file data
-            GetIniFileData();
 
             // Scan for jobs not completed
             ScanForUnfinishedJobs();
@@ -1345,8 +1341,6 @@ namespace Status.Services
             // Start scan for new jobs on it's own thread
             processThread = new ProcessThread(iniFileData, statusList, GlobalJobIndex);
             processThread.ScanForNewJobs();
-
-            return iniFileData;
         }
 
         /// <summary>
@@ -1378,20 +1372,23 @@ namespace Status.Services
             iniFileData.ScanTime = Int32.Parse(IniParser.Read("Process", "ScanTime"));
             String timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
             iniFileData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
+            String logFileHistory = IniParser.Read("Process", "LogFileHistory");
+            iniFileData.LogFileHistory = Int32.Parse(logFileHistory.Substring(0, logFileHistory.IndexOf("#")));
 
             Console.WriteLine("\nConfig.ini data found:");
-            Console.WriteLine("Input Dir            = " + iniFileData.InputDir);
-            Console.WriteLine("Processing Dir       = " + iniFileData.ProcessingDir);
-            Console.WriteLine("Repository Dir       = " + iniFileData.RepositoryDir);
-            Console.WriteLine("Finished Dir         = " + iniFileData.FinishedDir);
-            Console.WriteLine("Error Dir            = " + iniFileData.ErrorDir);
-            Console.WriteLine("Modeler Root Dir     = " + iniFileData.ModelerRootDir);
-            Console.WriteLine("CPU Cores            = " + iniFileData.CPUCores);
-            Console.WriteLine("Execution Limit      = " + iniFileData.ExecutionLimit);
-            Console.WriteLine("Start Port           = " + iniFileData.StartPort);
-            Console.WriteLine("Log File             = " + iniFileData.LogFile);
-            Console.WriteLine("Scan Time            = " + iniFileData.ScanTime);
-            Console.WriteLine("Max Time Limit       = " + iniFileData.MaxTimeLimit);
+            Console.WriteLine("Input Dir             = " + iniFileData.InputDir);
+            Console.WriteLine("Processing Dir        = " + iniFileData.ProcessingDir);
+            Console.WriteLine("Repository Dir        = " + iniFileData.RepositoryDir);
+            Console.WriteLine("Finished Dir          = " + iniFileData.FinishedDir);
+            Console.WriteLine("Error Dir             = " + iniFileData.ErrorDir);
+            Console.WriteLine("Modeler Root Dir      = " + iniFileData.ModelerRootDir);
+            Console.WriteLine("CPU Cores             = " + iniFileData.CPUCores);
+            Console.WriteLine("Execution Limit       = " + iniFileData.ExecutionLimit);
+            Console.WriteLine("Start Port            = " + iniFileData.StartPort);
+            Console.WriteLine("Log File              = " + iniFileData.LogFile);
+            Console.WriteLine("Scan Time             = " + iniFileData.ScanTime);
+            Console.WriteLine("Max Time Limit        = " + iniFileData.MaxTimeLimit);
+            Console.WriteLine("Log File History      = " + iniFileData.LogFileHistory);
 
             return iniFileData;
         }
@@ -1424,7 +1421,6 @@ namespace Status.Services
         {
             List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
             StatusEntry status = new StatusEntry();
-            iniFileData = GetIniFileData();
             statusList = status.ReadFromCsvFile(iniFileData.LogFile);
             return statusList;
         }

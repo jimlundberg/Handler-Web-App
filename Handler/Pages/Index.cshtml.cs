@@ -22,6 +22,11 @@ namespace Handler.Pages
         public readonly ILogger<IndexModel> _logger;
 
         /// <summary>
+        /// Ini File Data
+        /// </summary>
+        public StatusModels.IniFileData iniData { get; set; }
+
+        /// <summary>
         /// status data
         /// </summary>
         public IEnumerable<StatusWrapper.StatusData> statusData { get; set; }
@@ -30,11 +35,7 @@ namespace Handler.Pages
         /// Monitor Data Repository
         /// </summary>
         private readonly IStatusRepository MonitorDataRepository;
-
-        /// <summary>
-        /// Ini File Data
-        /// </summary>
-        public StatusModels.IniFileData iniData { get; set; }
+        private static bool firstTimeFlag = true;
 
         /// <summary>
         /// Index Model CTOR
@@ -52,6 +53,12 @@ namespace Handler.Pages
         /// </summary>
         public void OnGet()
         {
+            if (firstTimeFlag == true)
+            {
+                StatusModels.IniFileData iniFileData = MonitorDataRepository.GetIniFileData();
+                firstTimeFlag = false;
+            }
+
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
 
             //_logger.LogTrace("Log Trace");
@@ -66,8 +73,8 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostStartButton()
         {
-            Console.WriteLine("Start Button pressed");
-            iniData = MonitorDataRepository.GetMonitorStatus();
+            Console.WriteLine("\nStart Button pressed\n");
+            MonitorDataRepository.GetMonitorStatus();
         }
 
         /// <summary>
@@ -75,7 +82,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostStopButton()
         {
-            Console.WriteLine("Stop Button pressed");
+            Console.WriteLine("\nStop Button pressed\n");
             MonitorDataRepository.StopMonitor();
         }
 
@@ -84,7 +91,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostHistoryButton()
         {
-            Console.WriteLine("History Button pressed");
+            Console.WriteLine("\nHistory Button pressed\n");
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetHistoryData().Reverse();
         }
     }
