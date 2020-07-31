@@ -14,7 +14,7 @@ namespace Status.Services
     /// </summary>
     public class StatusRepository : IStatusRepository
     {
-        private ProcessThread processThread;
+        private JobScanThread jobScanThread;
         private IniFileData iniFileData = new IniFileData();
         private List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
         private List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
@@ -102,117 +102,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Class to run the whole monitoring process as a thread
-        /// </summary>
-        public class ProcessThread
-        {
-            // State information used in the task.
-            private IniFileData IniData;
-            private List<StatusWrapper.StatusData> StatusData;
-            public volatile bool endProcess = false;
-            private int GlobalJobIndex = 0;
-
-            // The constructor obtains the state information.
-            /// <summary>
-            /// Process Thread constructor receiving data buffers
-            /// </summary>
-            /// <param name="iniData"></param>
-            /// <param name="statusData"></param>
-            /// <param name="globalJobIndex"></param>
-            /// <param name="numberOfJobsRunning"></param>
-            public ProcessThread(IniFileData iniData, List<StatusWrapper.StatusData> statusData, int globalJobIndex)
-            {
-                IniData = iniData;
-                StatusData = statusData;
-                GlobalJobIndex = globalJobIndex;
-            }
-
-            /// <summary>
-            /// Method to set flag to stop the monitoring process
-            /// </summary>
-            public void StopProcess()
-            {
-                endProcess = true;
-            }
-
-            /// <summary>
-            /// Method to scan for new jobs in the Input Buffer
-            /// </summary>
-            public void ScanForNewJobs()
-            {
-                endProcess = false;
-                StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
-                DirectoryInfo directory = new DirectoryInfo(IniData.InputDir);
-                List<String> directoryList = new List<String>();
-
-                Console.WriteLine("\nWaiting for new job(s)...\n");
-
-                while (endProcess == false) // Loop until flag set
-                {
-                    // Check if there are any directories
-                    DirectoryInfo[] subdirs = directory.GetDirectories();
-                    if (subdirs.Length != 0)
-                    {
-                        for (int i = 0; i < subdirs.Length; i++)
-                        {
-                            String job = subdirs[i].Name;
-
-                            // Start scan for new directory in the Input Buffer
-                            ScanDirectory scanDir = new ScanDirectory(IniData.InputDir);
-                            jobXmlData = scanDir.GetJobXmlData(IniData.InputDir + @"\" + job);
-
-                            // Set data found
-                            StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
-                            data.Job = jobXmlData.Job;
-                            data.JobDirectory = jobXmlData.JobDirectory;
-                            data.JobSerialNumber = jobXmlData.JobSerialNumber;
-                            data.TimeStamp = jobXmlData.TimeStamp;
-                            data.XmlFileName = jobXmlData.XmlFileName;
-                            data.JobIndex = GlobalJobIndex++;
-
-                            // Display data found
-                            Console.WriteLine("");
-                            Console.WriteLine("Found new Job         = " + data.Job);
-                            Console.WriteLine("New Job Directory     = " + data.JobDirectory);
-                            Console.WriteLine("New Serial Number     = " + data.JobSerialNumber);
-                            Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
-                            Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
-
-                            if (Counters.NumberOfJobsExecuting <= IniData.ExecutionLimit)
-                            {
-                                // Increment counters to track job execution and port id
-                                Counters.IncrementNumberOfJobsExecuting();
-                                data.ExecutionCount++;
-
-                                Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, Counters.NumberOfJobsExecuting);
-
-                                // Supply the state information required by the task.
-                                JobRunThread jobThread = new JobRunThread(IniData.InputDir, IniData, data, StatusData);
-
-                                // Create a thread to execute the task, and then start the thread.
-                                Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
-                                Console.WriteLine("Starting Job " + data.Job);
-                                t.Start();
-                                Thread.Sleep(30000);
-                            }
-                            else
-                            {
-                                i--; // Retry job
-                                Console.WriteLine("Job {0} job count {1} trying to exceeded Execution Limit of {2}",
-                                    data.Job, Counters.NumberOfJobsExecuting, IniData.ExecutionLimit);
-                                Thread.Sleep(IniData.ScanTime);
-                            }
-                        }
-                    }
-
-                    // Sleep to allow job to finish before checking for more
-                    Thread.Sleep(IniData.ScanTime);
-                }
-                Console.WriteLine("\nExiting job Scan...");
-            }
-        }
-
-        /// <summary>
         /// Get the Monitor Status Entry point
         /// </summary>
         /// <returns></returns>
@@ -224,9 +113,9 @@ namespace Status.Services
             // Scan for jobs not completed
             ScanForUnfinishedJobs();
 
-            // Start scan for new jobs on it's own thread
-            processThread = new ProcessThread(iniFileData, statusList, GlobalJobIndex);
-            processThread.ScanForNewJobs();
+            // Start thread to scan for new jobs
+            jobScanThread = new JobScanThread(iniFileData, statusList);
+            jobScanThread.ThreadProc();
         }
 
         /// <summary>
@@ -291,9 +180,9 @@ namespace Status.Services
         /// </summary>
         public void StopMonitor()
         {
-            if (processThread != null)
+            if (jobScanThread != null)
             {
-                processThread.StopProcess();
+                jobScanThread.StopProcess();
             }
         }
 

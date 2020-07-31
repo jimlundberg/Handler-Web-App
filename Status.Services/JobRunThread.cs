@@ -32,13 +32,24 @@ namespace Status.Services
             DirectoryName = directory;
         }
 
-        // The thread procedure performs the task
+        /// <summary>
+        /// The thread procedure for running a job
+        /// </summary>
         public void ThreadProc()
         {
-            RunJob(DirectoryName, IniData, MonitorData, StatusData);
+            Thread thread = new Thread(() => RunJob(DirectoryName, IniData, MonitorData, StatusData));
+            thread.Start();
         }
 
-        public void StatusDataEntry(List<StatusWrapper.StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
+        /// <summary>
+        /// Status Data Entry
+        /// </summary>
+        /// <param name="statusList"></param>
+        /// <param name="job"></param>
+        /// <param name="status"></param>
+        /// <param name="timeSlot"></param>
+        /// <param name="logFileName"></param>
+        public static void StatusDataEntry(List<StatusWrapper.StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
         {
             StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, logFileName);
             statusData.ListStatus(statusList, job, status, timeSlot);
@@ -53,7 +64,7 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="numberOfJobsExecuting"></param>
-        public void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData)
+        public static void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData)
         {
             // Add initial entry to status list
             StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.LogFile);
@@ -133,7 +144,7 @@ namespace Status.Services
                 if (Directory.Exists(InputBufferDir))
                 {
                     MonitorDirectoryFiles.MonitorDirectory(
-                        InputBufferDir, monitorData.NumFilesConsumed, IniData.MaxTimeLimit, IniData.ScanTime);
+                        InputBufferDir, monitorData.NumFilesConsumed, iniData.MaxTimeLimit, iniData.ScanTime);
                 }
                 else
                 {
