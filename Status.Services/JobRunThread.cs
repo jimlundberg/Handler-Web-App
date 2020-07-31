@@ -187,7 +187,7 @@ namespace Status.Services
             StatusDataEntry(statusData, job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.LogFile);
 
             // Monitor for complete set of files in the Processing Buffer
-            Console.WriteLine("Monitoring for Processing output files...");
+            Console.WriteLine("Monitoring for Job {0} output files...", job);
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             if (MonitorDirectoryFiles.MonitorDirectory(
                 ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, iniData.MaxTimeLimit, iniData.ScanTime))
