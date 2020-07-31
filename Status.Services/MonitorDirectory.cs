@@ -25,10 +25,6 @@ namespace Status.Services
             do
             {
                 int numberOfFilesFound = Directory.GetFiles(monitoredDir, "*", SearchOption.TopDirectoryOnly).Length;
-                Console.WriteLine("{0} has {1} files of {2} at {3} min {4} sec",
-                    monitoredDir, numberOfFilesFound, numberOfFilesNeeded,
-                    ((numberOfSeconds * (scanTime / 1000)) / 60), ((numberOfSeconds * (scanTime / 1000)) % 60));
-
                 if (numberOfFilesFound >= numberOfFilesNeeded)
                 {
                     Console.WriteLine("Recieved all {0} files", numberOfFilesFound);

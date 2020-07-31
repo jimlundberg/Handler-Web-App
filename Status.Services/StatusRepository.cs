@@ -34,40 +34,41 @@ namespace Status.Services
                 Console.WriteLine("\nFound unfinished jobs...");
                 for (int i = 0; i < subdirs.Length; i++)
                 {
-                    String job = subdirs[i].Name;
-
-                    // Delete the data.xml file if present
-                    String dataXmlFile = iniFileData.ProcessingDir + @"\" + job + @"\" + "data.xml";
-                    if (File.Exists(dataXmlFile))
-                    {
-                        File.Delete(dataXmlFile);
-                    }
-
-                    // Start scan for job files in the Output Buffer
-                    ScanDirectory scanDir = new ScanDirectory(iniFileData.ProcessingDir);
-                    jobXmlData = scanDir.GetJobXmlData(iniFileData.ProcessingDir + @"\" + job);
-
-                    // Get data found in Xml file into Monitor Data
-                    StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
-                    data.Job = jobXmlData.Job;
-                    data.JobDirectory = jobXmlData.JobDirectory;
-                    data.JobSerialNumber = jobXmlData.JobSerialNumber;
-                    data.TimeStamp = jobXmlData.TimeStamp;
-                    data.XmlFileName = jobXmlData.XmlFileName;
-                    data.JobIndex = Counters.RunningJobsIndex++;
-
-                    // Display Monitor Data found
-                    Console.WriteLine("");
-                    Console.WriteLine("Found unfinished Job  = " + data.Job);
-                    Console.WriteLine("New Job Directory     = " + data.JobDirectory);
-                    Console.WriteLine("New Serial Number     = " + data.JobSerialNumber);
-                    Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
-                    Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
-
                     if (Counters.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
                     {
                         // Increment counts to track job execution and port id
                         Counters.IncrementNumberOfJobsExecuting();
+
+                        String job = subdirs[i].Name;
+
+                        // Delete the data.xml file if present
+                        String dataXmlFile = iniFileData.ProcessingDir + @"\" + job + @"\" + "data.xml";
+                        if (File.Exists(dataXmlFile))
+                        {
+                            File.Delete(dataXmlFile);
+                        }
+
+                        // Start scan for job files in the Output Buffer
+                        ScanDirectory scanDir = new ScanDirectory(iniFileData.ProcessingDir);
+                        jobXmlData = scanDir.GetJobXmlData(iniFileData.ProcessingDir + @"\" + job);
+
+                        // Get data found in Xml file into Monitor Data
+                        StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
+                        data.Job = jobXmlData.Job;
+                        data.JobDirectory = jobXmlData.JobDirectory;
+                        data.JobSerialNumber = jobXmlData.JobSerialNumber;
+                        data.TimeStamp = jobXmlData.TimeStamp;
+                        data.XmlFileName = jobXmlData.XmlFileName;
+                        data.JobIndex = Counters.RunningJobsIndex++;
+
+                        // Display Monitor Data found
+                        Console.WriteLine("");
+                        Console.WriteLine("Found unfinished Job  = " + data.Job);
+                        Console.WriteLine("New Job Directory     = " + data.JobDirectory);
+                        Console.WriteLine("New Serial Number     = " + data.JobSerialNumber);
+                        Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
+                        Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
+
                         Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, Counters.NumberOfJobsExecuting);
 
                         // Create a thread to execute the task, and then start the thread.
@@ -77,8 +78,6 @@ namespace Status.Services
                     }
                     else
                     {
-                        Console.WriteLine("Job {0} Executing {1} Exceeded Execution Limit of {2}",
-                            data.Job, Counters.NumberOfJobsExecuting, iniFileData.ExecutionLimit);
                         Thread.Sleep(iniFileData.ScanTime);
                     }
 

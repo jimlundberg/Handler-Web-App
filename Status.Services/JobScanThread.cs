@@ -67,33 +67,34 @@ namespace Status.Services
                 {
                     for (int i = 0; i < subdirs.Length; i++)
                     {
-                        String job = subdirs[i].Name;
-
-                        // Start scan for new directory in the Input Buffer
-                        ScanDirectory scanDir = new ScanDirectory(iniFileData.InputDir);
-                        jobXmlData = scanDir.GetJobXmlData(iniFileData.InputDir + @"\" + job);
-
-                        // Set data found
-                        StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
-                        data.Job = jobXmlData.Job;
-                        data.JobDirectory = jobXmlData.JobDirectory;
-                        data.JobSerialNumber = jobXmlData.JobSerialNumber;
-                        data.TimeStamp = jobXmlData.TimeStamp;
-                        data.XmlFileName = jobXmlData.XmlFileName;
-                        data.JobIndex = Counters.RunningJobsIndex++;
-
-                        // Display data found
-                        Console.WriteLine("");
-                        Console.WriteLine("Found new Job         = " + data.Job);
-                        Console.WriteLine("New Job Directory     = " + data.JobDirectory);
-                        Console.WriteLine("New Serial Number     = " + data.JobSerialNumber);
-                        Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
-                        Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
-
                         if (Counters.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
                         {
                             // Increment counters to track job execution and port id
                             Counters.IncrementNumberOfJobsExecuting();
+
+                            String job = subdirs[i].Name;
+
+                            // Start scan for new directory in the Input Buffer
+                            ScanDirectory scanDir = new ScanDirectory(iniFileData.InputDir);
+                            jobXmlData = scanDir.GetJobXmlData(iniFileData.InputDir + @"\" + job);
+
+                            // Set data found
+                            StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
+                            data.Job = jobXmlData.Job;
+                            data.JobDirectory = jobXmlData.JobDirectory;
+                            data.JobSerialNumber = jobXmlData.JobSerialNumber;
+                            data.TimeStamp = jobXmlData.TimeStamp;
+                            data.XmlFileName = jobXmlData.XmlFileName;
+                            data.JobIndex = Counters.RunningJobsIndex++;
+
+                            // Display data found
+                            Console.WriteLine("");
+                            Console.WriteLine("Found new Job         = " + data.Job);
+                            Console.WriteLine("New Job Directory     = " + data.JobDirectory);
+                            Console.WriteLine("New Serial Number     = " + data.JobSerialNumber);
+                            Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
+                            Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
+
                             Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, Counters.NumberOfJobsExecuting);
 
                             // Supply the state information required by the task.
@@ -103,9 +104,6 @@ namespace Status.Services
                         }
                         else
                         {
-                            i--; // Retry job
-                            Console.WriteLine("Job {0} job count {1} trying to exceeded Execution Limit of {2}",
-                                data.Job, Counters.NumberOfJobsExecuting, iniFileData.ExecutionLimit);
                             Thread.Sleep(iniFileData.ScanTime);
                         }
                     }
