@@ -30,7 +30,7 @@ namespace Status.Services
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
             DirectoryInfo directory = new DirectoryInfo(iniFileData.ProcessingDir);
             DirectoryInfo[] subdirs = directory.GetDirectories();
-            if ((subdirs.Length != 0) && (Counters.NumberOfJobsExecuting < iniFileData.ExecutionLimit))
+            if (subdirs.Length != 0)
             {
                 Console.WriteLine("\nFound unfinished jobs...");
                 for (int i = 0; i < subdirs.Length; i++)
@@ -69,7 +69,7 @@ namespace Status.Services
                     {
                         // Increment counts to track job execution and port id
                         Counters.IncrementNumberOfJobsExecuting();
-                        Console.WriteLine("+++++Job {0} Executing {1}", data.Job, Counters.NumberOfJobsExecuting);
+                        Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, Counters.NumberOfJobsExecuting);
 
                         JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList);
 
