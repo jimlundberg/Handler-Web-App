@@ -8,7 +8,7 @@ namespace Status.Services
     /// <summary>
     /// TCP/IP Thread Class
     /// </summary>
-    public class TcpIpThread
+    public class JobTcpIpThread
     {
         // State information used in the task.
         public static IniFileData IniData;
@@ -17,7 +17,7 @@ namespace Status.Services
         private static Thread thread;
 
         // The constructor obtains the state information.
-        public TcpIpThread(IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData)
+        public JobTcpIpThread(IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData)
         {
             IniData = iniData;
             MonitorData = monitorData;

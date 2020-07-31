@@ -161,25 +161,25 @@ namespace Status.Services
             // Add entry to status list
             StatusDataEntry(statusData, job, JobStatus.EXECUTING, JobType.TIME_START, iniData.LogFile);
 
-            //// Load and execute command line generator
-            //CommandLineGenerator cl = new CommandLineGenerator();
-            //cl.SetExecutableFile(iniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
-            //cl.SetRepositoryDir(ProcessingBufferDir);
-            //cl.SetStartPort(monitorData.JobPortNumber);
-            //cl.SetCpuCores(iniData.CPUCores);
-            //CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
-            //Thread modelerThread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
-            //modelerThread.Start();
+            // Load and execute command line generator
+            CommandLineGenerator cl = new CommandLineGenerator();
+            cl.SetExecutableFile(iniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
+            cl.SetRepositoryDir(ProcessingBufferDir);
+            cl.SetStartPort(monitorData.JobPortNumber);
+            cl.SetCpuCores(iniData.CPUCores);
+            CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
+            Thread modelerThread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
+            modelerThread.Start();
 
-            //Console.WriteLine("***** Started Job {0} with Modeler {1} on port {2} with {3} CPU's",
-            //    monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
+            Console.WriteLine("***** Started Job {0} with Modeler {1} on port {2} with {3} CPU's",
+                monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
 
-            //// Wait for Modeler application to start
-            //Thread.Sleep(30000);
+            // Wait for Modeler application to start
+            Thread.Sleep(30000);
 
-            //// Start TCP/IP monitor thread
-            //TcpIpThread tcpIpThread = new TcpIpThread(iniData, monitorData, statusData);
-            //tcpIpThread.TcpIpMonitor(monitorData.JobPortNumber);
+            // Start TCP/IP monitor thread
+            JobTcpIpThread jobTcpIpThread = new JobTcpIpThread(iniData, monitorData, statusData);
+            jobTcpIpThread.ThreadProc();
 
             Console.WriteLine("\n***** Started Tcp/Ip monitor of Job {0} with on port {1}", monitorData.Job, monitorData.JobPortNumber);
 
