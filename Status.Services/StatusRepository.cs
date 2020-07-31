@@ -400,6 +400,11 @@ namespace Status.Services
                     dir.Delete();
                 }
             }
+
+            if (removeSource)
+            {
+                sourceDI.Delete();
+            }
         }
 
         /// <summary>
@@ -1195,7 +1200,7 @@ namespace Status.Services
                     }
 
                     // Move Processing Buffer Files to the Repository directory when passed
-                    FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job);
+                    FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, true, true);
                 }
                 else if (passFail == "Fail")
                 {
@@ -1213,7 +1218,7 @@ namespace Status.Services
                     }
 
                     // Move Processing Buffer Files to the Repository directory when failed
-                    FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job);
+                    FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, true, true);
                 }
 
                 Counters.DecrementNumberOfJobsExecuting();
