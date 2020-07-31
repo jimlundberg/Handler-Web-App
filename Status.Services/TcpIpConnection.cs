@@ -10,9 +10,6 @@ namespace Status.Services
     /// </summary>
     public class TcpIpConnection
     {
-        public static System.Timers.Timer aTimer;
-        static public int PortNumber;
-
         /// <summary>
         /// Connect to TCP/IP Port
         /// </summary>
@@ -23,13 +20,10 @@ namespace Status.Services
         {
             try
             {
-                // Set current port number
-                PortNumber = monitorData.JobPortNumber;
-
                 // Create a TcpClient.
                 // Note, for this client to work you need to have a TcpServer
                 // connected to the same address as specified by the server, port combination.
-                TcpClient client = new TcpClient(server, PortNumber);
+                TcpClient client = new TcpClient(server, monitorData.JobPortNumber);
 
                 // Translate the passed message into ASCII and store it as a Byte array.
                 Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
@@ -46,7 +40,8 @@ namespace Status.Services
                     stream.Write(data, 0, data.Length);
 
                     // Receive the TcpServer.response.
-                    Console.WriteLine("Querying Modeler for Job {0} on port {1} at {2:HH:mm:ss.fff}", monitorData.Job, PortNumber, DateTime.Now);
+                    Console.WriteLine("Querying Modeler for Job {0} on port {1} at {2:HH:mm:ss.fff}", 
+                        monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
                     Console.WriteLine("Senting: {0}", message);
 
                     // Buffer to store the response bytes.
@@ -89,7 +84,7 @@ namespace Status.Services
                 }
                 while (jobComplete == false);
 
-                Console.WriteLine("Exiting TCP/IP Scan of Job {0}", monitorData.Job);
+                Console.WriteLine("Completed TCP/IP Scan of Job {0}", monitorData.Job);
 
                 // Close everything.
                 stream.Close();
