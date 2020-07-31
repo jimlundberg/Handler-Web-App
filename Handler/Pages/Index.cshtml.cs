@@ -51,7 +51,7 @@ namespace Handler.Pages
             if (firstTimeFlag == true)
             {
                 MonitorDataRepository.GetIniFileData();
-                MonitorDataRepository.CheckCsvFileHistory();
+                MonitorDataRepository.CheckLogFileHistory();
                 firstTimeFlag = false;
             }
 

@@ -339,18 +339,6 @@ namespace Status.Services
     public class FileHandling
     {
         /// <summary>
-        /// Copy a directory from source to target
-        /// </summary>
-        /// <param name="sourceDirectory"></param>
-        /// <param name="targetDirectory"></param>
-        public static void CopyDir(String sourceDirectory, String targetDirectory)
-        {
-            DirectoryInfo Source = new DirectoryInfo(sourceDirectory);
-            DirectoryInfo Target = new DirectoryInfo(targetDirectory);
-            CopyAllFiles(Source, Target);
-        }
-
-        /// <summary>
         /// CopyFolderContents - Copy files and folders from source to destination and optionally remove source files/folders
         /// </summary>
         /// <param name="sourcePath"></param>
@@ -376,7 +364,10 @@ namespace Status.Services
 
                 if (destFile.Exists)
                 {
-                    if (overwrite) destFile.Delete();
+                    if (overwrite)
+                    {
+                        destFile.Delete();
+                    }
 
                     sourceFile.CopyTo(Path.Combine(destinationDI.FullName, sourceFile.Name));
                 }
@@ -386,7 +377,10 @@ namespace Status.Services
                 }
 
                 // Finally, delete the source file if removeSource is true
-                if (removeSource) sourceFile.Delete();
+                if (removeSource)
+                {
+                    sourceFile.Delete();
+                }
             }
 
             // Handle subdirectories
@@ -401,46 +395,11 @@ namespace Status.Services
                 // Overwrite doesn't matter in the case of a folder.  We just won't need to create it
                 CopyFolderContents(dir.FullName, destination, removeSource, overwrite);
 
-                if (removeSource) dir.Delete();
-            }
-        }
-
-        /// <summary>
-        /// Move a directory from source to target
-        /// </summary>
-        /// <param name="sourceDirectory"></param>
-        /// <param name="targetDirectory"></param>
-        public static void MoveDir(String sourceDirectory, String targetDirectory)
-        {
-            DirectoryInfo Source = new DirectoryInfo(sourceDirectory);
-            DirectoryInfo Target = new DirectoryInfo(targetDirectory);
-            if (Directory.Exists(targetDirectory))
-            {
-                try
+                if (removeSource)
                 {
-                    // Delete all files first
-                    String[] files = Directory.GetFiles(targetDirectory);
-                    foreach (String file in files)
-                    {
-                        File.Delete(file);
-                        Console.WriteLine($"{file} is deleted.");
-                    }
-
-                    // Delete the Target directory
-                    File.SetAttributes(targetDirectory, FileAttributes.Normal);
-                    Thread.Sleep(250);
-                    Target.Delete(true);
-                    Thread.Sleep(250);
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    // Bailing out to keep application running
-                    Console.WriteLine("Failed to delete " + targetDirectory);
+                    dir.Delete();
                 }
             }
-
-            Source.MoveTo(targetDirectory);
-            Console.WriteLine(@"Copied {0} -> {1}", sourceDirectory, targetDirectory);
         }
 
         /// <summary>
@@ -459,30 +418,6 @@ namespace Status.Services
 
             Source.CopyTo(targetFile);
             Console.WriteLine(@"Copied {0} -> {1}", sourceFile, targetFile);
-        }
-
-        /// <summary>
-        /// Copy all files from source to target directory
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="target"></param>
-        public static void CopyAllFiles(DirectoryInfo source, DirectoryInfo target)
-        {
-            Directory.CreateDirectory(target.FullName);
-
-            // Copy each file into the new directory.
-            foreach (FileInfo fi in source.GetFiles())
-            {
-                Console.WriteLine(@"Copying {0} -> {1}", target.FullName, fi.Name);
-                fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
-            }
-
-            // Copy each subdirectory using recursion.
-            foreach (DirectoryInfo SourceSubDir in source.GetDirectories())
-            {
-                DirectoryInfo nextTargetSubDir = target.CreateSubdirectory(SourceSubDir.Name);
-                CopyAllFiles(SourceSubDir, nextTargetSubDir);
-            }
         }
     }
 
@@ -619,12 +554,12 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Write Status data to the designated cvs data file
+        /// Write Status data to the designated log file
         /// </summary>
-        /// <param name="statusList"></param>
         /// <param name="job"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
+        /// <param name="logFileName"></param>
         public void WriteToCsvFile(String job, JobStatus status, JobType timeSlot, String logFileName)
         {
             using (StreamWriter writer = File.AppendText(logFileName))
@@ -748,6 +683,121 @@ namespace Status.Services
 
             // Return status table list
             return statusDataTable;
+        }
+
+        /// <summary>
+        /// Read, reject old data and rewrite Log File
+        /// </summary>
+        /// <param name="logFileName"></param>
+        /// <param name="logFileHistory"></param>
+        /// <returns></returns>
+        public void CheckLogFileHistory(String logFileName, int logFileHistory)
+        {
+            List<StatusWrapper.StatusData> statusDataTable = new List<StatusWrapper.StatusData>();
+
+            if (File.Exists(logFileName) == true)
+            {
+                using (CsvFileReader reader = new CsvFileReader(logFileName))
+                {
+                    CsvRow rowData = new CsvRow();
+                    while (reader.ReadRow(rowData))
+                    {
+                        StatusWrapper.StatusData rowStatusData = new StatusWrapper.StatusData();
+                        bool oldRecord = false;
+                        rowStatusData.Job = rowData[0];
+
+                        String jobType = rowData[1];
+                        switch (jobType)
+                        {
+                            case "JOB_STARTED":
+                                rowStatusData.JobStatus = JobStatus.JOB_STARTED;
+                                break;
+
+                            case "EXECUTING":
+                                rowStatusData.JobStatus = JobStatus.EXECUTING;
+                                break;
+
+                            case "MONITORING_INPUT":
+                                rowStatusData.JobStatus = JobStatus.MONITORING_INPUT;
+                                break;
+
+                            case "COPYING_TO_PROCESSING":
+                                rowStatusData.JobStatus = JobStatus.COPYING_TO_PROCESSING;
+                                break;
+
+                            case "MONITORING_PROCESSING":
+                                rowStatusData.JobStatus = JobStatus.MONITORING_PROCESSING;
+                                break;
+
+                            case "MONITORING_TCPIP":
+                                rowStatusData.JobStatus = JobStatus.MONITORING_TCPIP;
+                                break;
+
+                            case "COPYING_TO_ARCHIVE":
+                                rowStatusData.JobStatus = JobStatus.COPYING_TO_ARCHIVE;
+                                break;
+
+                            case "COMPLETE":
+                                rowStatusData.JobStatus = JobStatus.COMPLETE;
+                                break;
+                        }
+
+                        DateTime timeReceived = Convert.ToDateTime(rowData[2]);
+                        if (((DateTime.Now - timeReceived).TotalDays > logFileHistory) && (timeReceived != DateTime.MinValue))
+                        {
+                            oldRecord = true;
+                        }
+                        else
+                        {
+                            rowStatusData.TimeReceived = Convert.ToDateTime(rowData[2]);
+                        }
+
+                        // Check Time Started
+                        DateTime timeStarted = Convert.ToDateTime(rowData[3]);
+                        if (((DateTime.Now - timeStarted).TotalDays > logFileHistory) && (timeStarted != DateTime.MinValue))
+                        {
+                            oldRecord = true;
+                        }
+                        else
+                        {
+                            rowStatusData.TimeStarted = Convert.ToDateTime(rowData[3]);
+                        }
+
+                        // Get Time Complete
+                        DateTime timeCompleted = Convert.ToDateTime(rowData[4]);
+                        if (((DateTime.Now - timeCompleted).TotalDays > logFileHistory) && (timeCompleted != DateTime.MinValue))
+                        {
+                            oldRecord = true;
+                        }
+                        else
+                        {
+                            rowStatusData.TimeCompleted = Convert.ToDateTime(rowData[4]);
+                        }
+
+                        // Add data to status table if not rejected as old
+                        if (oldRecord == false)
+                        {
+                            statusDataTable.Add(rowStatusData);
+                        }
+                    }
+                }
+
+                // Create new csv file with new data
+                using (TextWriter writer = new StreamWriter(logFileName))
+                {
+                    for (int i = 0; i < statusDataTable.Count; i++)
+                    {
+                        writer.WriteLine("{0},{1},{2},{3},{4}",
+                            statusDataTable[i].Job, statusDataTable[i].JobStatus.ToString(),
+                            statusDataTable[i].TimeReceived, statusDataTable[i].TimeStarted, statusDataTable[i].TimeCompleted);
+                    }
+                    writer.Close();
+                }
+            }
+            else
+            {
+                File.Create(logFileName);
+            }
         }
     }
 
@@ -1068,31 +1118,31 @@ namespace Status.Services
                 StatusDataEntry(statusData, job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, iniData.LogFile);
 
                 // Move files from Input directory to the Processing directory, creating it first if needed
-                FileHandling.MoveDir(InputBufferDir, ProcessingBufferDir);
+                FileHandling.CopyFolderContents(InputBufferDir, ProcessingBufferDir, true, true);
             }
 
             // Add entry to status list
             StatusDataEntry(statusData, job, JobStatus.EXECUTING, JobType.TIME_START, iniData.LogFile);
 
-            // Load and execute command line generator
-            CommandLineGenerator cl = new CommandLineGenerator();
-            cl.SetExecutableFile(iniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
-            cl.SetRepositoryDir(ProcessingBufferDir);
-            cl.SetStartPort(monitorData.JobPortNumber);
-            cl.SetCpuCores(iniData.CPUCores);
-            CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
-            Thread modelerThread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
-            modelerThread.Start();
+            //// Load and execute command line generator
+            //CommandLineGenerator cl = new CommandLineGenerator();
+            //cl.SetExecutableFile(iniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
+            //cl.SetRepositoryDir(ProcessingBufferDir);
+            //cl.SetStartPort(monitorData.JobPortNumber);
+            //cl.SetCpuCores(iniData.CPUCores);
+            //CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
+            //Thread modelerThread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
+            //modelerThread.Start();
 
-            Console.WriteLine("***** Started Job {0} with Modeler {1} on port {2} with {3} CPU's",
-                monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
+            //Console.WriteLine("***** Started Job {0} with Modeler {1} on port {2} with {3} CPU's",
+            //    monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
 
-            // Wait for Modeler application to start
-            Thread.Sleep(30000);
+            //// Wait for Modeler application to start
+            //Thread.Sleep(30000);
 
-            // Start TCP/IP monitor thread
-            TcpIpThread tcpIpThread = new TcpIpThread(iniData, monitorData, statusData);
-            tcpIpThread.TcpIpMonitor(monitorData.JobPortNumber);
+            //// Start TCP/IP monitor thread
+            //TcpIpThread tcpIpThread = new TcpIpThread(iniData, monitorData, statusData);
+            //tcpIpThread.TcpIpMonitor(monitorData.JobPortNumber);
 
             Console.WriteLine("\n***** Started Tcp/Ip monitor of Job {0} with on port {1}", monitorData.Job, monitorData.JobPortNumber);
 
@@ -1148,7 +1198,7 @@ namespace Status.Services
                     }
 
                     // Move Processing Buffer Files to the Repository directory when passed
-                    FileHandling.MoveDir(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job);
+                    FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job);
                 }
                 else if (passFail == "Fail")
                 {
@@ -1166,7 +1216,7 @@ namespace Status.Services
                     }
 
                     // Move Processing Buffer Files to the Repository directory when failed
-                    FileHandling.MoveDir(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job);
+                    FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job);
                 }
 
                 Counters.DecrementNumberOfJobsExecuting();
@@ -1449,10 +1499,10 @@ namespace Status.Services
         /// <summary>
         /// Method to Check the History of the log file
         /// </summary>
-        public void CheckCsvFileHistory()
+        public void CheckLogFileHistory()
         {
-//            ReadWriteCsvFile.CsvFileReader csv = new ReadWriteCsvFile.CsvFileReader();
-//            csv.CheckCsvFileHistory(iniFileData.LogFile, iniFileData.LogFileHistory);
+            StatusEntry status = new StatusEntry();
+            status.CheckLogFileHistory(iniFileData.LogFile, iniFileData.LogFileHistory);
         }
 
         /// <summary>
