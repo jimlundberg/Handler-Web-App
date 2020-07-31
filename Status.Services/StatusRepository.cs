@@ -742,6 +742,7 @@ namespace Status.Services
                                 break;
                         }
 
+                        // Check Time Received if older than history limit
                         DateTime timeReceived = Convert.ToDateTime(rowData[2]);
                         if (((DateTime.Now - timeReceived).TotalDays > logFileHistory) && (timeReceived != DateTime.MinValue))
                         {
@@ -752,7 +753,7 @@ namespace Status.Services
                             rowStatusData.TimeReceived = Convert.ToDateTime(rowData[2]);
                         }
 
-                        // Check Time Started
+                        // Check Time Started if older than history limit
                         DateTime timeStarted = Convert.ToDateTime(rowData[3]);
                         if (((DateTime.Now - timeStarted).TotalDays > logFileHistory) && (timeStarted != DateTime.MinValue))
                         {
@@ -763,7 +764,7 @@ namespace Status.Services
                             rowStatusData.TimeStarted = Convert.ToDateTime(rowData[3]);
                         }
 
-                        // Get Time Complete
+                        // Check Time Complete if older than history limit
                         DateTime timeCompleted = Convert.ToDateTime(rowData[4]);
                         if (((DateTime.Now - timeCompleted).TotalDays > logFileHistory) && (timeCompleted != DateTime.MinValue))
                         {
