@@ -98,12 +98,8 @@ namespace Status.Services
 
                             // Supply the state information required by the task.
                             JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, data, statusData);
-
-                            // Create a thread to execute the task, and then start the thread.
-                            Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
                             Console.WriteLine("Starting Job " + data.Job);
-                            t.Start();
-                            Thread.Sleep(30000);
+                            jobThread.ThreadProc();
                         }
                         else
                         {

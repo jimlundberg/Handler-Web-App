@@ -18,12 +18,12 @@ namespace Handler.Pages
         /// <summary>
         /// Requet ID
         /// </summary>
-        public string RequestId { get; set; }
+        public String RequestId { get; set; }
 
         /// <summary>
         /// Show Request Id
         /// </summary>
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+        public bool ShowRequestId => !String.IsNullOrEmpty(RequestId);
 
         private readonly ILogger<ErrorModel> _logger;
 

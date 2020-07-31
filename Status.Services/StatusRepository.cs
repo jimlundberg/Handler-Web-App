@@ -19,8 +19,7 @@ namespace Status.Services
         private List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
         private List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
         private StatusWrapper.StatusData statusData = new StatusWrapper.StatusData();
-        public int GlobalJobIndex = 0;
-        private bool RunStop = true;
+        public bool RunStop = true;
 
         /// <summary>
         /// Scan for Unfinished jobs in the Processing Buffer
@@ -71,13 +70,10 @@ namespace Status.Services
                         Counters.IncrementNumberOfJobsExecuting();
                         Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, Counters.NumberOfJobsExecuting);
 
-                        JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList);
-
                         // Create a thread to execute the task, and then start the thread.
-                        Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
+                        JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList);
                         Console.WriteLine("Starting Job " + data.Job);
-                        t.Start();
-                        Thread.Sleep(30000);
+                        jobThread.ThreadProc();
                     }
                     else
                     {
@@ -161,6 +157,7 @@ namespace Status.Services
         /// </summary>
         public void StopMonitor()
         {
+            RunStop = false;
             if (jobScanThread != null)
             {
                 jobScanThread.StopProcess();
@@ -174,7 +171,6 @@ namespace Status.Services
         public void GetMonitorStatus()
         {
             RunStop = true;
-            GlobalJobIndex = 0;
 
             // Scan for jobs not completed
             ScanForUnfinishedJobs();
