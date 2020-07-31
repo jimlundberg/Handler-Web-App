@@ -51,7 +51,6 @@ namespace Status.Services
 
             // Handle subdirectories
             DirectoryInfo[] dirs = sourceDI.GetDirectories();
-
             foreach (DirectoryInfo dir in dirs)
             {
                 // Get destination folder
@@ -83,10 +82,10 @@ namespace Status.Services
         public static void CopyFile(String sourceFile, String targetFile)
         {
             FileInfo Source = new FileInfo(sourceFile);
-            if (File.Exists(targetFile))
+            FileInfo Target = new FileInfo(targetFile);
+            if (Target.Exists)
             {
-                File.Delete(targetFile);
-                Thread.Sleep(500);
+                Target.Delete();
             }
 
             Source.CopyTo(targetFile);
