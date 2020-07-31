@@ -55,7 +55,7 @@ namespace Status.Services
                     data.JobSerialNumber = jobXmlData.JobSerialNumber;
                     data.TimeStamp = jobXmlData.TimeStamp;
                     data.XmlFileName = jobXmlData.XmlFileName;
-                    data.JobIndex = GlobalJobIndex++;
+                    data.JobIndex = Counters.RunningJobsIndex++;
 
                     // Display Monitor Data found
                     Console.WriteLine("");
