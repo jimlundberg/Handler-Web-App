@@ -75,6 +75,7 @@ namespace Status.Services
                         JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList);
                         Console.WriteLine("Starting Job " + data.Job);
                         jobThread.ThreadProc();
+                        Thread.Sleep(15000);
                     }
                     else
                     {

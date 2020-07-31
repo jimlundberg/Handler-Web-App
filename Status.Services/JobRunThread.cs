@@ -171,7 +171,7 @@ namespace Status.Services
             Thread modelerThread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
             modelerThread.Start();
 
-            Console.WriteLine("***** Started Job {0} with Modeler {1} on port {2} with {3} CPU's",
+            Console.WriteLine("***** Starting Job {0} with Modeler {1} on port {2} with {3} CPU's",
                 monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
 
             // Wait for Modeler application to start
@@ -181,7 +181,7 @@ namespace Status.Services
             JobTcpIpThread jobTcpIpThread = new JobTcpIpThread(iniData, monitorData, statusData);
             jobTcpIpThread.ThreadProc();
 
-            Console.WriteLine("\n***** Started Tcp/Ip monitor of Job {0} with on port {1}", monitorData.Job, monitorData.JobPortNumber);
+            Console.WriteLine("***** Started Tcp/Ip monitor of Job {0} with on port {1}\n", monitorData.Job, monitorData.JobPortNumber);
 
             // Add entry to status list
             StatusDataEntry(statusData, job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.LogFile);
@@ -218,26 +218,47 @@ namespace Status.Services
 
                 // Get the pass or fail data from the OverallResult node
                 XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
-                String passFail = OverallResult.InnerText;
-                if (passFail == "Pass")
+                if (OverallResult != null)
                 {
-                    // If the Finished directory does not exist, create it
-                    if (!System.IO.Directory.Exists(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber))
+                    String passFail = OverallResult.InnerText;
+                    if (passFail == "Pass")
                     {
-                        System.IO.Directory.CreateDirectory(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber);
-                    }
+                        // If the Finished directory does not exist, create it
+                        if (!System.IO.Directory.Exists(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber))
+                        {
+                            System.IO.Directory.CreateDirectory(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber);
+                        }
 
-                    // Copy the Transfered files to the Finished directory 
-                    for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
+                        // Copy the Transfered files to the Finished directory 
+                        for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
+                        {
+                            FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
+                                iniData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
+                        }
+
+                        // Move Processing Buffer Files to the Repository directory when passed
+                        FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, true, true);
+                    }
+                    else
                     {
-                        FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
-                            iniData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
-                    }
+                        // If the Error directory does not exist, create it
+                        if (!System.IO.Directory.Exists(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber))
+                        {
+                            System.IO.Directory.CreateDirectory(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber);
+                        }
 
-                    // Move Processing Buffer Files to the Repository directory when passed
-                    FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, true, true);
+                        // Copy the Transfered files to the Error directory 
+                        for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
+                        {
+                            FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
+                                iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
+                        }
+
+                        // Move Processing Buffer Files to the Repository directory when failed
+                        FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, true, true);
+                    }
                 }
-                else if (passFail == "Fail")
+                else
                 {
                     // If the Error directory does not exist, create it
                     if (!System.IO.Directory.Exists(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber))
