@@ -68,6 +68,7 @@ namespace Handler.Pages
         {
             Console.WriteLine("\nStart Button pressed\n");
             MonitorDataRepository.GetMonitorStatus();
+            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 
         /// <summary>
