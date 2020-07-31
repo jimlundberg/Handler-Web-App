@@ -51,10 +51,10 @@ namespace Status.Services
         /// <summary>
         /// Method to scan for new jobs in the Input Buffer
         /// </summary>
-        public static void ScanForNewJobs(IniFileData iniData, List<StatusWrapper.StatusData> statusData)
+        public static void ScanForNewJobs(IniFileData iniFileData, List<StatusWrapper.StatusData> statusData)
         {
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
-            DirectoryInfo directory = new DirectoryInfo(iniData.InputDir);
+            DirectoryInfo directory = new DirectoryInfo(iniFileData.InputDir);
             List<String> directoryList = new List<String>();
 
             Console.WriteLine("\nWaiting for new job(s)...\n");
@@ -70,8 +70,8 @@ namespace Status.Services
                         String job = subdirs[i].Name;
 
                         // Start scan for new directory in the Input Buffer
-                        ScanDirectory scanDir = new ScanDirectory(iniData.InputDir);
-                        jobXmlData = scanDir.GetJobXmlData(iniData.InputDir + @"\" + job);
+                        ScanDirectory scanDir = new ScanDirectory(iniFileData.InputDir);
+                        jobXmlData = scanDir.GetJobXmlData(iniFileData.InputDir + @"\" + job);
 
                         // Set data found
                         StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
@@ -90,7 +90,7 @@ namespace Status.Services
                         Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
                         Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
 
-                        if (Counters.NumberOfJobsExecuting <= iniData.ExecutionLimit)
+                        if (Counters.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
                         {
                             // Increment counters to track job execution and port id
                             Counters.IncrementNumberOfJobsExecuting();
@@ -99,7 +99,7 @@ namespace Status.Services
                             Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, Counters.NumberOfJobsExecuting);
 
                             // Supply the state information required by the task.
-                            JobRunThread jobThread = new JobRunThread(iniData.InputDir, iniData, data, statusData);
+                            JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, data, statusData);
 
                             // Create a thread to execute the task, and then start the thread.
                             Thread t = new Thread(new ThreadStart(jobThread.ThreadProc));
@@ -111,14 +111,14 @@ namespace Status.Services
                         {
                             i--; // Retry job
                             Console.WriteLine("Job {0} job count {1} trying to exceeded Execution Limit of {2}",
-                                data.Job, Counters.NumberOfJobsExecuting, iniData.ExecutionLimit);
-                            Thread.Sleep(iniData.ScanTime);
+                                data.Job, Counters.NumberOfJobsExecuting, iniFileData.ExecutionLimit);
+                            Thread.Sleep(iniFileData.ScanTime);
                         }
                     }
                 }
 
                 // Sleep to allow job to finish before checking for more
-                Thread.Sleep(iniData.ScanTime);
+                Thread.Sleep(iniFileData.ScanTime);
             }
         }
     }
