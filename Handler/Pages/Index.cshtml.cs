@@ -66,7 +66,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostStartButton()
         {
-            Console.WriteLine("\nStart Button pressed\n");
+            Console.WriteLine("\nStart Button pressed");
             MonitorDataRepository.GetMonitorStatus();
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
@@ -76,7 +76,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostStopButton()
         {
-            Console.WriteLine("\nStop Button pressed\n");
+            Console.WriteLine("\nStop Button pressed");
             MonitorDataRepository.StopMonitor();
         }
 
@@ -85,7 +85,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostHistoryButton()
         {
-            Console.WriteLine("\nHistory Button pressed\n");
+            Console.WriteLine("\nHistory Button pressed");
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetHistoryData().Reverse();
         }
     }
