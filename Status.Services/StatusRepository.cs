@@ -795,10 +795,6 @@ namespace Status.Services
                     writer.Close();
                 }
             }
-            else
-            {
-                File.Create(logFileName);
-            }
         }
     }
 
