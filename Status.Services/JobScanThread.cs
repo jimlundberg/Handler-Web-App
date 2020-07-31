@@ -101,6 +101,8 @@ namespace Status.Services
                             JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, data, statusData);
                             Console.WriteLine("Starting Job " + data.Job);
                             jobThread.ThreadProc();
+
+                            // Delay to let Modeler startup
                             Thread.Sleep(15000);
                         }
                         else
