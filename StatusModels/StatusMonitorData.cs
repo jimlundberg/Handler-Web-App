@@ -17,7 +17,6 @@ namespace StatusModels
         public String UnitNumber { get; set; }
         public String Modeler { get; set; }
         public int JobPortNumber { get; set; }
-        public int ExecutionCount { get; set; }
         public int NumFilesConsumed { get; set; }
         public int NumFilesProduced { get; set; }
         public int NumFilesToTransfer { get; set; }

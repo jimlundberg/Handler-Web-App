@@ -69,8 +69,6 @@ namespace Status.Services
                     {
                         // Increment counts to track job execution and port id
                         Counters.IncrementNumberOfJobsExecuting();
-                        data.ExecutionCount++;
-
                         Console.WriteLine("+++++Job {0} Executing {1}", data.Job, Counters.NumberOfJobsExecuting);
 
                         JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList);

@@ -94,8 +94,6 @@ namespace Status.Services
                         {
                             // Increment counters to track job execution and port id
                             Counters.IncrementNumberOfJobsExecuting();
-                            data.ExecutionCount++;
-
                             Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, Counters.NumberOfJobsExecuting);
 
                             // Supply the state information required by the task.
