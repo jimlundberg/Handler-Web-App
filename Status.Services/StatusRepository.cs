@@ -105,23 +105,6 @@ namespace Status.Services
         /// Get the Monitor Status Entry point
         /// </summary>
         /// <returns></returns>
-        public void GetMonitorStatus()
-        {
-            RunStop = true;
-            GlobalJobIndex = 0;
-
-            // Scan for jobs not completed
-            ScanForUnfinishedJobs();
-
-            // Start thread to scan for new jobs
-            jobScanThread = new JobScanThread(iniFileData, statusList);
-            jobScanThread.ThreadProc();
-        }
-
-        /// <summary>
-        /// Get the Monitor Status Entry point
-        /// </summary>
-        /// <returns></returns>
         public void GetIniFileData()
         {
             // Check that Config.ini file exists
@@ -184,6 +167,23 @@ namespace Status.Services
             {
                 jobScanThread.StopProcess();
             }
+        }
+
+        /// <summary>
+        /// Get the Monitor Status Entry point
+        /// </summary>
+        /// <returns></returns>
+        public void GetMonitorStatus()
+        {
+            RunStop = true;
+            GlobalJobIndex = 0;
+
+            // Scan for jobs not completed
+            ScanForUnfinishedJobs();
+
+            // Start thread to scan for new jobs
+            jobScanThread = new JobScanThread(iniFileData, statusList);
+            jobScanThread.ThreadProc();
         }
 
         /// <summary>
