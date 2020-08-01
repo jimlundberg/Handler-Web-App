@@ -161,25 +161,25 @@ namespace Status.Services
             // Add entry to status list
             StatusDataEntry(statusData, job, JobStatus.EXECUTING, JobType.TIME_START, iniData.LogFile);
 
-            // Load and execute command line generator
-            CommandLineGenerator cl = new CommandLineGenerator();
-            cl.SetExecutableFile(iniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
-            cl.SetRepositoryDir(ProcessingBufferDir);
-            cl.SetStartPort(monitorData.JobPortNumber);
-            cl.SetCpuCores(iniData.CPUCores);
-            CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
-            Thread modelerThread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
-            modelerThread.Start();
+            //// Load and execute command line generator
+            //CommandLineGenerator cl = new CommandLineGenerator();
+            //cl.SetExecutableFile(iniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
+            //cl.SetRepositoryDir(ProcessingBufferDir);
+            //cl.SetStartPort(monitorData.JobPortNumber);
+            //cl.SetCpuCores(iniData.CPUCores);
+            //CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
+            //Thread modelerThread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
+            //modelerThread.Start();
 
-            Console.WriteLine("***** Starting Job {0} with Modeler {1} on port {2} with {3} CPU's",
-                monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
+            //Console.WriteLine("\n***** Starting Job {0} with Modeler {1} on port {2} with {3} CPU's",
+            //    monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
 
-            // Wait for Modeler application to start
-            Thread.Sleep(30000);
+            //// Wait for Modeler application to start
+            //Thread.Sleep(30000);
 
-            // Start TCP/IP monitor thread
-            JobTcpIpThread jobTcpIpThread = new JobTcpIpThread(iniData, monitorData, statusData);
-            jobTcpIpThread.ThreadProc();
+            //// Start TCP/IP monitor thread
+            //JobTcpIpThread jobTcpIpThread = new JobTcpIpThread(iniData, monitorData, statusData);
+            //jobTcpIpThread.ThreadProc();
 
             Console.WriteLine("***** Started Tcp/Ip monitor of Job {0} with on port {1}\n", monitorData.Job, monitorData.JobPortNumber);
 
@@ -187,12 +187,12 @@ namespace Status.Services
             StatusDataEntry(statusData, job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.LogFile);
 
             // Monitor for complete set of files in the Processing Buffer
-            Console.WriteLine("Monitoring for Processing output files...");
+            Console.WriteLine("Monitoring for Job {0} output files...", job);
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             if (MonitorDirectoryFiles.MonitorDirectory(
                 ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, iniData.MaxTimeLimit, iniData.ScanTime))
             {
-                // Add copy entry to status list
+                // Add copy to archieve entry to status list
                 StatusDataEntry(statusData, job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.LogFile);
 
                 // Check .Xml output file for pass/fail
