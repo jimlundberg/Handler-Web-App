@@ -65,9 +65,13 @@ namespace Status.Services
                             break;
 
                         case "Step 5 in process.":
-                        case "Step 6 in process.":
                             Console.WriteLine("Received: {0} from Job {1}", responseData, monitorData.Job);
                             sleepTime = 1000;
+                            break;
+
+                        case "Step 6 in process.":
+                            Console.WriteLine("Received: {0} from Job {1}", responseData, monitorData.Job);
+                            sleepTime = 100;
                             break;
 
                         case "Whole process done, socket closed.":

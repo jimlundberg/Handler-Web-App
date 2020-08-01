@@ -171,7 +171,7 @@ namespace Status.Services
             Thread modelerThread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
             modelerThread.Start();
 
-            Console.WriteLine("***** Starting Job {0} with Modeler {1} on port {2} with {3} CPU's",
+            Console.WriteLine("\n***** Starting Job {0} with Modeler {1} on port {2} with {3} CPU's",
                 monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
 
             // Wait for Modeler application to start
@@ -192,6 +192,9 @@ namespace Status.Services
             if (MonitorDirectoryFiles.MonitorDirectory(
                 ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, iniData.MaxTimeLimit, iniData.ScanTime))
             {
+                // Sleep after detecting files to allow Modeler to exit
+                Thread.Sleep(10000);
+
                 // Add copy entry to status list
                 StatusDataEntry(statusData, job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.LogFile);
 

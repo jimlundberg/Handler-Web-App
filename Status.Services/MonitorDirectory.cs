@@ -27,7 +27,7 @@ namespace Status.Services
                 int numberOfFilesFound = Directory.GetFiles(monitoredDir, "*", SearchOption.TopDirectoryOnly).Length;
                 if (numberOfFilesFound >= numberOfFilesNeeded)
                 {
-                    Console.WriteLine("Recieved all {0} files", numberOfFilesFound);
+                    Console.WriteLine("Recieved all {0} files in {1}", numberOfFilesFound, monitoredDir);
                     return true;
                 }
 
