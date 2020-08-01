@@ -192,10 +192,7 @@ namespace Status.Services
             if (MonitorDirectoryFiles.MonitorDirectory(
                 ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, iniData.MaxTimeLimit, iniData.ScanTime))
             {
-                // Sleep after detecting files to allow Modeler to exit
-                Thread.Sleep(10000);
-
-                // Add copy entry to status list
+                // Add copy to archieve entry to status list
                 StatusDataEntry(statusData, job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.LogFile);
 
                 // Check .Xml output file for pass/fail

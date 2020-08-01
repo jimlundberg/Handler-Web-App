@@ -123,7 +123,8 @@ namespace Status.Services
             iniFileData.ExecutionLimit = Int32.Parse(IniParser.Read("Process", "ExecutionLimit"));
             iniFileData.StartPort = Int32.Parse(IniParser.Read("Process", "StartPort"));
             iniFileData.LogFile = IniParser.Read("Process", "LogFile");
-            iniFileData.ScanTime = Int32.Parse(IniParser.Read("Process", "ScanTime"));
+            String scanTime = IniParser.Read("Process", "MaxTimeLimit");
+            iniFileData.ScanTime = Int32.Parse(scanTime.Substring(0, scanTime.IndexOf("#")));
             String timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
             iniFileData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             String logFileHistory = IniParser.Read("Process", "LogFileHistory");
