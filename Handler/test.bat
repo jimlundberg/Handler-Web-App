@@ -14,33 +14,13 @@ set buffer=Input Buffer
 REM set PassFail=Fail
 set PassFail=Pass
 
-set DELAY=1
+set DELAY=5
 
 REM Copy 5 directories into the Input Buffer to test waiting on the last one
 
 :CopyDirectories
 
-SET JOB=1185840_202003250942
-echo Copying %JOB% .xml and .tab files
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
-timeout %DELAY% >nul
-echo Copying %JOB% mode*.csv files
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
-
-timeout %DELAY% >nul
-
-SET JOB=1185841_202005070801
-echo Copying %JOB% .xml and .tab files
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
-timeout %DELAY% >nul
-echo Copying %JOB% mode*.csv files
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
-
-timeout %DELAY% >nul
-
-SET JOB=1202741_202003101418
+SET JOB=1307106_202002181307
 echo Copying %JOB% .xml and .tab files
 robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
 robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
@@ -60,7 +40,27 @@ robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
 
 timeout %DELAY% >nul
 
-SET JOB=1178351_202005071438
+SET JOB=1202741_202003101418
+echo Copying %JOB% .xml and .tab files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
+timeout %DELAY% >nul
+echo Copying %JOB% mode*.csv files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
+
+timeout %DELAY% >nul
+
+SET JOB=1185841_202005070801
+echo Copying %JOB% .xml and .tab files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
+timeout %DELAY% >nul
+echo Copying %JOB% mode*.csv files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
+
+timeout %DELAY% >nul
+
+SET JOB=1185840_202003250942
 echo Copying %JOB% .xml and .tab files
 robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
 robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
@@ -80,7 +80,7 @@ robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
 
 timeout %DELAY% >nul
 
-SET JOB=1307106_202002181307
+SET JOB=1178351_202005071438
 echo Copying %JOB% .xml and .tab files
 robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
 robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
@@ -95,75 +95,75 @@ timeout 30
 :FillDirectories
 
 :Fill_1
-
-SET JOB="1185840_202003250942"
-echo Scanning for ProcessingBuffer\%JOB% files
-if not exist ProcessingBuffer\%JOB% GOTO Wait_1
-copy "test\%JOB% - %PassFail%" ProcessingBuffer\%JOB% >nul
-GOTO :Fill_2
-:Wait_1
-timeout 1 >nul
-GOTO :Fill_1
+if EXIST ProcessingBuffer\1185840_202003250942 (
+echo ProcessingBuffer\1185840_202003250942 exists
+copy "test\1185840_202003250942 - Pass" ProcessingBuffer\1185840_202003250942
+) ELSE (
+echo ProcessingBuffer\1185840_202003250942 not created yet
+timeout %DELAY% >nul
+GOTO Fill_2
+)
 
 :Fill_2
-SET JOB="1185841_202005070801"
-echo Scanning for ProcessingBuffer\%JOB% files
-if not exist ProcessingBuffer\%JOB% GOTO Wait_2
-copy "test\%JOB% - %PassFail%" ProcessingBuffer\%JOB% >nul
-GOTO :Fill_3
-:Wait_2
-timeout 1 >nul
-GOTO :Fill_2
+if EXIST ProcessingBuffer\1278061_202006301109 (
+echo ProcessingBuffer\1278061_202006301109 exists
+copy "test\1278061_202006301109 - Pass" ProcessingBuffer\1278061_202006301109
+) ELSE (
+echo ProcessingBuffer\1278061_202006301109 not created yet
+timeout %DELAY% >nul
+GOTO Fill_3
+)
 
 :Fill_3
-SET JOB="1202741_202003101418"
-echo Scanning for ProcessingBuffer\%JOB% files
-if not exist ProcessingBuffer\%JOB% GOTO Wait_3
-copy "test\%JOB% - %PassFail%" ProcessingBuffer\%JOB% >nul
-GOTO :Fill_4
-:Wait_3
-timeout 1 >nul
-GOTO :Fill_3
+if EXIST ProcessingBuffer\1202741_202003101418 (
+echo ProcessingBuffer\1202741_202003101418 exists
+copy "test\1202741_202003101418 - Pass" ProcessingBuffer\1202741_202003101418
+) ELSE (
+echo ProcessingBuffer\1202741_202003101418 not created yet
+timeout %DELAY% >nul
+GOTO Fill_4
+)
 
 :Fill_4
-SET JOB="1278061_202006301109"
-echo Scanning for ProcessingBuffer\%JOB% files
-if not exist ProcessingBuffer\%JOB% GOTO Wait_4
-copy "test\%JOB% - %PassFail%" ProcessingBuffer\%JOB% >nul
-GOTO :Fill_5
-:Wait_4
-timeout 1 >nul
-GOTO :Fill_4
+if EXIST ProcessingBuffer\1185841_202005070801 (
+echo ProcessingBuffer\1185841_202005070801 exists
+copy "test\1185841_202005070801 - Pass" ProcessingBuffer\1185841_202005070801
+) ELSE (
+echo ProcessingBuffer\1185841_202005070801 not created yet
+timeout %DELAY% >nul
+GOTO Fill_5
+)
 
 :Fill_5
-SET JOB="1178351_202005071438"
-echo Scanning for ProcessingBuffer\%JOB% files
-if not exist ProcessingBuffer\%JOB% GOTO Wait_5
-copy "test\%JOB% - %PassFail%" ProcessingBuffer\%JOB% >nul
-GOTO :Fill_6
-:Wait_5
-timeout 1 >nul
-GOTO :Fill_5
+if EXIST ProcessingBuffer\1307106_202002181307 (
+echo ProcessingBuffer\1307106_202002181307 exists
+copy "test\1307106_202002181307 - Pass" ProcessingBuffer\1307106_202002181307
+) ELSE (
+echo ProcessingBuffer\1307106_202002181307 not created yet
+timeout %DELAY% >nul
+GOTO Fill_6
+)
 
 :Fill_6
-SET JOB="1178352_202005050818"
-echo Scanning for ProcessingBuffer\%JOB% files
-if not exist ProcessingBuffer\%JOB% GOTO Wait_6
-copy "test\%JOB% - %PassFail%" ProcessingBuffer\%JOB% >nul
-GOTO :Fill_7
-:Wait_6
-timeout 1 >nul
-GOTO :Fill_6
+if EXIST ProcessingBuffer\1178352_202005050818 (
+echo ProcessingBuffer\1178352_202005050818 exists
+copy "test\1178352_202005050818 - Pass" ProcessingBuffer\1178352_202005050818
+) ELSE (
+echo ProcessingBuffer\1178352_202005050818 not created yet
+timeout %DELAY% >nul
+GOTO Fill_7
+)
 
 :Fill_7
-SET JOB="1307106_202002181307"
-echo Scanning for ProcessingBuffer\%JOB% files
-if not exist ProcessingBuffer\%JOB% GOTO Wait_7
-copy "test\%JOB% - %PassFail%" ProcessingBuffer\%JOB% >nul
-GOTO :End
-:Wait_7
-timeout 1 >nul
-GOTO :Fill_7
+if EXIST ProcessingBuffer\1178351_202005071438 (
+echo ProcessingBuffer\1178351_202005071438 exists
+copy "test\1178351_202005071438 - Pass" ProcessingBuffer\1178351_202005071438
+) ELSE (
+echo ProcessingBuffer\1178351_202005071438 not created yet
+timeout %DELAY% >nul
+echo.
+GOTO Fill_1
+)
 
 
 :End
