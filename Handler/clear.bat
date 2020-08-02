@@ -1,18 +1,30 @@
-:RemoveDirectories
+:ClearWorkingDirectories
 
-rmdir /s /q "Input Buffer"
-md "Input Buffer"
+@ECHO OFF
 
-rmdir /s /q ProcessingBuffer
-md ProcessingBuffer
+cd "ProcessingBuffer"
+del /F /Q /S *.* >nul 2>&1
+rd /s /q . >nul 2>&1
+cd..
 
-rmdir /s /q Archive
-md Archive
+cd "Archive"
+del /F /Q /S *. >nul 2>&1
+rd /s /q . >nul 2>&1
+cd..
 
-rmdir /s /q "Error Buffer"
-md "Error Buffer"
+cd "Input Buffer"
+del /F /Q /S *. >nul 2>&1
+rd /s /q . >nul 2>&1
+cd..
 
-rmdir /s /q "Output Buffer"
-md "Output Buffer"
+cd "Output Buffer"
+del /F /Q /S *. >nul 2>&1
+rd /s /q . >nul 2>&1
+cd..
+
+cd "Error Buffer"
+del /F /Q /S *. >nul 2>&1
+rd /s /q . >nul 2>&1
+cd..
 
 cls

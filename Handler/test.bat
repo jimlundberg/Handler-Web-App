@@ -1,61 +1,169 @@
-REM Copy directories into the Input Buffer
+@ECHO OFF
 
-REM set buffer=ProcessBuffer
+REM Handler App test batch file to:
+REM 1. Copies the job beginning files 75300037D00.xml and the .tab files
+REM 2. Copies the mode csv files into the directory to simulate finishing job Input
+REM 3. Waites until each job directory is created in the ProcessingBuffer (by Handler App)
+REM 4. Then copies the files that complete a job into the ProcessingBuffer directory
+
+:ConfigureTest
+
+REM set buffer=ProcessingBuffer
 set buffer=Input Buffer
+
+REM set PassFail=Fail
 set PassFail=Pass
 
-xcopy /S /I /E "test\1185840_202003250942" "%buffer%\1185840_202003250942"
-powershell -command "Start-Sleep -s 2"
+set DELAY=1
 
-xcopy /S /I /E "test\1185841_202005070801" "%buffer%\1185841_202005070801"
-powershell -command "Start-Sleep -s 2"
+REM Copy 5 directories into the Input Buffer to test waiting on the last one
 
-xcopy /S /I /E "test\1202741_202003101418" "%buffer%\1202741_202003101418"
-powershell -command "Start-Sleep -s 2"
+:CopyDirectories
 
-xcopy /S /I /E "test\1278061_202006301109" "%buffer%\1278061_202006301109"
-powershell -command "Start-Sleep -s 2"
+SET JOB=1185840_202003250942
+echo Copying %JOB% .xml and .tab files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
+timeout %DELAY% >nul
+echo Copying %JOB% mode*.csv files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
 
-xcopy /S /I /E "test\1658348_202003111530" "%buffer%\1658348_202003111530"
-powershell -command "Start-Sleep -s 2"
+timeout %DELAY% >nul
 
-xcopy /S /I /E "test\1658349_202003131343" "%buffer%\1658349_202003131343"
-powershell -command "Start-Sleep -s 2"
+SET JOB=1185841_202005070801
+echo Copying %JOB% .xml and .tab files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
+timeout %DELAY% >nul
+echo Copying %JOB% mode*.csv files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
 
-xcopy /S /I /E "test\1674433_202003311328" "%buffer%\1674433_202003311328"
-powershell -command "Start-Sleep -s 2"
+timeout %DELAY% >nul
 
-xcopy /S /I /E "test\1686105_202004211301" "%buffer%\1686105_202004211301"
-powershell -command "Start-Sleep -s 2"
+SET JOB=1202741_202003101418
+echo Copying %JOB% .xml and .tab files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
+timeout %DELAY% >nul
+echo Copying %JOB% mode*.csv files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
 
-xcopy /S /I /E "test\1687180_202004231102" "%buffer%\1687180_202004231102"
-powershell -command "Start-Sleep -s 10"
+timeout %DELAY% >nul
+
+SET JOB=1278061_202006301109
+echo Copying %JOB% .xml and .tab files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
+timeout %DELAY% >nul
+echo Copying %JOB% mode*.csv files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
+
+timeout %DELAY% >nul
+
+SET JOB=1178351_202005071438
+echo Copying %JOB% .xml and .tab files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
+timeout %DELAY% >nul
+echo Copying %JOB% mode*.csv files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
+
+timeout %DELAY% >nul
+
+SET JOB=1178352_202005050818
+echo Copying %JOB% .xml and .tab files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
+timeout %DELAY% >nul
+echo Copying %JOB% mode*.csv files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
+
+timeout %DELAY% >nul
+
+SET JOB=1307106_202002181307
+echo Copying %JOB% .xml and .tab files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
+timeout %DELAY% >nul
+echo Copying %JOB% mode*.csv files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
 
 
-REM Copy contents to fill directories
+timeout 30
 
-copy "test\1185840_202003250942 - %PassFail%" ProcessingBuffer\1185840_202003250942
-powershell -command "Start-Sleep -s 2"
 
-copy "test\1185841_202005070801 - %PassFail%" ProcessingBuffer\1185841_202005070801
-powershell -command "Start-Sleep -s 2"
+:FillDirectories
 
-copy "test\1202741_202003101418 - %PassFail%" ProcessingBuffer\1202741_202003101418
-powershell -command "Start-Sleep -s 2"
+:Fill_1
 
-copy "test\1278061_202006301109 - %PassFail%" ProcessingBuffer\1278061_202006301109
-powershell -command "Start-Sleep -s 2"
+SET JOB="1185840_202003250942"
+echo Scanning for ProcessingBuffer\%JOB% files
+if not exist ProcessingBuffer\%JOB% GOTO Wait_1
+copy "test\%JOB% - %PassFail%" ProcessingBuffer\%JOB% >nul
+GOTO :Fill_2
+:Wait_1
+timeout 1 >nul
+GOTO :Fill_1
 
-copy "test\1658348_202003111530 - %PassFail%" ProcessingBuffer\1658348_202003111530
-powershell -command "Start-Sleep -s 2"
+:Fill_2
+SET JOB="1185841_202005070801"
+echo Scanning for ProcessingBuffer\%JOB% files
+if not exist ProcessingBuffer\%JOB% GOTO Wait_2
+copy "test\%JOB% - %PassFail%" ProcessingBuffer\%JOB% >nul
+GOTO :Fill_3
+:Wait_2
+timeout 1 >nul
+GOTO :Fill_2
 
-copy "test\1658349_202003131343 - %PassFail%" ProcessingBuffer\1658349_202003131343
-powershell -command "Start-Sleep -s 2"
+:Fill_3
+SET JOB="1202741_202003101418"
+echo Scanning for ProcessingBuffer\%JOB% files
+if not exist ProcessingBuffer\%JOB% GOTO Wait_3
+copy "test\%JOB% - %PassFail%" ProcessingBuffer\%JOB% >nul
+GOTO :Fill_4
+:Wait_3
+timeout 1 >nul
+GOTO :Fill_3
 
-copy "test\1674433_202003311328 - %PassFail%" ProcessingBuffer\1674433_202003311328
-powershell -command "Start-Sleep -s 2"
+:Fill_4
+SET JOB="1278061_202006301109"
+echo Scanning for ProcessingBuffer\%JOB% files
+if not exist ProcessingBuffer\%JOB% GOTO Wait_4
+copy "test\%JOB% - %PassFail%" ProcessingBuffer\%JOB% >nul
+GOTO :Fill_5
+:Wait_4
+timeout 1 >nul
+GOTO :Fill_4
 
-copy "test\1686105_202004211301 - %PassFail%" ProcessingBuffer\1686105_202004211301
-powershell -command "Start-Sleep -s 2"
+:Fill_5
+SET JOB="1178351_202005071438"
+echo Scanning for ProcessingBuffer\%JOB% files
+if not exist ProcessingBuffer\%JOB% GOTO Wait_5
+copy "test\%JOB% - %PassFail%" ProcessingBuffer\%JOB% >nul
+GOTO :Fill_6
+:Wait_5
+timeout 1 >nul
+GOTO :Fill_5
 
-copy "test\1687180_202004231102 - %PassFail%" ProcessingBuffer\1687180_202004231102
+:Fill_6
+SET JOB="1178352_202005050818"
+echo Scanning for ProcessingBuffer\%JOB% files
+if not exist ProcessingBuffer\%JOB% GOTO Wait_6
+copy "test\%JOB% - %PassFail%" ProcessingBuffer\%JOB% >nul
+GOTO :Fill_7
+:Wait_6
+timeout 1 >nul
+GOTO :Fill_6
+
+:Fill_7
+SET JOB="1307106_202002181307"
+echo Scanning for ProcessingBuffer\%JOB% files
+if not exist ProcessingBuffer\%JOB% GOTO Wait_7
+copy "test\%JOB% - %PassFail%" ProcessingBuffer\%JOB% >nul
+GOTO :End
+:Wait_7
+timeout 1 >nul
+GOTO :Fill_7
+
+
+:End
