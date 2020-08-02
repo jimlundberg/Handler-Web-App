@@ -171,7 +171,7 @@ namespace Status.Services
             //Thread modelerThread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
             //modelerThread.Start();
 
-            //Console.WriteLine("***** Starting Job {0} with Modeler {1} on port {2} with {3} CPU's",
+            //Console.WriteLine("\n***** Starting Job {0} with Modeler {1} on port {2} with {3} CPU's",
             //    monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
 
             //// Wait for Modeler application to start
@@ -187,12 +187,12 @@ namespace Status.Services
             StatusDataEntry(statusData, job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.LogFile);
 
             // Monitor for complete set of files in the Processing Buffer
-            Console.WriteLine("Monitoring for Processing output files...");
+            Console.WriteLine("Monitoring for Job {0} output files...", job);
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             if (MonitorDirectoryFiles.MonitorDirectory(
                 ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, iniData.MaxTimeLimit, iniData.ScanTime))
             {
-                // Add copy entry to status list
+                // Add copy to archieve entry to status list
                 StatusDataEntry(statusData, job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.LogFile);
 
                 // Check .Xml output file for pass/fail
