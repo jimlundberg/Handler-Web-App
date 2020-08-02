@@ -60,26 +60,31 @@ namespace Status.Services
                         case "Step 2 in process.":
                         case "Step 3 in process.":
                         case "Step 4 in process.":
-                            Console.WriteLine("Received: {0} from Job {1} on port {2}", responseData, monitorData.Job, monitorData.JobPortNumber);
+                            Console.WriteLine("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}", 
+                                responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
                             break;
 
                         case "Step 5 in process.":
-                            Console.WriteLine("Received: {0} from Job {1} on port {2}", responseData, monitorData.Job, monitorData.JobPortNumber);
+                            Console.WriteLine("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}", 
+                                responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
                             sleepTime = 1000;
                             break;
 
                         case "Step 6 in process.":
-                            Console.WriteLine("Received: {0} from Job {1} on port {2}", responseData, monitorData.Job, monitorData.JobPortNumber);
+                            Console.WriteLine("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}", 
+                                responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
                             sleepTime = 100;
                             break;
 
                         case "Whole process done, socket closed.":
-                            Console.WriteLine("Received: {0} from Job {1} on port {2}", responseData, monitorData.Job, monitorData.JobPortNumber);
+                            Console.WriteLine("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}", 
+                                responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
                             jobComplete = true;
                             break;
 
                         default:
-                            Console.WriteLine("$$$$$Received Weird Response: {0} from Job {1} on port {2}", responseData, monitorData.Job, monitorData.JobPortNumber);
+                            Console.WriteLine("$$$$$Received Weird Response: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}", 
+                                responseData, monitorData.Job, monitorData.JobPortNumber);
                             break;
                     }
 
