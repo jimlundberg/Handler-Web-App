@@ -40,9 +40,8 @@ namespace Status.Services
                     stream.Write(data, 0, data.Length);
 
                     // Receive the TcpServer.response.
-                    Console.WriteLine("Querying Modeler for Job {0} on port {1} at {2:HH:mm:ss.fff}", 
-                        monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
-                    Console.WriteLine("Senting: {0}", message);
+                    Console.WriteLine("Sending {0} msg to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                        message, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
 
                     // Buffer to store the response bytes.
                     data = new Byte[256];
@@ -61,26 +60,26 @@ namespace Status.Services
                         case "Step 2 in process.":
                         case "Step 3 in process.":
                         case "Step 4 in process.":
-                            Console.WriteLine("Received: {0} from Job {1}", responseData, monitorData.Job);
+                            Console.WriteLine("Received: {0} from Job {1} on port {2}", responseData, monitorData.Job, monitorData.JobPortNumber);
                             break;
 
                         case "Step 5 in process.":
-                            Console.WriteLine("Received: {0} from Job {1}", responseData, monitorData.Job);
+                            Console.WriteLine("Received: {0} from Job {1} on port {2}", responseData, monitorData.Job, monitorData.JobPortNumber);
                             sleepTime = 1000;
                             break;
 
                         case "Step 6 in process.":
-                            Console.WriteLine("Received: {0} from Job {1}", responseData, monitorData.Job);
+                            Console.WriteLine("Received: {0} from Job {1} on port {2}", responseData, monitorData.Job, monitorData.JobPortNumber);
                             sleepTime = 100;
                             break;
 
                         case "Whole process done, socket closed.":
-                            Console.WriteLine("Received: {0} from Job {1}", responseData, monitorData.Job);
+                            Console.WriteLine("Received: {0} from Job {1} on port {2}", responseData, monitorData.Job, monitorData.JobPortNumber);
                             jobComplete = true;
                             break;
 
                         default:
-                            Console.WriteLine("$$$$$Received Weird Response: {0} from Job {1}", responseData, monitorData.Job);
+                            Console.WriteLine("$$$$$Received Weird Response: {0} from Job {1} on port {2}", responseData, monitorData.Job, monitorData.JobPortNumber);
                             break;
                     }
 
