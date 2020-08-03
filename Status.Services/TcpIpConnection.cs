@@ -94,6 +94,7 @@ namespace Status.Services
                         // If the shutdown flag is set, exit method
                         if (StaticData.ShutdownFlag == true)
                         {
+                            Console.WriteLine("Shutdown Connect job {0} time {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now);
                             return;
                         }
 
@@ -106,11 +107,11 @@ namespace Status.Services
                 }
                 while (jobComplete == false);
 
-                Console.WriteLine("Completed TCP/IP Scan of Job {0}", monitorData.Job);
-
                 // Close everything.
                 stream.Close();
                 client.Close();
+
+                Console.WriteLine("Completed TCP/IP Scan of Job {0}", monitorData.Job);
             }
             catch (ArgumentNullException e)
             {

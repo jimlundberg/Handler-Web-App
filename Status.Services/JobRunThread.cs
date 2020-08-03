@@ -164,6 +164,7 @@ namespace Status.Services
             // If the shutdown flag is set, exit method
             if (StaticData.ShutdownFlag == true)
             {
+                Console.WriteLine("Shutdown RunJob before Modeler Job {0} time {1:HH:mm:ss.fff}", job, DateTime.Now);
                 return;
             }
 
@@ -183,6 +184,7 @@ namespace Status.Services
             // If the shutdown flag is set, exit method
             if (StaticData.ShutdownFlag == true)
             {
+                Console.WriteLine("Shutdown RunJob for Modeler Job {0} time {1:HH:mm:ss.fff}", job, DateTime.Now);
                 return;
             }
 
@@ -196,6 +198,7 @@ namespace Status.Services
             // If the shutdown flag is set, exit method
             if (StaticData.ShutdownFlag == true)
             {
+                Console.WriteLine("Shutdown RunJob for Modeler Job {0} time {1:HH:mm:ss.fff}", job, DateTime.Now);
                 return;
             }
 
@@ -224,6 +227,12 @@ namespace Status.Services
                     {
                         xmlFileName = files[0];
                         XmlFileFound = true;
+                    }
+
+                    if (StaticData.ShutdownFlag == true)
+                    {
+                        Console.WriteLine("Shutdown RunJob Scanning xml Job {0} time {1:HH:mm:ss.fff}", job, DateTime.Now);
+                        return;
                     }
 
                     Thread.Sleep(500);

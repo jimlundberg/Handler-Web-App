@@ -78,6 +78,7 @@ namespace Status.Services
                         // If the shutdown flag is set, exit method
                         if (StaticData.ShutdownFlag == true)
                         {
+                            Console.WriteLine("Shutdown ScanForUnfinishedJobs job {0} time {1:HH:mm:ss.fff}", data.Job, DateTime.Now);
                             return;
                         }
 

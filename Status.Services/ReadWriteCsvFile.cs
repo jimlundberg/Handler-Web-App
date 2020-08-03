@@ -56,6 +56,7 @@ namespace ReadWriteCsvFile
                 // If the shutdown flag is set, exit method
                 if (Status.Services.StaticData.ShutdownFlag == true)
                 {
+                    Console.WriteLine("Shutdown WriteRow row {0} time {1:HH:mm:ss.fff}", value, DateTime.Now);
                     return;
                 }
             }
@@ -157,6 +158,7 @@ namespace ReadWriteCsvFile
                 // If the shutdown flag is set, exit method
                 if (Status.Services.StaticData.ShutdownFlag == true)
                 {
+                    Console.WriteLine("Shutdown ReadRow row {0} time {1:HH:mm:ss.fff}", value, DateTime.Now);
                     return false;
                 }
             }

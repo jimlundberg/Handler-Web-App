@@ -201,12 +201,13 @@ namespace Status.Services
 
                             // Add data to status table
                             statusDataTable.Add(rowStatusData);
-                        }
 
-                        // If the shutdown flag is set, exit method
-                        if (StaticData.ShutdownFlag == true)
-                        {
-                            return statusDataTable;
+                            // If the shutdown flag is set, exit method
+                            if (StaticData.ShutdownFlag == true)
+                            {
+                                Console.WriteLine("Shutdown ReadFromCsvFile job {0} row {1} time {2:HH:mm:ss.fff}", rowStatusData.Job, rowStatusData, DateTime.Now);
+                                return statusDataTable;
+                            }
                         }
                     }
                 }
@@ -310,6 +311,13 @@ namespace Status.Services
                         if (oldRecord == false)
                         {
                             statusDataTable.Add(rowStatusData);
+                        }
+
+                        // If the shutdown flag is set, exit method
+                        if (StaticData.ShutdownFlag == true)
+                        {
+                            Console.WriteLine("Shutdown CheckLogFileHistory job {0} row {1} time {21:HH:mm:ss.fff}", rowStatusData.Job, rowStatusData, DateTime.Now);
+                            return;
                         }
                     }
                 }
