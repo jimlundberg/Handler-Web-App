@@ -143,7 +143,7 @@ namespace Status.Services
                 // Monitor the Input directory until it has the total number of consumed files
                 if (Directory.Exists(InputBufferDir))
                 {
-                    MonitorDirectoryFiles.MonitorDirectory(
+                    MonitorDirectoryFiles.MonitorDirectory(iniData, monitorData, statusData,
                         InputBufferDir, monitorData.NumFilesConsumed, iniData.MaxTimeLimit, iniData.ScanTime);
                 }
                 else
@@ -189,18 +189,7 @@ namespace Status.Services
             }
 
             // Wait for Modeler application to start
-            Thread.Sleep(30000);
-
-            // Start TCP/IP monitor thread
-            JobTcpIpThread jobTcpIpThread = new JobTcpIpThread(iniData, monitorData, statusData);
-            jobTcpIpThread.ThreadProc();
-
-            // If the shutdown flag is set, exit method
-            if (StaticData.ShutdownFlag == true)
-            {
-                Console.WriteLine("Shutdown RunJob for Modeler Job {0} time {1:HH:mm:ss.fff}", job, DateTime.Now);
-                return;
-            }
+            Thread.Sleep(15000);
 
             Console.WriteLine("***** Started Tcp/Ip monitor of Job {0} with on port {1}\n", monitorData.Job, monitorData.JobPortNumber);
 
@@ -210,9 +199,16 @@ namespace Status.Services
             // Monitor for complete set of files in the Processing Buffer
             Console.WriteLine("Monitoring for Job {0} output files...", job);
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
-            if (MonitorDirectoryFiles.MonitorDirectory(
+            if (MonitorDirectoryFiles.MonitorDirectory(iniData, monitorData, statusData,
                 ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, iniData.MaxTimeLimit, iniData.ScanTime))
             {
+                // If the shutdown flag is set, exit method
+                if (StaticData.ShutdownFlag == true)
+                {
+                    Console.WriteLine("Shutdown RunJob for Modeler Job {0} time {1:HH:mm:ss.fff}", job, DateTime.Now);
+                    return;
+                }
+
                 // Add copy to archieve entry to status list
                 StatusDataEntry(statusData, job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.LogFile);
 

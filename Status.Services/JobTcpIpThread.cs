@@ -14,7 +14,21 @@ namespace Status.Services
         public static IniFileData IniData;
         public static StatusMonitorData MonitorData;
         public static List<StatusWrapper.StatusData> StatusData;
-        private static Thread thread;
+        private static Thread tcpIpthread;
+        public event EventHandler ProcessCompleted;
+
+        public void StartTcpIpScanProcess(IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData)
+        {
+            Console.WriteLine("Tcp/Ip Scan process starting");
+
+            // Start Tcp/Ip thread
+            JobTcpIpThread tcpIp = new JobTcpIpThread(iniData, monitorData, statusData);
+        }
+
+        protected virtual void OnProcessCompleted(EventArgs e)
+        {
+            ProcessCompleted?.Invoke(this, e);
+        }
 
         // The constructor obtains the state information.
         public JobTcpIpThread(IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData)
@@ -27,8 +41,8 @@ namespace Status.Services
         // The thread procedure performs the task
         public void ThreadProc()
         {
-            thread = new Thread(() => TcpIpMonitor(MonitorData.JobPortNumber));
-            thread.Start();          
+            tcpIpthread = new Thread(() => TcpIpMonitor(MonitorData.JobPortNumber));
+            tcpIpthread.Start();          
         }
 
         public static void StatusEntry(List<StatusWrapper.StatusData> statusList, String job, JobStatus status, JobType timeSlot)

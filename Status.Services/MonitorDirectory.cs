@@ -1,6 +1,9 @@
-﻿using System;
+﻿using StatusModels;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using static StatusModels.StatusWrapper;
 
 namespace Status.Services
 {
@@ -9,6 +12,15 @@ namespace Status.Services
     /// </summary>
     public class MonitorDirectoryFiles
     {
+        static volatile bool tcpIpScanComplete = false;
+
+        public static void TcpIp_ProcessCompleted(object sender, EventArgs e)
+        {
+            // Set Flag for ending directory scan loop
+            Console.WriteLine("Monitor directory received Tcp/Ip Scan Completed!");
+            tcpIpScanComplete = true;
+        }
+
         /// <summary>
         /// Monitor the Directory for a selected number of files with a timeout
         /// </summary>
@@ -17,15 +29,21 @@ namespace Status.Services
         /// <param name="timeout"></param>
         /// <param name="scanTime"></param>
         /// <returns></returns>
-        public static bool MonitorDirectory(String monitoredDir, int numberOfFilesNeeded, int timeout, int scanTime)
+        public static bool MonitorDirectory(IniFileData iniData, StatusMonitorData monitorData,
+             List<StatusWrapper.StatusData> statusData, String monitoredDir, int numberOfFilesNeeded, int timeout, int scanTime)
         {
             bool filesFound = false;
             int numberOfSeconds = 0;
 
+            // Register with the Tcp/Ip Event and start it's thread
+            JobTcpIpThread tcpIp = new JobTcpIpThread(iniData, monitorData, statusData);
+            tcpIp.ProcessCompleted += TcpIp_ProcessCompleted;
+            tcpIp.StartTcpIpScanProcess(iniData, monitorData, statusData);
+
             do
             {
                 int numberOfFilesFound = Directory.GetFiles(monitoredDir, "*", SearchOption.TopDirectoryOnly).Length;
-                if (numberOfFilesFound >= numberOfFilesNeeded)
+                if ((numberOfFilesFound >= numberOfFilesNeeded) && tcpIpScanComplete)
                 {
                     Console.WriteLine("Recieved all {0} files in {1}", numberOfFilesFound, monitoredDir);
 
