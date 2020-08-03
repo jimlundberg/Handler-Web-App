@@ -29,6 +29,8 @@
             </tr>
         </thead>
         <tbody>
+        @if (Model.statusData != null)
+        {
             @foreach (var status in Model.statusData)
             {
                 <tr>
@@ -63,6 +65,7 @@
                     }
                 </tr>
             }
+        }
         </tbody>
     </table>
 </div>

@@ -28,8 +28,15 @@ namespace Status.Services
                 if (numberOfFilesFound >= numberOfFilesNeeded)
                 {
                     Console.WriteLine("Recieved all {0} files in {1}", numberOfFilesFound, monitoredDir);
+
                     Thread.Sleep(10000);
                     return true;
+                }
+
+                // If the shutdown flag is set, exit method
+                if (StaticData.ShutdownFlag == true)
+                {
+                    return false;
                 }
 
                 Thread.Sleep(scanTime);

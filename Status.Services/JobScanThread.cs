@@ -67,10 +67,10 @@ namespace Status.Services
                 {
                     for (int i = 0; i < subdirs.Length; i++)
                     {
-                        if (Counters.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
+                        if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
                         {
                             // Increment counters to track job execution and port id
-                            Counters.IncrementNumberOfJobsExecuting();
+                            StaticData.IncrementNumberOfJobsExecuting();
 
                             String job = subdirs[i].Name;
 
@@ -85,7 +85,7 @@ namespace Status.Services
                             data.JobSerialNumber = jobXmlData.JobSerialNumber;
                             data.TimeStamp = jobXmlData.TimeStamp;
                             data.XmlFileName = jobXmlData.XmlFileName;
-                            data.JobIndex = Counters.RunningJobsIndex++;
+                            data.JobIndex = StaticData.RunningJobsIndex++;
 
                             // Display data found
                             Console.WriteLine("");
@@ -95,7 +95,13 @@ namespace Status.Services
                             Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
                             Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
 
-                            Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, Counters.NumberOfJobsExecuting);
+                            Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, StaticData.NumberOfJobsExecuting);
+
+                            // If the shutdown flag is set, exit method
+                            if (StaticData.ShutdownFlag == true)
+                            {
+                                return;
+                            }
 
                             // Supply the state information required by the task.
                             JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, data, statusData);

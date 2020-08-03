@@ -202,6 +202,12 @@ namespace Status.Services
                             // Add data to status table
                             statusDataTable.Add(rowStatusData);
                         }
+
+                        // If the shutdown flag is set, exit method
+                        if (StaticData.ShutdownFlag == true)
+                        {
+                            return statusDataTable;
+                        }
                     }
                 }
 

@@ -161,6 +161,12 @@ namespace Status.Services
             // Add entry to status list
             StatusDataEntry(statusData, job, JobStatus.EXECUTING, JobType.TIME_START, iniData.LogFile);
 
+            // If the shutdown flag is set, exit method
+            if (StaticData.ShutdownFlag == true)
+            {
+                return;
+            }
+
             // Load and execute command line generator
             CommandLineGenerator cl = new CommandLineGenerator();
             cl.SetExecutableFile(iniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
@@ -174,12 +180,24 @@ namespace Status.Services
             Console.WriteLine("\n***** Starting Job {0} with Modeler {1} on port {2} with {3} CPU's",
                 monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
 
+            // If the shutdown flag is set, exit method
+            if (StaticData.ShutdownFlag == true)
+            {
+                return;
+            }
+
             // Wait for Modeler application to start
             Thread.Sleep(30000);
 
             // Start TCP/IP monitor thread
             JobTcpIpThread jobTcpIpThread = new JobTcpIpThread(iniData, monitorData, statusData);
             jobTcpIpThread.ThreadProc();
+
+            // If the shutdown flag is set, exit method
+            if (StaticData.ShutdownFlag == true)
+            {
+                return;
+            }
 
             Console.WriteLine("***** Started Tcp/Ip monitor of Job {0} with on port {1}\n", monitorData.Job, monitorData.JobPortNumber);
 
@@ -277,8 +295,8 @@ namespace Status.Services
                     FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, true, true);
                 }
 
-                Counters.DecrementNumberOfJobsExecuting();
-                Console.WriteLine("-----Job {0} Complete, decrementing job count to {1}", monitorData.Job, Counters.NumberOfJobsExecuting);
+                StaticData.DecrementNumberOfJobsExecuting();
+                Console.WriteLine("-----Job {0} Complete, decrementing job count to {1}", monitorData.Job, StaticData.NumberOfJobsExecuting);
 
                 // Add entry to status list
                 StatusDataEntry(statusData, job, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.LogFile);

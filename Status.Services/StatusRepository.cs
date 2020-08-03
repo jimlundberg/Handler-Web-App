@@ -19,7 +19,6 @@ namespace Status.Services
         private List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
         private List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
         private StatusWrapper.StatusData statusData = new StatusWrapper.StatusData();
-        public bool RunStop = true;
 
         /// <summary>
         /// Scan for Unfinished jobs in the Processing Buffer
@@ -34,10 +33,10 @@ namespace Status.Services
                 Console.WriteLine("\nFound unfinished jobs...");
                 for (int i = 0; i < subdirs.Length; i++)
                 {
-                    if (Counters.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
+                    if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
                     {
                         // Increment counts to track job execution and port id
-                        Counters.IncrementNumberOfJobsExecuting();
+                        StaticData.IncrementNumberOfJobsExecuting();
 
                         String job = subdirs[i].Name;
 
@@ -59,7 +58,7 @@ namespace Status.Services
                         data.JobSerialNumber = jobXmlData.JobSerialNumber;
                         data.TimeStamp = jobXmlData.TimeStamp;
                         data.XmlFileName = jobXmlData.XmlFileName;
-                        data.JobIndex = Counters.RunningJobsIndex++;
+                        data.JobIndex = StaticData.RunningJobsIndex++;
 
                         // Display Monitor Data found
                         Console.WriteLine("");
@@ -69,12 +68,18 @@ namespace Status.Services
                         Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
                         Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
 
-                        Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, Counters.NumberOfJobsExecuting);
+                        Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, StaticData.NumberOfJobsExecuting);
 
                         // Create a thread to execute the task, and then start the thread.
                         JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList);
                         Console.WriteLine("Starting Job " + data.Job);
                         jobThread.ThreadProc();
+
+                        // If the shutdown flag is set, exit method
+                        if (StaticData.ShutdownFlag == true)
+                        {
+                            return;
+                        }
 
                         // Delay to let Modeler startup
                         Thread.Sleep(15000);
@@ -82,12 +87,6 @@ namespace Status.Services
                     else
                     {
                         Thread.Sleep(iniFileData.ScanTime);
-                    }
-
-                    // If Stop button pressed, set RunStop Flag to false to stop
-                    if (RunStop == false)
-                    {
-                        return;
                     }
                 }
             }
@@ -160,11 +159,8 @@ namespace Status.Services
         /// </summary>
         public void StopMonitor()
         {
-            RunStop = false;
-            if (jobScanThread != null)
-            {
-                jobScanThread.StopProcess();
-            }
+            // Exit threads by setting shutdown flag
+            StaticData.ShutdownFlag = true;
         }
 
         /// <summary>
@@ -173,7 +169,7 @@ namespace Status.Services
         /// <returns></returns>
         public void GetMonitorStatus()
         {
-            RunStop = true;
+            StaticData.ShutdownFlag = false;
 
             // Scan for jobs not completed
             ScanForUnfinishedJobs();

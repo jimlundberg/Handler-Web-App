@@ -52,6 +52,12 @@ namespace ReadWriteCsvFile
                     builder.Append(value);
                 }
                 firstColumn = false;
+
+                // If the shutdown flag is set, exit method
+                if (Status.Services.StaticData.ShutdownFlag == true)
+                {
+                    return;
+                }
             }
             row.LineText = builder.ToString();
             WriteLine(row.LineText);
@@ -146,6 +152,12 @@ namespace ReadWriteCsvFile
                 if (pos < row.LineText.Length)
                 {
                     pos++;
+                }
+
+                // If the shutdown flag is set, exit method
+                if (Status.Services.StaticData.ShutdownFlag == true)
+                {
+                    return false;
                 }
             }
 
