@@ -1,10 +1,19 @@
 ﻿@page
 @model IndexModel
+
 @{
+    Layout = "Shared/_Layout";
     ViewData["Title"] = "Handler Web App";
 }
 
 <meta http-equiv="refresh" content="15">
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/datatables.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+}
 
 <div class="text-center">
     <form method="post">
@@ -18,7 +27,8 @@
 <hr>
 
 <div class="center">
-    <table id="status_table_id">
+    @*@await Html.PartialAsync("_JobGrid.cshtml", Model)*@
+    <table id="jobGrid" class="stripe">
         <thead>
             <tr>
                 <th>Job</th>
@@ -29,8 +39,6 @@
             </tr>
         </thead>
         <tbody>
-        @if (Model.statusData != null)
-        {
             @foreach (var status in Model.statusData)
             {
                 <tr>
@@ -65,7 +73,12 @@
                     }
                 </tr>
             }
-        }
         </tbody>
     </table>
 </div>
+
+<script>
+    $(document).ready(function () {
+        $('#jobGrid').dataTable();
+    });
+</script>
