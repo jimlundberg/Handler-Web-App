@@ -28,10 +28,9 @@ namespace Status.Services
         /// <param name="scanTime"></param>
         /// <returns></returns>
         public static bool MonitorDirectory(StatusModels.DirectoryScanType scanType, IniFileData iniData, StatusMonitorData monitorData,
-             List<StatusWrapper.StatusData> statusData, String monitoredDir, int numberOfFilesNeeded, int timeout, int scanTime)
+             List<StatusWrapper.StatusData> statusData, String monitoredDir, int numberOfFilesNeeded)
         {
             bool filesFound = false;
-            int numberOfSeconds = 0;
 
             if (scanType == StatusModels.DirectoryScanType.PROCESSING_BUFFER)
             {
@@ -48,7 +47,8 @@ namespace Status.Services
                     int numberOfFilesFound = Directory.GetFiles(monitoredDir, "*", SearchOption.TopDirectoryOnly).Length;
                     if (numberOfFilesFound >= numberOfFilesNeeded)
                     {
-                        Console.WriteLine("Recieved all {0} files in {1}", numberOfFilesFound, monitoredDir);
+                        Console.WriteLine("Recieved {0} of {1} files in {2} at {3:HH:mm:ss.fff}",
+                            numberOfFilesFound, numberOfFilesNeeded, monitoredDir, DateTime.Now);
 
                         Thread.Sleep(10000);
                         return true;
@@ -61,11 +61,10 @@ namespace Status.Services
                         return false;
                     }
 
-                    Thread.Sleep(scanTime);
-                    numberOfSeconds++;
+                    Thread.Sleep(iniData.ScanTime);
                 }
             }
-            while ((filesFound == false) && (numberOfSeconds < timeout));
+            while ((filesFound == false) && ((DateTime.Now - monitorData.StartTime).TotalSeconds < iniData.MaxTimeLimit));
 
             return false;
         }

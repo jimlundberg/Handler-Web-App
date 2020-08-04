@@ -149,8 +149,8 @@ namespace Status.Services
                     // Set Tcp/Ip Job Complete flag for Input Directory Monitoring
                     StaticData.tcpIpScanComplete = true;
 
-                    MonitorDirectoryFiles.MonitorDirectory(StatusModels.DirectoryScanType.INPUT_BUFFER, iniData, monitorData,
-                        statusData, InputBufferDir, monitorData.NumFilesConsumed, iniData.MaxTimeLimit, iniData.ScanTime);
+                    MonitorDirectoryFiles.MonitorDirectory(StatusModels.DirectoryScanType.INPUT_BUFFER,
+                        iniData, monitorData, statusData, InputBufferDir, monitorData.NumFilesConsumed);
                 }
                 else
                 {
@@ -201,10 +201,10 @@ namespace Status.Services
             StaticData.tcpIpScanComplete = false;
 
             // Monitor for complete set of files in the Processing Buffer
-            Console.WriteLine("Monitoring for Job {0} output files...", job);
+            Console.WriteLine("Starting monitoring for Job {0} Processing Buffer output files...", job);
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             if (MonitorDirectoryFiles.MonitorDirectory(StatusModels.DirectoryScanType.PROCESSING_BUFFER, iniData, monitorData, statusData,
-                ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, iniData.MaxTimeLimit, iniData.ScanTime))
+                ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated))
             {
                 // If the shutdown flag is set, exit method
                 if (StaticData.ShutdownFlag == true)
@@ -305,7 +305,8 @@ namespace Status.Services
                 }
 
                 StaticData.DecrementNumberOfJobsExecuting();
-                Console.WriteLine("-----Job {0} Complete, decrementing job count to {1}", monitorData.Job, StaticData.NumberOfJobsExecuting);
+                Console.WriteLine("-----Job {0} Complete, decrementing job count to {1} at time {2:HH:mm:ss.fff}", 
+                    monitorData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now);
 
                 // Add entry to status list
                 StatusDataEntry(statusData, job, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.LogFile);

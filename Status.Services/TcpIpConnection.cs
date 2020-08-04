@@ -97,14 +97,14 @@ namespace Status.Services
                         {
                             Console.WriteLine("Execution Limit reached for job {0} time {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now);
                             StaticData.tcpIpScanComplete = true;
-                            return;
+                            jobComplete = true;
                         }
 
                         // If the shutdown flag is set, exit method
                         if (StaticData.ShutdownFlag == true)
                         {
                             Console.WriteLine("Shutdown Connect job {0} time {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now);
-                            return;
+                            jobComplete = true;
                         }
 
                         Thread.Sleep(sleepTime);
@@ -120,7 +120,7 @@ namespace Status.Services
                 stream.Close();
                 client.Close();
 
-                Console.WriteLine("Completed TCP/IP Scan of Job {0}", monitorData.Job);
+                Console.WriteLine("Completed TCP/IP Scan of Job {0} at {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now);
             }
             catch (ArgumentNullException e)
             {

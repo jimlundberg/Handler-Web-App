@@ -19,7 +19,7 @@ namespace Status.Services
 
         public void StartTcpIpScanProcess(IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData)
         {
-            Console.WriteLine("Tcp/Ip Scan process starting");
+            Console.WriteLine("Tcp/Ip Scan process starting for job {0} at {1:HH:mm:ss.fff}", MonitorData.Job, DateTime.Now);
 
             // Start Tcp/Ip thread
             JobTcpIpThread tcpIp = new JobTcpIpThread(iniData, monitorData, statusData);
