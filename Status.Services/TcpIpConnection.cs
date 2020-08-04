@@ -17,7 +17,7 @@ namespace Status.Services
         /// <param name="server"></param>
         /// <param name="port"></param>
         /// <param name="message"></param>
-        public void Connect(String server, StatusMonitorData monitorData, String message)
+        public void Connect(String server, IniFileData iniData, StatusMonitorData monitorData, String message)
         {
             try
             {
@@ -90,6 +90,14 @@ namespace Status.Services
                                 Console.WriteLine("$$$$$Received Weird Response: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber);
                                 break;
+                        }
+
+                        // Check for job timeout
+                        if ((DateTime.Now - monitorData.StartTime).TotalSeconds > iniData.MaxTimeLimit)
+                        {
+                            Console.WriteLine("Execution Limit reached for job {0} time {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now);
+                            StaticData.tcpIpScanComplete = true;
+                            return;
                         }
 
                         // If the shutdown flag is set, exit method

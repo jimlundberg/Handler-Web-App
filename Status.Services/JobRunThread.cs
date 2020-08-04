@@ -69,6 +69,9 @@ namespace Status.Services
             // Add initial entry to status list
             StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.LogFile);
 
+            // Set the Start time of the Job
+            monitorData.StartTime = DateTime.Now;
+
             // Wait until Xml file is copied to the directory being scanned
             String job = monitorData.Job;
             String xmlFileName = scanDirectory + @"\" + job + @"\" + monitorData.XmlFileName;
