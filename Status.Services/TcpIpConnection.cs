@@ -82,6 +82,7 @@ namespace Status.Services
                             case "Whole process done, socket closed.":
                                 Console.WriteLine("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
+                                StaticData.tcpIpScanComplete = true;
                                 jobComplete = true;
                                 break;
 

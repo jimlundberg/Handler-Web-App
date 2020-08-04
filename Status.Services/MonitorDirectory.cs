@@ -12,13 +12,11 @@ namespace Status.Services
     /// </summary>
     public class MonitorDirectoryFiles
     {
-        static volatile bool tcpIpScanComplete = true;
-
         public static void TcpIp_ProcessCompleted(object sender, EventArgs e)
         {
             // Set Flag for ending directory scan loop
             Console.WriteLine("Monitor directory received Tcp/Ip Scan Completed!");
-            tcpIpScanComplete = true;
+            StaticData.tcpIpScanComplete = true;
         }
 
         /// <summary>
@@ -29,37 +27,43 @@ namespace Status.Services
         /// <param name="timeout"></param>
         /// <param name="scanTime"></param>
         /// <returns></returns>
-        public static bool MonitorDirectory(IniFileData iniData, StatusMonitorData monitorData,
+        public static bool MonitorDirectory(StatusModels.DirectoryScanType scanType, IniFileData iniData, StatusMonitorData monitorData,
              List<StatusWrapper.StatusData> statusData, String monitoredDir, int numberOfFilesNeeded, int timeout, int scanTime)
         {
             bool filesFound = false;
             int numberOfSeconds = 0;
 
-            // Register with the Tcp/Ip Event and start it's thread
-            JobTcpIpThread tcpIp = new JobTcpIpThread(iniData, monitorData, statusData);
-            tcpIp.ProcessCompleted += TcpIp_ProcessCompleted;
-            tcpIp.StartTcpIpScanProcess(iniData, monitorData, statusData);
+            if (scanType == StatusModels.DirectoryScanType.PROCESSING_BUFFER)
+            {
+                // Register with the Tcp/Ip Event and start it's thread
+                JobTcpIpThread tcpIp = new JobTcpIpThread(iniData, monitorData, statusData);
+                tcpIp.ProcessCompleted += TcpIp_ProcessCompleted;
+                tcpIp.StartTcpIpScanProcess(iniData, monitorData, statusData);
+            }
 
             do
             {
-                int numberOfFilesFound = Directory.GetFiles(monitoredDir, "*", SearchOption.TopDirectoryOnly).Length;
-                if ((numberOfFilesFound >= numberOfFilesNeeded) && tcpIpScanComplete)
+                if (StaticData.tcpIpScanComplete == true)
                 {
-                    Console.WriteLine("Recieved all {0} files in {1}", numberOfFilesFound, monitoredDir);
+                    int numberOfFilesFound = Directory.GetFiles(monitoredDir, "*", SearchOption.TopDirectoryOnly).Length;
+                    if (numberOfFilesFound >= numberOfFilesNeeded)
+                    {
+                        Console.WriteLine("Recieved all {0} files in {1}", numberOfFilesFound, monitoredDir);
 
-                    Thread.Sleep(10000);
-                    return true;
+                        Thread.Sleep(10000);
+                        return true;
+                    }
+
+                    // If the shutdown flag is set, exit method
+                    if (StaticData.ShutdownFlag == true)
+                    {
+                        Console.WriteLine("Shutdown ScanForNewJobs directory {0} time {1:HH:mm:ss.fff}", monitoredDir, DateTime.Now);
+                        return false;
+                    }
+
+                    Thread.Sleep(scanTime);
+                    numberOfSeconds++;
                 }
-
-                // If the shutdown flag is set, exit method
-                if (StaticData.ShutdownFlag == true)
-                {
-                    Console.WriteLine("Shutdown ScanForNewJobs directory {0} time {1:HH:mm:ss.fff}", monitoredDir, DateTime.Now);
-                    return false;
-                }
-
-                Thread.Sleep(scanTime);
-                numberOfSeconds++;
             }
             while ((filesFound == false) && (numberOfSeconds < timeout));
 

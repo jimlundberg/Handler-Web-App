@@ -23,6 +23,7 @@ namespace Status.Services
 
             // Start Tcp/Ip thread
             JobTcpIpThread tcpIp = new JobTcpIpThread(iniData, monitorData, statusData);
+            tcpIp.ThreadProc();
         }
 
         protected virtual void OnProcessCompleted(EventArgs e)
@@ -71,6 +72,7 @@ namespace Status.Services
 
         public static void TcpIpMonitor(int TcpIpPortNumber)
         {
+            Thread.Sleep(15000);
             TcpIpConnection tcpIpConnection = new TcpIpConnection();
             tcpIpConnection.Connect("127.0.0.1", MonitorData, "status");
         }

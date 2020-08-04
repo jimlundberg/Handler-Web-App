@@ -22,4 +22,11 @@ namespace StatusModels
         TIME_RECEIVED,
         TIME_COMPLETE
     }
+
+    public enum DirectoryScanType
+    {
+        NONE,
+        INPUT_BUFFER,
+        PROCESSING_BUFFER
+    }
 }

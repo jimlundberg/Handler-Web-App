@@ -78,8 +78,7 @@ namespace Status.Services
                             ScanDirectory scanDir = new ScanDirectory(iniFileData.InputDir);
                             jobXmlData = scanDir.GetJobXmlData(iniFileData.InputDir + @"\" + job);
 
-
-                            // Set data found
+                            // Get data found in Job xml file
                             StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
                             data.Job = jobXmlData.Job;
                             data.JobDirectory = jobXmlData.JobDirectory;
@@ -111,7 +110,7 @@ namespace Status.Services
                             jobThread.ThreadProc();
 
                             // Delay to let Modeler startup
-                            Thread.Sleep(15000);
+                            Thread.Sleep(30000);
                         }
                         else
                         {

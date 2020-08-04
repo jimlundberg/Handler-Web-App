@@ -143,8 +143,11 @@ namespace Status.Services
                 // Monitor the Input directory until it has the total number of consumed files
                 if (Directory.Exists(InputBufferDir))
                 {
-                    MonitorDirectoryFiles.MonitorDirectory(iniData, monitorData, statusData,
-                        InputBufferDir, monitorData.NumFilesConsumed, iniData.MaxTimeLimit, iniData.ScanTime);
+                    // Set Tcp/Ip Job Complete flag for Input Directory Monitoring
+                    StaticData.tcpIpScanComplete = true;
+
+                    MonitorDirectoryFiles.MonitorDirectory(StatusModels.DirectoryScanType.INPUT_BUFFER, iniData, monitorData,
+                        statusData, InputBufferDir, monitorData.NumFilesConsumed, iniData.MaxTimeLimit, iniData.ScanTime);
                 }
                 else
                 {
@@ -191,10 +194,13 @@ namespace Status.Services
             // Add entry to status list
             StatusDataEntry(statusData, job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.LogFile);
 
+            // Set Tcp/Ip Job Complete flag for ProcessingBuffer Directory Monitoring
+            StaticData.tcpIpScanComplete = false;
+
             // Monitor for complete set of files in the Processing Buffer
             Console.WriteLine("Monitoring for Job {0} output files...", job);
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
-            if (MonitorDirectoryFiles.MonitorDirectory(iniData, monitorData, statusData,
+            if (MonitorDirectoryFiles.MonitorDirectory(StatusModels.DirectoryScanType.PROCESSING_BUFFER, iniData, monitorData, statusData,
                 ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, iniData.MaxTimeLimit, iniData.ScanTime))
             {
                 // If the shutdown flag is set, exit method
