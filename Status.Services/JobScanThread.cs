@@ -78,6 +78,7 @@ namespace Status.Services
                             ScanDirectory scanDir = new ScanDirectory(iniFileData.InputDir);
                             jobXmlData = scanDir.GetJobXmlData(iniFileData.InputDir + @"\" + job);
 
+
                             // Set data found
                             StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
                             data.Job = jobXmlData.Job;

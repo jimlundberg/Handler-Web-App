@@ -188,11 +188,6 @@ namespace Status.Services
                 return;
             }
 
-            // Wait for Modeler application to start
-            Thread.Sleep(15000);
-
-            Console.WriteLine("***** Started Tcp/Ip monitor of Job {0} with on port {1}\n", monitorData.Job, monitorData.JobPortNumber);
-
             // Add entry to status list
             StatusDataEntry(statusData, job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.LogFile);
 

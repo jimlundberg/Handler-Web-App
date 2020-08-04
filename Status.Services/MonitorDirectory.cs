@@ -12,7 +12,7 @@ namespace Status.Services
     /// </summary>
     public class MonitorDirectoryFiles
     {
-        static volatile bool tcpIpScanComplete = false;
+        static volatile bool tcpIpScanComplete = true;
 
         public static void TcpIp_ProcessCompleted(object sender, EventArgs e)
         {
