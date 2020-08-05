@@ -37,6 +37,9 @@ namespace Status.Services
         {
             try
             {
+                // Log Tcp/Ip monitoring entry
+                StatusDataEntry(statusData, monitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START, iniData.LogFile);
+
                 // Create a TcpClient.
                 // Note, for this client to work you need to have a TcpServer
                 // connected to the same address as specified by the server, port combination.
@@ -55,9 +58,6 @@ namespace Status.Services
                 {
                     // Send the message to the connected TcpServer.
                     stream.Write(data, 0, data.Length);
-
-                    // Log Tcp/Ip monitoring entry
-                    StatusDataEntry(statusData, monitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START, iniData.LogFile);
 
                     // Receive the TcpServer.response.
                     Console.WriteLine("Sending {0} msg to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
