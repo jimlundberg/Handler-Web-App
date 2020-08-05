@@ -39,38 +39,27 @@
             </tr>
         </thead>
         <tbody>
-            @if (Model.statusData != null)
-            {
-                @foreach (var status in Model.statusData)
-                {
+            @if (Model.statusData != null) {
+                @foreach (var status in Model.statusData) {
                     <tr>
                         <td>@status.Job</td>
                         <td>@status.JobStatus</td>
 
-                        @if (@status.TimeReceived.Year > 1)
-                        {
+                        @if (@status.TimeReceived.Year > 1) {
                             <td>@status.TimeReceived</td>
-                        }
-                        else
-                        {
+                        } else {
                             <td> </td>
                         }
 
-                        @if (@status.TimeStarted.Year > 1)
-                        {
+                        @if (@status.TimeStarted.Year > 1) {
                             <td>@status.TimeStarted</td>
-                        }
-                        else
-                        {
+                        } else {
                             <td> </td>
                         }
 
-                        @if (@status.TimeCompleted.Year > 1)
-                        {
+                        @if (@status.TimeCompleted.Year > 1) {
                             <td>@status.TimeCompleted</td>
-                        }
-                        else
-                        {
+                        } else {
                             <td> </td>
                         }
                     </tr>
