@@ -1,5 +1,6 @@
 ﻿using StatusModels;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
@@ -12,12 +13,27 @@ namespace Status.Services
     public class TcpIpConnection
     {
         /// <summary>
+        /// Status Data Entry
+        /// </summary>
+        /// <param name="statusList"></param>
+        /// <param name="job"></param>
+        /// <param name="status"></param>
+        /// <param name="timeSlot"></param>
+        /// <param name="logFileName"></param>
+        public static void StatusDataEntry(List<StatusWrapper.StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
+        {
+            StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, logFileName);
+            statusData.ListStatus(statusList, job, status, timeSlot);
+            statusData.WriteToCsvFile(job, status, timeSlot, logFileName);
+        }
+
+        /// <summary>
         /// Connect to TCP/IP Port
         /// </summary>
         /// <param name="server"></param>
         /// <param name="port"></param>
         /// <param name="message"></param>
-        public void Connect(String server, IniFileData iniData, StatusMonitorData monitorData, String message)
+        public void Connect(String server, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData, String message)
         {
             try
             {
@@ -95,12 +111,13 @@ namespace Status.Services
                         // Check for job timeout
                         if ((DateTime.Now - monitorData.StartTime).TotalSeconds > iniData.MaxTimeLimit)
                         {
-                            Console.WriteLine("Execution Limit reached for job {0} time {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now);
+                            Console.WriteLine("Job Timeout for job {0} time {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now);
+                            StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, iniData.LogFile);
                             StaticData.tcpIpScanComplete = true;
                             jobComplete = true;
                         }
 
-                        // If the shutdown flag is set, exit method
+                        // Check if the shutdown flag is set, then exit method
                         if (StaticData.ShutdownFlag == true)
                         {
                             Console.WriteLine("Shutdown Connect job {0} time {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now);

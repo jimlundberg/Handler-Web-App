@@ -74,7 +74,7 @@ namespace Status.Services
         {
             Thread.Sleep(15000);
             TcpIpConnection tcpIpConnection = new TcpIpConnection();
-            tcpIpConnection.Connect("127.0.0.1", IniData, MonitorData, "status");
+            tcpIpConnection.Connect("127.0.0.1", IniData, MonitorData, StatusData, "status");
         }
     }
 }

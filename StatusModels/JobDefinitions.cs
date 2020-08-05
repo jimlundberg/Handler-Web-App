@@ -12,6 +12,7 @@ namespace StatusModels
         MONITORING_PROCESSING,
         MONITORING_TCPIP,
         COPYING_TO_ARCHIVE,
+        JOB_TIMEOUT,
         COMPLETE
     }
 
