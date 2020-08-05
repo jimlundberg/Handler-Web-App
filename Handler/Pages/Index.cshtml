@@ -1,12 +1,11 @@
 ﻿@page
 @model IndexModel
-
 @{
     Layout = "Shared/_Layout";
     ViewData["Title"] = "Handler Web App";
 }
 
-<meta http-equiv="refresh" content="15">
+@*<meta http-equiv="refresh" content="15">*@
 
 @section Scripts {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -15,21 +14,21 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 }
 
-<div class="text-center">
-    <form method="post">
-        <div>Handler Menu</div>
-        <input type="submit" value="Start" asp-page-handler="StartButton" />
-        <input type="submit" value="Stop" asp-page-handler="StopButton" />
-        <input type="submit" value="History" asp-page-handler="HistoryButton" />
-    </form>
-</div>
-
-<hr>
+@section menu {
+    <div class="btn-group" role="group">
+        <form method="post">
+            <input class="btn btn-primary" type="submit" value="Home" asp-page="/Index" />
+            <input class="btn btn-secondary" type="submit" value="Start" asp-page-handler="StartButton" />
+            <input class="btn btn-secondary" type="submit" value="Stop" asp-page-handler="StopButton" />
+            <input class="btn btn-secondary" type="submit" value="History" asp-page-handler="HistoryButton" />
+        </form>
+    </div>
+}
 
 <div class="center">
     @*@await Html.PartialAsync("_JobGrid.cshtml", Model)*@
-    <table id="jobGrid" class="stripe">
-        <thead>
+    <table id="jobGrid" class="stripe ui celled table" style="width:100%">
+        <thead class="btn-primary">
             <tr>
                 <th>Job</th>
                 <th>Status</th>
@@ -43,37 +42,28 @@
             {
                 @foreach (var status in Model.statusData)
                 {
-                    <tr>
-                        <td>@status.Job</td>
-                        <td>@status.JobStatus</td>
+                <tr>
+                    <td>@status.Job</td>
+                    <td>@status.JobStatus</td>
 
-                        @if (@status.TimeReceived.Year > 1)
-                        {
-                            <td>@status.TimeReceived</td>
-                        }
-                        else
-                        {
-                            <td> </td>
-                        }
+                    @if (@status.TimeReceived.Year > 1) {
+                    <td>@status.TimeReceived</td>
+                    } else {
+                    <td> </td>
+                    }
 
-                        @if (@status.TimeStarted.Year > 1)
-                        {
-                            <td>@status.TimeStarted</td>
-                        }
-                        else
-                        {
-                            <td> </td>
-                        }
+                    @if (@status.TimeStarted.Year > 1) {
+                    <td>@status.TimeStarted</td>
+                    } else {
+                    <td> </td>
+                    }
 
-                        @if (@status.TimeCompleted.Year > 1)
-                        {
-                            <td>@status.TimeCompleted</td>
-                        }
-                        else
-                        {
-                            <td> </td>
-                        }
-                    </tr>
+                    @if (@status.TimeCompleted.Year > 1) {
+                    <td>@status.TimeCompleted</td>
+                    } else  {
+                    <td> </td>
+                    }
+                </tr>
                 }
             }
         </tbody>
@@ -82,6 +72,8 @@
 
 <script>
     $(document).ready(function () {
-        $('#jobGrid').dataTable();
+        $('#jobGrid').dataTable({
+            fixedHeader: true
+        });
     });
 </script>
