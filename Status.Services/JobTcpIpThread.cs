@@ -19,8 +19,6 @@ namespace Status.Services
 
         public void StartTcpIpScanProcess(IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData)
         {
-            Console.WriteLine("Tcp/Ip Scan process starting for job {0} at {1:HH:mm:ss.fff}", MonitorData.Job, DateTime.Now);
-
             // Start Tcp/Ip thread
             JobTcpIpThread tcpIp = new JobTcpIpThread(iniData, monitorData, statusData);
             tcpIp.ThreadProc();
@@ -72,7 +70,9 @@ namespace Status.Services
 
         public static void TcpIpMonitor(int TcpIpPortNumber)
         {
-            Thread.Sleep(15000);
+            // Wait for Modeler to start before trying Tcp/Ip connection
+            Thread.Sleep(30000);
+            Console.WriteLine("Tcp/Ip Scan starting for job {0} at {1:HH:mm:ss.fff}", MonitorData.Job, DateTime.Now);
             TcpIpConnection tcpIpConnection = new TcpIpConnection();
             tcpIpConnection.Connect("127.0.0.1", IniData, MonitorData, StatusData, "status");
         }
