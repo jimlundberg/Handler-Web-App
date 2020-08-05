@@ -49,7 +49,8 @@ namespace Status.Services
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
-        public static void StatusDataEntry(List<StatusWrapper.StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
+        public static void StatusDataEntry(List<StatusWrapper.StatusData> statusList, String job, 
+            JobStatus status, JobType timeSlot, String logFileName)
         {
             StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, logFileName);
             statusData.ListStatus(statusList, job, status, timeSlot);
@@ -57,14 +58,14 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Process of running  job
+        /// Process of running a job
         /// </summary>
         /// <param name="scanDirectory"></param>
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
-        /// <param name="numberOfJobsExecuting"></param>
-        public static void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData)
+        public static void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, 
+            List<StatusWrapper.StatusData> statusData)
         {
             // Add initial entry to status list
             StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.LogFile);
