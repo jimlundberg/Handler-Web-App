@@ -40,7 +40,7 @@ namespace Status.Services
         // The thread procedure performs the task
         public void ThreadProc()
         {
-            tcpIpthread = new Thread(() => TcpIpMonitor(MonitorData.JobPortNumber));
+            tcpIpthread = new Thread(() => TcpIpMonitor(MonitorData.Job, MonitorData.JobPortNumber));
             tcpIpthread.Start();          
         }
 
@@ -68,11 +68,11 @@ namespace Status.Services
             Console.WriteLine("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
         }
 
-        public static void TcpIpMonitor(int TcpIpPortNumber)
+        public static void TcpIpMonitor(String job, int TcpIpPortNumber)
         {
             // Wait for Modeler to start before trying Tcp/Ip connection
             Thread.Sleep(30000);
-            Console.WriteLine("Tcp/Ip Scan starting for job {0} at {1:HH:mm:ss.fff}", MonitorData.Job, DateTime.Now);
+            Console.WriteLine("Starting Tcp/Ip Scan for job {0} at {1:HH:mm:ss.fff}", job, DateTime.Now);
             TcpIpConnection tcpIpConnection = new TcpIpConnection();
             tcpIpConnection.Connect("127.0.0.1", IniData, MonitorData, StatusData, "status");
         }
