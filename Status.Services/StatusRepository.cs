@@ -49,11 +49,11 @@ namespace Status.Services
 
                         // Start scan for job files in the Output Buffer
                         ScanDirectory scanDir = new ScanDirectory(iniFileData.ProcessingDir);
-                        jobXmlData = scanDir.GetJobXmlData(iniFileData.ProcessingDir + @"\" + job);
+                        jobXmlData = scanDir.GetJobXmlData(job, iniFileData.ProcessingDir + @"\" + job);
 
                         // Get data found in Xml file into Monitor Data
                         StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
-                        data.Job = jobXmlData.Job;
+                        data.Job =job;
                         data.JobDirectory =jobXmlData.JobDirectory;
                         data.JobSerialNumber = jobXmlData.JobSerialNumber;
                         data.TimeStamp = jobXmlData.TimeStamp;

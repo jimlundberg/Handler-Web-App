@@ -67,6 +67,13 @@ namespace Status.Services
         public String XmlFileName;
 
         /// <summary>
+        /// ScanDirectory default constructor
+        /// </summary>
+        public ScanDirectory()
+        {
+        }
+
+        /// <summary>
         /// ScanDirectory constructor
         /// </summary>
         /// <param name="directoryName"></param>
@@ -81,14 +88,13 @@ namespace Status.Services
         /// </summary>
         /// <param name="jobDirectory"></param>
         /// <returns></returns>
-        public StatusModels.JobXmlData GetJobXmlData(String jobDirectory)
+        public StatusModels.JobXmlData GetJobXmlData(String job, String jobDirectory)
         {
             StatusModels.JobXmlData jobScanData = new StatusModels.JobXmlData();
             jobScanData.JobDirectory = jobDirectory;
-            jobScanData.Job = jobScanData.JobDirectory.Remove(0, DirectoryName.Length + 1);
-            jobScanData.JobSerialNumber = jobScanData.Job.Substring(0, jobScanData.Job.IndexOf("_"));
-            int start = jobScanData.Job.IndexOf("_") + 1;
-            jobScanData.TimeStamp = jobScanData.Job.Substring(start, jobScanData.Job.Length - start);
+            jobScanData.JobSerialNumber = job.Substring(0, job.IndexOf("_"));
+            int start = job.IndexOf("_") + 1;
+            jobScanData.TimeStamp = job.Substring(start, job.Length - start);
 
             // Wait until the Xml file shows up
             bool XmlFileFound = false;

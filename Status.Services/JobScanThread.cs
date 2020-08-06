@@ -106,12 +106,12 @@ namespace Status.Services
                                 String job = dirName.Replace(iniFileData.InputDir, "").Remove(0, 2);
 
                                 // Start scan for new directory in the Input Buffer
-                                ScanDirectory scanDir = new ScanDirectory(iniFileData.InputDir);
-                                jobXmlData = scanDir.GetJobXmlData(iniFileData.InputDir + @"\" + job);
+                                ScanDirectory scanDir = new ScanDirectory();
+                                jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job);
 
                                 // Get data found in Job xml file
                                 StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
-                                data.Job = jobXmlData.Job;
+                                data.Job = job;
                                 data.JobDirectory = jobXmlData.JobDirectory;
                                 data.JobSerialNumber = jobXmlData.JobSerialNumber;
                                 data.TimeStamp = jobXmlData.TimeStamp;
@@ -149,11 +149,11 @@ namespace Status.Services
                             }
                         }
                     }
+
+                    // Sleep to allow job to process before checking for more
+                    Thread.Sleep(iniFileData.ScanTime);
                 }
                 while (true);
-
-                // Sleep to allow job to finish before checking for more
-                Thread.Sleep(iniFileData.ScanTime);
             }
         }
     }
