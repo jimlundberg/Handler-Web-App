@@ -16,6 +16,7 @@ namespace Status.Services
         private StatusMonitorData MonitorData;
         private List<StatusWrapper.StatusData> StatusData;
         private String DirectoryName;
+        private static Object xmlLock = new Object();
 
         /// <summary>
         /// Job Run Thread constructor obtains the state information
@@ -76,42 +77,47 @@ namespace Status.Services
             // Wait until Xml file is copied to the directory being scanned
             String job = monitorData.Job;
             String xmlFileName = scanDirectory + @"\" + job + @"\" + monitorData.XmlFileName;
-            XmlDocument XmlDoc = new XmlDocument();
-            try
-            {
-                // Read Job Xml file
-                XmlDoc.Load(xmlFileName);
-            }
-            catch
-            {
-                throw new System.InvalidOperationException("Missing Xml File data");
-            }
-
-            // Get the top node of the Xml file
-            XmlElement root = XmlDoc.DocumentElement;
-            String TopNode = root.LocalName;
-
-            // Get nodes for the number of files and names of files to transfer from Job .xml file
-            XmlNode UnitNumberdNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/listitem/value");
-            XmlNode ConsumedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Consumed");
-            XmlNode ProducedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Produced");
-            XmlNode TransferedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Transfered");
-            XmlNode ModelerNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
-
-            // Assign port number for this Job
-            monitorData.JobPortNumber = iniData.StartPort + monitorData.JobIndex;
-
-            // Get the modeler and number of files to transfer
-            monitorData.UnitNumber = UnitNumberdNode.InnerText;
-            monitorData.Modeler = ModelerNode.InnerText;
-            monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
-            monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
             int NumFilesToTransfer = 0;
-            if (TransferedNode != null)
+            String TopNode;
+            XmlDocument XmlDoc;
+            lock (xmlLock)
             {
-                NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
+                XmlDoc = new XmlDocument();
+                try
+                {
+                    // Read Job Xml file
+                    XmlDoc.Load(xmlFileName);
+                }
+                catch
+                {
+                    throw new System.InvalidOperationException("Missing Xml File data");
+                }
+
+                // Get the top node of the Xml file
+                XmlElement root = XmlDoc.DocumentElement;
+                TopNode = root.LocalName;
+
+                // Get nodes for the number of files and names of files to transfer from Job .xml file
+                XmlNode UnitNumberdNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/listitem/value");
+                XmlNode ConsumedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Consumed");
+                XmlNode ProducedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Produced");
+                XmlNode TransferedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Transfered");
+                XmlNode ModelerNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
+
+                // Assign port number for this Job
+                monitorData.JobPortNumber = iniData.StartPort + monitorData.JobIndex;
+
+                // Get the modeler and number of files to transfer
+                monitorData.UnitNumber = UnitNumberdNode.InnerText;
+                monitorData.Modeler = ModelerNode.InnerText;
+                monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
+                monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
+                if (TransferedNode != null)
+                {
+                    NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
+                }
+                monitorData.NumFilesToTransfer = NumFilesToTransfer;
             }
-            monitorData.NumFilesToTransfer = NumFilesToTransfer;
 
             // Get the modeler and number of files to transfer
             Console.WriteLine("Unit Number           = " + monitorData.UnitNumber);
@@ -157,13 +163,13 @@ namespace Status.Services
                 {
                     throw new System.InvalidOperationException("Could not find Input Buffer Directory ");
                 }
-
-                // Add entry to status list
-                StatusDataEntry(statusData, job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, iniData.LogFile);
-
-                // Move files from Input directory to the Processing directory, creating it first if needed
-                FileHandling.CopyFolderContents(InputBufferDir, ProcessingBufferDir, true, true);
             }
+
+            // Add entry to status list
+            StatusDataEntry(statusData, job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, iniData.LogFile);
+
+            // Move files from Input directory to the Processing directory, creating it first if needed
+            FileHandling.CopyFolderContents(InputBufferDir, ProcessingBufferDir, true, true);
 
             // Add entry to status list
             StatusDataEntry(statusData, job, JobStatus.EXECUTING, JobType.TIME_START, iniData.LogFile);
@@ -240,9 +246,12 @@ namespace Status.Services
                 }
                 while (XmlFileFound == false);
 
-                // Read output Xml file data
-                XmlDocument XmlOutputDoc = new XmlDocument();
-                XmlDoc.Load(xmlFileName);
+                lock (xmlLock)
+                {
+                    // Read output Xml file data
+                    XmlDocument XmlOutputDoc = new XmlDocument();
+                    XmlDoc.Load(xmlFileName);
+                }
 
                 // Get the pass or fail data from the OverallResult node
                 XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");

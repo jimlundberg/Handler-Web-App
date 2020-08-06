@@ -18,7 +18,7 @@ namespace Status.Services
         JobStatus Status;
         JobType TimeSlot;
         String LogFileName;
-        private Object csvLock = new Object();
+        private static Object csvLock = new Object();
 
         public StatusEntry() { }
 
