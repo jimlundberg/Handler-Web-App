@@ -21,19 +21,6 @@ namespace Status.Services
         private StatusWrapper.StatusData statusData = new StatusWrapper.StatusData();
 
         /// <summary>
-        /// Add Quotes to directory names if needed
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns>string with quotes if needed</returns>
-        public string AddQuotesIfRequired(string path)
-        {
-            return !string.IsNullOrWhiteSpace(path) ?
-                path.Contains(" ") && (!path.StartsWith("\"") && !path.EndsWith("\"")) ?
-                    "\"" + path + "\"" : path :
-                    string.Empty;
-        }
-
-        /// <summary>
         /// Scan for Unfinished jobs in the Processing Buffer
         /// </summary>
         public void ScanForUnfinishedJobs()
@@ -67,7 +54,7 @@ namespace Status.Services
                         // Get data found in Xml file into Monitor Data
                         StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
                         data.Job = jobXmlData.Job;
-                        data.JobDirectory = AddQuotesIfRequired(jobXmlData.JobDirectory);
+                        data.JobDirectory =jobXmlData.JobDirectory;
                         data.JobSerialNumber = jobXmlData.JobSerialNumber;
                         data.TimeStamp = jobXmlData.TimeStamp;
                         data.XmlFileName = jobXmlData.XmlFileName;
@@ -125,12 +112,12 @@ namespace Status.Services
             // Get information from the Config.ini file
             var IniParser = new IniFileHandler(IniFileName);
             iniFileData.IniFileName = IniFileName;
-            iniFileData.InputDir = AddQuotesIfRequired(IniParser.Read("Paths", "Input"));
-            iniFileData.ProcessingDir = AddQuotesIfRequired(IniParser.Read("Paths", "Processing"));
-            iniFileData.RepositoryDir = AddQuotesIfRequired(IniParser.Read("Paths", "Repository"));
-            iniFileData.FinishedDir = AddQuotesIfRequired(IniParser.Read("Paths", "Finished"));
-            iniFileData.ErrorDir = AddQuotesIfRequired(IniParser.Read("Paths", "Error"));
-            iniFileData.ModelerRootDir = AddQuotesIfRequired(IniParser.Read("Paths", "ModelerRootDir"));
+            iniFileData.InputDir = IniParser.Read("Paths", "Input");
+            iniFileData.ProcessingDir = IniParser.Read("Paths", "Processing");
+            iniFileData.RepositoryDir = IniParser.Read("Paths", "Repository");
+            iniFileData.FinishedDir = IniParser.Read("Paths", "Finished");
+            iniFileData.ErrorDir = IniParser.Read("Paths", "Error");
+            iniFileData.ModelerRootDir = IniParser.Read("Paths", "ModelerRootDir");
             iniFileData.CPUCores = Int32.Parse(IniParser.Read("Process", "CPUCores"));
             iniFileData.ExecutionLimit = Int32.Parse(IniParser.Read("Process", "ExecutionLimit"));
             iniFileData.StartPort = Int32.Parse(IniParser.Read("Process", "StartPort"));
