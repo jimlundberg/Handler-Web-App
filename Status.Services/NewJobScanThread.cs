@@ -10,7 +10,7 @@ namespace Status.Services
     /// <summary>
     /// Class to run the whole monitoring process as a thread
     /// </summary>
-    public class JobScanThread
+    public class NewJobsScanThread
     {
         // State information used in the task.
         private IniFileData IniData;
@@ -26,7 +26,7 @@ namespace Status.Services
         /// <param name="statusData"></param>
         /// <param name="globalJobIndex"></param>
         /// <param name="numberOfJobsRunning"></param>
-        public JobScanThread(IniFileData iniData, List<StatusWrapper.StatusData> statusData)
+        public NewJobsScanThread(IniFileData iniData, List<StatusWrapper.StatusData> statusData)
         {
             IniData = iniData;
             StatusData = statusData;
@@ -137,8 +137,8 @@ namespace Status.Services
                                 }
 
                                 // Supply the state information required by the task.
-                                JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, data, statusData);
                                 Console.WriteLine("Starting Job " + data.Job);
+                                JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, data, statusData);
                                 jobThread.ThreadProc();
 
                                 // Delay to let Modeler startup

@@ -15,120 +15,12 @@ namespace Status.Services
     /// </summary>
     public class StatusRepository : IStatusRepository
     {
-        private JobScanThread jobScanThread;
+        private NewJobsScanThread newJobsScanThread;
+        private OldJobsScanThread oldJobsScanThread;
         private IniFileData iniFileData = new IniFileData();
         private List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
         private List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
         private StatusWrapper.StatusData statusData = new StatusWrapper.StatusData();
-
-        /// <summary>
-        /// Scan for Unfinished jobs in the Processing Buffer
-        /// </summary>
-        public void ScanForUnfinishedJobs()
-        {
-            StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
-            List<string> oldDirectoryList = new List<string>();
-            List<string> newDirectoryList = new List<string>();
-            bool readInputDirectory = false;
-
-            do
-            {
-                // Check flag to start reading inputs after first reading is skipped to pick up current files
-                if (readInputDirectory)
-                {
-                    // Get old directory list
-                    var oldDirectoryInfo = new DirectoryInfo(iniFileData.ProcessingDir);
-                    var oldDirectoryInfoList = oldDirectoryInfo.EnumerateDirectories().ToList();
-                    foreach (var subdirectory in oldDirectoryInfoList)
-                    {
-                        oldDirectoryList.Add(subdirectory.ToString());
-                    }
-                    oldDirectoryList.Sort();
-                }
-
-                // Set flag to read directories from now on after seeing current ones as new
-                readInputDirectory = true;
-
-                // Get new directory list
-                var newDirectoryInfo = new DirectoryInfo(iniFileData.ProcessingDir);
-                var newDirectoryInfoList = newDirectoryInfo.EnumerateDirectories().ToList();
-                foreach (var subdirectory in newDirectoryInfoList)
-                {
-                    newDirectoryList.Add(subdirectory.ToString());
-                }
-                newDirectoryList.Sort();
-
-                // Look for a difference between old and new directory lists
-                IEnumerable<string> directoryDifferenceQuery = newDirectoryList.Except(oldDirectoryList);
-                if (directoryDifferenceQuery.Any())
-                {
-                    Console.WriteLine("\nFound unfinished job(s)...\n");
-
-                    oldDirectoryList = newDirectoryList;
-                    foreach (string dirName in directoryDifferenceQuery)
-                    {
-                        if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
-                        {
-                            // Increment counts to track job execution and port id
-                            StaticData.IncrementNumberOfJobsExecuting();
-
-                            String job = dirName.Replace(iniFileData.ProcessingDir, "").Remove(0, 1);
-
-                            // Delete the data.xml file if present
-                            String dataXmlFile = iniFileData.ProcessingDir + @"\" + job + @"\" + "data.xml";
-                            if (File.Exists(dataXmlFile))
-                            {
-                                File.Delete(dataXmlFile);
-                            }
-
-                            // Start scan for job files in the Output Buffer
-                            ScanDirectory scanDir = new ScanDirectory();
-                            jobXmlData = scanDir.GetJobXmlData(job, iniFileData.ProcessingDir + @"\" + job);
-
-                            // Get data found in Xml file into Monitor Data
-                            StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
-                            data.Job = job;
-                            data.JobDirectory = jobXmlData.JobDirectory;
-                            data.JobSerialNumber = jobXmlData.JobSerialNumber;
-                            data.TimeStamp = jobXmlData.TimeStamp;
-                            data.XmlFileName = jobXmlData.XmlFileName;
-                            data.JobIndex = StaticData.RunningJobsIndex++;
-
-                            // Display Monitor Data found
-                            Console.WriteLine("");
-                            Console.WriteLine("Found unfinished Job  = " + data.Job);
-                            Console.WriteLine("New Job Directory     = " + data.JobDirectory);
-                            Console.WriteLine("New Serial Number     = " + data.JobSerialNumber);
-                            Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
-                            Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
-
-                            Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, StaticData.NumberOfJobsExecuting);
-
-                            // Create a thread to execute the task, and then start the thread.
-                            JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusList);
-                            Console.WriteLine("Starting Job " + data.Job);
-                            jobThread.ThreadProc();
-
-                            // If the shutdown flag is set, exit method
-                            if (StaticData.ShutdownFlag == true)
-                            {
-                                Console.WriteLine("Shutdown ScanForUnfinishedJobs job {0} time {1:HH:mm:ss.fff}", data.Job, DateTime.Now);
-                                return;
-                            }
-
-                            // Delay to let Modeler startup
-                            Thread.Sleep(30000);
-                        }
-                        else
-                        {
-                            Thread.Sleep(iniFileData.ScanTime);
-                        }
-                    }
-                }
-                Thread.Sleep(iniFileData.ScanTime);
-            }
-            while (true);
-        }
 
         /// <summary>
         /// Get the Monitor Status Entry point
@@ -203,12 +95,13 @@ namespace Status.Services
         {
             StaticData.ShutdownFlag = false;
 
-            // Scan for jobs not completed
-            ScanForUnfinishedJobs();
+            // Start thread to scan for old unfinished jobs
+            oldJobsScanThread = new OldJobsScanThread(iniFileData, statusList);
+            oldJobsScanThread.ThreadProc();
 
             // Start thread to scan for new jobs
-            jobScanThread = new JobScanThread(iniFileData, statusList);
-            jobScanThread.ThreadProc();
+            newJobsScanThread = new NewJobsScanThread(iniFileData, statusList);
+            newJobsScanThread.ThreadProc();
         }
 
         /// <summary>
