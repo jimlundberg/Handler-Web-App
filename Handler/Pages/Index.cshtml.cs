@@ -27,7 +27,7 @@ namespace Handler.Pages
         /// Monitor Data Repository
         /// </summary>
         private readonly IStatusRepository MonitorDataRepository;
-        private static bool firstTimeFlag = true;
+        private static bool firstTime = true;
 
         /// <summary>
         /// Index Model CTOR
@@ -39,26 +39,31 @@ namespace Handler.Pages
             this.MonitorDataRepository = monitorDataRepository;
             _logger = logger;
         }
-
+        
         /// <summary>
-        /// On GEt
+        /// On Get
         /// </summary>
         public void OnGet()
         {
-            if (firstTimeFlag == true)
+            ViewData["PageName"] = "Home";
+            if (firstTime)
             {
                 MonitorDataRepository.GetIniFileData();
                 MonitorDataRepository.CheckLogFileHistory();
-                firstTimeFlag = false;
+                firstTime = false;
             }
-
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
-
-            //_logger.LogTrace("Log Trace");
-            //_logger.LogDebug("Log Debug");
-            //_logger.LogInformation("Log Information");
-            //_logger.LogError("Log Error");
-            //_logger.LogCritical("Log Critical");
+        }
+                
+        /// <summary>
+        /// On Post Home Button
+        /// </summary>
+        public void OnPostHomeButton()
+        {
+            ViewData["PageName"] = "Home";
+            //MonitorDataRepository.GetMonitorStatus();
+            //statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+            //statusData = null;
         }
 
         /// <summary>
@@ -66,6 +71,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostStartButton()
         {
+            ViewData["PageName"] = "Start";
             Console.WriteLine("\nStart Button pressed");
             MonitorDataRepository.GetMonitorStatus();
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
@@ -76,6 +82,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostStopButton()
         {
+            ViewData["PageName"] = "Stop";
             Console.WriteLine("\nStop Button pressed");
             MonitorDataRepository.StopMonitor();
         }
@@ -85,6 +92,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostHistoryButton()
         {
+            ViewData["PageName"] = "History";
             Console.WriteLine("\nHistory Button pressed");
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetHistoryData().Reverse();
         }
