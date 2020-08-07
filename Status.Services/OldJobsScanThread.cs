@@ -137,7 +137,6 @@ namespace Status.Services
                             Console.WriteLine("Starting Job " + data.Job);
                             JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusData);
                             jobThread.ThreadProc();
-                            StaticData.oldJobScanComplete = true;
 
                             // If the shutdown flag is set, exit method
                             if (StaticData.ShutdownFlag == true)
@@ -146,8 +145,7 @@ namespace Status.Services
                                 return;
                             }
 
-                            // Delay to let Modeler startup
-                            Thread.Sleep(30000);
+                            Thread.Sleep(iniFileData.ScanTime);
                         }
                         else
                         {
@@ -159,11 +157,11 @@ namespace Status.Services
                 {
                     if (foundDirectories)
                     {
-                        Console.WriteLine("\nNo more unfinished job(s) Found...");
+                        Console.WriteLine("No more unfinished job(s) Found...");
                     }
                     else
                     {
-                        Console.WriteLine("\nNo unfinished job(s) Found...\n");
+                        Console.WriteLine("\nNo unfinished job(s) Found...");
                     }
                     StaticData.oldJobScanComplete = true;
                     return;

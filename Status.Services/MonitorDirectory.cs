@@ -55,7 +55,7 @@ namespace Status.Services
                     // If the shutdown flag is set, exit method
                     if (StaticData.ShutdownFlag == true)
                     {
-                        Console.WriteLine("Shutdown ScanForNewJobs directory {0} time {1:HH:mm:ss.fff}", monitoredDir, DateTime.Now);
+                        Console.WriteLine("Shutdown MonitorDirectory {0} time {1:HH:mm:ss.fff}", monitoredDir, DateTime.Now);
                         return false;
                     }
 

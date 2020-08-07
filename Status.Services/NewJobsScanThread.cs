@@ -13,8 +13,8 @@ namespace Status.Services
     public class NewJobsScanThread
     {
         // State information used in the task.
-        private IniFileData IniData;
-        private List<StatusWrapper.StatusData> StatusData;
+        private static IniFileData IniData;
+        private static List<StatusWrapper.StatusData> StatusData;
         public volatile bool endProcess = false;
         private static Thread thread;
 
@@ -23,6 +23,7 @@ namespace Status.Services
             // Set Flag for ending directory scan loop
             Console.WriteLine("Old Job Scan Completed!");
             StaticData.oldJobScanComplete = true;
+            ScanForNewJobs(IniData, StatusData);
         }
 
         // The constructor obtains the state information.
@@ -37,6 +38,11 @@ namespace Status.Services
         {
             IniData = iniData;
             StatusData = statusData;
+
+            // Register with the Old Jobs Event and start its thread
+            OldJobsScanThread oldJobs = new OldJobsScanThread(iniData, statusData);
+            oldJobs.ProcessCompleted += oldJob_ProcessCompleted;
+            oldJobs.ScanForOldJobs(iniData, statusData);
         }
 
         /// <summary>
@@ -58,21 +64,7 @@ namespace Status.Services
             List<string> newDirectoryList = new List<string>();
             bool readInputDirectory = false;
 
-            // Register with the Old Jobs Event and start its thread
-            OldJobsScanThread oldJobs = new OldJobsScanThread(iniFileData, statusData);
-            oldJobs.ProcessCompleted += oldJob_ProcessCompleted;
-            oldJobs.ScanForOldJobs(iniFileData, statusData);
-
-            while (true)
-            {
-                if (StaticData.oldJobScanComplete == true)
-                {
-                    break;
-                }
-                Thread.Sleep(1000);
-            }
-
-            Console.WriteLine("\nScanning for new job(s)...\n");
+            Console.WriteLine("\nScanning for new job(s)...");
 
             while (true)
             {
@@ -89,83 +81,76 @@ namespace Status.Services
                     oldDirectoryList.Sort();
                 }
 
-                do
+                // Set flag to read directories from now on after seeing current ones as new
+                readInputDirectory = true;
+
+                // Get new directory list
+                var newDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
+                var newDirectoryInfoList = newDirectoryInfo.EnumerateDirectories().ToList();
+                foreach (var subdirectory in newDirectoryInfoList)
                 {
-                    // Set flag to read directories from now on after seeing current ones as new
-                    readInputDirectory = true;
+                    newDirectoryList.Add(subdirectory.ToString());
+                }
+                newDirectoryList.Sort();
 
-                    // Get new directory list
-                    var newDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
-                    var newDirectoryInfoList = newDirectoryInfo.EnumerateDirectories().ToList();
-                    foreach (var subdirectory in newDirectoryInfoList)
+                // Look for a difference between old and new directory lists
+                IEnumerable<string> directoryDifferenceQuery = newDirectoryList.Except(oldDirectoryList);
+                if (directoryDifferenceQuery.Any())
+                {
+                    Console.WriteLine("\nFound new job(s)...");
+
+                    oldDirectoryList = newDirectoryList;
+                    foreach (string dirName in directoryDifferenceQuery)
                     {
-                        newDirectoryList.Add(subdirectory.ToString());
-                    }
-                    newDirectoryList.Sort();
-
-                    // Look for a difference between old and new directory lists
-                    IEnumerable<string> directoryDifferenceQuery = newDirectoryList.Except(oldDirectoryList);
-                    if (directoryDifferenceQuery.Any())
-                    {
-                        Console.WriteLine("\nFound new job(s)...\n");
-
-                        oldDirectoryList = newDirectoryList;
-                        foreach (string dirName in directoryDifferenceQuery)
+                        if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
                         {
-                            if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
+                            // Increment counters to track job execution
+                            StaticData.IncrementNumberOfJobsExecuting();
+
+                            String job = dirName.Replace(iniFileData.InputDir, "").Remove(0, 1);
+
+                            // Start scan for new directory in the Input Buffer
+                            ScanDirectory scanDir = new ScanDirectory();
+                            jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job);
+
+                            // Get data found in Job xml file
+                            StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
+                            data.Job = job;
+                            data.JobDirectory = jobXmlData.JobDirectory;
+                            data.JobSerialNumber = jobXmlData.JobSerialNumber;
+                            data.TimeStamp = jobXmlData.TimeStamp;
+                            data.XmlFileName = jobXmlData.XmlFileName;
+                            data.JobIndex = StaticData.RunningJobsIndex++;
+
+                            // Display data found
+                            Console.WriteLine("");
+                            Console.WriteLine("Found new Job         = " + data.Job);
+                            Console.WriteLine("New Job Directory     = " + data.JobDirectory);
+                            Console.WriteLine("New Serial Number     = " + data.JobSerialNumber);
+                            Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
+                            Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
+
+                            Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, StaticData.NumberOfJobsExecuting);
+
+                            // If the shutdown flag is set, exit method
+                            if (StaticData.ShutdownFlag == true)
                             {
-                                // Increment counters to track job execution
-                                StaticData.IncrementNumberOfJobsExecuting();
-
-                                String job = dirName.Replace(iniFileData.InputDir, "").Remove(0, 1);
-
-                                // Start scan for new directory in the Input Buffer
-                                ScanDirectory scanDir = new ScanDirectory();
-                                jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job);
-
-                                // Get data found in Job xml file
-                                StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
-                                data.Job = job;
-                                data.JobDirectory = jobXmlData.JobDirectory;
-                                data.JobSerialNumber = jobXmlData.JobSerialNumber;
-                                data.TimeStamp = jobXmlData.TimeStamp;
-                                data.XmlFileName = jobXmlData.XmlFileName;
-                                data.JobIndex = StaticData.RunningJobsIndex++;
-
-                                // Display data found
-                                Console.WriteLine("");
-                                Console.WriteLine("Found new Job         = " + data.Job);
-                                Console.WriteLine("New Job Directory     = " + data.JobDirectory);
-                                Console.WriteLine("New Serial Number     = " + data.JobSerialNumber);
-                                Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
-                                Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
-
-                                Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, StaticData.NumberOfJobsExecuting);
-
-                                // If the shutdown flag is set, exit method
-                                if (StaticData.ShutdownFlag == true)
-                                {
-                                    Console.WriteLine("Shutdown ScanForNewJobs job {0} time {1:HH:mm:ss.fff}", data.Job, DateTime.Now);
-                                    return;
-                                }
-
-                                // Supply the state information required by the task.
-                                Console.WriteLine("Starting Job " + data.Job);
-                                JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, data, statusData);
-                                jobThread.ThreadProc();
-
-                                // Delay to let Modeler startup
-                                Thread.Sleep(30000);
+                                Console.WriteLine("Shutdown ScanForNewJobs job {0} time {1:HH:mm:ss.fff}", data.Job, DateTime.Now);
+                                return;
                             }
-                            else
-                            {
-                                Thread.Sleep(iniFileData.ScanTime);
-                            }
+
+                            // Supply the state information required by the task.
+                            Console.WriteLine("Starting Job " + data.Job);
+                            JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, data, statusData);
+                            jobThread.ThreadProc();
+                            Thread.Sleep(iniFileData.ScanTime);
+                        }
+                        else
+                        {
+                            Thread.Sleep(iniFileData.ScanTime);
                         }
                     }
-                    Thread.Sleep(iniFileData.ScanTime);
                 }
-                while (true);
             }
         }
     }

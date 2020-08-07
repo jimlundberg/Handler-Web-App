@@ -71,7 +71,7 @@ namespace Status.Services
         public static void TcpIpMonitor(String job, int TcpIpPortNumber)
         {
             // Wait for Modeler to start before trying Tcp/Ip connection
-            Thread.Sleep(20000);
+            Thread.Sleep(30000);
             Console.WriteLine("Starting Tcp/Ip Scan for job {0} at {1:HH:mm:ss.fff}", job, DateTime.Now);
             TcpIpConnection tcpIpConnection = new TcpIpConnection();
             tcpIpConnection.Connect("127.0.0.1", IniData, MonitorData, StatusData, "status");

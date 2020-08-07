@@ -71,7 +71,7 @@ namespace Handler.Pages
         public void OnPostStartButton()
         {
             ViewData["PageName"] = "Start";
-            Console.WriteLine("\nStart Button pressed\n");
+            Console.WriteLine("\nStart Button pressed");
             MonitorDataRepository.StartMonitorProcess();
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
@@ -82,7 +82,7 @@ namespace Handler.Pages
         public void OnPostRefreshButton()
         {
             ViewData["PageName"] = "Refresh";
-            Console.WriteLine("Refresh Button pressed\n");
+            Console.WriteLine("\nRefresh Button pressed");
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 
