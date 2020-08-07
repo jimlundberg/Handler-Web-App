@@ -11,7 +11,7 @@ namespace Status.Services
         void CheckLogFileHistory();
         IEnumerable<StatusData> GetHistoryData();
         IEnumerable<StatusData> GetJobStatus();
-        void GetMonitorStatus();
+        void StartMonitorProcess();
         void StopMonitor();
     }
 }

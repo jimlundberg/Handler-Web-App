@@ -199,7 +199,7 @@ namespace Status.Services
         /// <summary>
         /// Get the Monitor Status Entry point
         /// </summary>
-        public void GetMonitorStatus()
+        public void StartMonitorProcess()
         {
             StaticData.ShutdownFlag = false;
 
