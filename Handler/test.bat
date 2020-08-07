@@ -8,8 +8,8 @@ REM 4. Then copies the files that complete a job into the ProcessingBuffer direc
 
 :ConfigureTest
 
-set buffer=ProcessingBuffer
-REM set buffer=Input Buffer
+set buffer=Input Buffer
+REM set buffer=ProcessingBuffer
 set DirType=Pass
 REM set DirType=Fail
 set DELAY=5
@@ -54,12 +54,7 @@ robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
 
 timeout %DELAY% >nul
 
-SET JOB=1178351_202005071438
-echo Copying %JOB% .xml file
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
-
-:FilDirectoryJobs
-set DirType=Start
+:CompleteDirectoryJobs
 
 SET JOB=1307106_202002181307
 echo Copying %JOB% .tab and .csv files
@@ -101,18 +96,12 @@ echo Copying %JOB% .tab and .csv files
 robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
 robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
 
-timeout %DELAY% >nul
-
-SET JOB=1178351_202005071438
-echo Copying %JOB% .tab and .csv files
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
 
 GOTO End
 timeout 30
 
 
-:FillDirectories
+:FillProcessingBufferDirectories
 
 
 :Fill_1
@@ -166,16 +155,6 @@ GOTO Fill_6
 )
 
 :Fill_6
-if EXIST ProcessingBuffer\1178351_202005071438 (
-echo ProcessingBuffer\1178351_202005071438 exists
-copy "test\1178351_202005071438 - Pass" ProcessingBuffer\1178351_202005071438
-) ELSE (
-echo ProcessingBuffer\1178351_202005071438 not created yet
-timeout %DELAY% >nul
-GOTO Fill_7
-)
-
-:Fill_7
 if EXIST ProcessingBuffer\1185840_202003250942 (
 echo ProcessingBuffer\1185840_202003250942 exists
 copy "test\1185840_202003250942 - Pass" ProcessingBuffer\1185840_202003250942
