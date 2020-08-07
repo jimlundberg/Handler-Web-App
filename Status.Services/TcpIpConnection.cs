@@ -35,8 +35,8 @@ namespace Status.Services
         /// <param name="message"></param>
         public void Connect(String server, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData, String message)
         {
-            // Wait for Modeler to open
-            Thread.Sleep(30000);
+            // Wait a minute for Modeler to open
+            Thread.Sleep(60000);
             Console.WriteLine("Starting Tcp/Ip Scan for job {0} on port {1} at {2:HH:mm:ss.fff}", monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
 
             try
