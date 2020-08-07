@@ -18,10 +18,17 @@ REM Copy directories into the Input Buffer with only .xml file
 
 :CreateDirectoriesWithOnlyXml
 
+SET JOB=1185840_202003250942
+echo Copying %JOB% .xml file
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+
+timeout %DELAY% >nul
+
 SET JOB=1307106_202002181307
 echo Copying %JOB% .xml file
 robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
 
+GOTO CompleteDirectoryJobs
 timeout %DELAY% >nul
 
 SET JOB=1278061_202006301109
@@ -37,12 +44,6 @@ robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
 timeout %DELAY% >nul
 
 SET JOB=1185841_202005070801
-echo Copying %JOB% .xml file
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
-
-timeout %DELAY% >nul
-
-SET JOB=1185840_202003250942
 echo Copying %JOB% .xml file
 robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
 
@@ -56,11 +57,19 @@ timeout %DELAY% >nul
 
 :CompleteDirectoryJobs
 
+SET JOB=1185840_202003250942
+echo Copying %JOB% .tab and .csv files
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
+robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
+
+timeout %DELAY% >nul
+
 SET JOB=1307106_202002181307
 echo Copying %JOB% .tab and .csv files
 robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
 robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
 
+GOTO End
 timeout %DELAY% >nul
 
 SET JOB=1278061_202006301109
@@ -78,13 +87,6 @@ robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
 timeout %DELAY% >nul
 
 SET JOB=1185841_202005070801
-echo Copying %JOB% .tab and .csv files
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
-
-timeout %DELAY% >nul
-
-SET JOB=1185840_202003250942
 echo Copying %JOB% .tab and .csv files
 robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.tab" >nul
 robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.csv" >nul
