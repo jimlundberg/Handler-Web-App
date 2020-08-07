@@ -76,6 +76,26 @@ namespace Handler.Pages
         }
 
         /// <summary>
+        /// On Post Refresh Button
+        /// </summary>
+        public void OnPostRefreshButton()
+        {
+            ViewData["PageName"] = "Refresh";
+            Console.WriteLine("\nRefresh Button pressed");
+            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+        }
+
+        /// <summary>
+        /// On Post Pause Button
+        /// </summary>
+        public void OnPostPauseButton()
+        {
+            ViewData["PageName"] = "Pause";
+            Console.WriteLine("\nPause Button pressed");
+            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+        }
+
+        /// <summary>
         /// On Post Stop Button
         /// </summary>
         public void OnPostStopButton()
