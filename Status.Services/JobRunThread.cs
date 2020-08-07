@@ -158,18 +158,18 @@ namespace Status.Services
 
                     MonitorDirectoryFiles.MonitorDirectory(StatusModels.DirectoryScanType.INPUT_BUFFER,
                         iniData, monitorData, statusData, InputBufferDir, monitorData.NumFilesConsumed);
+
+                    // Add entry to status list
+                    StatusDataEntry(statusData, job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, iniData.LogFile);
+
+                    // Move files from Input directory to the Processing directory, creating it first if needed
+                    FileHandling.CopyFolderContents(InputBufferDir, ProcessingBufferDir, true, true);
                 }
                 else
                 {
                     throw new System.InvalidOperationException("Could not find Input Buffer Directory ");
                 }
             }
-
-            // Add entry to status list
-            StatusDataEntry(statusData, job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, iniData.LogFile);
-
-            // Move files from Input directory to the Processing directory, creating it first if needed
-            FileHandling.CopyFolderContents(InputBufferDir, ProcessingBufferDir, true, true);
 
             // Add entry to status list
             StatusDataEntry(statusData, job, JobStatus.EXECUTING, JobType.TIME_START, iniData.LogFile);

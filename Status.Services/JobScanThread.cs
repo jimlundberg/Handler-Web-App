@@ -63,12 +63,11 @@ namespace Status.Services
 
             while (true)
             {
-                // Get old directory list
-                var oldDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
-
                 // Check flag to start reading inputs after first reading is skipped to pick up current files
                 if (readInputDirectory)
                 {
+                    // Get old directory list
+                    var oldDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
                     var oldDirectoryInfoList = oldDirectoryInfo.EnumerateDirectories().ToList();
                     foreach (var subdirectory in oldDirectoryInfoList)
                     {
@@ -95,6 +94,8 @@ namespace Status.Services
                     IEnumerable<string> directoryDifferenceQuery = newDirectoryList.Except(oldDirectoryList);
                     if (directoryDifferenceQuery.Any())
                     {
+                        Console.WriteLine("\nFound new job(s)...\n");
+
                         oldDirectoryList = newDirectoryList;
                         foreach (string dirName in directoryDifferenceQuery)
                         {
@@ -103,7 +104,7 @@ namespace Status.Services
                                 // Increment counters to track job execution
                                 StaticData.IncrementNumberOfJobsExecuting();
 
-                                String job = dirName.Replace(iniFileData.InputDir, "").Remove(0, 2);
+                                String job = dirName.Replace(iniFileData.InputDir, "").Remove(0, 1);
 
                                 // Start scan for new directory in the Input Buffer
                                 ScanDirectory scanDir = new ScanDirectory();
@@ -149,8 +150,6 @@ namespace Status.Services
                             }
                         }
                     }
-
-                    // Sleep to allow job to process before checking for more
                     Thread.Sleep(iniFileData.ScanTime);
                 }
                 while (true);

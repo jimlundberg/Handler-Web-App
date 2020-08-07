@@ -59,7 +59,6 @@ namespace Status.Services
     /// </summary>
     public class ScanDirectory
     {
-        public String DirectoryName;
         public String JobDirectory;
         public String JobSerialNumber;
         public String Job;
@@ -71,16 +70,6 @@ namespace Status.Services
         /// </summary>
         public ScanDirectory()
         {
-        }
-
-        /// <summary>
-        /// ScanDirectory constructor
-        /// </summary>
-        /// <param name="directoryName"></param>
-        public ScanDirectory(String directoryName)
-        {
-            // Save directory name for class use
-            DirectoryName = directoryName;
         }
 
         /// <summary>
@@ -100,7 +89,7 @@ namespace Status.Services
             bool XmlFileFound = false;
             do
             {
-                String[] files = System.IO.Directory.GetFiles(jobScanData.JobDirectory, "*.xml");
+                String[] files = Directory.GetFiles(jobDirectory, "*.xml");
                 if (files.Length > 0)
                 {
                     jobScanData.XmlFileName = Path.GetFileName(files[0]);
