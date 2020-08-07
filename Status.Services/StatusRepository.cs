@@ -16,7 +16,6 @@ namespace Status.Services
     public class StatusRepository : IStatusRepository
     {
         private NewJobsScanThread newJobsScanThread;
-        private OldJobsScanThread oldJobsScanThread;
         private IniFileData iniFileData = new IniFileData();
         private List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
         private List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
@@ -95,11 +94,7 @@ namespace Status.Services
         {
             StaticData.ShutdownFlag = false;
 
-            // Start thread to scan for old unfinished jobs
-            oldJobsScanThread = new OldJobsScanThread(iniFileData, statusList);
-            oldJobsScanThread.ThreadProc();
-
-            // Start thread to scan for new jobs
+            // Start thread to scan for old then new jobs
             newJobsScanThread = new NewJobsScanThread(iniFileData, statusList);
             newJobsScanThread.ThreadProc();
         }

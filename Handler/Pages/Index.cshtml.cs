@@ -5,6 +5,7 @@ using StatusModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Handler.Pages
 {
@@ -70,7 +71,7 @@ namespace Handler.Pages
         public void OnPostStartButton()
         {
             ViewData["PageName"] = "Start";
-            Console.WriteLine("\nStart Button pressed");
+            Console.WriteLine("\nStart Button pressed\n");
             MonitorDataRepository.StartMonitorProcess();
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
@@ -81,7 +82,7 @@ namespace Handler.Pages
         public void OnPostRefreshButton()
         {
             ViewData["PageName"] = "Refresh";
-            Console.WriteLine("\nRefresh Button pressed");
+            Console.WriteLine("Refresh Button pressed\n");
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 

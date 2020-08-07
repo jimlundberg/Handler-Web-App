@@ -17,6 +17,7 @@ namespace Status.Services
         private List<StatusWrapper.StatusData> StatusData;
         public volatile bool endProcess = false;
         private static Thread thread;
+        public event EventHandler ProcessCompleted;
 
         // The constructor obtains the state information.
         /// <summary>
@@ -32,6 +33,12 @@ namespace Status.Services
             StatusData = statusData;
         }
 
+        protected virtual void OnProcessCompleted(EventArgs e)
+        {
+            ProcessCompleted?.Invoke(this, e);
+        }
+
+
         /// <summary>
         /// A Thread procedure that scans for new jobs
         /// </summary>
@@ -39,14 +46,6 @@ namespace Status.Services
         {
             thread = new Thread(() => ScanForOldJobs(IniData, StatusData));
             thread.Start();
-        }
-
-        /// <summary>
-        /// Method to set flag to stop the monitoring process
-        /// </summary>
-        public void StopProcess()
-        {
-            thread.Abort();
         }
 
         /// <summary>
@@ -58,6 +57,7 @@ namespace Status.Services
             List<string> oldDirectoryList = new List<string>();
             List<string> newDirectoryList = new List<string>();
             bool readInputDirectory = false;
+            bool foundDirectories = false;
 
             do
             {
@@ -90,6 +90,7 @@ namespace Status.Services
                 IEnumerable<string> directoryDifferenceQuery = newDirectoryList.Except(oldDirectoryList);
                 if (directoryDifferenceQuery.Any())
                 {
+                    foundDirectories = true;
                     Console.WriteLine("\nFound unfinished job(s)...\n");
 
                     oldDirectoryList = newDirectoryList;
@@ -136,6 +137,7 @@ namespace Status.Services
                             Console.WriteLine("Starting Job " + data.Job);
                             JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusData);
                             jobThread.ThreadProc();
+                            StaticData.oldJobScanComplete = true;
 
                             // If the shutdown flag is set, exit method
                             if (StaticData.ShutdownFlag == true)
@@ -153,7 +155,19 @@ namespace Status.Services
                         }
                     }
                 }
-                Thread.Sleep(iniFileData.ScanTime);
+                else
+                {
+                    if (foundDirectories)
+                    {
+                        Console.WriteLine("\nNo more unfinished job(s) Found...");
+                    }
+                    else
+                    {
+                        Console.WriteLine("\nNo unfinished job(s) Found...\n");
+                    }
+                    StaticData.oldJobScanComplete = true;
+                    return;
+                }
             }
             while (true);
         }

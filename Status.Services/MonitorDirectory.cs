@@ -49,8 +49,6 @@ namespace Status.Services
                     {
                         Console.WriteLine("Recieved {0} of {1} files in {2} at {3:HH:mm:ss.fff}",
                             numberOfFilesFound, numberOfFilesNeeded, monitoredDir, DateTime.Now);
-
-                        Thread.Sleep(10000);
                         return true;
                     }
 

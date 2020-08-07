@@ -6,6 +6,7 @@
         public static int RunningJobsIndex = 0;
         public static volatile bool ShutdownFlag = false;
         public static volatile bool tcpIpScanComplete = true;
+        public static volatile bool oldJobScanComplete = false;
 
         public static void IncrementNumberOfJobsExecuting()
         {

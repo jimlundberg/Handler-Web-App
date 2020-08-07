@@ -18,6 +18,13 @@ namespace Status.Services
         public volatile bool endProcess = false;
         private static Thread thread;
 
+        public static void oldJob_ProcessCompleted(object sender, EventArgs e)
+        {
+            // Set Flag for ending directory scan loop
+            Console.WriteLine("Old Job Scan Completed!");
+            StaticData.oldJobScanComplete = true;
+        }
+
         // The constructor obtains the state information.
         /// <summary>
         /// Process Thread constructor receiving data buffers
@@ -42,14 +49,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Method to set flag to stop the monitoring process
-        /// </summary>
-        public void StopProcess()
-        {
-            thread.Abort();
-        }
-
-        /// <summary>
         /// Method to scan for new jobs in the Input Buffer
         /// </summary>
         public static void ScanForNewJobs(IniFileData iniFileData, List<StatusWrapper.StatusData> statusData)
@@ -59,7 +58,21 @@ namespace Status.Services
             List<string> newDirectoryList = new List<string>();
             bool readInputDirectory = false;
 
-            Console.WriteLine("\nWaiting for new job(s)...\n");
+            // Register with the Old Jobs Event and start its thread
+            OldJobsScanThread oldJobs = new OldJobsScanThread(iniFileData, statusData);
+            oldJobs.ProcessCompleted += oldJob_ProcessCompleted;
+            oldJobs.ScanForOldJobs(iniFileData, statusData);
+
+            while (true)
+            {
+                if (StaticData.oldJobScanComplete == true)
+                {
+                    break;
+                }
+                Thread.Sleep(1000);
+            }
+
+            Console.WriteLine("\nScanning for new job(s)...\n");
 
             while (true)
             {
