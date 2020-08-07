@@ -145,7 +145,7 @@ namespace Status.Services
                                 return;
                             }
 
-                            Thread.Sleep(iniFileData.ScanTime);
+                            Thread.Sleep(1000);
                         }
                         else
                         {

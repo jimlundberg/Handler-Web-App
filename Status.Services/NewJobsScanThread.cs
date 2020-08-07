@@ -62,28 +62,11 @@ namespace Status.Services
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
             List<string> oldDirectoryList = new List<string>();
             List<string> newDirectoryList = new List<string>();
-            bool readInputDirectory = false;
 
             Console.WriteLine("\nScanning for new job(s)...");
 
             while (true)
             {
-                // Check flag to start reading inputs after first reading is skipped to pick up current files
-                if (readInputDirectory)
-                {
-                    // Get old directory list
-                    var oldDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
-                    var oldDirectoryInfoList = oldDirectoryInfo.EnumerateDirectories().ToList();
-                    foreach (var subdirectory in oldDirectoryInfoList)
-                    {
-                        oldDirectoryList.Add(subdirectory.ToString());
-                    }
-                    oldDirectoryList.Sort();
-                }
-
-                // Set flag to read directories from now on after seeing current ones as new
-                readInputDirectory = true;
-
                 // Get new directory list
                 var newDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
                 var newDirectoryInfoList = newDirectoryInfo.EnumerateDirectories().ToList();
@@ -143,7 +126,7 @@ namespace Status.Services
                             Console.WriteLine("Starting Job " + data.Job);
                             JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, data, statusData);
                             jobThread.ThreadProc();
-                            Thread.Sleep(iniFileData.ScanTime);
+                            Thread.Sleep(1000);
                         }
                         else
                         {
@@ -151,6 +134,7 @@ namespace Status.Services
                         }
                     }
                 }
+                Thread.Sleep(iniFileData.ScanTime);
             }
         }
     }

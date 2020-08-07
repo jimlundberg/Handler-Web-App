@@ -9,6 +9,8 @@ namespace Status.Services
     /// </summary>
     public class FileHandling
     {
+        private static Object FileLock = new Object();
+
         /// <summary>
         /// CopyFolderContents - Copy files and folders from source to destination and optionally remove source files/folders
         /// </summary>
@@ -24,7 +26,10 @@ namespace Status.Services
             // If the destination directory does not exist, create it
             if (!destinationDI.Exists)
             {
-                destinationDI.Create();
+                lock (FileLock)
+                {
+                    destinationDI.Create();
+                }
             }
 
             // Copy files one by one
@@ -37,7 +42,10 @@ namespace Status.Services
                 // Delete the destination file if overwrite is true
                 if (destFile.Exists && overwrite)
                 {
-                    destFile.Delete();
+                    lock (FileLock)
+                    {
+                        destFile.Delete();
+                    }
                 }
 
                 sourceFile.CopyTo(Path.Combine(destinationDI.FullName, sourceFile.Name));
@@ -45,7 +53,10 @@ namespace Status.Services
                 // Delete the source file if removeSource is true
                 if (removeSource)
                 {
-                    sourceFile.Delete();
+                    lock (FileLock)
+                    {
+                        sourceFile.Delete();
+                    }
                 }
             }
 
@@ -63,14 +74,20 @@ namespace Status.Services
                 // Delete the source file if removeSource is true
                 if (removeSource)
                 {
-                    dir.Delete();
+                    lock (FileLock)
+                    {
+                        dir.Delete();
+                    }
                 }
             }
 
             // Delete the source directory if removeSource is true
             if (removeSource)
             {
-                sourceDI.Delete();
+                lock (FileLock)
+                {
+                    sourceDI.Delete();
+                }
             }
         }
 
@@ -85,7 +102,10 @@ namespace Status.Services
             FileInfo Target = new FileInfo(targetFile);
             if (Target.Exists)
             {
-                Target.Delete();
+                lock (FileLock)
+                {
+                    Target.Delete();
+                }
             }
 
             Source.CopyTo(targetFile);
