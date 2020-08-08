@@ -1,11 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using StatusModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading;
 
 /// <summary>
 /// Status data services
@@ -20,17 +17,17 @@ namespace Status.Services
         private NewJobsScanThread newJobsScanThread;
         private IniFileData iniFileData = new IniFileData();
         private List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
-        private List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
-        private StatusWrapper.StatusData statusData = new StatusWrapper.StatusData();
+        private List<StatusData> statusList = new List<StatusData>();
+        private StatusData statusData = new StatusData();
         public readonly ILogger<StatusRepository> logger;
 
         public StatusRepository(ILogger<StatusRepository> _logger)
         {
-            logger = (ILogger<StatusRepository>)_logger;
+            logger = _logger;
         }
 
         /// <summary>
-        /// Get the Monitor Status Entry point
+        /// Get the local Config.ini file data in the working directory
         /// </summary>
         public void GetIniFileData()
         {
@@ -38,6 +35,7 @@ namespace Status.Services
             String IniFileName = "Config.ini";
             if (File.Exists(IniFileName) == false)
             {
+                logger.LogCritical("Missing Config.ini file");
                 throw new System.InvalidOperationException("Config.ini file does not exist in the Handler directory");
             }
 
@@ -83,7 +81,7 @@ namespace Status.Services
         public void CheckLogFileHistory()
         {
             StatusEntry status = new StatusEntry();
-            status.CheckLogFileHistory(iniFileData.LogFile, iniFileData.LogFileHistory);
+            status.CheckLogFileHistory(iniFileData.LogFile, iniFileData.LogFileHistory, logger);
         }
 
         /// <summary>
@@ -103,7 +101,7 @@ namespace Status.Services
             StaticData.ShutdownFlag = false;
 
             // Start thread to scan for old then new jobs
-            newJobsScanThread = new NewJobsScanThread(iniFileData, statusList);
+            newJobsScanThread = new NewJobsScanThread(iniFileData, statusList, logger);
             newJobsScanThread.ThreadProc();
         }
 
@@ -111,7 +109,7 @@ namespace Status.Services
         /// Method to return the status data to the requestor
         /// </summary>
         /// <returns>Status Data List</returns>
-        public IEnumerable<StatusWrapper.StatusData> GetJobStatus()
+        public IEnumerable<StatusData> GetJobStatus()
         {
             return statusList;
         }
@@ -120,11 +118,11 @@ namespace Status.Services
         /// Get csV history data
         /// </summary>
         /// <returns>History Status Data List</returns>
-        public IEnumerable<StatusWrapper.StatusData> GetHistoryData()
+        public IEnumerable<StatusData> GetHistoryData()
         {
-            List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
+            List<StatusData> statusList = new List<StatusData>();
             StatusEntry status = new StatusEntry();
-            statusList = status.ReadFromCsvFile(iniFileData.LogFile);
+            statusList = status.ReadFromCsvFile(iniFileData.LogFile, logger);
             return statusList;
         }
     }

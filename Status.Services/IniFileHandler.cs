@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -77,8 +78,9 @@ namespace Status.Services
         /// Get the Job XML data
         /// </summary>
         /// <param name="jobDirectory"></param>
-        /// <returns></returns>
-        public StatusModels.JobXmlData GetJobXmlData(String job, String jobDirectory)
+        /// <param name="logger"></param>
+        /// <returns>JobXmlData</returns>
+        public StatusModels.JobXmlData GetJobXmlData(String job, String jobDirectory, ILogger<StatusRepository> logger)
         {
             StatusModels.JobXmlData jobScanData = new StatusModels.JobXmlData();
             jobScanData.JobDirectory = jobDirectory;

@@ -52,13 +52,6 @@ namespace ReadWriteCsvFile
                     builder.Append(value);
                 }
                 firstColumn = false;
-
-                // If the shutdown flag is set, exit method
-                if (Status.Services.StaticData.ShutdownFlag == true)
-                {
-                    Console.WriteLine("Shutdown WriteRow row {0} time {1:HH:mm:ss.fff}", value, DateTime.Now);
-                    return;
-                }
             }
             row.LineText = builder.ToString();
             WriteLine(row.LineText);
@@ -153,13 +146,6 @@ namespace ReadWriteCsvFile
                 if (pos < row.LineText.Length)
                 {
                     pos++;
-                }
-
-                // If the shutdown flag is set, exit method
-                if (Status.Services.StaticData.ShutdownFlag == true)
-                {
-                    Console.WriteLine("Shutdown ReadRow row {0} time {1:HH:mm:ss.fff}", value, DateTime.Now);
-                    return false;
                 }
             }
 

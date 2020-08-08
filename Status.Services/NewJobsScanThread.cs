@@ -1,9 +1,10 @@
 ﻿using StatusModels;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace Status.Services
 {
@@ -14,9 +15,10 @@ namespace Status.Services
     {
         // State information used in the scanning task.
         private static IniFileData IniData;
-        private static List<StatusWrapper.StatusData> StatusData;
+        private static List<StatusData> StatusData;
         public volatile bool endProcess = false;
         private static Thread thread;
+        public static ILogger<StatusRepository> Logger;
 
         /// <summary>
         /// Processing complete callback
@@ -28,23 +30,25 @@ namespace Status.Services
             // Set Flag for ending directory scan loop
             Console.WriteLine("Old Job Scan Completed!");
             StaticData.oldJobScanComplete = true;
-            ScanForNewJobs(IniData, StatusData);
+            ScanForNewJobs(IniData, StatusData, Logger);
         }
 
         /// <summary>
-        /// Process Thread constructor receiving data buffers
+        /// New jobs Scan thread
         /// </summary>
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
-        public NewJobsScanThread(IniFileData iniData, List<StatusWrapper.StatusData> statusData)
+        /// <param name="logger"></param>
+        public NewJobsScanThread(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
             StatusData = statusData;
+            Logger = logger;
 
             // Register with the Old Jobs Event and start its thread
-            OldJobsScanThread oldJobs = new OldJobsScanThread(iniData, statusData);
+            OldJobsScanThread oldJobs = new OldJobsScanThread(iniData, statusData, logger);
             oldJobs.ProcessCompleted += oldJob_ProcessCompleted;
-            oldJobs.ScanForOldJobs(iniData, statusData);
+            oldJobs.ScanForOldJobs(iniData, statusData, logger);
         }
 
         /// <summary>
@@ -52,7 +56,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            thread = new Thread(() => ScanForNewJobs(IniData, StatusData));
+            thread = new Thread(() => ScanForNewJobs(IniData, StatusData, Logger));
             thread.Start();
         }
 
@@ -61,7 +65,8 @@ namespace Status.Services
         /// </summary>
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
-        public static void ScanForNewJobs(IniFileData iniFileData, List<StatusWrapper.StatusData> statusData)
+        /// <param name="logger"></param>
+        public static void ScanForNewJobs(IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
             List<string> newDirectoryList = new List<string>();
@@ -98,7 +103,7 @@ namespace Status.Services
 
                         // Start scan for new directory in the Input Buffer
                         ScanDirectory scanDir = new ScanDirectory();
-                        jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job);
+                        jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job, logger);
 
                         // Get data found in Job xml file
                         StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
@@ -128,7 +133,7 @@ namespace Status.Services
 
                         // Supply the state information required by the task.
                         Console.WriteLine("Starting Job " + data.Job);
-                        JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, data, statusData);
+                        JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, data, statusData, logger);
                         jobThread.ThreadProc();
 
                         // Remove job from the run list when run

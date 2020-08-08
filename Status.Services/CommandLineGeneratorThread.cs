@@ -1,4 +1,6 @@
-﻿namespace Status.Services
+﻿using Microsoft.Extensions.Logging;
+
+namespace Status.Services
 {
     /// <summary>
     /// Class to run the Command Line Generator
@@ -8,15 +10,18 @@
         /// <summary>
         /// Object used in the task
         /// </summary>
-        private CommandLineGenerator commandLineGenerator;
+        private CommandLineGenerator CommandLineGenerator;
+        public static ILogger<StatusRepository> Logger;
 
         /// <summary>
         /// The constructor obtains the object information 
         /// </summary>
         /// <param name="_commandLineGenerator"></param>
-        public CommandLineGeneratorThread(CommandLineGenerator _commandLineGenerator)
+        /// <param name="logger"></param>
+        public CommandLineGeneratorThread(CommandLineGenerator _commandLineGenerator, ILogger<StatusRepository> logger)
         {
-            commandLineGenerator = _commandLineGenerator;
+            CommandLineGenerator = _commandLineGenerator;
+            Logger = logger;
         }
 
         /// <summary>
@@ -24,7 +29,7 @@
         /// </summary>
         public void ThreadProc()
         {
-            commandLineGenerator.ExecuteCommand();
+            CommandLineGenerator.ExecuteCommand(Logger);
         }
     }
 }

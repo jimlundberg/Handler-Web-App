@@ -1,10 +1,9 @@
-﻿using ReadWriteCsvFile;
+﻿using Microsoft.Extensions.Logging;
+using ReadWriteCsvFile;
 using StatusModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
-using System.Diagnostics;
 
 namespace Status.Services
 {
@@ -13,30 +12,33 @@ namespace Status.Services
     /// </summary>
     public class StatusEntry
     {
-        List<StatusWrapper.StatusData> StatusList;
-        String Job;
-        JobStatus Status;
-        JobType TimeSlot;
-        String LogFileName;
+        List<StatusData> StatusList;
+        readonly String Job;
+        readonly JobStatus Status;
+        readonly JobType TimeSlot;
+        readonly String LogFileName;
         private static Object csvLock = new Object();
+        ILogger<StatusRepository> Logger;
 
         public StatusEntry() { }
 
         /// <summary>
-        /// StatusEntry Constructor
+        /// Status Entry logging method
         /// </summary>
         /// <param name="statusList"></param>
         /// <param name="job"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
-        public StatusEntry(List<StatusWrapper.StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName)
+        /// <param name="logger"></param>
+        public StatusEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName, ILogger<StatusRepository> logger)
         {
             StatusList = statusList;
             Job = job;
             Status = status;
             TimeSlot = timeSlot;
             LogFileName = logFileName;
+            Logger = logger;
         }
 
         /// <summary>
@@ -46,9 +48,9 @@ namespace Status.Services
         /// <param name="job"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
-        public void ListStatus(List<StatusWrapper.StatusData> statusList, String job, JobStatus status, JobType timeSlot)
+        public void ListStatus(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot)
         {
-            StatusWrapper.StatusData entry = new StatusWrapper.StatusData();
+            StatusData entry = new StatusData();
             entry.Job = job;
             entry.JobStatus = status;
             switch (timeSlot)
@@ -79,7 +81,8 @@ namespace Status.Services
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
-        public void WriteToCsvFile(String job, JobStatus status, JobType timeSlot, String logFileName)
+        /// <param name="logger"></param>
+        public void WriteToCsvFile(String job, JobStatus status, JobType timeSlot, String logFileName, ILogger<StatusRepository> logger)
         {
             lock (csvLock)
             {
@@ -113,12 +116,13 @@ namespace Status.Services
         /// Read Status Data from CSV File
         /// </summary>
         /// <param name="logFileName"></param>
+        /// <param name="logger"></param>
         /// <returns></returns>
-        public List<StatusWrapper.StatusData> ReadFromCsvFile(String logFileName)
+        public List<StatusData> ReadFromCsvFile(String logFileName, ILogger<StatusRepository> logger)
         {
             lock (csvLock)
             {
-                List<StatusWrapper.StatusData> statusDataTable = new List<StatusWrapper.StatusData>();
+                List<StatusData> statusDataTable = new List<StatusData>();
                 DateTime timeReceived = DateTime.MinValue;
                 DateTime timeStarted = DateTime.MinValue;
                 DateTime timeCompleted = DateTime.MinValue;
@@ -130,7 +134,7 @@ namespace Status.Services
                         CsvRow rowData = new CsvRow();
                         while (reader.ReadRow(rowData))
                         {
-                            StatusWrapper.StatusData rowStatusData = new StatusWrapper.StatusData();
+                            StatusData rowStatusData = new StatusData();
                             rowStatusData.Job = rowData[0];
 
                             String jobType = rowData[1];
@@ -222,10 +226,11 @@ namespace Status.Services
         /// </summary>
         /// <param name="logFileName"></param>
         /// <param name="logFileHistory"></param>
+        /// <param name="logger"></param>
         /// <returns></returns>
-        public void CheckLogFileHistory(String logFileName, int logFileHistory)
+        public void CheckLogFileHistory(String logFileName, int logFileHistory, ILogger<StatusRepository> logger)
         {
-            List<StatusWrapper.StatusData> statusDataTable = new List<StatusWrapper.StatusData>();
+            List<StatusData> statusDataTable = new List<StatusData>();
 
             if (File.Exists(logFileName) == true)
             {
@@ -234,7 +239,7 @@ namespace Status.Services
                     CsvRow rowData = new CsvRow();
                     while (reader.ReadRow(rowData))
                     {
-                        StatusWrapper.StatusData rowStatusData = new StatusWrapper.StatusData();
+                        StatusData rowStatusData = new StatusData();
                         bool oldRecord = false;
                         rowStatusData.Job = rowData[0];
 
@@ -331,6 +336,7 @@ namespace Status.Services
                             statusDataTable[i].Job, statusDataTable[i].JobStatus.ToString(),
                             statusDataTable[i].TimeReceived, statusDataTable[i].TimeStarted, statusDataTable[i].TimeCompleted);
                     }
+
                     writer.Close();
                 }
             }

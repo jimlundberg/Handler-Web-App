@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace StatusModels
+﻿namespace StatusModels
 {
     public enum JobStatus
     {

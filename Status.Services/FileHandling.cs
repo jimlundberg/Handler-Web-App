@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
-using System.Threading;
 
 namespace Status.Services
 {
@@ -18,7 +18,8 @@ namespace Status.Services
         /// <param name="destinationPath"></param>
         /// <param name="removeSource"></param>
         /// <param name="overwrite"></param>
-        public static void CopyFolderContents(string sourcePath, string destinationPath, bool removeSource = false, bool overwrite = false)
+        /// <param name="logger"></param>
+        public static void CopyFolderContents(string sourcePath, string destinationPath, ILogger<StatusRepository> logger, bool removeSource = false, bool overwrite = false)
         {
             DirectoryInfo sourceDI = new DirectoryInfo(sourcePath);
             DirectoryInfo destinationDI = new DirectoryInfo(destinationPath);
@@ -72,7 +73,7 @@ namespace Status.Services
 
                 // Call CopyFolderContents() recursively
                 // Overwrite doesn't matter in the case of a folder.  We just won't need to create it
-                CopyFolderContents(dir.FullName, destination, removeSource, overwrite);
+                CopyFolderContents(dir.FullName, destination, logger, removeSource, overwrite);
 
                 // Delete the source file if removeSource is true
                 if (removeSource)
@@ -99,7 +100,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="sourceFile"></param>
         /// <param name="targetFile"></param>
-        public static void CopyFile(String sourceFile, String targetFile)
+        public static void CopyFile(String sourceFile, String targetFile, ILogger<StatusRepository> logger)
         {
             FileInfo Source = new FileInfo(sourceFile);
             FileInfo Target = new FileInfo(targetFile);
@@ -115,6 +116,7 @@ namespace Status.Services
             {
                 Source.CopyTo(targetFile);
             }
+
             Console.WriteLine(@"Copied {0} -> {1}", sourceFile, targetFile);
         }
     }

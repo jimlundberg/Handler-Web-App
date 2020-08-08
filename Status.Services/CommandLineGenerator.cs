@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Diagnostics;
 using System.IO;
 
@@ -9,11 +10,11 @@ namespace Status.Services
     /// </summary>
     public class CommandLineGenerator
     {
-        private String cmd;
         private String Executable = "Executable";
         private String ProcessingDir = "Processing dir";
         private String StartPort = "Start Port";
         private String CpuCores = "Cpu Cores";
+        private ILogger<StatusRepository> Logger;
 
         public CommandLineGenerator() { }
         public String GetCurrentDirector() { return Directory.GetCurrentDirectory(); }
@@ -21,12 +22,13 @@ namespace Status.Services
         public void SetRepositoryDir(String _ProcessingDir) { ProcessingDir = "-d " + _ProcessingDir; }
         public void SetStartPort(int _StartPort) { StartPort = "-s " + _StartPort.ToString(); }
         public void SetCpuCores(int _CpuCores) { CpuCores = "-p " + _CpuCores.ToString(); }
-        public String AddToCommandLine(String addCmd) { return (cmd += addCmd); }
+        public void SetLogger(ILogger<StatusRepository> logger) { Logger = logger; }
 
         /// <summary>
         /// Execute the Modeler command line
         /// </summary>
-        public void ExecuteCommand()
+        /// <param name="logger"></param>
+        public void ExecuteCommand(ILogger<StatusRepository> logger)
         {
             var process = new Process();
             process.StartInfo.FileName = Executable;
@@ -34,7 +36,11 @@ namespace Status.Services
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             Console.WriteLine("{0} {1}\n", process.StartInfo.FileName, process.StartInfo.Arguments);
-            process.Start();
+            if (process.Start())
+            {
+                logger.LogCritical("Modeler Execution Process failed to Start() {0}", Executable);
+                return;
+            }
 
             String outPut = process.StandardOutput.ReadToEnd();
             Console.WriteLine(outPut);

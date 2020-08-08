@@ -1,4 +1,5 @@
-﻿using StatusModels;
+﻿using Microsoft.Extensions.Logging;
+using StatusModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,9 +15,10 @@ namespace Status.Services
     {
         private IniFileData IniData;
         private StatusMonitorData MonitorData;
-        private List<StatusWrapper.StatusData> StatusData;
+        private List<StatusData> StatusData;
         private String DirectoryName;
         private static Object xmlLock = new Object();
+        ILogger<StatusRepository> Logger;
 
         /// <summary>
         /// Job Run Thread constructor obtains the state information
@@ -25,12 +27,14 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
-        public JobRunThread(String directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData)
+        /// <param name="logger"></param>
+        public JobRunThread(String directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
             MonitorData = monitorData;
             StatusData = statusData;
             DirectoryName = directory;
+            Logger = logger;
         }
 
         /// <summary>
@@ -38,7 +42,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            Thread thread = new Thread(() => RunJob(DirectoryName, IniData, MonitorData, StatusData));
+            Thread thread = new Thread(() => RunJob(DirectoryName, IniData, MonitorData, StatusData, Logger));
             thread.Start();
         }
 
@@ -50,12 +54,13 @@ namespace Status.Services
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
-        public static void StatusDataEntry(List<StatusWrapper.StatusData> statusList, String job, 
-            JobStatus status, JobType timeSlot, String logFileName)
+        /// <param name="logger"></param>
+        public static void StatusDataEntry(List<StatusData> statusList, String job, 
+            JobStatus status, JobType timeSlot, String logFileName, ILogger<StatusRepository> logger)
         {
-            StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, logFileName);
+            StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, logFileName, logger);
             statusData.ListStatus(statusList, job, status, timeSlot);
-            statusData.WriteToCsvFile(job, status, timeSlot, logFileName);
+            statusData.WriteToCsvFile(job, status, timeSlot, logFileName, logger);
         }
 
         /// <summary>
@@ -65,11 +70,12 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
+        /// <param name="logger"></param>
         public static void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, 
-            List<StatusWrapper.StatusData> statusData)
+            List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Add initial entry to status list
-            StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.LogFile);
+            StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.LogFile, logger);
 
             // Set the Start time of the Job
             monitorData.StartTime = DateTime.Now;
@@ -129,7 +135,7 @@ namespace Status.Services
             Console.WriteLine("Job Port Number       = " + monitorData.JobPortNumber);
 
             // Add initial entry to status list
-            StatusDataEntry(statusData, job, JobStatus.MONITORING_INPUT, JobType.TIME_START, iniData.LogFile);
+            StatusDataEntry(statusData, job, JobStatus.MONITORING_INPUT, JobType.TIME_START, iniData.LogFile, logger);
 
             // Create the Transfered file list from the Xml file entries
             monitorData.transferedFileList = new List<String>(NumFilesToTransfer);
@@ -157,13 +163,13 @@ namespace Status.Services
                     StaticData.tcpIpScanComplete = true;
 
                     MonitorDirectoryFiles.MonitorDirectory(StatusModels.DirectoryScanType.INPUT_BUFFER,
-                        iniData, monitorData, statusData, InputBufferDir, monitorData.NumFilesConsumed);
+                        iniData, monitorData, statusData, InputBufferDir, monitorData.NumFilesConsumed, logger);
 
                     // Add entry to status list
-                    StatusDataEntry(statusData, job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, iniData.LogFile);
+                    StatusDataEntry(statusData, job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, iniData.LogFile, logger);
 
                     // Move files from Input directory to the Processing directory, creating it first if needed
-                    FileHandling.CopyFolderContents(InputBufferDir, ProcessingBufferDir, true, true);
+                    FileHandling.CopyFolderContents(InputBufferDir, ProcessingBufferDir, logger, true, true);
                 }
                 else
                 {
@@ -172,7 +178,7 @@ namespace Status.Services
             }
 
             // Add entry to status list
-            StatusDataEntry(statusData, job, JobStatus.EXECUTING, JobType.TIME_START, iniData.LogFile);
+            StatusDataEntry(statusData, job, JobStatus.EXECUTING, JobType.TIME_START, iniData.LogFile, logger);
 
             // If the shutdown flag is set, exit method
             if (StaticData.ShutdownFlag == true)
@@ -187,7 +193,8 @@ namespace Status.Services
             cl.SetRepositoryDir(ProcessingBufferDir);
             cl.SetStartPort(monitorData.JobPortNumber);
             cl.SetCpuCores(iniData.CPUCores);
-            CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl);
+            cl.SetLogger(logger);
+            CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl, logger);
             Thread modelerThread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
             modelerThread.Start();
 
@@ -202,7 +209,7 @@ namespace Status.Services
             }
 
             // Add entry to status list
-            StatusDataEntry(statusData, job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.LogFile);
+            StatusDataEntry(statusData, job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.LogFile, logger);
 
             // Set Tcp/Ip Job Complete flag for ProcessingBuffer Directory Monitoring
             StaticData.tcpIpScanComplete = false;
@@ -211,7 +218,7 @@ namespace Status.Services
             Console.WriteLine("Starting monitoring for Job {0} Processing Buffer output files...", job);
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             if (MonitorDirectoryFiles.MonitorDirectory(StatusModels.DirectoryScanType.PROCESSING_BUFFER, iniData, monitorData, statusData,
-                ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated))
+                ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, logger))
             {
                 // If the shutdown flag is set, exit method
                 if (StaticData.ShutdownFlag == true)
@@ -221,7 +228,7 @@ namespace Status.Services
                 }
 
                 // Add copy to archieve entry to status list
-                StatusDataEntry(statusData, job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.LogFile);
+                StatusDataEntry(statusData, job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.LogFile, logger);
 
                 // Check .Xml output file for pass/fail
                 bool XmlFileFound = false;
@@ -261,57 +268,60 @@ namespace Status.Services
                     if (passFail == "Pass")
                     {
                         // If the Finished directory does not exist, create it
-                        if (!System.IO.Directory.Exists(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber))
+                        if (!Directory.Exists(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber))
                         {
-                            System.IO.Directory.CreateDirectory(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber);
+                            Directory.CreateDirectory(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber);
                         }
 
                         // Copy the Transfered files to the Finished directory 
                         for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
                         {
                             FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
-                                iniData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
+                                iniData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i],
+                                logger);
                         }
 
                         // Move Processing Buffer Files to the Repository directory when passed
-                        FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, true, true);
+                        FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
                     }
                     else
                     {
                         // If the Error directory does not exist, create it
-                        if (!System.IO.Directory.Exists(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber))
+                        if (!Directory.Exists(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber))
                         {
-                            System.IO.Directory.CreateDirectory(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber);
+                            Directory.CreateDirectory(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber);
                         }
 
                         // Copy the Transfered files to the Error directory 
                         for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
                         {
                             FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
-                                iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
+                                iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i],
+                                logger);
                         }
 
                         // Move Processing Buffer Files to the Repository directory when failed
-                        FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, true, true);
+                        FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
                     }
                 }
                 else
                 {
                     // If the Error directory does not exist, create it
-                    if (!System.IO.Directory.Exists(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber))
+                    if (!Directory.Exists(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber))
                     {
-                        System.IO.Directory.CreateDirectory(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber);
+                        Directory.CreateDirectory(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber);
                     }
 
                     // Copy the Transfered files to the Error directory 
                     for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
                     {
                         FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
-                            iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i]);
+                            iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i],
+                            logger);
                     }
 
                     // Move Processing Buffer Files to the Repository directory when failed
-                    FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, true, true);
+                    FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
                 }
 
                 StaticData.DecrementNumberOfJobsExecuting();
@@ -319,7 +329,7 @@ namespace Status.Services
                     monitorData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now);
 
                 // Add entry to status list
-                StatusDataEntry(statusData, job, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.LogFile);
+                StatusDataEntry(statusData, job, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.LogFile, logger);
             }
         }
     }

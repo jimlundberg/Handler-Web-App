@@ -1,4 +1,5 @@
-﻿using StatusModels;
+﻿using Microsoft.Extensions.Logging;
+using StatusModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,10 +15,11 @@ namespace Status.Services
     {
         // State information used in the task.
         private IniFileData IniData;
-        private List<StatusWrapper.StatusData> StatusData;
+        private List<StatusData> StatusData;
         public volatile bool endProcess = false;
         private static Thread thread;
         public event EventHandler ProcessCompleted;
+        ILogger<StatusRepository> Logger;
 
         // The constructor obtains the state information.
         /// <summary>
@@ -27,10 +29,12 @@ namespace Status.Services
         /// <param name="statusData"></param>
         /// <param name="globalJobIndex"></param>
         /// <param name="numberOfJobsRunning"></param>
-        public OldJobsScanThread(IniFileData iniData, List<StatusWrapper.StatusData> statusData)
+        /// <param name="logger"></param>
+        public OldJobsScanThread(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
             StatusData = statusData;
+            Logger = logger;
         }
 
         protected virtual void OnProcessCompleted(EventArgs e)
@@ -44,14 +48,17 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            thread = new Thread(() => ScanForOldJobs(IniData, StatusData));
+            thread = new Thread(() => ScanForOldJobs(IniData, StatusData, Logger));
             thread.Start();
         }
 
         /// <summary>
         /// Method to scan for old jobs in the Processing Buffer
         /// </summary>
-        public void ScanForOldJobs(IniFileData iniFileData, List<StatusWrapper.StatusData> statusData)
+        /// <param name="iniFileData"></param>
+        /// <param name="statusData"></param>
+        /// <param name="logger"></param>
+        public void ScanForOldJobs(IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
             List<string> oldDirectoryList = new List<string>();
@@ -112,7 +119,7 @@ namespace Status.Services
 
                             // Start scan for job files in the Output Buffer
                             ScanDirectory scanDir = new ScanDirectory();
-                            jobXmlData = scanDir.GetJobXmlData(job, iniFileData.ProcessingDir + @"\" + job);
+                            jobXmlData = scanDir.GetJobXmlData(job, iniFileData.ProcessingDir + @"\" + job, logger);
 
                             // Get data found in Xml file into Monitor Data
                             StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
@@ -135,7 +142,7 @@ namespace Status.Services
 
                             // Create a thread to execute the task, and then start the thread.
                             Console.WriteLine("Starting Job " + data.Job);
-                            JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusData);
+                            JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusData, logger);
                             jobThread.ThreadProc();
 
                             // If the shutdown flag is set, exit method
@@ -171,4 +178,3 @@ namespace Status.Services
         }
     }
 }
-

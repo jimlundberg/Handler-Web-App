@@ -1,7 +1,5 @@
-﻿using System;
+﻿using StatusModels;
 using System.Collections.Generic;
-using StatusModels;
-using static StatusModels.StatusWrapper;
 
 namespace Status.Services
 {

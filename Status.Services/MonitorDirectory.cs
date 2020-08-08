@@ -1,9 +1,9 @@
 ﻿using StatusModels;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using static StatusModels.StatusWrapper;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace Status.Services
 {
@@ -26,20 +26,22 @@ namespace Status.Services
         /// <param name="numberOfFilesNeeded"></param>
         /// <param name="timeout"></param>
         /// <param name="scanTime"></param>
-        /// <returns></returns>
+        /// <param name="logger"></param>
+        /// <returns>Pass/Fail</returns>
         public static bool MonitorDirectory(StatusModels.DirectoryScanType scanType, IniFileData iniData, StatusMonitorData monitorData,
-             List<StatusWrapper.StatusData> statusData, String monitoredDir, int numberOfFilesNeeded)
+             List<StatusData> statusData, String monitoredDir, int numberOfFilesNeeded, ILogger<StatusRepository> logger)
         {
             bool filesFound = false;
 
             if (scanType == StatusModels.DirectoryScanType.PROCESSING_BUFFER)
             {
                 // Register with the Tcp/Ip Event and start it's thread
-                JobTcpIpThread tcpIp = new JobTcpIpThread(iniData, monitorData, statusData);
+                JobTcpIpThread tcpIp = new JobTcpIpThread(iniData, monitorData, statusData, logger);
                 tcpIp.ProcessCompleted += TcpIp_ProcessCompleted;
-                tcpIp.StartTcpIpScanProcess(iniData, monitorData, statusData);
+                tcpIp.StartTcpIpScanProcess(iniData, monitorData, statusData, logger);
             }
 
+            // Scan directory until files found or timeout
             do
             {
                 if (StaticData.tcpIpScanComplete == true)
