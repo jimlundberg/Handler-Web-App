@@ -1,0 +1,5 @@
+netstat -na | grep "3000"
+netstat -na | grep "3001"
+netstat -na | grep "3002"
+netstat -na | grep "3003"
+netstat -na | grep "3004"

@@ -1,4 +1,6 @@
-﻿using StatusModels;
+﻿using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.Extensions.Logging;
+using StatusModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,6 +22,12 @@ namespace Status.Services
         private List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
         private List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
         private StatusWrapper.StatusData statusData = new StatusWrapper.StatusData();
+        public readonly ILogger<StatusRepository> logger;
+
+        public StatusRepository(ILogger<StatusRepository> _logger)
+        {
+            logger = (ILogger<StatusRepository>)_logger;
+        }
 
         /// <summary>
         /// Get the Monitor Status Entry point
