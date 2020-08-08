@@ -12,7 +12,7 @@ namespace Status.Services
     /// </summary>
     public class NewJobsScanThread
     {
-        // State information used in the task.
+        // State information used in the scanning task.
         private static IniFileData IniData;
         private static List<StatusWrapper.StatusData> StatusData;
         public volatile bool endProcess = false;
@@ -96,9 +96,6 @@ namespace Status.Services
                         // Get job name from directory name
                         String job = runDirectoryList[i].Replace(iniFileData.InputDir, "").Remove(0, 1);
 
-                        Console.WriteLine(runDirectoryList[i]);
-                        runDirectoryList.Remove(runDirectoryList[i]);
-
                         // Start scan for new directory in the Input Buffer
                         ScanDirectory scanDir = new ScanDirectory();
                         jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job);
@@ -133,6 +130,10 @@ namespace Status.Services
                         Console.WriteLine("Starting Job " + data.Job);
                         JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, data, statusData);
                         jobThread.ThreadProc();
+
+                        // Remove job from the run list when run
+                        runDirectoryList.Remove(runDirectoryList[i]);
+
                         Thread.Sleep(1000);
                     }
                     else
