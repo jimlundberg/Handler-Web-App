@@ -32,6 +32,7 @@ namespace ReadWriteCsvFile
         public void WriteRow(CsvRow row)
         {
             StringBuilder builder = new StringBuilder();
+
             bool firstColumn = true;
             foreach (String value in row)
             {

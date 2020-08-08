@@ -117,7 +117,7 @@ namespace Status.Services
                 Source.CopyTo(targetFile);
             }
 
-            Console.WriteLine(@"Copied {0} -> {1}", sourceFile, targetFile);
+            logger.LogInformation("Copied {0} -> {1}", sourceFile, targetFile);
         }
     }
 }

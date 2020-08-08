@@ -43,7 +43,7 @@ namespace Status.Services
         {
             // Wait a minute for Modeler to open
             Thread.Sleep(60000);
-            Console.WriteLine("Starting Tcp/Ip Scan for job {0} on port {1} at {2:HH:mm:ss.fff}", 
+            logger.LogInformation("Starting Tcp/Ip Scan for job {0} on port {1} at {2:HH:mm:ss.fff}", 
                 monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
 
             try
@@ -55,6 +55,10 @@ namespace Status.Services
                 // Note, for this client to work you need to have a TcpServer
                 // connected to the same address as specified by the server, port combination.
                 TcpClient client = new TcpClient(server, monitorData.JobPortNumber);
+                if (client == null)
+                {
+                    logger.LogError("TcpIp Connectinon client failed to instantiate");
+                }
 
                 // Translate the passed message into ASCII and store it as a Byte array.
                 Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
@@ -62,6 +66,10 @@ namespace Status.Services
                 // Get a client stream for reading and writing.
                 // Stream stream = client.GetStream();
                 NetworkStream stream = client.GetStream();
+                if (stream == null)
+                {
+                    logger.LogError("TcpIp Connectinon stream was not gotten");
+                }
 
                 bool jobComplete = false;
                 int sleepTime = 15000;
@@ -71,7 +79,7 @@ namespace Status.Services
                     stream.Write(data, 0, data.Length);
 
                     // Receive the TcpServer.response.
-                    Console.WriteLine("Sending {0} msg to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                    logger.LogInformation("Sending {0} msg to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
                         message, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
 
                     // Buffer to store the response bytes.
@@ -93,31 +101,31 @@ namespace Status.Services
                             case "Step 2 in process.":
                             case "Step 3 in process.":
                             case "Step 4 in process.":
-                                Console.WriteLine("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                                    responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
+                                logger.LogInformation("Received: {0} from Job {1} on port {2}",
+                                    responseData, monitorData.Job, monitorData.JobPortNumber);
                                 break;
 
                             case "Step 5 in process.":
-                                Console.WriteLine("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                                    responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
+                                logger.LogInformation("Received: {0} from Job {1} on port {2}",
+                                    responseData, monitorData.Job, monitorData.JobPortNumber);
                                 sleepTime = 1000;
                                 break;
 
                             case "Step 6 in process.":
-                                Console.WriteLine("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                                    responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
+                                logger.LogInformation("Received: {0} from Job {1} on port {2}",
+                                    responseData, monitorData.Job, monitorData.JobPortNumber);
                                 sleepTime = 100;
                                 break;
 
                             case "Whole process done, socket closed.":
-                                Console.WriteLine("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                                    responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
+                                logger.LogInformation("Received: {0} from Job {1} on port {2}",
+                                    responseData, monitorData.Job, monitorData.JobPortNumber);
                                 StaticData.tcpIpScanComplete = true;
                                 jobComplete = true;
                                 break;
 
                             default:
-                                Console.WriteLine("$$$$$Received Weird Response: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                                logger.LogWarning("$$$$$Received Weird Response: {0} from Job {1} on port {2}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber);
                                 break;
                         }
@@ -125,7 +133,8 @@ namespace Status.Services
                         // Check for job timeout
                         if ((DateTime.Now - monitorData.StartTime).TotalSeconds > iniData.MaxTimeLimit)
                         {
-                            Console.WriteLine("Job Timeout for job {0} time {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now);
+                            logger.LogInformation("Job Timeout for job {0}", monitorData.Job);
+
                             StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, iniData.LogFile, logger);
                             StaticData.tcpIpScanComplete = true;
                             jobComplete = true;
@@ -134,7 +143,8 @@ namespace Status.Services
                         // Check if the shutdown flag is set, then exit method
                         if (StaticData.ShutdownFlag == true)
                         {
-                            Console.WriteLine("Shutdown Connect job {0} time {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now);
+                            logger.LogInformation("Shutdown Connect job {0}", monitorData.Job);
+
                             jobComplete = true;
                         }
 
@@ -151,15 +161,15 @@ namespace Status.Services
                 stream.Close();
                 client.Close();
 
-                Console.WriteLine("Completed TCP/IP Scan of Job {0} at {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now);
+                logger.LogInformation("Completed TCP/IP Scan of Job {0}", monitorData.Job);
             }
             catch (ArgumentNullException e)
             {
-                Console.WriteLine("ArgumentNullException: {0}", e);
+                logger.LogError("ArgumentNullException: {0}", e);
             }
             catch (SocketException e)
             {
-                Console.WriteLine("SocketException: {0}", e);
+                logger.LogError("SocketException: {0}", e);
             }
         }
     }

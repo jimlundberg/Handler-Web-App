@@ -19,6 +19,7 @@ namespace Status.Services
         public volatile bool endProcess = false;
         private static Thread thread;
         public event EventHandler ProcessCompleted;
+        private static Object delLock = new Object();
         ILogger<StatusRepository> Logger;
 
         // The constructor obtains the state information.
@@ -61,31 +62,26 @@ namespace Status.Services
         public void ScanForOldJobs(IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
-            List<string> oldDirectoryList = new List<string>();
             List<string> newDirectoryList = new List<string>();
-            bool readInputDirectory = false;
-            bool foundDirectories = false;
+            if (newDirectoryList == null)
+            {
+                Logger.LogError("ScanForOldJobs newDirectoryList failed to instantiate");
+            }
+            List<string> runDirectoryList = new List<string>();
+            if (runDirectoryList == null)
+            {
+                Logger.LogError("ScanForOldJobs runDirectoryList failed to instantiate");
+            }
 
             do
             {
-                // Check flag to start reading inputs after first reading is skipped to pick up current files
-                if (readInputDirectory)
+                // Get new directory list
+                var newDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
+                if (newDirectoryInfo == null)
                 {
-                    // Get old directory list
-                    var oldDirectoryInfo = new DirectoryInfo(iniFileData.ProcessingDir);
-                    var oldDirectoryInfoList = oldDirectoryInfo.EnumerateDirectories().ToList();
-                    foreach (var subdirectory in oldDirectoryInfoList)
-                    {
-                        oldDirectoryList.Add(subdirectory.ToString());
-                    }
-                    oldDirectoryList.Sort();
+                    Logger.LogError("ScanForOldJobs newDirectoryInfo failed to instantiate");
                 }
 
-                // Set flag to read directories from now on after seeing current ones as new
-                readInputDirectory = true;
-
-                // Get new directory list
-                var newDirectoryInfo = new DirectoryInfo(iniFileData.ProcessingDir);
                 var newDirectoryInfoList = newDirectoryInfo.EnumerateDirectories().ToList();
                 foreach (var subdirectory in newDirectoryInfoList)
                 {
@@ -93,86 +89,100 @@ namespace Status.Services
                 }
                 newDirectoryList.Sort();
 
-                // Look for a difference between old and new directory lists
-                IEnumerable<string> directoryDifferenceQuery = newDirectoryList.Except(oldDirectoryList);
-                if (directoryDifferenceQuery.Any())
+                // Look for a difference between new and run directory lists
+                if (newDirectoryList != runDirectoryList)
                 {
-                    foundDirectories = true;
-                    Console.WriteLine("\nFound unfinished job(s)...\n");
-
-                    oldDirectoryList = newDirectoryList;
-                    foreach (string dirName in directoryDifferenceQuery)
-                    {
-                        if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
-                        {
-                            // Increment counts to track job execution and port id
-                            StaticData.IncrementNumberOfJobsExecuting();
-
-                            String job = dirName.Replace(iniFileData.ProcessingDir, "").Remove(0, 1);
-
-                            // Delete the data.xml file if present
-                            String dataXmlFile = iniFileData.ProcessingDir + @"\" + job + @"\" + "data.xml";
-                            if (File.Exists(dataXmlFile))
-                            {
-                                File.Delete(dataXmlFile);
-                            }
-
-                            // Start scan for job files in the Output Buffer
-                            ScanDirectory scanDir = new ScanDirectory();
-                            jobXmlData = scanDir.GetJobXmlData(job, iniFileData.ProcessingDir + @"\" + job, logger);
-
-                            // Get data found in Xml file into Monitor Data
-                            StatusModels.StatusMonitorData data = new StatusModels.StatusMonitorData();
-                            data.Job = job;
-                            data.JobDirectory = jobXmlData.JobDirectory;
-                            data.JobSerialNumber = jobXmlData.JobSerialNumber;
-                            data.TimeStamp = jobXmlData.TimeStamp;
-                            data.XmlFileName = jobXmlData.XmlFileName;
-                            data.JobIndex = StaticData.RunningJobsIndex++;
-
-                            // Display Monitor Data found
-                            Console.WriteLine("");
-                            Console.WriteLine("Found unfinished Job  = " + data.Job);
-                            Console.WriteLine("New Job Directory     = " + data.JobDirectory);
-                            Console.WriteLine("New Serial Number     = " + data.JobSerialNumber);
-                            Console.WriteLine("New Time Stamp        = " + data.TimeStamp);
-                            Console.WriteLine("New Job Xml File      = " + data.XmlFileName);
-
-                            Console.WriteLine("+++++Job {0} Executing slot {1}", data.Job, StaticData.NumberOfJobsExecuting);
-
-                            // Create a thread to execute the task, and then start the thread.
-                            Console.WriteLine("Starting Job " + data.Job);
-                            JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, data, statusData, logger);
-                            jobThread.ThreadProc();
-
-                            // If the shutdown flag is set, exit method
-                            if (StaticData.ShutdownFlag == true)
-                            {
-                                Console.WriteLine("Shutdown ScanForUnfinishedJobs job {0} time {1:HH:mm:ss.fff}", data.Job, DateTime.Now);
-                                return;
-                            }
-
-                            Thread.Sleep(1000);
-                        }
-                        else
-                        {
-                            Thread.Sleep(iniFileData.ScanTime);
-                        }
-                    }
+                    runDirectoryList = newDirectoryList;
                 }
-                else
+
+                if (runDirectoryList.Count() == 0)
                 {
-                    if (foundDirectories)
-                    {
-                        Console.WriteLine("No more unfinished job(s) Found...");
-                    }
-                    else
-                    {
-                        Console.WriteLine("\nNo unfinished job(s) Found...");
-                    }
+                    logger.LogInformation("No unfinished job(s) Found...");
                     StaticData.oldJobScanComplete = true;
                     return;
                 }
+
+                for (int i = 0; i < runDirectoryList.Count(); i++)
+                {
+                    logger.LogInformation("Found unfinished job(s)...");
+
+                    if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
+                    {
+                        // Increment counts to track job execution and port id
+                        StaticData.IncrementNumberOfJobsExecuting();
+
+                        String job = runDirectoryList[i].Replace(iniFileData.ProcessingDir, "").Remove(0, 1);
+
+                        // Delete the data.xml file if present
+                        String dataXmlFile = iniFileData.ProcessingDir + @"\" + job + @"\" + "data.xml";
+                        if (File.Exists(dataXmlFile))
+                        {
+                            lock (delLock)
+                            {
+                                File.Delete(dataXmlFile);
+                            }
+                        }
+
+                        // Start scan for job files in the Output Buffer
+                        ScanDirectory scanDir = new ScanDirectory();
+                        if (scanDir == null)
+                        {
+                            Logger.LogError("ScanForOldJobs scanDir failed to instantiate");
+                        }
+                        jobXmlData = scanDir.GetJobXmlData(job, iniFileData.ProcessingDir + @"\" + job, logger);
+
+                        // Get data found in Xml file into Monitor Data
+                        StatusModels.StatusMonitorData xmlData = new StatusModels.StatusMonitorData();
+                        if (xmlData == null)
+                        {
+                            Logger.LogError("ScanForOldJobs xmlData failed to instantiate");
+                        }
+                        xmlData.Job = job;
+                        xmlData.JobDirectory = jobXmlData.JobDirectory;
+                        xmlData.JobSerialNumber = jobXmlData.JobSerialNumber;
+                        xmlData.TimeStamp = jobXmlData.TimeStamp;
+                        xmlData.XmlFileName = jobXmlData.XmlFileName;
+                        xmlData.JobIndex = StaticData.RunningJobsIndex++;
+
+                        // Display Monitor Data found
+                        Logger.LogInformation("");
+                        logger.LogInformation("Found unfinished Job  = " + xmlData.Job);
+                        logger.LogInformation("New Job Directory     = " + xmlData.JobDirectory);
+                        logger.LogInformation("New Serial Number     = " + xmlData.JobSerialNumber);
+                        logger.LogInformation("New Time Stamp        = " + xmlData.TimeStamp);
+                        logger.LogInformation("New Job Xml File      = " + xmlData.XmlFileName);
+                        Logger.LogInformation("Job {0} Executing slot {1}", xmlData.Job, StaticData.NumberOfJobsExecuting);
+                        logger.LogInformation("Starting Job " + xmlData.Job);
+
+                        // Create a thread to execute the task, and then start the thread.
+                        JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, xmlData, statusData, logger);
+                        if (jobThread == null)
+                        {
+                            Logger.LogError("ScanForOldJobs jobThread failed to instantiate");
+                        }
+                        jobThread.ThreadProc();
+
+                        // Check if the shutdown flag is set, exit method
+                        if (StaticData.ShutdownFlag == true)
+                        {
+                            logger.LogInformation("Shutdown ScanForUnfinishedJobs job {0}", xmlData.Job);
+                            return;
+                        }
+
+                        // Remove job from the run list when run
+                        runDirectoryList.Remove(runDirectoryList[i]);
+
+                        Thread.Sleep(1000);
+                    }
+                    else
+                    {
+                        Thread.Sleep(iniFileData.ScanTime);
+                    }
+                }
+
+                StaticData.oldJobScanComplete = true;
+
+                logger.LogInformation("No more unfinished job(s) Found...");
             }
             while (true);
         }

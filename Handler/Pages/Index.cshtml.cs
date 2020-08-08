@@ -70,7 +70,7 @@ namespace Handler.Pages
         public void OnPostStartButton()
         {
             ViewData["PageName"] = "Start";
-            Console.WriteLine("\nStart Button pressed");
+            Logger.LogInformation("Start Button pressed");
             MonitorDataRepository.StartMonitorProcess();
             statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
@@ -81,7 +81,7 @@ namespace Handler.Pages
         public void OnPostRefreshButton()
         {
             ViewData["PageName"] = "Refresh";
-            Console.WriteLine("\nRefresh Button pressed");
+            Logger.LogInformation("Refresh Button pressed");
             statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 
@@ -91,7 +91,7 @@ namespace Handler.Pages
         public void OnPostPauseButton()
         {
             ViewData["PageName"] = "Pause";
-            Console.WriteLine("\nPause Button pressed");
+            Logger.LogInformation("Pause Button pressed");
             statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 
@@ -101,7 +101,7 @@ namespace Handler.Pages
         public void OnPostStopButton()
         {
             ViewData["PageName"] = "Stop";
-            Console.WriteLine("\nStop Button pressed");
+            Logger.LogInformation("Stop Button pressed");
             MonitorDataRepository.StopMonitor();
         }
 
@@ -111,7 +111,7 @@ namespace Handler.Pages
         public void OnPostHistoryButton()
         {
             ViewData["PageName"] = "History";
-            Console.WriteLine("\nHistory Button pressed");
+            Logger.LogInformation("History Button pressed");
             statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetHistoryData().Reverse();
         }
     }

@@ -35,7 +35,7 @@ namespace Status.Services
             process.StartInfo.Arguments = String.Format(@"{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
-            Console.WriteLine("{0} {1}\n", process.StartInfo.FileName, process.StartInfo.Arguments);
+            Logger.LogInformation("{0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
             if (process.Start())
             {
                 logger.LogCritical("Modeler Execution Process failed to Start() {0}", Executable);
@@ -43,7 +43,7 @@ namespace Status.Services
             }
 
             String outPut = process.StandardOutput.ReadToEnd();
-            Console.WriteLine(outPut);
+            Logger.LogInformation(outPut);
 
             process.WaitForExit();
             var exitCode = process.ExitCode;

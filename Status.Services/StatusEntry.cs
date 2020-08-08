@@ -51,6 +51,11 @@ namespace Status.Services
         public void ListStatus(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot)
         {
             StatusData entry = new StatusData();
+            if (entry == null)
+            {
+                Logger.LogError("StatusEntry entry failed to instantiate");
+            }
+
             entry.Job = job;
             entry.JobStatus = status;
             switch (timeSlot)
@@ -71,7 +76,7 @@ namespace Status.Services
             // Add entry to status data list
             statusList.Add(entry);
 
-            Console.WriteLine("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
+            Logger.LogInformation("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
         }
 
         /// <summary>
@@ -89,8 +94,23 @@ namespace Status.Services
                 using (StreamWriter writer = File.AppendText(logFileName))
                 {
                     DateTime timeReceived = new DateTime();
+                    if (timeReceived == null)
+                    {
+                        Logger.LogError("StatusEntry timeReceived failed to instantiate");
+                    }
+
                     DateTime timeStarted = new DateTime();
+                    if (timeStarted == null)
+                    {
+                        Logger.LogError("StatusEntry timeStarted failed to instantiate");
+                    }
+
                     DateTime timeCompleted = new DateTime();
+                    if (timeCompleted == null)
+                    {
+                        Logger.LogError("StatusEntry timeCompleted failed to instantiate");
+                    }
+
                     switch (timeSlot)
                     {
                         case JobType.TIME_RECEIVED:
@@ -131,10 +151,22 @@ namespace Status.Services
                 {
                     using (CsvFileReader reader = new CsvFileReader(logFileName))
                     {
+                        if (reader == null)
+                        {
+                            Logger.LogError("ReadFromCsvFile reader failed to instantiate");
+                            return null;
+                        }
+
                         CsvRow rowData = new CsvRow();
                         while (reader.ReadRow(rowData))
                         {
                             StatusData rowStatusData = new StatusData();
+                            if (rowStatusData == null)
+                            {
+                                Logger.LogError("ReadFromCsvFile rowStatusData failed to instantiate");
+                                return null;
+                            }
+
                             rowStatusData.Job = rowData[0];
 
                             String jobType = rowData[1];
@@ -209,7 +241,7 @@ namespace Status.Services
                             // If the shutdown flag is set, exit method
                             if (StaticData.ShutdownFlag == true)
                             {
-                                Console.WriteLine("Shutdown ReadFromCsvFile job {0} row {1} time {2:HH:mm:ss.fff}", rowStatusData.Job, rowStatusData, DateTime.Now);
+                                logger.LogInformation("Shutdown ReadFromCsvFile job {0} row {1}", rowStatusData.Job, rowStatusData);
                                 return statusDataTable;
                             }
                         }
@@ -236,10 +268,28 @@ namespace Status.Services
             {
                 using (CsvFileReader reader = new CsvFileReader(logFileName))
                 {
+                    if (reader == null)
+                    {
+                        Logger.LogError("CheckLogFileHistory reader failed to instantiate");
+                        return;
+                    }
+
                     CsvRow rowData = new CsvRow();
+                    if (rowData == null)
+                    {
+                        Logger.LogError("CheckLogFileHistory rowData failed to instantiate");
+                        return;
+                    }
+
                     while (reader.ReadRow(rowData))
                     {
                         StatusData rowStatusData = new StatusData();
+                        if (rowStatusData == null)
+                        {
+                            Logger.LogError("CheckLogFileHistory rowStatusData failed to instantiate");
+                            return;
+                        }
+
                         bool oldRecord = false;
                         rowStatusData.Job = rowData[0];
 
@@ -321,7 +371,7 @@ namespace Status.Services
                         // If the shutdown flag is set, exit method
                         if (StaticData.ShutdownFlag == true)
                         {
-                            Console.WriteLine("Shutdown CheckLogFileHistory job {0} row {1} time {21:HH:mm:ss.fff}", rowStatusData.Job, rowStatusData, DateTime.Now);
+                            logger.LogInformation("Shutdown CheckLogFileHistory job {0} row {1}", rowStatusData.Job, rowStatusData);
                             return;
                         }
                     }
@@ -332,9 +382,12 @@ namespace Status.Services
                 {
                     for (int i = 0; i < statusDataTable.Count; i++)
                     {
-                        writer.WriteLine("{0},{1},{2},{3},{4}",
-                            statusDataTable[i].Job, statusDataTable[i].JobStatus.ToString(),
-                            statusDataTable[i].TimeReceived, statusDataTable[i].TimeStarted, statusDataTable[i].TimeCompleted);
+                        lock (csvLock)
+                        {
+                            writer.WriteLine("{0},{1},{2},{3},{4}",
+                                statusDataTable[i].Job, statusDataTable[i].JobStatus.ToString(),
+                                statusDataTable[i].TimeReceived, statusDataTable[i].TimeStarted, statusDataTable[i].TimeCompleted);
+                        }
                     }
 
                     writer.Close();

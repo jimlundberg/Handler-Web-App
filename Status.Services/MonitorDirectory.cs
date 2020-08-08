@@ -12,10 +12,12 @@ namespace Status.Services
     /// </summary>
     public class MonitorDirectoryFiles
     {
+        public static ILogger<StatusRepository> Logger;
+
         public static void TcpIp_ProcessCompleted(object sender, EventArgs e)
         {
             // Set Flag for ending directory scan loop
-            Console.WriteLine("Monitor directory received Tcp/Ip Scan Completed!");
+            Logger.LogInformation("Monitor directory received Tcp/Ip Scan Completed!");
             StaticData.tcpIpScanComplete = true;
         }
 
@@ -33,10 +35,16 @@ namespace Status.Services
         {
             bool filesFound = false;
 
+            Logger = logger;
+
             if (scanType == StatusModels.DirectoryScanType.PROCESSING_BUFFER)
             {
                 // Register with the Tcp/Ip Event and start it's thread
                 JobTcpIpThread tcpIp = new JobTcpIpThread(iniData, monitorData, statusData, logger);
+                if (tcpIp == null)
+                {
+                    logger.LogError("MonitorDirectory tcpIp thread failed to instantiate");
+                }
                 tcpIp.ProcessCompleted += TcpIp_ProcessCompleted;
                 tcpIp.StartTcpIpScanProcess(iniData, monitorData, statusData, logger);
             }
@@ -49,15 +57,15 @@ namespace Status.Services
                     int numberOfFilesFound = Directory.GetFiles(monitoredDir, "*", SearchOption.TopDirectoryOnly).Length;
                     if (numberOfFilesFound >= numberOfFilesNeeded)
                     {
-                        Console.WriteLine("Recieved {0} of {1} files in {2} at {3:HH:mm:ss.fff}",
-                            numberOfFilesFound, numberOfFilesNeeded, monitoredDir, DateTime.Now);
+                        logger.LogInformation("Recieved {0} of {1} files in {2}",
+                            numberOfFilesFound, numberOfFilesNeeded, monitoredDir);
                         return true;
                     }
 
                     // If the shutdown flag is set, exit method
                     if (StaticData.ShutdownFlag == true)
                     {
-                        Console.WriteLine("Shutdown MonitorDirectory {0} time {1:HH:mm:ss.fff}", monitoredDir, DateTime.Now);
+                        logger.LogInformation("Shutdown MonitorDirectory {0}", monitoredDir);
                         return false;
                     }
 
