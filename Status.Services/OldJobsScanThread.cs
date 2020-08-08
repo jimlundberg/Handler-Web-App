@@ -76,7 +76,7 @@ namespace Status.Services
             do
             {
                 // Get new directory list
-                var newDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
+                var newDirectoryInfo = new DirectoryInfo(iniFileData.ProcessingDir);
                 if (newDirectoryInfo == null)
                 {
                     Logger.LogError("ScanForOldJobs newDirectoryInfo failed to instantiate");

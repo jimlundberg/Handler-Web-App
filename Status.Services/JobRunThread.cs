@@ -198,7 +198,7 @@ namespace Status.Services
             Thread modelerThread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
             modelerThread.Start();
 
-            logger.LogInformation("***** Starting Job {0} with Modeler {1} on port {2} with {3} CPU's}",
+            logger.LogInformation("***** Starting Job {0} with Modeler {1} on port {2} with {3} CPU's",
                 monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
 
             // If the shutdown flag is set, exit method

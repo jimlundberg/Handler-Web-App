@@ -36,11 +36,7 @@ namespace Status.Services
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             Logger.LogInformation("{0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
-            if (process.Start())
-            {
-                logger.LogCritical("Modeler Execution Process failed to Start() {0}", Executable);
-                return;
-            }
+            process.Start();
 
             String outPut = process.StandardOutput.ReadToEnd();
             Logger.LogInformation(outPut);
