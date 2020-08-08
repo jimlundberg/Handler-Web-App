@@ -16,7 +16,7 @@ namespace Handler.Pages
         /// <summary>
         /// ILogger member
         /// </summary>
-        public readonly ILogger<IndexModel> _logger;
+        public readonly ILogger<IndexModel> Logger;
 
         /// <summary>
         /// status data
@@ -37,7 +37,7 @@ namespace Handler.Pages
         public IndexModel(IStatusRepository monitorDataRepository, ILogger<IndexModel> logger)
         {
             this.MonitorDataRepository = monitorDataRepository;
-            _logger = logger;
+            Logger = logger;
         }
         
         /// <summary>
