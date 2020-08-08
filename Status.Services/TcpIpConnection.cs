@@ -28,10 +28,12 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Connect to TCP/IP Port
+        /// Connect to TCP/IP Port 
         /// </summary>
         /// <param name="server"></param>
-        /// <param name="port"></param>
+        /// <param name="iniData"></param>
+        /// <param name="monitorData"></param>
+        /// <param name="statusData"></param>
         /// <param name="message"></param>
         public void Connect(String server, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData, String message)
         {
@@ -140,7 +142,7 @@ namespace Status.Services
                 }
                 while (jobComplete == false);
 
-                // Close everything.
+                // Close everything
                 stream.Close();
                 client.Close();
 

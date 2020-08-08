@@ -18,6 +18,11 @@ namespace Status.Services
         public volatile bool endProcess = false;
         private static Thread thread;
 
+        /// <summary>
+        /// Processing complete callback
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public static void oldJob_ProcessCompleted(object sender, EventArgs e)
         {
             // Set Flag for ending directory scan loop
@@ -26,14 +31,11 @@ namespace Status.Services
             ScanForNewJobs(IniData, StatusData);
         }
 
-        // The constructor obtains the state information.
         /// <summary>
         /// Process Thread constructor receiving data buffers
         /// </summary>
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
-        /// <param name="globalJobIndex"></param>
-        /// <param name="numberOfJobsRunning"></param>
         public NewJobsScanThread(IniFileData iniData, List<StatusWrapper.StatusData> statusData)
         {
             IniData = iniData;
@@ -57,6 +59,8 @@ namespace Status.Services
         /// <summary>
         /// Method to scan for new jobs in the Input Buffer
         /// </summary>
+        /// <param name="iniFileData"></param>
+        /// <param name="statusData"></param>
         public static void ScanForNewJobs(IniFileData iniFileData, List<StatusWrapper.StatusData> statusData)
         {
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
