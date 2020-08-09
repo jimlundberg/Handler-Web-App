@@ -100,6 +100,7 @@ namespace Status.Services
                 }
 
                 var newDirectoryInfoList = newDirectoryInfo.EnumerateDirectories().ToList();
+                newDirectoryList.Clear();
                 foreach (var subdirectory in newDirectoryInfoList)
                 {
                     newDirectoryList.Add(subdirectory.ToString());
@@ -169,17 +170,13 @@ namespace Status.Services
                             return;
                         }
 
-                        // Remove job from the run list when run
-                        runDirectoryList.Remove(runDirectoryList[i]);
+                        Thread.Sleep(iniFileData.ScanTime);
                     }
                     else
                     {
                         Thread.Sleep(iniFileData.ScanTime);
                     }
                 }
-
-                // Time between scans
-                Thread.Sleep(iniFileData.ScanTime);
             }
         }
     }

@@ -83,6 +83,7 @@ namespace Status.Services
                 }
 
                 var newDirectoryInfoList = newDirectoryInfo.EnumerateDirectories().ToList();
+                newDirectoryList.Clear();
                 foreach (var subdirectory in newDirectoryInfoList)
                 {
                     newDirectoryList.Add(subdirectory.ToString());
