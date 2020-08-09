@@ -28,7 +28,7 @@ namespace Status.Services
         public static void oldJob_ProcessCompleted(object sender, EventArgs e)
         {
             // Set Flag for ending directory scan loop
-            Console.WriteLine("Old Job Scan Completed!");
+            Console.WriteLine("\nOld Job Scan Completed!");
             StaticData.oldJobScanComplete = true;
             ScanForNewJobs(IniData, StatusData, Logger);
         }
@@ -88,7 +88,7 @@ namespace Status.Services
                 Logger.LogError("ScanForNewJobs runDirectoryList failed to instantiate");
             }
 
-            Console.WriteLine("Scanning for new job(s)...");
+            Console.WriteLine("\nScanning for new job(s)...");
 
             while (true)
             {

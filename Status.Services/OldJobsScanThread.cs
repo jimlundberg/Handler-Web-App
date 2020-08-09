@@ -179,7 +179,7 @@ namespace Status.Services
 
                 StaticData.oldJobScanComplete = true;
 
-                Console.WriteLine("No more unfinished job(s) Found...");
+                Console.WriteLine("\nNo more unfinished job(s) Found...");
                 return;
             }
             while (true);
