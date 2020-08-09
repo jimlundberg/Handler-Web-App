@@ -59,7 +59,7 @@ namespace Status.Services
             String logFileHistory = IniParser.Read("Process", "LogFileHistory");
             iniFileData.LogFileHistory = Int32.Parse(logFileHistory.Substring(0, logFileHistory.IndexOf("#")));
 
-            Console.WriteLine("Config.ini data found:");
+            Console.WriteLine("\nConfig.ini data found:\n");
             Console.WriteLine("Input Dir             = " + iniFileData.InputDir);
             Console.WriteLine("Processing Dir        = " + iniFileData.ProcessingDir);
             Console.WriteLine("Repository Dir        = " + iniFileData.RepositoryDir);
