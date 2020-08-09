@@ -43,7 +43,7 @@ namespace Status.Services
         {
             // Wait a minute for Modeler to open
             Thread.Sleep(60000);
-            Console.WriteLine("Starting Tcp/Ip Scan for job {0} on port {1} at {2:HH:mm:ss.fff}",
+            Console.WriteLine("\nStarting Tcp/Ip Scan for job {0} on port {1} at {2:HH:mm:ss.fff}",
                 monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
 
             try
