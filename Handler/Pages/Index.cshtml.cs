@@ -61,6 +61,7 @@ namespace Handler.Pages
         public void OnPostHomeButton()
         {
             ViewData["PageName"] = "Home";
+            Console.WriteLine("\nHome Button pressed\n");
             statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 
@@ -70,7 +71,7 @@ namespace Handler.Pages
         public void OnPostStartButton()
         {
             ViewData["PageName"] = "Start";
-            Logger.LogInformation("Start Button pressed");
+            Console.WriteLine("\nStart Button pressed\n");
             MonitorDataRepository.StartMonitorProcess();
             statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
@@ -81,7 +82,7 @@ namespace Handler.Pages
         public void OnPostRefreshButton()
         {
             ViewData["PageName"] = "Refresh";
-            Logger.LogInformation("Refresh Button pressed");
+            Console.WriteLine("\nRefresh Button pressed\n");
             statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 
@@ -91,7 +92,7 @@ namespace Handler.Pages
         public void OnPostPauseButton()
         {
             ViewData["PageName"] = "Pause";
-            Logger.LogInformation("Pause Button pressed");
+            Console.WriteLine("\nPause Button pressed\n");
             statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 
@@ -101,7 +102,7 @@ namespace Handler.Pages
         public void OnPostStopButton()
         {
             ViewData["PageName"] = "Stop";
-            Logger.LogInformation("Stop Button pressed");
+            Console.WriteLine("\nStop Button pressed\n");
             MonitorDataRepository.StopMonitor();
         }
 
@@ -111,7 +112,7 @@ namespace Handler.Pages
         public void OnPostHistoryButton()
         {
             ViewData["PageName"] = "History";
-            Logger.LogInformation("History Button pressed");
+            Console.WriteLine("\nHistory Button pressed\n");
             statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetHistoryData().Reverse();
         }
     }

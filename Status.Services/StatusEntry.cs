@@ -76,7 +76,7 @@ namespace Status.Services
             // Add entry to status data list
             statusList.Add(entry);
 
-            Logger.LogInformation("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
+            Console.WriteLine("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
         }
 
         /// <summary>

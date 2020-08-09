@@ -59,20 +59,20 @@ namespace Status.Services
             String logFileHistory = IniParser.Read("Process", "LogFileHistory");
             iniFileData.LogFileHistory = Int32.Parse(logFileHistory.Substring(0, logFileHistory.IndexOf("#")));
 
-            logger.LogInformation("Config.ini data found:");
-            logger.LogInformation("Input Dir             = " + iniFileData.InputDir);
-            logger.LogInformation("Processing Dir        = " + iniFileData.ProcessingDir);
-            logger.LogInformation("Repository Dir        = " + iniFileData.RepositoryDir);
-            logger.LogInformation("Finished Dir          = " + iniFileData.FinishedDir);
-            logger.LogInformation("Error Dir             = " + iniFileData.ErrorDir);
-            logger.LogInformation("Modeler Root Dir      = " + iniFileData.ModelerRootDir);
-            logger.LogInformation("Log File              = " + iniFileData.LogFile);
-            logger.LogInformation("CPU Cores             = " + iniFileData.CPUCores + " Cores");
-            logger.LogInformation("Execution Limit       = " + iniFileData.ExecutionLimit + " Jobs");
-            logger.LogInformation("Start Port            = " + iniFileData.StartPort);
-            logger.LogInformation("Scan Time             = " + iniFileData.ScanTime + " Miliseconds");
-            logger.LogInformation("Max Time Limit        = " + iniFileData.MaxTimeLimit + " Seconds");
-            logger.LogInformation("Log File History      = " + iniFileData.LogFileHistory + " Days");
+            Console.WriteLine("Config.ini data found:");
+            Console.WriteLine("Input Dir             = " + iniFileData.InputDir);
+            Console.WriteLine("Processing Dir        = " + iniFileData.ProcessingDir);
+            Console.WriteLine("Repository Dir        = " + iniFileData.RepositoryDir);
+            Console.WriteLine("Finished Dir          = " + iniFileData.FinishedDir);
+            Console.WriteLine("Error Dir             = " + iniFileData.ErrorDir);
+            Console.WriteLine("Modeler Root Dir      = " + iniFileData.ModelerRootDir);
+            Console.WriteLine("Log File              = " + iniFileData.LogFile);
+            Console.WriteLine("CPU Cores             = " + iniFileData.CPUCores + " Cores");
+            Console.WriteLine("Execution Limit       = " + iniFileData.ExecutionLimit + " Jobs");
+            Console.WriteLine("Start Port            = " + iniFileData.StartPort);
+            Console.WriteLine("Scan Time             = " + iniFileData.ScanTime + " Miliseconds");
+            Console.WriteLine("Max Time Limit        = " + iniFileData.MaxTimeLimit + " Seconds");
+            Console.WriteLine("Log File History      = " + iniFileData.LogFileHistory + " Days");
         }
 
         /// <summary>

@@ -28,7 +28,7 @@ namespace Status.Services
         public static void oldJob_ProcessCompleted(object sender, EventArgs e)
         {
             // Set Flag for ending directory scan loop
-            Logger.LogInformation("Old Job Scan Completed!");
+            Console.WriteLine("Old Job Scan Completed!");
             StaticData.oldJobScanComplete = true;
             ScanForNewJobs(IniData, StatusData, Logger);
         }
@@ -88,7 +88,7 @@ namespace Status.Services
                 Logger.LogError("ScanForNewJobs runDirectoryList failed to instantiate");
             }
 
-            Logger.LogInformation("Scanning for new job(s)...");
+            Console.WriteLine("Scanning for new job(s)...");
 
             while (true)
             {
@@ -144,14 +144,15 @@ namespace Status.Services
                         xmlData.JobIndex = StaticData.RunningJobsIndex++;
 
                         // Display xmlData found
-                        logger.LogInformation("");
-                        logger.LogInformation("Found new Job         = " + xmlData.Job);
-                        logger.LogInformation("New Job Directory     = " + xmlData.JobDirectory);
-                        logger.LogInformation("New Serial Number     = " + xmlData.JobSerialNumber);
-                        logger.LogInformation("New Time Stamp        = " + xmlData.TimeStamp);
-                        logger.LogInformation("New Job Xml File      = " + xmlData.XmlFileName);
-                        logger.LogInformation("Job {0} Executing slot {1}", xmlData.Job, StaticData.NumberOfJobsExecuting);
-                        logger.LogInformation("Starting Job " + xmlData.Job);
+                        Console.WriteLine("");
+                        Console.WriteLine("Found new Job         = " + xmlData.Job);
+                        Console.WriteLine("New Job Directory     = " + xmlData.JobDirectory);
+                        Console.WriteLine("New Serial Number     = " + xmlData.JobSerialNumber);
+                        Console.WriteLine("New Time Stamp        = " + xmlData.TimeStamp);
+                        Console.WriteLine("New Job Xml File      = " + xmlData.XmlFileName);
+
+                        Console.WriteLine("Job {0} started executing slot {1} at {2:HH:mm:ss.fff}", 
+                            xmlData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now);
 
                         // Create a thread to execute the task, and then start the thread.
                         JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, xmlData, statusData, logger);
@@ -170,8 +171,6 @@ namespace Status.Services
 
                         // Remove job from the run list when run
                         runDirectoryList.Remove(runDirectoryList[i]);
-
-                        Thread.Sleep(1000);
                     }
                     else
                     {

@@ -126,13 +126,13 @@ namespace Status.Services
             }
 
             // Get the modeler and number of files to transfer
-            logger.LogInformation("Unit Number           = " + monitorData.UnitNumber);
-            logger.LogInformation("Modeler               = " + monitorData.Modeler);
-            logger.LogInformation("Num Files Consumed    = " + monitorData.NumFilesConsumed);
-            logger.LogInformation("Num Files Produced    = " + monitorData.NumFilesProduced);
-            logger.LogInformation("Num Files To Transfer = " + monitorData.NumFilesToTransfer);
-            logger.LogInformation("Num Files To Transfer = " + monitorData.NumFilesToTransfer);
-            logger.LogInformation("Job Port Number       = " + monitorData.JobPortNumber);
+            Console.WriteLine("Unit Number           = " + monitorData.UnitNumber);
+            Console.WriteLine("Modeler               = " + monitorData.Modeler);
+            Console.WriteLine("Num Files Consumed    = " + monitorData.NumFilesConsumed);
+            Console.WriteLine("Num Files Produced    = " + monitorData.NumFilesProduced);
+            Console.WriteLine("Num Files To Transfer = " + monitorData.NumFilesToTransfer);
+            Console.WriteLine("Num Files To Transfer = " + monitorData.NumFilesToTransfer);
+            Console.WriteLine("Job Port Number       = " + monitorData.JobPortNumber);
 
             // Add initial entry to status list
             StatusDataEntry(statusData, job, JobStatus.MONITORING_INPUT, JobType.TIME_START, iniData.LogFile, logger);
@@ -146,7 +146,7 @@ namespace Status.Services
                 String transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
                 XmlNode TransferedFileXml = XmlDoc.DocumentElement.SelectSingleNode(transferFileNodeName);
                 monitorData.transferedFileList.Add(TransferedFileXml.InnerText);
-                logger.LogInformation("Transfer File{0}        = {1}", i, TransferedFileXml.InnerText);
+                Console.WriteLine("Transfer File{0}        = {1}", i, TransferedFileXml.InnerText);
             }
 
             // If the directory is the Input Buffer, move the directory to Processing
@@ -198,8 +198,8 @@ namespace Status.Services
             Thread modelerThread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
             modelerThread.Start();
 
-            logger.LogInformation("***** Starting Job {0} with Modeler {1} on port {2} with {3} CPU's",
-                monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores);
+            Console.WriteLine("***** Starting Job {0} with Modeler {1} on port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
+                monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores, DateTime.Now);
 
             // If the shutdown flag is set, exit method
             if (StaticData.ShutdownFlag == true)
@@ -215,7 +215,7 @@ namespace Status.Services
             StaticData.tcpIpScanComplete = false;
 
             // Monitor for complete set of files in the Processing Buffer
-            logger.LogInformation("Starting monitoring for Job {0} Processing Buffer output files...", job);
+            Console.WriteLine("Starting monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}", job, DateTime.Now);
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             if (MonitorDirectoryFiles.MonitorDirectory(StatusModels.DirectoryScanType.PROCESSING_BUFFER, iniData, monitorData, statusData,
                 ProcessingBufferDir, NumOfFilesThatNeedToBeGenerated, logger))
@@ -325,8 +325,8 @@ namespace Status.Services
                 }
 
                 StaticData.DecrementNumberOfJobsExecuting();
-                logger.LogInformation("-----Job {0} Complete, decrementing job count to {1}",
-                    monitorData.Job, StaticData.NumberOfJobsExecuting);
+                Console.WriteLine("-----Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
+                    monitorData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now);
 
                 // Add entry to status list
                 StatusDataEntry(statusData, job, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.LogFile, logger);

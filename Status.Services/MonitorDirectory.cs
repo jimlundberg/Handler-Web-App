@@ -17,7 +17,7 @@ namespace Status.Services
         public static void TcpIp_ProcessCompleted(object sender, EventArgs e)
         {
             // Set Flag for ending directory scan loop
-            Logger.LogInformation("Monitor directory received Tcp/Ip Scan Completed!");
+            Console.WriteLine("Monitor directory received Tcp/Ip Scan Completed!");
             StaticData.tcpIpScanComplete = true;
         }
 
@@ -57,7 +57,7 @@ namespace Status.Services
                     int numberOfFilesFound = Directory.GetFiles(monitoredDir, "*", SearchOption.TopDirectoryOnly).Length;
                     if (numberOfFilesFound >= numberOfFilesNeeded)
                     {
-                        logger.LogInformation("Recieved {0} of {1} files in {2}",
+                        Console.WriteLine("Recieved {0} of {1} files in {2}",
                             numberOfFilesFound, numberOfFilesNeeded, monitoredDir);
                         return true;
                     }

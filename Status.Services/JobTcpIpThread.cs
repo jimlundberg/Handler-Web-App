@@ -90,7 +90,7 @@ namespace Status.Services
             }
 
             statusList.Add(entry);
-            Logger.LogInformation("Status: Job:{0} Job Status:{1}", job, status);
+            Console.WriteLine("Status: Job:{0} Job Status:{1}", job, status);
         }
 
         /// <summary>

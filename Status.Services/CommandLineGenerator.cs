@@ -35,11 +35,11 @@ namespace Status.Services
             process.StartInfo.Arguments = String.Format(@"{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
-            Logger.LogInformation("{0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
+            Console.WriteLine("{0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
             process.Start();
 
             String outPut = process.StandardOutput.ReadToEnd();
-            Logger.LogInformation(outPut);
+            Console.WriteLine(outPut);
 
             process.WaitForExit();
             var exitCode = process.ExitCode;
