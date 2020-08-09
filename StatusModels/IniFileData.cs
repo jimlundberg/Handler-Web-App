@@ -14,7 +14,8 @@ namespace StatusModels
         public String FinishedDir { get; set; }
         public String ErrorDir { get; set; }
         public String ModelerRootDir { get; set; }
-        public String LogFile { get; set; }
+        public String StatusLogFile { get; set; }
+        public String ProcessLogFile { get; set; }
         public int CPUCores { get; set; }
         public int ExecutionLimit { get; set; }
         public int MaxTimeLimit { get; set; }

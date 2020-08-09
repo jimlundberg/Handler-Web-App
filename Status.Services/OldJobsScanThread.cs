@@ -147,11 +147,11 @@ namespace Status.Services
                         // Display Monitor Data found
                         Console.WriteLine("");
                         Console.WriteLine("Found unfinished Job  = " + xmlData.Job);
-                        Console.WriteLine("New Job Directory     = " + xmlData.JobDirectory);
-                        Console.WriteLine("New Serial Number     = " + xmlData.JobSerialNumber);
-                        Console.WriteLine("New Time Stamp        = " + xmlData.TimeStamp);
-                        Console.WriteLine("New Job Xml File      = " + xmlData.XmlFileName);
-                        Console.WriteLine("Job {0} Executing slot {1}", xmlData.Job, StaticData.NumberOfJobsExecuting);
+                        Console.WriteLine("Old Job Directory     = " + xmlData.JobDirectory);
+                        Console.WriteLine("Old Serial Number     = " + xmlData.JobSerialNumber);
+                        Console.WriteLine("Old Time Stamp        = " + xmlData.TimeStamp);
+                        Console.WriteLine("Old Job Xml File      = " + xmlData.XmlFileName);
+                        Console.WriteLine("Old Job {0} Executing slot {1}", xmlData.Job, StaticData.NumberOfJobsExecuting);
                         Console.WriteLine("Starting Job " + xmlData.Job);
 
                         // Create a thread to execute the task, and then start the thread.

@@ -51,7 +51,8 @@ namespace Status.Services
             iniFileData.CPUCores = Int32.Parse(IniParser.Read("Process", "CPUCores"));
             iniFileData.ExecutionLimit = Int32.Parse(IniParser.Read("Process", "ExecutionLimit"));
             iniFileData.StartPort = Int32.Parse(IniParser.Read("Process", "StartPort"));
-            iniFileData.LogFile = IniParser.Read("Process", "LogFile");
+            iniFileData.StatusLogFile = IniParser.Read("Process", "StatusLogFile");
+            iniFileData.ProcessLogFile = IniParser.Read("Process", "ProcessLogFile");
             String scanTime = IniParser.Read("Process", "ScanTime");
             iniFileData.ScanTime = Int32.Parse(scanTime.Substring(0, scanTime.IndexOf("#")));
             String timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
@@ -66,7 +67,8 @@ namespace Status.Services
             Console.WriteLine("Finished Dir          = " + iniFileData.FinishedDir);
             Console.WriteLine("Error Dir             = " + iniFileData.ErrorDir);
             Console.WriteLine("Modeler Root Dir      = " + iniFileData.ModelerRootDir);
-            Console.WriteLine("Log File              = " + iniFileData.LogFile);
+            Console.WriteLine("Status Log File       = " + iniFileData.StatusLogFile);
+            Console.WriteLine("Process Log File      = " + iniFileData.ProcessLogFile);
             Console.WriteLine("CPU Cores             = " + iniFileData.CPUCores + " Cores");
             Console.WriteLine("Execution Limit       = " + iniFileData.ExecutionLimit + " Jobs");
             Console.WriteLine("Start Port            = " + iniFileData.StartPort);
@@ -85,7 +87,7 @@ namespace Status.Services
             {
                 logger.LogError("Log File History status failed to instantiate");
             }
-            status.CheckLogFileHistory(iniFileData.LogFile, iniFileData.LogFileHistory, logger);
+            status.CheckLogFileHistory(iniFileData.StatusLogFile, iniFileData.LogFileHistory, logger);
         }
 
         /// <summary>
@@ -130,7 +132,7 @@ namespace Status.Services
         {
             List<StatusData> statusList = new List<StatusData>();
             StatusEntry status = new StatusEntry();
-            statusList = status.ReadFromCsvFile(iniFileData.LogFile, logger);
+            statusList = status.ReadFromCsvFile(iniFileData.StatusLogFile, logger);
             if (statusList == null)
             {
                 logger.LogError("GetHistoryData statusList failed to instantiate");

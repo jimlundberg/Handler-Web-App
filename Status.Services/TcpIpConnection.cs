@@ -49,7 +49,7 @@ namespace Status.Services
             try
             {
                 // Log Tcp/Ip monitoring entry
-                StatusDataEntry(statusData, monitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START, iniData.LogFile, logger);
+                StatusDataEntry(statusData, monitorData.Job, JobStatus.MONITORING_TCPIP, JobType.TIME_START, iniData.StatusLogFile, logger);
 
                 // Create a TcpClient.
                 // Note, for this client to work you need to have a TcpServer
@@ -135,7 +135,7 @@ namespace Status.Services
                         {
                             Console.WriteLine("Job Timeout for job {0} at {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now);
 
-                            StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, iniData.LogFile, logger);
+                            StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
                             StaticData.tcpIpScanComplete = true;
                             jobComplete = true;
                         }
