@@ -21,8 +21,8 @@ namespace Status.Services
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
         /// <param name="logger"></param>
-        public static void StatusDataEntry(List<StatusData> statusList, String job, JobStatus status, 
-            JobType timeSlot, String logFileName, ILogger<StatusRepository> logger)
+        public static void StatusDataEntry(List<StatusWrapper.StatusData> statusList, string job, JobStatus status, 
+            JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
         {
             StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, logFileName, logger);
             statusData.ListStatus(statusList, job, status, timeSlot);
@@ -38,8 +38,8 @@ namespace Status.Services
         /// <param name="statusData"></param>
         /// <param name="message"></param>
         /// <param name="logger"></param>
-        public void Connect(String server, IniFileData iniData, StatusMonitorData monitorData,
-            List<StatusData> statusData, String message, ILogger<StatusRepository> logger)
+        public void Connect(string server, IniFileData iniData, StatusMonitorData monitorData,
+            List<StatusWrapper.StatusData> statusData, string message, ILogger<StatusRepository> logger)
         {
             // Wait a minute for Modeler to open
             Thread.Sleep(60000);
@@ -86,7 +86,7 @@ namespace Status.Services
                     data = new Byte[256];
 
                     // String to store the response ASCII representation.
-                    String responseData = String.Empty;
+                    string responseData = String.Empty;
 
                     // Read the first batch of the TcpServer response bytes.
                     if (stream.CanRead)
@@ -120,7 +120,7 @@ namespace Status.Services
                             case "Whole process done, socket closed.":
                                Console.WriteLine("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
-                                StaticData.tcpIpScanComplete = true;
+                                StaticData.TcpIpScanComplete = true;
                                 jobComplete = true;
                                 break;
 
@@ -136,7 +136,7 @@ namespace Status.Services
                             Console.WriteLine("Job Timeout for job {0} at {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now);
 
                             StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
-                            StaticData.tcpIpScanComplete = true;
+                            StaticData.TcpIpScanComplete = true;
                             jobComplete = true;
                         }
 

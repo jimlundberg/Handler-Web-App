@@ -23,7 +23,7 @@ namespace ReadWriteCsvFile
     {
         public CsvFileWriter(Stream stream) : base(stream) { }
 
-        public CsvFileWriter(String filename) : base(filename) { }
+        public CsvFileWriter(string filename) : base(filename) { }
 
         /// <summary>
         /// Writes a single row to a CSV file.
@@ -66,7 +66,7 @@ namespace ReadWriteCsvFile
     {
         public CsvFileReader(Stream stream) : base(stream) { }
 
-        public CsvFileReader(String filename) : base(filename) { }
+        public CsvFileReader(string filename) : base(filename) { }
 
         /// <summary>
         /// Reads a row of data from a CSV file
@@ -86,7 +86,7 @@ namespace ReadWriteCsvFile
 
             while (pos < row.LineText.Length)
             {
-                String value;
+                string value;
 
                 // Special handling for quoted field
                 if (row.LineText[pos] == '"')

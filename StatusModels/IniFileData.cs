@@ -7,15 +7,15 @@ namespace StatusModels
     /// </summary>
     public class IniFileData
     {
-        public String IniFileName { get; set; }
-        public String InputDir { get; set; }
-        public String ProcessingDir { get; set; }
-        public String RepositoryDir { get; set; }
-        public String FinishedDir { get; set; }
-        public String ErrorDir { get; set; }
-        public String ModelerRootDir { get; set; }
-        public String StatusLogFile { get; set; }
-        public String ProcessLogFile { get; set; }
+        public string IniFileName { get; set; }
+        public string InputDir { get; set; }
+        public string ProcessingDir { get; set; }
+        public string RepositoryDir { get; set; }
+        public string FinishedDir { get; set; }
+        public string ErrorDir { get; set; }
+        public string ModelerRootDir { get; set; }
+        public string StatusLogFile { get; set; }
+        public string ProcessLogFile { get; set; }
         public int CPUCores { get; set; }
         public int ExecutionLimit { get; set; }
         public int MaxTimeLimit { get; set; }

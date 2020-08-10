@@ -7,8 +7,8 @@ namespace Status.Services
     {
         void GetIniFileData();
         void CheckLogFileHistory();
-        IEnumerable<StatusData> GetHistoryData();
-        IEnumerable<StatusData> GetJobStatus();
+        IEnumerable<StatusWrapper.StatusData> GetHistoryData();
+        IEnumerable<StatusWrapper.StatusData> GetJobStatus();
         void StartMonitorProcess();
         void StopMonitor();
     }

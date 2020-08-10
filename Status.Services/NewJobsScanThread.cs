@@ -13,11 +13,9 @@ namespace Status.Services
     /// </summary>
     public class NewJobsScanThread
     {
-        // State information used in the scanning task
         private static Thread thread;
         private static IniFileData IniData;
-        private static List<StatusData> StatusData;
-        public volatile bool endProcess = false;
+        private static List<StatusWrapper.StatusData> StatusData;
         public static ILogger<StatusRepository> Logger;
 
         /// <summary>
@@ -29,8 +27,22 @@ namespace Status.Services
         {
             // Set Flag for ending directory scan loop
             Console.WriteLine("\nOld Job Scan Completed!");
-            StaticData.oldJobScanComplete = true;
-            ScanForNewJobs(IniData, StatusData, Logger);
+            StaticData.OldJobScanComplete = true;
+            ScanForCurrentNewJobs(IniData, StatusData, Logger);
+        }
+
+        /// <summary>
+        /// Processing complete callback
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public static void newJobDirectoryFound(object sender, EventArgs e)
+        {
+            // Set Flag for ending directory scan loop
+            Console.WriteLine("\new Job Scan Received directories");
+            StaticData.FoundNewJobsReady = true;
+
+            // What the heck next?
         }
 
         /// <summary>
@@ -39,13 +51,13 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public NewJobsScanThread(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public NewJobsScanThread(IniFileData iniData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
             StatusData = statusData;
             Logger = logger;
 
-            // Register with the Old Jobs Event and start its thread
+            // Register with the Old Jobs Processing class event and start its thread
             OldJobsScanThread oldJobs = new OldJobsScanThread(iniData, statusData, logger);
             if (oldJobs == null)
             {
@@ -53,6 +65,16 @@ namespace Status.Services
             }
             oldJobs.ProcessCompleted += oldJob_ProcessCompleted;
             oldJobs.ScanForOldJobs(iniData, statusData, logger);
+
+            // Register with the Directory Watcher class event and start its thread
+            DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(iniData, logger);
+            if (dirWatch == null)
+            {
+                Logger.LogError("NewJobsScanThread dirWatch failed to instantiate");
+            }
+
+            dirWatch.ProcessCompleted += newJobDirectoryFound;
+            dirWatch.WatchDirectory(iniData.InputDir);
         }
 
         /// <summary>
@@ -60,7 +82,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            thread = new Thread(() => ScanForNewJobs(IniData, StatusData, Logger));
+            thread = new Thread(() => ScanForCurrentNewJobs(IniData, StatusData, Logger));
             if (thread == null)
             {
                 Logger.LogError("NewJobScanThread ScanForNewJobs thread failed to instantiate");
@@ -74,15 +96,17 @@ namespace Status.Services
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void ScanForNewJobs(IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public static void ScanForCurrentNewJobs(IniFileData iniFileData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
         {
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
-            List<string> newDirectoryList = new List<string>();
-            if (newDirectoryList == null)
+
+            List<DirectoryInfo> runDirectoryInfoList = new List<DirectoryInfo>();
+            if (runDirectoryInfoList == null)
             {
-                Logger.LogError("ScanForNewJobs newDirectoryList failed to instantiate");
+                Logger.LogError("ScanForNewJobs runDirectoryInfoList failed to instantiate");
             }
-            List<string> runDirectoryList = new List<string>();
+
+            List<String> runDirectoryList = new List<String>();
             if (runDirectoryList == null)
             {
                 Logger.LogError("ScanForNewJobs runDirectoryList failed to instantiate");
@@ -90,38 +114,44 @@ namespace Status.Services
 
             Console.WriteLine("\nScanning for new job(s)...");
 
+            DirectoryInfo runDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
+            runDirectoryInfoList = runDirectoryInfo.EnumerateDirectories().ToList();
+            foreach (var dir in runDirectoryInfoList)
+            {
+                if (!runDirectoryList.Contains(dir.ToString()))
+                {
+                    Console.WriteLine("**********Adding {0} to Run Directory List", dir);
+                    runDirectoryList.Add(dir.ToString());
+                }
+            }
+
+            // Run the directory list found on initial scan of the Input Buffer
+            StartJobs(runDirectoryList, iniFileData, statusData, logger);
+        }
+
+        /// <summary>
+        /// Method to scan for new jobs in the Input Buffer
+        /// </summary>
+        /// <param name="jobList"></param>
+        /// <param name="iniFileData"></param>
+        /// <param name="statusData"></param>
+        /// <param name="logger"></param>
+        public static void StartJobs(List<string> jobList, IniFileData iniFileData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
+        {
             while (true)
             {
-                // Get new directory list
-                var newDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
-                if (newDirectoryInfo == null)
-                {
-                    Logger.LogError("ScanForNewJobs newDirectoryInfo failed to instantiate");
-                }
-
-                var newDirectoryInfoList = newDirectoryInfo.EnumerateDirectories().ToList();
-                newDirectoryList.Clear();
-                foreach (var subdirectory in newDirectoryInfoList)
-                {
-                    newDirectoryList.Add(subdirectory.ToString());
-                }
-                newDirectoryList.Sort();
-
-                // Look for a difference between new and run directory lists
-                if (newDirectoryList != runDirectoryList)
-                {
-                    runDirectoryList = newDirectoryList;
-                }
-
-                for (int i = 0; i < runDirectoryList.Count(); i++)
+                // First run directory jobs found
+                for (int i = 0; i < jobList.Count(); i++)
                 {
                     if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
                     {
+                        Console.WriteLine("**********Executing job {0} index {1}", jobList[i], i);
+
                         // Increment counters to track job execution
                         StaticData.IncrementNumberOfJobsExecuting();
 
                         // Get job name from directory name
-                        String job = runDirectoryList[i].Replace(iniFileData.InputDir, "").Remove(0, 1);
+                        string job = jobList[i].Replace(iniFileData.InputDir, "").Remove(0, 1);
 
                         // Start scan for new directory in the Input Buffer
                         ScanDirectory scanDir = new ScanDirectory();
@@ -129,7 +159,7 @@ namespace Status.Services
                         {
                             Logger.LogError("ScanForNewJobs scanDir failed to instantiate");
                         }
-                        jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job, logger);
+                        StatusModels.JobXmlData jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job, logger);
 
                         // Get data found in Job xml file
                         StatusModels.StatusMonitorData xmlData = new StatusModels.StatusMonitorData();
@@ -177,6 +207,18 @@ namespace Status.Services
                         Thread.Sleep(iniFileData.ScanTime);
                     }
                 }
+
+                // Get new list to see if there are new ones
+                jobList = DirectoryWatcherThread.GetCurrentDirectoryList();
+
+                Console.WriteLine("\nCurrent run Job List:");
+                foreach (string dir in jobList)
+                {
+                    Console.WriteLine(dir);
+                }
+
+                // Sleep between directory scans
+                Thread.Sleep(iniFileData.ScanTime);
             }
         }
     }

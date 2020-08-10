@@ -10,16 +10,16 @@ namespace Status.Services
     /// </summary>
     public class CommandLineGenerator
     {
-        private String Executable = "Executable";
-        private String ProcessingDir = "Processing dir";
-        private String StartPort = "Start Port";
-        private String CpuCores = "Cpu Cores";
+        private string Executable = "Executable";
+        private string ProcessingDir = "Processing dir";
+        private string StartPort = "Start Port";
+        private string CpuCores = "Cpu Cores";
         private ILogger<StatusRepository> Logger;
 
         public CommandLineGenerator() { }
-        public String GetCurrentDirector() { return Directory.GetCurrentDirectory(); }
-        public void SetExecutableFile(String _Executable) { Executable = _Executable; }
-        public void SetRepositoryDir(String _ProcessingDir) { ProcessingDir = "-d " + _ProcessingDir; }
+        public string GetCurrentDirector() { return Directory.GetCurrentDirectory(); }
+        public void SetExecutableFile(string _Executable) { Executable = _Executable; }
+        public void SetRepositoryDir(string _ProcessingDir) { ProcessingDir = "-d " + _ProcessingDir; }
         public void SetStartPort(int _StartPort) { StartPort = "-s " + _StartPort.ToString(); }
         public void SetCpuCores(int _CpuCores) { CpuCores = "-p " + _CpuCores.ToString(); }
         public void SetLogger(ILogger<StatusRepository> logger) { Logger = logger; }
@@ -38,7 +38,7 @@ namespace Status.Services
             Console.WriteLine("{0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
             process.Start();
 
-            String outPut = process.StandardOutput.ReadToEnd();
+            string outPut = process.StandardOutput.ReadToEnd();
             Console.WriteLine(outPut);
 
             process.WaitForExit();

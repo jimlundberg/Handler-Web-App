@@ -13,43 +13,43 @@ namespace Status.Services
     /// </summary>
     public class IniFileHandler
     {
-        String Path;
+        string Path;
         readonly String EXE = Assembly.GetExecutingAssembly().GetName().Name;
 
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
-        static extern long WritePrivateProfileString(String Key, String Section, String Value, String FilePath);
+        static extern long WritePrivateProfileString(string Key, string Section, string Value, string FilePath);
 
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
-        static extern int GetPrivateProfileString(String Key, String Section, String Default, StringBuilder RetVal, int Size, String FilePath);
+        static extern int GetPrivateProfileString(string Key, string Section, string Default, StringBuilder RetVal, int Size, string FilePath);
 
-        public IniFileHandler(String IniPath = null)
+        public IniFileHandler(string IniPath = null)
         {
             Path = new FileInfo(IniPath ?? EXE + ".ini").FullName;
         }
 
-        public String Read(String Section, String Key = null)
+        public string Read(string Section, string Key = null)
         {
             StringBuilder RetVal = new StringBuilder(255);
             int length = GetPrivateProfileString(Section ?? EXE, Key, "", RetVal, 255, Path);
             return RetVal.ToString();
         }
 
-        public void Write(String Key, String Value, String Section = null)
+        public void Write(string Key, string Value, string Section = null)
         {
             WritePrivateProfileString(Section ?? EXE, Key, Value, Path);
         }
 
-        public void DeleteKey(String Key, String Section = null)
+        public void DeleteKey(string Key, string Section = null)
         {
             Write(Key, null, Section ?? EXE);
         }
 
-        public void DeleteSection(String Section = null)
+        public void DeleteSection(string Section = null)
         {
             Write(null, null, Section ?? EXE);
         }
 
-        public bool KeyExists(String Key, String Section = null)
+        public bool KeyExists(string Key, string Section = null)
         {
             return Read(Key, Section).Length > 0;
         }
@@ -60,11 +60,11 @@ namespace Status.Services
     /// </summary>
     public class ScanDirectory
     {
-        public String JobDirectory;
-        public String JobSerialNumber;
-        public String Job;
-        public String TimeStamp;
-        public String XmlFileName;
+        public string JobDirectory;
+        public string JobSerialNumber;
+        public string Job;
+        public string TimeStamp;
+        public string XmlFileName;
         private static Object xmlLock = new Object();
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace Status.Services
         /// <param name="jobDirectory"></param>
         /// <param name="logger"></param>
         /// <returns>JobXmlData</returns>
-        public StatusModels.JobXmlData GetJobXmlData(String job, String jobDirectory, ILogger<StatusRepository> logger)
+        public StatusModels.JobXmlData GetJobXmlData(string job, string jobDirectory, ILogger<StatusRepository> logger)
         {
             StatusModels.JobXmlData jobScanData = new StatusModels.JobXmlData();
             jobScanData.JobDirectory = jobDirectory;

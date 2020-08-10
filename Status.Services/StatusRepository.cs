@@ -17,8 +17,8 @@ namespace Status.Services
         private NewJobsScanThread newJobsScanThread;
         private IniFileData iniFileData = new IniFileData();
         private List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
-        private List<StatusData> statusList = new List<StatusData>();
-        private StatusData statusData = new StatusData();
+        private List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
+        private StatusWrapper.StatusData statusData = new StatusWrapper.StatusData();
         public readonly ILogger<StatusRepository> logger;
 
         public StatusRepository(ILogger<StatusRepository> _logger)
@@ -32,7 +32,7 @@ namespace Status.Services
         public void GetIniFileData()
         {
             // Check that Config.ini file exists
-            String IniFileName = "Config.ini";
+            string IniFileName = "Config.ini";
             if (File.Exists(IniFileName) == false)
             {
                 logger.LogCritical("Missing Config.ini file");
@@ -53,11 +53,11 @@ namespace Status.Services
             iniFileData.StartPort = Int32.Parse(IniParser.Read("Process", "StartPort"));
             iniFileData.StatusLogFile = IniParser.Read("Process", "StatusLogFile");
             iniFileData.ProcessLogFile = IniParser.Read("Process", "ProcessLogFile");
-            String scanTime = IniParser.Read("Process", "ScanTime");
+            string scanTime = IniParser.Read("Process", "ScanTime");
             iniFileData.ScanTime = Int32.Parse(scanTime.Substring(0, scanTime.IndexOf("#")));
-            String timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
+            string timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
             iniFileData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
-            String logFileHistory = IniParser.Read("Process", "LogFileHistory");
+            string logFileHistory = IniParser.Read("Process", "LogFileHistory");
             iniFileData.LogFileHistory = Int32.Parse(logFileHistory.Substring(0, logFileHistory.IndexOf("#")));
 
             Console.WriteLine("\nConfig.ini data found:\n");
@@ -119,7 +119,7 @@ namespace Status.Services
         /// Method to return the status data to the requestor
         /// </summary>
         /// <returns>Status Data List</returns>
-        public IEnumerable<StatusData> GetJobStatus()
+        public IEnumerable<StatusWrapper.StatusData> GetJobStatus()
         {
             return statusList;
         }
@@ -128,9 +128,9 @@ namespace Status.Services
         /// Get csV history data
         /// </summary>
         /// <returns>History Status Data List</returns>
-        public IEnumerable<StatusData> GetHistoryData()
+        public IEnumerable<StatusWrapper.StatusData> GetHistoryData()
         {
-            List<StatusData> statusList = new List<StatusData>();
+            List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
             StatusEntry status = new StatusEntry();
             statusList = status.ReadFromCsvFile(iniFileData.StatusLogFile, logger);
             if (statusList == null)

@@ -4,7 +4,6 @@ using Status.Services;
 using StatusModels;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Handler.Pages
 {
@@ -21,7 +20,7 @@ namespace Handler.Pages
         /// <summary>
         /// status data
         /// </summary>
-        public IEnumerable<StatusData> statusData { get; set; }
+        public IEnumerable<StatusWrapper.StatusData> statusData { get; set; }
 
         /// <summary>
         /// Monitor Data Repository
@@ -52,7 +51,7 @@ namespace Handler.Pages
                 MonitorDataRepository.CheckLogFileHistory();
                 firstTime = false;
             }
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
         }
                 
         /// <summary>
@@ -62,7 +61,7 @@ namespace Handler.Pages
         {
             ViewData["PageName"] = "Home";
             Console.WriteLine("\nHome Button pressed\n");
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
         }
 
         /// <summary>
@@ -73,7 +72,7 @@ namespace Handler.Pages
             ViewData["PageName"] = "Start";
             Console.WriteLine("\nStart Button pressed\n");
             MonitorDataRepository.StartMonitorProcess();
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
         }
 
         /// <summary>
@@ -83,7 +82,7 @@ namespace Handler.Pages
         {
             ViewData["PageName"] = "Refresh";
             Console.WriteLine("\nRefresh Button pressed\n");
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
         }
 
         /// <summary>
@@ -93,7 +92,7 @@ namespace Handler.Pages
         {
             ViewData["PageName"] = "Pause";
             Console.WriteLine("\nPause Button pressed\n");
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
         }
 
         /// <summary>
@@ -113,7 +112,7 @@ namespace Handler.Pages
         {
             ViewData["PageName"] = "History";
             Console.WriteLine("\nHistory Button pressed\n");
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetHistoryData().Reverse();
+            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetHistoryData();
         }
     }
 }

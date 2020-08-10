@@ -18,7 +18,7 @@ namespace Status.Services
         {
             // Set Flag for ending directory scan loop
             Console.WriteLine("Monitor directory received Tcp/Ip Scan Completed!");
-            StaticData.tcpIpScanComplete = true;
+            StaticData.TcpIpScanComplete = true;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Status.Services
         /// <param name="logger"></param>
         /// <returns>Pass/Fail</returns>
         public static bool MonitorDirectory(StatusModels.DirectoryScanType scanType, IniFileData iniData, StatusMonitorData monitorData,
-             List<StatusData> statusData, String monitoredDir, int numberOfFilesNeeded, ILogger<StatusRepository> logger)
+             List<StatusWrapper.StatusData> statusData, string monitoredDir, int numberOfFilesNeeded, ILogger<StatusRepository> logger)
         {
             bool filesFound = false;
 
@@ -52,7 +52,7 @@ namespace Status.Services
             // Scan directory until files found or timeout
             do
             {
-                if (StaticData.tcpIpScanComplete == true)
+                if (StaticData.TcpIpScanComplete == true)
                 {
                     int numberOfFilesFound = Directory.GetFiles(monitoredDir, "*", SearchOption.TopDirectoryOnly).Length;
                     if (numberOfFilesFound >= numberOfFilesNeeded)

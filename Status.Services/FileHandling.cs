@@ -100,7 +100,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="sourceFile"></param>
         /// <param name="targetFile"></param>
-        public static void CopyFile(String sourceFile, String targetFile, ILogger<StatusRepository> logger)
+        public static void CopyFile(string sourceFile, string targetFile, ILogger<StatusRepository> logger)
         {
             FileInfo Source = new FileInfo(sourceFile);
             FileInfo Target = new FileInfo(targetFile);

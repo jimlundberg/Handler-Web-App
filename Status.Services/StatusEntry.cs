@@ -12,11 +12,11 @@ namespace Status.Services
     /// </summary>
     public class StatusEntry
     {
-        List<StatusData> StatusList;
-        readonly String Job;
+        List<StatusWrapper.StatusData> StatusList;
+        readonly string Job;
         readonly JobStatus Status;
         readonly JobType TimeSlot;
-        readonly String LogFileName;
+        readonly string LogFileName;
         private static Object csvLock = new Object();
         ILogger<StatusRepository> Logger;
 
@@ -31,7 +31,7 @@ namespace Status.Services
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
         /// <param name="logger"></param>
-        public StatusEntry(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot, String logFileName, ILogger<StatusRepository> logger)
+        public StatusEntry(List<StatusWrapper.StatusData> statusList, string job, JobStatus status, JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
         {
             StatusList = statusList;
             Job = job;
@@ -48,9 +48,9 @@ namespace Status.Services
         /// <param name="job"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
-        public void ListStatus(List<StatusData> statusList, String job, JobStatus status, JobType timeSlot)
+        public void ListStatus(List<StatusWrapper.StatusData> statusList, string job, JobStatus status, JobType timeSlot)
         {
-            StatusData entry = new StatusData();
+            StatusWrapper.StatusData entry = new StatusWrapper.StatusData();
             if (entry == null)
             {
                 Logger.LogError("StatusEntry entry failed to instantiate");
@@ -87,7 +87,7 @@ namespace Status.Services
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
         /// <param name="logger"></param>
-        public void WriteToCsvFile(String job, JobStatus status, JobType timeSlot, String logFileName, ILogger<StatusRepository> logger)
+        public void WriteToCsvFile(string job, JobStatus status, JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
         {
             lock (csvLock)
             {
@@ -126,7 +126,7 @@ namespace Status.Services
                             break;
                     }
 
-                    String line = string.Format("{0},{1},{2},{3},{4}", job, status.ToString(), timeReceived, timeStarted, timeCompleted);
+                    string line = String.Format("{0},{1},{2},{3},{4}", job, status.ToString(), timeReceived, timeStarted, timeCompleted);
                     writer.WriteLineAsync(line);
                 }
             }
@@ -138,11 +138,11 @@ namespace Status.Services
         /// <param name="logFileName"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        public List<StatusData> ReadFromCsvFile(String logFileName, ILogger<StatusRepository> logger)
+        public List<StatusWrapper.StatusData> ReadFromCsvFile(string logFileName, ILogger<StatusRepository> logger)
         {
             lock (csvLock)
             {
-                List<StatusData> statusDataTable = new List<StatusData>();
+                List<StatusWrapper.StatusData> statusDataTable = new List<StatusWrapper.StatusData>();
                 DateTime timeReceived = DateTime.MinValue;
                 DateTime timeStarted = DateTime.MinValue;
                 DateTime timeCompleted = DateTime.MinValue;
@@ -160,7 +160,7 @@ namespace Status.Services
                         CsvRow rowData = new CsvRow();
                         while (reader.ReadRow(rowData))
                         {
-                            StatusData rowStatusData = new StatusData();
+                            StatusWrapper.StatusData rowStatusData = new StatusWrapper.StatusData();
                             if (rowStatusData == null)
                             {
                                 Logger.LogError("ReadFromCsvFile rowStatusData failed to instantiate");
@@ -169,7 +169,7 @@ namespace Status.Services
 
                             rowStatusData.Job = rowData[0];
 
-                            String jobType = rowData[1];
+                            string jobType = rowData[1];
                             switch (jobType)
                             {
                                 case "JOB_STARTED":
@@ -260,9 +260,9 @@ namespace Status.Services
         /// <param name="logFileHistory"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        public void CheckLogFileHistory(String logFileName, int logFileHistory, ILogger<StatusRepository> logger)
+        public void CheckLogFileHistory(string logFileName, int logFileHistory, ILogger<StatusRepository> logger)
         {
-            List<StatusData> statusDataTable = new List<StatusData>();
+            List<StatusWrapper.StatusData> statusDataTable = new List<StatusWrapper.StatusData>();
 
             if (File.Exists(logFileName) == true)
             {
@@ -283,7 +283,7 @@ namespace Status.Services
 
                     while (reader.ReadRow(rowData))
                     {
-                        StatusData rowStatusData = new StatusData();
+                        StatusWrapper.StatusData rowStatusData = new StatusWrapper.StatusData();
                         if (rowStatusData == null)
                         {
                             Logger.LogError("CheckLogFileHistory rowStatusData failed to instantiate");
@@ -293,7 +293,7 @@ namespace Status.Services
                         bool oldRecord = false;
                         rowStatusData.Job = rowData[0];
 
-                        String jobType = rowData[1];
+                        string jobType = rowData[1];
                         switch (jobType)
                         {
                             case "JOB_STARTED":

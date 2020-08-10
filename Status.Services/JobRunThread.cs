@@ -15,8 +15,8 @@ namespace Status.Services
     {
         private IniFileData IniData;
         private StatusMonitorData MonitorData;
-        private List<StatusData> StatusData;
-        private String DirectoryName;
+        private List<StatusWrapper.StatusData> StatusData;
+        private string DirectoryName;
         private static Object xmlLock = new Object();
         ILogger<StatusRepository> Logger;
 
@@ -28,7 +28,7 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public JobRunThread(String directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public JobRunThread(string directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
             MonitorData = monitorData;
@@ -55,8 +55,8 @@ namespace Status.Services
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
         /// <param name="logger"></param>
-        public static void StatusDataEntry(List<StatusData> statusList, String job, 
-            JobStatus status, JobType timeSlot, String logFileName, ILogger<StatusRepository> logger)
+        public static void StatusDataEntry(List<StatusWrapper.StatusData> statusList, string job, 
+            JobStatus status, JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
         {
             StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, logFileName, logger);
             statusData.ListStatus(statusList, job, status, timeSlot);
@@ -71,8 +71,8 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void RunJob(String scanDirectory, IniFileData iniData, StatusMonitorData monitorData, 
-            List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public static void RunJob(string scanDirectory, IniFileData iniData, StatusMonitorData monitorData, 
+            List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Add initial entry to status list
             StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.StatusLogFile, logger);
@@ -81,10 +81,10 @@ namespace Status.Services
             monitorData.StartTime = DateTime.Now;
 
             // Wait until Xml file is copied to the directory being scanned
-            String job = monitorData.Job;
-            String xmlFileName = scanDirectory + @"\" + job + @"\" + monitorData.XmlFileName;
+            string job = monitorData.Job;
+            string xmlFileName = scanDirectory + @"\" + job + @"\" + monitorData.XmlFileName;
             int NumFilesToTransfer = 0;
-            String TopNode;
+            string TopNode;
             XmlDocument XmlDoc;
             lock (xmlLock)
             {
@@ -143,15 +143,15 @@ namespace Status.Services
             monitorData.transferedFileList = new List<String>();
             for (int i = 1; i < NumFilesToTransfer + 1; i++)
             {
-                String transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
+                string transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
                 XmlNode TransferedFileXml = XmlDoc.DocumentElement.SelectSingleNode(transferFileNodeName);
                 monitorData.transferedFileList.Add(TransferedFileXml.InnerText);
                 Console.WriteLine("Transfer File{0}        = {1}", i, TransferedFileXml.InnerText);
             }
 
             // If the directory is the Input Buffer, move the directory to Processing
-            String InputBufferDir = monitorData.JobDirectory;
-            String ProcessingBufferDir = iniData.ProcessingDir + @"\" + job;
+            string InputBufferDir = monitorData.JobDirectory;
+            string ProcessingBufferDir = iniData.ProcessingDir + @"\" + job;
 
             // If this job comes from the Input directory, run the scan and copy
             if (scanDirectory == iniData.InputDir)
@@ -160,7 +160,7 @@ namespace Status.Services
                 if (Directory.Exists(InputBufferDir))
                 {
                     // Set Tcp/Ip Job Complete flag for Input Directory Monitoring
-                    StaticData.tcpIpScanComplete = true;
+                    StaticData.TcpIpScanComplete = true;
 
                     MonitorDirectoryFiles.MonitorDirectory(StatusModels.DirectoryScanType.INPUT_BUFFER,
                         iniData, monitorData, statusData, InputBufferDir, monitorData.NumFilesConsumed, logger);
@@ -187,7 +187,7 @@ namespace Status.Services
                 return;
             }
 
-            // Load and execute command line generator
+            // Load and execute Modeler using command line generator
             CommandLineGenerator cl = new CommandLineGenerator();
             cl.SetExecutableFile(iniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
             cl.SetRepositoryDir(ProcessingBufferDir);
@@ -212,7 +212,7 @@ namespace Status.Services
             StatusDataEntry(statusData, job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.StatusLogFile, logger);
 
             // Set Tcp/Ip Job Complete flag for ProcessingBuffer Directory Monitoring
-            StaticData.tcpIpScanComplete = false;
+            StaticData.TcpIpScanComplete = false;
 
             // Monitor for complete set of files in the Processing Buffer
             Console.WriteLine("Starting monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}", job, DateTime.Now);
@@ -264,7 +264,7 @@ namespace Status.Services
                 XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
                 if (OverallResult != null)
                 {
-                    String passFail = OverallResult.InnerText;
+                    string passFail = OverallResult.InnerText;
                     if (passFail == "Pass")
                     {
                         // If the Finished directory does not exist, create it
