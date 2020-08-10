@@ -89,14 +89,14 @@ namespace Status.Services
 
             Console.WriteLine("Found unfinished job(s)...");
 
-            for (iint i = 0; i < runDirectoryList.Count(); i++)
+            foreach (var dir in runDirectoryList)
             {
                 if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
                 {
                     // Increment counts to track job execution and port id
                     StaticData.IncrementNumberOfJobsExecuting();
 
-                    string job = runDirectoryList[i].Replace(iniFileData.ProcessingDir, "").Remove(0, 1);
+                    string job = dir.Replace(iniFileData.ProcessingDir, "").Remove(0, 1);
 
                     // Delete the data.xml file if present
                     string dataXmlFile = iniFileData.ProcessingDir + @"\" + job + @"\" + "data.xml";
@@ -163,9 +163,8 @@ namespace Status.Services
                 }
             }
 
-            StaticData.OldJobScanComplete = true;
-
             Console.WriteLine("\nNo more unfinished job(s) Found...");
+            StaticData.OldJobScanComplete = true;
         }
     }
 }

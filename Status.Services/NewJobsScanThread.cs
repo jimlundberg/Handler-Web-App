@@ -36,7 +36,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public static void newJobDirectoryFound(object sender, EventArgs e)
+        public static void newJob_DirectoryFound(object sender, EventArgs e)
         {
             // Set Flag for ending directory scan loop
             Console.WriteLine("\new Job Scan Received directories");
@@ -73,8 +73,8 @@ namespace Status.Services
                 Logger.LogError("NewJobsScanThread dirWatch failed to instantiate");
             }
 
-            dirWatch.ProcessCompleted += newJobDirectoryFound;
-            dirWatch.WatchDirectory(iniData.InputDir);
+            dirWatch.ProcessCompleted += newJob_DirectoryFound;
+            dirWatch.ThreadProc();
         }
 
         /// <summary>
@@ -112,15 +112,16 @@ namespace Status.Services
                 Logger.LogError("ScanForNewJobs runDirectoryList failed to instantiate");
             }
 
-            Console.WriteLine("\nScanning for new job(s)...");
+            Console.WriteLine("\nScanning for unfinished new job(s)...");
 
             DirectoryInfo runDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
             runDirectoryInfoList = runDirectoryInfo.EnumerateDirectories().ToList();
             foreach (var dir in runDirectoryInfoList)
             {
+                Console.WriteLine("\nCurrent run directory List:");
                 if (!runDirectoryList.Contains(dir.ToString()))
                 {
-                    Console.WriteLine("**********Adding {0} to Run Directory List", dir);
+                    Console.WriteLine(dir);
                     runDirectoryList.Add(dir.ToString());
                 }
             }
@@ -141,17 +142,17 @@ namespace Status.Services
             while (true)
             {
                 // First run directory jobs found
-                for (int i = 0; i < jobList.Count(); i++)
+                foreach(var job in jobList)
                 {
                     if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
                     {
-                        Console.WriteLine("**********Executing job {0} index {1}", jobList[i], i);
-
                         // Increment counters to track job execution
                         StaticData.IncrementNumberOfJobsExecuting();
 
+                        Console.WriteLine("**********Processing job {0} index {1}", job, StaticData.NumberOfJobsExecuting);
+
                         // Get job name from directory name
-                        string job = jobList[i].Replace(iniFileData.InputDir, "").Remove(0, 1);
+                        string jobName = job.Replace(iniFileData.InputDir, "").Remove(0, 1);
 
                         // Start scan for new directory in the Input Buffer
                         ScanDirectory scanDir = new ScanDirectory();
@@ -167,7 +168,7 @@ namespace Status.Services
                         {
                             Logger.LogError("ScanForNewJobs data failed to instantiate");
                         }
-                        xmlData.Job = job;
+                        xmlData.Job = jobName;
                         xmlData.JobDirectory = jobXmlData.JobDirectory;
                         xmlData.JobSerialNumber = jobXmlData.JobSerialNumber;
                         xmlData.TimeStamp = jobXmlData.TimeStamp;

@@ -274,11 +274,10 @@ namespace Status.Services
                         }
 
                         // Copy the Transfered files to the Finished directory 
-                        for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
+                        foreach (var file in monitorData.transferedFileList)
                         {
-                            FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
-                                iniData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i],
-                                logger);
+                            FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + file,
+                                iniData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);
                         }
 
                         // Move Processing Buffer Files to the Repository directory when passed
@@ -293,11 +292,10 @@ namespace Status.Services
                         }
 
                         // Copy the Transfered files to the Error directory 
-                        for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
+                        foreach (var file in monitorData.transferedFileList)
                         {
-                            FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
-                                iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i],
-                                logger);
+                                FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + file,
+                                iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);
                         }
 
                         // Move Processing Buffer Files to the Repository directory when failed
@@ -313,11 +311,10 @@ namespace Status.Services
                     }
 
                     // Copy the Transfered files to the Error directory 
-                    for (int i = 0; i < monitorData.NumFilesToTransfer; i++)
+                    foreach (var file in monitorData.transferedFileList)
                     {
-                        FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + monitorData.transferedFileList[i],
-                            iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + monitorData.transferedFileList[i],
-                            logger);
+                        FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + file,
+                        iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);
                     }
 
                     // Move Processing Buffer Files to the Repository directory when failed
