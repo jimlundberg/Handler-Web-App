@@ -12,7 +12,7 @@ namespace StatusModels
 
         public class StatusData
         {
-            public String Job { get; set; }
+            public string Job { get; set; }
 
             public JobStatus? JobStatus { get; set; }
 

@@ -10,12 +10,12 @@ namespace StatusModels
     {
         public string Job { get; set; }
         public int JobIndex { get; set; }
-        public String JobSerialNumber { get; set; }
-        public String TimeStamp { get; set; }
-        public String JobDirectory { get; set; }
-        public String XmlFileName { get; set; }
-        public String UnitNumber { get; set; }
-        public String Modeler { get; set; }
+        public string JobSerialNumber { get; set; }
+        public string TimeStamp { get; set; }
+        public string JobDirectory { get; set; }
+        public string XmlFileName { get; set; }
+        public string UnitNumber { get; set; }
+        public string Modeler { get; set; }
         public int JobPortNumber { get; set; }
         public int NumFilesConsumed { get; set; }
         public int NumFilesProduced { get; set; }

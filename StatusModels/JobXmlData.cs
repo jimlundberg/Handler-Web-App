@@ -4,10 +4,10 @@ namespace StatusModels
 {
     public class JobXmlData
     {
-        public String Job { get; set; }
-        public String JobDirectory { get; set; }
-        public String JobSerialNumber { get; set; }
-        public String TimeStamp { get; set; }
-        public String XmlFileName { get; set; }
+        public string Job { get; set; }
+        public string JobDirectory { get; set; }
+        public string JobSerialNumber { get; set; }
+        public string TimeStamp { get; set; }
+        public string XmlFileName { get; set; }
     }
 }

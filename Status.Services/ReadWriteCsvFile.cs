@@ -13,7 +13,7 @@ namespace ReadWriteCsvFile
     /// </summary>
     public class CsvRow : List<String>
     {
-        public String LineText { get; set; }
+        public string LineText { get; set; }
     }
 
     /// <summary>
@@ -34,7 +34,7 @@ namespace ReadWriteCsvFile
             StringBuilder builder = new StringBuilder();
 
             bool firstColumn = true;
-            foreach (String value in row)
+            foreach (string value in row)
             {
                 // Add separator if this isn't the first value
                 if (!firstColumn)

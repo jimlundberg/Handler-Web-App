@@ -81,7 +81,7 @@ namespace Status.Services
         /// Access method to get the current directory list
         /// </summary>
         /// <returns></returns>
-        public static List<string> GetCurrentDirectoryList()
+        public static List<String> GetCurrentDirectoryList()
         {
             return directoryInfoList;
         }

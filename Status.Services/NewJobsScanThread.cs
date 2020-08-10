@@ -118,12 +118,17 @@ namespace Status.Services
             runDirectoryInfoList = runDirectoryInfo.EnumerateDirectories().ToList();
             foreach (var dir in runDirectoryInfoList)
             {
-                Console.WriteLine("\nCurrent run directory List:");
                 if (!runDirectoryList.Contains(dir.ToString()))
                 {
-                    Console.WriteLine(dir);
                     runDirectoryList.Add(dir.ToString());
                 }
+            }
+
+            // Debugging only
+            Console.WriteLine("\nCurrent run directory List:");
+            foreach (var dir in runDirectoryList)
+            {
+                Console.WriteLine(dir);
             }
 
             // Run the directory list found on initial scan of the Input Buffer
@@ -131,28 +136,28 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Method to scan for new jobs in the Input Buffer
+        /// Method to start new jobs from the Input Buffer
         /// </summary>
         /// <param name="jobList"></param>
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void StartJobs(List<string> jobList, IniFileData iniFileData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
+        public static void StartJobs(List<String> jobList, IniFileData iniFileData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
         {
             while (true)
             {
                 // First run directory jobs found
-                foreach(var job in jobList)
+                foreach (var dir in jobList)
                 {
                     if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
                     {
                         // Increment counters to track job execution
                         StaticData.IncrementNumberOfJobsExecuting();
 
-                        Console.WriteLine("**********Processing job {0} index {1}", job, StaticData.NumberOfJobsExecuting);
-
                         // Get job name from directory name
-                        string jobName = job.Replace(iniFileData.InputDir, "").Remove(0, 1);
+                        string job = dir.Replace(iniFileData.InputDir, "").Remove(0, 1);
+
+                        Console.WriteLine("**********Processing job {0} index {1}", job, StaticData.NumberOfJobsExecuting);
 
                         // Start scan for new directory in the Input Buffer
                         ScanDirectory scanDir = new ScanDirectory();
@@ -168,7 +173,7 @@ namespace Status.Services
                         {
                             Logger.LogError("ScanForNewJobs data failed to instantiate");
                         }
-                        xmlData.Job = jobName;
+                        xmlData.Job = job;
                         xmlData.JobDirectory = jobXmlData.JobDirectory;
                         xmlData.JobSerialNumber = jobXmlData.JobSerialNumber;
                         xmlData.TimeStamp = jobXmlData.TimeStamp;
@@ -197,7 +202,7 @@ namespace Status.Services
                         // Cieck if the shutdown flag is set, exit method
                         if (StaticData.ShutdownFlag == true)
                         {
-                            logger.LogInformation("Shutdown ScanForNewJobs job {0}", xmlData.Job);
+                            logger.LogInformation("Shutdown ScanForNewJobs job {0}", job);
                             return;
                         }
 
