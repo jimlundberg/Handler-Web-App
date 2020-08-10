@@ -29,13 +29,91 @@ namespace Handler.Pages
         private readonly IStatusRepository MonitorDataRepository;
         private static bool firstTime = true;
 
-        public enum ButtonPress { Home = 1, Start = 2, Refresh = 3, Pause = 4, Stop = 5, History = 6 };
-        public enum ButtonState { Primary = 1, SecondaryOn = 2, SecondaryOff = 3 };
+        /// <summary>
+        /// Button Press
+        /// </summary>
+        public enum ButtonPress
+        {
+            /// <summary>
+            /// Home
+            /// </summary>
+            Home = 1, 
+
+            /// <summary>
+            /// Start
+            /// </summary>
+            Start = 2,
+            
+            /// <summary>
+            /// Refresh
+            /// </summary>
+            Refresh = 3,
+
+            /// <summary>
+            /// Pause
+            /// </summary>
+            Pause = 4, 
+
+            /// <summary>
+            /// Stop
+            /// </summary>
+            Stop = 5, 
+
+            /// <summary>
+            /// History
+            /// </summary>
+            History = 6 
+        };
+
+        /// <summary>
+        /// Button State
+        /// </summary>
+        public enum ButtonState 
+        {
+            /// <summary>
+            /// Primary
+            /// </summary>
+            Primary = 1, 
+
+            /// <summary>
+            /// Secondary On
+            /// </summary>
+            SecondaryOn = 2, 
+
+            /// <summary>
+            /// Secondary Off
+            /// </summary>
+            SecondaryOff = 3 
+        };
+
+        /// <summary>
+        /// Button State Home
+        /// </summary>
         public ButtonState bsHome { get; set; }
+
+        /// <summary>
+        /// Button State Start
+        /// </summary>
         public ButtonState bsStart { get; set; }
+
+        /// <summary>
+        /// Button State bsRefresh
+        /// </summary>
         public ButtonState bsRefresh { get; set; }
+
+        /// <summary>
+        /// Button State Pause
+        /// </summary>
         public ButtonState bsPause { get; set; }
+
+        /// <summary>
+        /// Button State Stop
+        /// </summary>
         public ButtonState bsStop { get; set; }
+
+        /// <summary>
+        /// Button State History
+        /// </summary>
         public ButtonState bsHistory { get; set; }
 
         /// <summary>
@@ -77,6 +155,7 @@ namespace Handler.Pages
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
+
                 case ButtonPress.Start:
                     ViewData["PageName"] = "Start";
                     ViewData["bsHome"] = bsSecondaryOn;
@@ -87,6 +166,7 @@ namespace Handler.Pages
                     ViewData["bsHistory"] = bsSecondaryOn;
                     ViewData["bsStartDisabled"] = bsDisabled;
                     break;
+
                 case ButtonPress.Stop:
                     ViewData["PageName"] = "Stop";
                     ViewData["bsHome"] = bsPrimary;
@@ -99,6 +179,7 @@ namespace Handler.Pages
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
+
                 case ButtonPress.Pause:
                     ViewData["PageName"] = "Pause";
                     ViewData["bsHome"] = bsPrimary; 
@@ -111,6 +192,7 @@ namespace Handler.Pages
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
+
                 case ButtonPress.Refresh:
                     ViewData["PageName"] = "Refresh";
                     ViewData["bsHome"] = bsPrimary; 
@@ -120,6 +202,7 @@ namespace Handler.Pages
                     ViewData["bsStop"] = bsPrimary; 
                     ViewData["bsHistory"] = bsPrimary; 
                     break;
+
                 case ButtonPress.History:
                     ViewData["PageName"] = "History";
                     ViewData["bsHome"] = bsPrimary; 
@@ -132,6 +215,7 @@ namespace Handler.Pages
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
+
                 default:
                     ViewData["PageName"] = "Home";                    
                     break;
@@ -155,7 +239,7 @@ namespace Handler.Pages
                 SetButtonState(ButtonPress.Start);
                 MonitorDataRepository.CheckLogFileHistory();
             }
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus();
+            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
                 
         /// <summary>
@@ -164,7 +248,7 @@ namespace Handler.Pages
         public void OnPostHomeButton()
         {
             SetButtonState(ButtonPress.Home);
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus();
+            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 
         /// <summary>
@@ -174,7 +258,7 @@ namespace Handler.Pages
         {
             SetButtonState(ButtonPress.Start);
             MonitorDataRepository.StartMonitorProcess();
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus();
+            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 
         /// <summary>
@@ -183,7 +267,7 @@ namespace Handler.Pages
         public void OnPostRefreshButton()
         {
             SetButtonState(ButtonPress.Refresh);
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus();
+            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 
         /// <summary>
@@ -192,7 +276,7 @@ namespace Handler.Pages
         public void OnPostPauseButton()
         {
             SetButtonState(ButtonPress.Pause);
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus();
+            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 
         /// <summary>
@@ -210,7 +294,7 @@ namespace Handler.Pages
         public void OnPostHistoryButton()
         {
             SetButtonState(ButtonPress.History);
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetHistoryData();
+            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetHistoryData().Reverse();
         }
     }
 }
