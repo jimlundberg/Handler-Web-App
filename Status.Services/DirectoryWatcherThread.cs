@@ -64,7 +64,8 @@ namespace Status.Services
         public static void OnChanged(object source, FileSystemEventArgs e)
         {
             // Directory Added (or changed???)
-            // Console.WriteLine($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
+            // StaticData.Log(IniData.ProcessLogFile,
+            // ($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
 
             // Run the job
             NewJobsScanThread.StartJob(e.FullPath, IniData, StatusData, Logger);
@@ -78,7 +79,8 @@ namespace Status.Services
         public static void OnDeleted(object source, FileSystemEventArgs e)
         {
             // Specify what is done when a directory is deleted.
-            //Console.WriteLine($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
+            // StaticData.Log(IniData.ProcessLogFile,
+            // ($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
         }
 
         /// <summary>
@@ -120,8 +122,9 @@ namespace Status.Services
                        (StaticData.ShutdownFlag == false));
 
                 // Exiting thread message
-                Console.WriteLine("Exiting DirectoryWatcherThread with ExitDirectoryScan {0} and ShutdownFlag {1}",
-                    StaticData.ExitDirectoryScan, StaticData.ShutdownFlag);
+                StaticData.Log(IniData.ProcessLogFile, 
+                    String.Format("Exiting DirectoryWatcherThread with ExitDirectoryScan {0} and ShutdownFlag {1}",
+                    StaticData.ExitDirectoryScan, StaticData.ShutdownFlag));
             }
         }
     }

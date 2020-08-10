@@ -82,12 +82,12 @@ namespace Status.Services
             // Look for a difference between new and run directory lists
             if (runDirectoryList.Count() == 0)
             {
-                Console.WriteLine("\nNo unfinished job(s) Found...");
+                StaticData.Log(IniData.ProcessLogFile, "\nNo unfinished job(s) Found...");
                 StaticData.OldJobScanComplete = true;
                 return;
             }
 
-            Console.WriteLine("Found unfinished job(s)...");
+            StaticData.Log(IniData.ProcessLogFile, "Found unfinished job(s)...");
 
             foreach (var dir in runDirectoryList)
             {
@@ -131,14 +131,16 @@ namespace Status.Services
                     xmlData.JobIndex = StaticData.RunningJobsIndex++;
 
                     // Display Monitor Data found
-                    Console.WriteLine("");
-                    Console.WriteLine("Found unfinished Job  = " + xmlData.Job);
-                    Console.WriteLine("Old Job Directory     = " + xmlData.JobDirectory);
-                    Console.WriteLine("Old Serial Number     = " + xmlData.JobSerialNumber);
-                    Console.WriteLine("Old Time Stamp        = " + xmlData.TimeStamp);
-                    Console.WriteLine("Old Job Xml File      = " + xmlData.XmlFileName);
-                    Console.WriteLine("Old Job {0} Executing slot {1}", xmlData.Job, StaticData.NumberOfJobsExecuting);
-                    Console.WriteLine("Starting Job " + xmlData.Job);
+                    StaticData.Log(iniFileData.ProcessLogFile, "");
+                    StaticData.Log(iniFileData.ProcessLogFile, "Found unfinished Job  = " + xmlData.Job);
+                    StaticData.Log(iniFileData.ProcessLogFile, "Old Job Directory     = " + xmlData.JobDirectory);
+                    StaticData.Log(iniFileData.ProcessLogFile, "Old Serial Number     = " + xmlData.JobSerialNumber);
+                    StaticData.Log(iniFileData.ProcessLogFile, "Old Time Stamp        = " + xmlData.TimeStamp);
+                    StaticData.Log(iniFileData.ProcessLogFile, "Old Job Xml File      = " + xmlData.XmlFileName);
+                    StaticData.Log(iniFileData.ProcessLogFile, 
+                        String.Format("Old Job {0} Executing slot {1}", 
+                        xmlData.Job, StaticData.NumberOfJobsExecuting));
+                    StaticData.Log(iniFileData.ProcessLogFile, "Starting Job " + xmlData.Job);
 
                     // Create a thread to execute the task, and then start the thread.
                     JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, iniFileData, xmlData, statusData, logger);
@@ -163,7 +165,7 @@ namespace Status.Services
                 }
             }
 
-            Console.WriteLine("\nNo more unfinished job(s) Found...");
+            StaticData.Log(IniData.ProcessLogFile, "\nNo more unfinished job(s) Found...");
             StaticData.OldJobScanComplete = true;
         }
     }

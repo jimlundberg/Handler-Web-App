@@ -1,4 +1,6 @@
-﻿namespace Status.Services
+﻿using System;
+
+namespace Status.Services
 {
     public static class StaticData
     {
@@ -9,6 +11,13 @@
         public static volatile bool OldJobScanComplete = false;
         public static volatile bool ExitDirectoryScan = false;
         public static volatile bool FoundNewJobsReady = false;
+
+        public static void Log(string logFile, string msg)
+        {
+            LoggingToFile log = new LoggingToFile(logFile);
+            log.WriteToLogFile(msg);
+            Console.WriteLine(msg);
+        }
 
         public static void IncrementNumberOfJobsExecuting()
         {

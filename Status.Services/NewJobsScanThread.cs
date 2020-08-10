@@ -39,7 +39,7 @@ namespace Status.Services
         public static void newJob_DirectoryFound(object sender, EventArgs e)
         {
             // Set Flag for ending directory scan loop
-            Console.WriteLine("\new Job Scan Received directories");
+            StaticData.Log(IniData.ProcessLogFile, "\new Job Scan Received directories");
             StaticData.FoundNewJobsReady = true;
 
             // What the heck next?
@@ -124,7 +124,7 @@ namespace Status.Services
             runDirectoryInfoList = runDirectoryInfo.EnumerateDirectories().ToList();
             if (runDirectoryInfoList.Count > 0)
             {
-                Console.WriteLine("\nProcesssing unfinished new job(s)...");
+                StaticData.Log(IniData.ProcessLogFile, "\nProcesssing unfinished new job(s)...");
             }
 
             foreach (var dir in runDirectoryInfoList)
@@ -151,8 +151,9 @@ namespace Status.Services
                 // Get job name from directory name
                 string job = jobDirectory.Replace(iniFileData.InputDir, "").Remove(0, 1);
 
-                Console.WriteLine("Starting job {0} index {1} at {2:HH:mm:ss.fff}", 
-                    job, StaticData.NumberOfJobsExecuting, DateTime.Now);
+                string logFile = iniFileData.ProcessLogFile;
+                StaticData.Log(logFile, String.Format("Starting job {0} index {1} at {2:HH:mm:ss.fff}", 
+                    job, StaticData.NumberOfJobsExecuting, DateTime.Now));
 
                 // Start scan for new directory in the Input Buffer
                 ScanDirectory scanDir = new ScanDirectory();
@@ -176,15 +177,15 @@ namespace Status.Services
                 xmlData.JobIndex = StaticData.RunningJobsIndex++;
 
                 // Display xmlData found
-                Console.WriteLine("");
-                Console.WriteLine("Found new Job         = " + xmlData.Job);
-                Console.WriteLine("New Job Directory     = " + xmlData.JobDirectory);
-                Console.WriteLine("New Serial Number     = " + xmlData.JobSerialNumber);
-                Console.WriteLine("New Time Stamp        = " + xmlData.TimeStamp);
-                Console.WriteLine("New Job Xml File      = " + xmlData.XmlFileName);
+                StaticData.Log(logFile, "");
+                StaticData.Log(logFile, "Found new Job         = " + xmlData.Job);
+                StaticData.Log(logFile, "New Job Directory     = " + xmlData.JobDirectory);
+                StaticData.Log(logFile, "New Serial Number     = " + xmlData.JobSerialNumber);
+                StaticData.Log(logFile, "New Time Stamp        = " + xmlData.TimeStamp);
+                StaticData.Log(logFile, "New Job Xml File      = " + xmlData.XmlFileName);
 
-                Console.WriteLine("Job {0} started executing slot {1} at {2:HH:mm:ss.fff}", 
-                    xmlData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now);
+                StaticData.Log(logFile, String.Format("Job {0} started executing slot {1} at {2:HH:mm:ss.fff}", 
+                    xmlData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now));
 
                 // Create a thread to execute the task, and then start the thread.
                 JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, xmlData, statusData, logger);

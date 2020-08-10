@@ -60,21 +60,22 @@ namespace Status.Services
             string logFileHistory = IniParser.Read("Process", "LogFileHistory");
             iniFileData.LogFileHistory = Int32.Parse(logFileHistory.Substring(0, logFileHistory.IndexOf("#")));
 
-            Console.WriteLine("\nConfig.ini data found:\n");
-            Console.WriteLine("Input Dir             = " + iniFileData.InputDir);
-            Console.WriteLine("Processing Dir        = " + iniFileData.ProcessingDir);
-            Console.WriteLine("Repository Dir        = " + iniFileData.RepositoryDir);
-            Console.WriteLine("Finished Dir          = " + iniFileData.FinishedDir);
-            Console.WriteLine("Error Dir             = " + iniFileData.ErrorDir);
-            Console.WriteLine("Modeler Root Dir      = " + iniFileData.ModelerRootDir);
-            Console.WriteLine("Status Log File       = " + iniFileData.StatusLogFile);
-            Console.WriteLine("Process Log File      = " + iniFileData.ProcessLogFile);
-            Console.WriteLine("CPU Cores             = " + iniFileData.CPUCores + " Cores");
-            Console.WriteLine("Execution Limit       = " + iniFileData.ExecutionLimit + " Jobs");
-            Console.WriteLine("Start Port            = " + iniFileData.StartPort);
-            Console.WriteLine("Scan Time             = " + iniFileData.ScanTime + " Miliseconds");
-            Console.WriteLine("Max Time Limit        = " + iniFileData.MaxTimeLimit + " Seconds");
-            Console.WriteLine("Log File History      = " + iniFileData.LogFileHistory + " Days");
+            string logFile = iniFileData.ProcessLogFile;
+            StaticData.Log(logFile, "\nConfig.ini data found:\n");
+            StaticData.Log(logFile, "Input Dir             = " + iniFileData.InputDir);
+            StaticData.Log(logFile, "Processing Dir        = " + iniFileData.ProcessingDir);
+            StaticData.Log(logFile, "Repository Dir        = " + iniFileData.RepositoryDir);
+            StaticData.Log(logFile, "Finished Dir          = " + iniFileData.FinishedDir);
+            StaticData.Log(logFile, "Error Dir             = " + iniFileData.ErrorDir);
+            StaticData.Log(logFile, "Modeler Root Dir      = " + iniFileData.ModelerRootDir);
+            StaticData.Log(logFile, "Status Log File       = " + iniFileData.StatusLogFile);
+            StaticData.Log(logFile, "Process Log File      = " + iniFileData.ProcessLogFile);
+            StaticData.Log(logFile, "CPU Cores             = " + iniFileData.CPUCores + " Cores");
+            StaticData.Log(logFile, "Execution Limit       = " + iniFileData.ExecutionLimit + " Jobs");
+            StaticData.Log(logFile, "Start Port            = " + iniFileData.StartPort);
+            StaticData.Log(logFile, "Scan Time             = " + iniFileData.ScanTime + " Miliseconds");
+            StaticData.Log(logFile, "Max Time Limit        = " + iniFileData.MaxTimeLimit + " Seconds");
+            StaticData.Log(logFile, "Log File History      = " + iniFileData.LogFileHistory + " Days");
         }
 
         /// <summary>
@@ -132,7 +133,7 @@ namespace Status.Services
         {
             List<StatusData> statusList = new List<StatusData>();
             StatusEntry status = new StatusEntry();
-            statusList = status.ReadFromCsvFile(iniFileData.StatusLogFile, logger);
+            statusList = status.ReadFromCsvFile(iniFileData.StatusLogFile, iniFileData, logger);
             if (statusList == null)
             {
                 logger.LogError("GetHistoryData statusList failed to instantiate");

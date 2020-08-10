@@ -90,7 +90,8 @@ namespace Status.Services
             }
 
             statusList.Add(entry);
-            Console.WriteLine("Status: Job:{0} Job Status:{1}", job, status);
+            StaticData.Log(IniData.ProcessLogFile, 
+                String.Format("Status: Job:{0} Job Status:{1}", job, status));
         }
 
         /// <summary>

@@ -34,7 +34,6 @@ namespace Status.Services
              List<StatusData> statusData, string monitoredDir, int numberOfFilesNeeded, ILogger<StatusRepository> logger)
         {
             bool filesFound = false;
-
             Logger = logger;
 
             if (scanType == StatusModels.DirectoryScanType.PROCESSING_BUFFER)
@@ -57,8 +56,8 @@ namespace Status.Services
                     int numberOfFilesFound = Directory.GetFiles(monitoredDir, "*", SearchOption.TopDirectoryOnly).Length;
                     if (numberOfFilesFound >= numberOfFilesNeeded)
                     {
-                        Console.WriteLine("Recieved {0} of {1} files in {2}",
-                            numberOfFilesFound, numberOfFilesNeeded, monitoredDir);
+                        StaticData.Log(iniData.ProcessLogFile, String.Format("Recieved {0} of {1} files in {2}",
+                            numberOfFilesFound, numberOfFilesNeeded, monitoredDir));
                         return true;
                     }
 

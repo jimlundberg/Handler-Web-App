@@ -48,7 +48,7 @@ namespace Status.Services
         /// <param name="job"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
-        public void ListStatus(List<StatusData> statusList, string job, JobStatus status, JobType timeSlot)
+        public void ListStatus(IniFileData iniData, List<StatusData> statusList, string job, JobStatus status, JobType timeSlot)
         {
             StatusData entry = new StatusData();
             if (entry == null)
@@ -76,7 +76,9 @@ namespace Status.Services
             // Add entry to status data list
             statusList.Add(entry);
 
-            Console.WriteLine("Status: Job:{0} Job Status:{1} Time Type:{2}", job, status, timeSlot.ToString());
+            StaticData.Log(iniData.ProcessLogFile,
+                String.Format("Status: Job:{0} Job Status:{1} Time Type:{2}",
+                job, status, timeSlot.ToString()));
         }
 
         /// <summary>
@@ -87,7 +89,8 @@ namespace Status.Services
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
         /// <param name="logger"></param>
-        public void WriteToCsvFile(string job, JobStatus status, JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
+        public void WriteToCsvFile(string job, IniFileData iniData, JobStatus status,
+            JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
         {
             lock (csvLock)
             {
@@ -138,7 +141,7 @@ namespace Status.Services
         /// <param name="logFileName"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        public List<StatusData> ReadFromCsvFile(string logFileName, ILogger<StatusRepository> logger)
+        public List<StatusData> ReadFromCsvFile(string logFileName, IniFileData iniData, ILogger<StatusRepository> logger)
         {
             List<StatusData> statusDataTable = new List<StatusData>();
             DateTime timeReceived = DateTime.MinValue;
@@ -241,7 +244,8 @@ namespace Status.Services
                             // If the shutdown flag is set, exit method
                             if (StaticData.ShutdownFlag == true)
                             {
-                                logger.LogInformation("Shutdown ReadFromCsvFile job {0} row {1}", rowStatusData.Job, rowStatusData);
+                                StaticData.Log(iniData.ProcessLogFile, 
+                                    String.Format("Shutdown ReadFromCsvFile job {0} row {1}", rowStatusData.Job, rowStatusData));
                                 return statusDataTable;
                             }
                         }

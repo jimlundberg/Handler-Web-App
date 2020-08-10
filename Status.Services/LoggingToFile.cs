@@ -6,6 +6,7 @@ namespace Status.Services
     class LoggingToFile
     {
         string LogFileName;
+        private static Object fileLock = new Object();
 
         /// <summary>
         /// Logging to File Constructor
@@ -22,9 +23,12 @@ namespace Status.Services
         /// <param name="text"></param>
         public void WriteToLogFile(string text)
         {
-            using (StreamWriter writer = File.AppendText(LogFileName))
+            lock (fileLock)
             {
-                Log(text, writer);
+                using (StreamWriter writer = File.AppendText(LogFileName))
+                {
+                    Log(text, writer);
+                }
             }
         }
 
@@ -34,9 +38,12 @@ namespace Status.Services
         /// <returns>string read from log file</returns>
         public string ReadFromLogFile()
         {
-            using (StreamReader reader = File.OpenText(LogFileName))
+            lock (fileLock)
             {
-                return(reader.ToString());
+                using (StreamReader reader = File.OpenText(LogFileName))
+                {
+                    return (reader.ToString());
+                }
             }
         }
 
@@ -47,7 +54,10 @@ namespace Status.Services
         /// <param name="writer"></param>
         public static void Log(string logMessage, TextWriter writer)
         {
-            writer.WriteLine(logMessage);
+            lock (fileLock)
+            {
+                writer.WriteLine(logMessage);
+            }
         }
 
         /// <summary>
