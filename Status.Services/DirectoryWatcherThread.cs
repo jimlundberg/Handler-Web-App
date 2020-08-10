@@ -61,7 +61,7 @@ namespace Status.Services
         public static void OnChanged(object source, FileSystemEventArgs e)
         {
             // Directory Added (or changed???)
-            Console.WriteLine($"Directory: {e.FullPath} {e.ChangeType}");
+            Console.WriteLine($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
             directoryInfoList.Add(e.FullPath);
         }
 
@@ -73,7 +73,7 @@ namespace Status.Services
         public static void OnDeleted(object source, FileSystemEventArgs e)
         {
             // Specify what is done when a directory is deleted.
-            Console.WriteLine($"Directory: {e.FullPath} {e.ChangeType}");
+            Console.WriteLine($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
             directoryInfoList.Remove(e.FullPath);
         }
 
