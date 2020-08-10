@@ -14,7 +14,7 @@ namespace Status.Services
         // State information used in the task.
         public static IniFileData IniData;
         public static StatusMonitorData MonitorData;
-        public static List<StatusWrapper.StatusData> StatusData;
+        public static List<StatusData> StatusData;
         private static Thread tcpIpthread;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
@@ -26,7 +26,7 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public void StartTcpIpScanProcess(IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
+        public void StartTcpIpScanProcess(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             Logger = logger;
 
@@ -47,7 +47,7 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public JobTcpIpThread(IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
+        public JobTcpIpThread(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
             MonitorData = monitorData;
@@ -69,9 +69,9 @@ namespace Status.Services
         /// <param name="job"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
-        public static void StatusEntry(List<StatusWrapper.StatusData> statusList, string job, JobStatus status, JobType timeSlot)
+        public static void StatusEntry(List<StatusData> statusList, string job, JobStatus status, JobType timeSlot)
         {
-            StatusWrapper.StatusData entry = new StatusWrapper.StatusData();
+            StatusData entry = new StatusData();
             entry.Job = job;
             entry.JobStatus = status;
             switch (timeSlot)

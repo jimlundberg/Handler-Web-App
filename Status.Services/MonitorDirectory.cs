@@ -31,7 +31,7 @@ namespace Status.Services
         /// <param name="logger"></param>
         /// <returns>Pass/Fail</returns>
         public static bool MonitorDirectory(StatusModels.DirectoryScanType scanType, IniFileData iniData, StatusMonitorData monitorData,
-             List<StatusWrapper.StatusData> statusData, string monitoredDir, int numberOfFilesNeeded, ILogger<StatusRepository> logger)
+             List<StatusData> statusData, string monitoredDir, int numberOfFilesNeeded, ILogger<StatusRepository> logger)
         {
             bool filesFound = false;
 

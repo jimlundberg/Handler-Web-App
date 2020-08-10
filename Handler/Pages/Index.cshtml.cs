@@ -21,7 +21,7 @@ namespace Handler.Pages
         /// <summary>
         /// status data
         /// </summary>
-        public IEnumerable<StatusWrapper.StatusData> statusData { get; set; }
+        public IEnumerable<StatusData> statusData { get; set; }
 
         /// <summary>
         /// Monitor Data Repository
@@ -153,10 +153,9 @@ namespace Handler.Pages
             else
             {
                 SetButtonState(ButtonPress.Start);
-                MonitorDataRepository.GetIniFileData();
                 MonitorDataRepository.CheckLogFileHistory();
             }
-            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
+            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus();
         }
                 
         /// <summary>
@@ -165,7 +164,7 @@ namespace Handler.Pages
         public void OnPostHomeButton()
         {
             SetButtonState(ButtonPress.Home);
-            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
+            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus();
         }
 
         /// <summary>
@@ -175,7 +174,7 @@ namespace Handler.Pages
         {
             SetButtonState(ButtonPress.Start);
             MonitorDataRepository.StartMonitorProcess();
-            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
+            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus();
         }
 
         /// <summary>
@@ -184,7 +183,7 @@ namespace Handler.Pages
         public void OnPostRefreshButton()
         {
             SetButtonState(ButtonPress.Refresh);
-            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
+            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus();
         }
 
         /// <summary>
@@ -193,7 +192,7 @@ namespace Handler.Pages
         public void OnPostPauseButton()
         {
             SetButtonState(ButtonPress.Pause);
-            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
+            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus();
         }
 
         /// <summary>
@@ -211,7 +210,7 @@ namespace Handler.Pages
         public void OnPostHistoryButton()
         {
             SetButtonState(ButtonPress.History);
-            statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetHistoryData();
+            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetHistoryData();
         }
     }
 }

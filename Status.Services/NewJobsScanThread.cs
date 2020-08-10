@@ -15,7 +15,7 @@ namespace Status.Services
     {
         private static Thread thread;
         public static IniFileData IniData;
-        public static List<StatusWrapper.StatusData> StatusData;
+        public static List<StatusData> StatusData;
         public static ILogger<StatusRepository> Logger;
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public NewJobsScanThread(IniFileData iniData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
+        public NewJobsScanThread(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
             StatusData = statusData;
@@ -96,9 +96,13 @@ namespace Status.Services
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void ScanForCurrentNewJobs(IniFileData iniFileData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
+        public static void ScanForCurrentNewJobs(IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
+            if (jobXmlData == null)
+            {
+                Logger.LogError("ScanForCurrentNewJobs jobXmlDatafailed failed to instantiate");
+            }
 
             List<DirectoryInfo> runDirectoryInfoList = new List<DirectoryInfo>();
             if (runDirectoryInfoList == null)
@@ -112,10 +116,17 @@ namespace Status.Services
                 Logger.LogError("ScanForNewJobs runDirectoryList failed to instantiate");
             }
 
-            Console.WriteLine("\nScanning for unfinished new job(s)...");
-
             DirectoryInfo runDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
+            if (runDirectoryInfo == null)
+            {
+                Logger.LogError("ScanForNewJobs runDirectoryInfo failed to instantiate");
+            }
             runDirectoryInfoList = runDirectoryInfo.EnumerateDirectories().ToList();
+            if (runDirectoryInfoList.Count > 0)
+            {
+                Console.WriteLine("\nProcesssing unfinished new job(s)...");
+            }
+
             foreach (var dir in runDirectoryInfoList)
             {
                 // Run the directory list found on initial scan of the Input Buffer
@@ -130,7 +141,7 @@ namespace Status.Services
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void StartJob(string jobDirectory, IniFileData iniFileData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
+        public static void StartJob(string jobDirectory, IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
             {

@@ -14,7 +14,7 @@ namespace Status.Services
     public class OldJobsScanThread
     {
         private IniFileData IniData;
-        private List<StatusWrapper.StatusData> StatusData;
+        private List<StatusData> StatusData;
         private static Thread thread;
         public event EventHandler ProcessCompleted;
         private static Object delLock = new Object();
@@ -26,7 +26,7 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public OldJobsScanThread(IniFileData iniData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
+        public OldJobsScanThread(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
             StatusData = statusData;
@@ -57,7 +57,7 @@ namespace Status.Services
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public void ScanForOldJobs(IniFileData iniFileData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
+        public void ScanForOldJobs(IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
             List<String> runDirectoryList = new List<String>();
@@ -82,7 +82,7 @@ namespace Status.Services
             // Look for a difference between new and run directory lists
             if (runDirectoryList.Count() == 0)
             {
-                Console.WriteLine("No unfinished job(s) Found...");
+                Console.WriteLine("\nNo unfinished job(s) Found...");
                 StaticData.OldJobScanComplete = true;
                 return;
             }

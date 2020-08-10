@@ -31,7 +31,7 @@ namespace Status.Services
         /// <summary>
         /// Read From Log File
         /// </summary>
-        /// <returns></returns>
+        /// <returns>string read from log file</returns>
         public string ReadFromLogFile()
         {
             using (StreamReader reader = File.OpenText(LogFileName))

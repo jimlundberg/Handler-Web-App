@@ -21,7 +21,7 @@ namespace Status.Services
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
         /// <param name="logger"></param>
-        public static void StatusDataEntry(List<StatusWrapper.StatusData> statusList, string job, JobStatus status, 
+        public static void StatusDataEntry(List<StatusData> statusList, string job, JobStatus status, 
             JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
         {
             StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, logFileName, logger);
@@ -39,7 +39,7 @@ namespace Status.Services
         /// <param name="message"></param>
         /// <param name="logger"></param>
         public void Connect(string server, IniFileData iniData, StatusMonitorData monitorData,
-            List<StatusWrapper.StatusData> statusData, string message, ILogger<StatusRepository> logger)
+            List<StatusData> statusData, string message, ILogger<StatusRepository> logger)
         {
             // Wait a full minute for Modeler start execution
             Thread.Sleep(60000);

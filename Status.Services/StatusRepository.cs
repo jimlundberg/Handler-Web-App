@@ -17,8 +17,8 @@ namespace Status.Services
         private NewJobsScanThread newJobsScanThread;
         private IniFileData iniFileData = new IniFileData();
         private List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
-        private List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
-        private StatusWrapper.StatusData statusData = new StatusWrapper.StatusData();
+        private List<StatusData> statusList = new List<StatusData>();
+        private StatusData statusData = new StatusData();
         public readonly ILogger<StatusRepository> logger;
 
         public StatusRepository(ILogger<StatusRepository> _logger)
@@ -119,7 +119,7 @@ namespace Status.Services
         /// Method to return the status data to the requestor
         /// </summary>
         /// <returns>Status Data List</returns>
-        public IEnumerable<StatusWrapper.StatusData> GetJobStatus()
+        public IEnumerable<StatusData> GetJobStatus()
         {
             return statusList;
         }
@@ -128,9 +128,9 @@ namespace Status.Services
         /// Get csV history data
         /// </summary>
         /// <returns>History Status Data List</returns>
-        public IEnumerable<StatusWrapper.StatusData> GetHistoryData()
+        public IEnumerable<StatusData> GetHistoryData()
         {
-            List<StatusWrapper.StatusData> statusList = new List<StatusWrapper.StatusData>();
+            List<StatusData> statusList = new List<StatusData>();
             StatusEntry status = new StatusEntry();
             statusList = status.ReadFromCsvFile(iniFileData.StatusLogFile, logger);
             if (statusList == null)

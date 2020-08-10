@@ -4,23 +4,16 @@ using System.Text;
 
 namespace StatusModels
 {
-    // Wrap the statusdata class within a wrapper so we can pass lastupdate
-
-    public class StatusWrapper
+    public class StatusData
     {
-        public DateTime LastUpdate { get; set; }
+        public string Job { get; set; }
 
-        public class StatusData
-        {
-            public string Job { get; set; }
+        public JobStatus? JobStatus { get; set; }
 
-            public JobStatus? JobStatus { get; set; }
+        public DateTime TimeReceived { get; set; }
 
-            public DateTime TimeReceived { get; set; }
+        public DateTime TimeStarted { get; set; }
 
-            public DateTime TimeStarted { get; set; }
-
-            public DateTime TimeCompleted { get; set; }
-        }
+        public DateTime TimeCompleted { get; set; }
     }
 }

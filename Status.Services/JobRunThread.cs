@@ -15,7 +15,7 @@ namespace Status.Services
     {
         private IniFileData IniData;
         private StatusMonitorData MonitorData;
-        private List<StatusWrapper.StatusData> StatusData;
+        private List<StatusData> StatusData;
         private string DirectoryName;
         private static Object xmlLock = new Object();
         ILogger<StatusRepository> Logger;
@@ -28,7 +28,7 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public JobRunThread(string directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
+        public JobRunThread(string directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
             MonitorData = monitorData;
@@ -55,7 +55,7 @@ namespace Status.Services
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
         /// <param name="logger"></param>
-        public static void StatusDataEntry(List<StatusWrapper.StatusData> statusList, string job, 
+        public static void StatusDataEntry(List<StatusData> statusList, string job, 
             JobStatus status, JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
         {
             StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, logFileName, logger);
@@ -72,7 +72,7 @@ namespace Status.Services
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
         public static void RunJob(string scanDirectory, IniFileData iniData, StatusMonitorData monitorData, 
-            List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
+            List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Add initial entry to status list
             StatusDataEntry(statusData, monitorData.Job, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.StatusLogFile, logger);

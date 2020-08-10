@@ -12,7 +12,7 @@ namespace Status.Services
     {
         public static string Directory;
         public static IniFileData IniData;
-        public static List<StatusWrapper.StatusData> StatusData;
+        public static List<StatusData> StatusData;
         private static readonly List<String> directoryInfoList = new List<String>();
         private static Thread thread;
         public event EventHandler ProcessCompleted;
@@ -25,7 +25,7 @@ namespace Status.Services
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
         public DirectoryWatcherThread(IniFileData iniData,
-            List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
+            List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
             StatusData = statusData;
@@ -50,18 +50,9 @@ namespace Status.Services
             thread = new Thread(() => WatchDirectory(Directory));
             if (thread == null)
             {
-                Logger.LogError("DirectoryWatcherThread WatchDirectory thread failed to instantiate");
+                Logger.LogError("NewJobsScanThread thread failed to instantiate");
             }
             thread.Start();
-        }
-
-        /// <summary>
-        /// Access method to get the current directory list
-        /// </summary>
-        /// <returns></returns>
-        public static List<String> GetCurrentDirectoryList()
-        {
-            return directoryInfoList;
         }
 
         // Define the event handlers.
@@ -73,7 +64,7 @@ namespace Status.Services
         public static void OnChanged(object source, FileSystemEventArgs e)
         {
             // Directory Added (or changed???)
-            Console.WriteLine($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
+            // Console.WriteLine($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
 
             // Run the job
             NewJobsScanThread.StartJob(e.FullPath, IniData, StatusData, Logger);
@@ -87,7 +78,7 @@ namespace Status.Services
         public static void OnDeleted(object source, FileSystemEventArgs e)
         {
             // Specify what is done when a directory is deleted.
-            Console.WriteLine($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
+            //Console.WriteLine($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
         }
 
         /// <summary>

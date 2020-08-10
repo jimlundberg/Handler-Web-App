@@ -12,7 +12,7 @@ namespace Status.Services
     /// </summary>
     public class StatusEntry
     {
-        List<StatusWrapper.StatusData> StatusList;
+        List<StatusData> StatusList;
         readonly string Job;
         readonly JobStatus Status;
         readonly JobType TimeSlot;
@@ -31,7 +31,7 @@ namespace Status.Services
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
         /// <param name="logger"></param>
-        public StatusEntry(List<StatusWrapper.StatusData> statusList, string job, JobStatus status, JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
+        public StatusEntry(List<StatusData> statusList, string job, JobStatus status, JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
         {
             StatusList = statusList;
             Job = job;
@@ -48,9 +48,9 @@ namespace Status.Services
         /// <param name="job"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
-        public void ListStatus(List<StatusWrapper.StatusData> statusList, string job, JobStatus status, JobType timeSlot)
+        public void ListStatus(List<StatusData> statusList, string job, JobStatus status, JobType timeSlot)
         {
-            StatusWrapper.StatusData entry = new StatusWrapper.StatusData();
+            StatusData entry = new StatusData();
             if (entry == null)
             {
                 Logger.LogError("StatusEntry entry failed to instantiate");
@@ -138,16 +138,16 @@ namespace Status.Services
         /// <param name="logFileName"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        public List<StatusWrapper.StatusData> ReadFromCsvFile(string logFileName, ILogger<StatusRepository> logger)
+        public List<StatusData> ReadFromCsvFile(string logFileName, ILogger<StatusRepository> logger)
         {
-            lock (csvLock)
-            {
-                List<StatusWrapper.StatusData> statusDataTable = new List<StatusWrapper.StatusData>();
-                DateTime timeReceived = DateTime.MinValue;
-                DateTime timeStarted = DateTime.MinValue;
-                DateTime timeCompleted = DateTime.MinValue;
+            List<StatusData> statusDataTable = new List<StatusData>();
+            DateTime timeReceived = DateTime.MinValue;
+            DateTime timeStarted = DateTime.MinValue;
+            DateTime timeCompleted = DateTime.MinValue;
 
-                if (File.Exists(logFileName) == true)
+            if (File.Exists(logFileName) == true)
+            {
+                lock (csvLock)
                 {
                     using (CsvFileReader reader = new CsvFileReader(logFileName))
                     {
@@ -160,7 +160,7 @@ namespace Status.Services
                         CsvRow rowData = new CsvRow();
                         while (reader.ReadRow(rowData))
                         {
-                            StatusWrapper.StatusData rowStatusData = new StatusWrapper.StatusData();
+                            StatusData rowStatusData = new StatusData();
                             if (rowStatusData == null)
                             {
                                 Logger.LogError("ReadFromCsvFile rowStatusData failed to instantiate");
@@ -251,6 +251,8 @@ namespace Status.Services
                 // Return status table list
                 return statusDataTable;
             }
+
+            return null;
         }
 
         /// <summary>
@@ -262,135 +264,138 @@ namespace Status.Services
         /// <returns></returns>
         public void CheckLogFileHistory(string logFileName, int logFileHistory, ILogger<StatusRepository> logger)
         {
-            List<StatusWrapper.StatusData> statusDataTable = new List<StatusWrapper.StatusData>();
+            List<StatusData> statusDataTable = new List<StatusData>();
 
             if (File.Exists(logFileName) == true)
             {
-                using (CsvFileReader reader = new CsvFileReader(logFileName))
+                lock (csvLock)
                 {
-                    if (reader == null)
+                    using (CsvFileReader reader = new CsvFileReader(logFileName))
                     {
-                        Logger.LogError("CheckLogFileHistory reader failed to instantiate");
-                        return;
-                    }
-
-                    CsvRow rowData = new CsvRow();
-                    if (rowData == null)
-                    {
-                        Logger.LogError("CheckLogFileHistory rowData failed to instantiate");
-                        return;
-                    }
-
-                    while (reader.ReadRow(rowData))
-                    {
-                        StatusWrapper.StatusData rowStatusData = new StatusWrapper.StatusData();
-                        if (rowStatusData == null)
+                        if (reader == null)
                         {
-                            Logger.LogError("CheckLogFileHistory rowStatusData failed to instantiate");
+                            Logger.LogError("CheckLogFileHistory reader failed to instantiate");
                             return;
                         }
 
-                        bool oldRecord = false;
-                        rowStatusData.Job = rowData[0];
-
-                        string jobType = rowData[1];
-                        switch (jobType)
+                        CsvRow rowData = new CsvRow();
+                        if (rowData == null)
                         {
-                            case "JOB_STARTED":
-                                rowStatusData.JobStatus = JobStatus.JOB_STARTED;
-                                break;
-
-                            case "EXECUTING":
-                                rowStatusData.JobStatus = JobStatus.EXECUTING;
-                                break;
-
-                            case "MONITORING_INPUT":
-                                rowStatusData.JobStatus = JobStatus.MONITORING_INPUT;
-                                break;
-
-                            case "COPYING_TO_PROCESSING":
-                                rowStatusData.JobStatus = JobStatus.COPYING_TO_PROCESSING;
-                                break;
-
-                            case "MONITORING_PROCESSING":
-                                rowStatusData.JobStatus = JobStatus.MONITORING_PROCESSING;
-                                break;
-
-                            case "MONITORING_TCPIP":
-                                rowStatusData.JobStatus = JobStatus.MONITORING_TCPIP;
-                                break;
-
-                            case "COPYING_TO_ARCHIVE":
-                                rowStatusData.JobStatus = JobStatus.COPYING_TO_ARCHIVE;
-                                break;
-
-                            case "COMPLETE":
-                                rowStatusData.JobStatus = JobStatus.COMPLETE;
-                                break;
-                        }
-
-                        // Check Time Received if older than history limit
-                        DateTime timeReceived = Convert.ToDateTime(rowData[2]);
-                        if (((DateTime.Now - timeReceived).TotalDays > logFileHistory) && (timeReceived != DateTime.MinValue))
-                        {
-                            oldRecord = true;
-                        }
-                        else
-                        {
-                            rowStatusData.TimeReceived = Convert.ToDateTime(rowData[2]);
-                        }
-
-                        // Check Time Started if older than history limit
-                        DateTime timeStarted = Convert.ToDateTime(rowData[3]);
-                        if (((DateTime.Now - timeStarted).TotalDays > logFileHistory) && (timeStarted != DateTime.MinValue))
-                        {
-                            oldRecord = true;
-                        }
-                        else
-                        {
-                            rowStatusData.TimeStarted = Convert.ToDateTime(rowData[3]);
-                        }
-
-                        // Check Time Complete if older than history limit
-                        DateTime timeCompleted = Convert.ToDateTime(rowData[4]);
-                        if (((DateTime.Now - timeCompleted).TotalDays > logFileHistory) && (timeCompleted != DateTime.MinValue))
-                        {
-                            oldRecord = true;
-                        }
-                        else
-                        {
-                            rowStatusData.TimeCompleted = Convert.ToDateTime(rowData[4]);
-                        }
-
-                        // Add data to status table if not rejected as old
-                        if (oldRecord == false)
-                        {
-                            statusDataTable.Add(rowStatusData);
-                        }
-
-                        // If the shutdown flag is set, exit method
-                        if (StaticData.ShutdownFlag == true)
-                        {
-                            logger.LogInformation("Shutdown CheckLogFileHistory job {0} row {1}", rowStatusData.Job, rowStatusData);
+                            Logger.LogError("CheckLogFileHistory rowData failed to instantiate");
                             return;
                         }
-                    }
-                }
 
-                // Create new csv file with new data
-                using (TextWriter writer = new StreamWriter(logFileName))
-                {
-                    for (int i = 0; i < statusDataTable.Count; i++)
-                    {
-                        lock (csvLock)
+                        while (reader.ReadRow(rowData))
                         {
-                            writer.WriteLine("{0},{1},{2},{3},{4}",
-                                statusDataTable[i].Job, statusDataTable[i].JobStatus.ToString(),
-                                statusDataTable[i].TimeReceived, statusDataTable[i].TimeStarted, statusDataTable[i].TimeCompleted);
+                            StatusData rowStatusData = new StatusData();
+                            if (rowStatusData == null)
+                            {
+                                Logger.LogError("CheckLogFileHistory rowStatusData failed to instantiate");
+                                return;
+                            }
+
+                            bool oldRecord = false;
+                            rowStatusData.Job = rowData[0];
+
+                            string jobType = rowData[1];
+                            switch (jobType)
+                            {
+                                case "JOB_STARTED":
+                                    rowStatusData.JobStatus = JobStatus.JOB_STARTED;
+                                    break;
+
+                                case "EXECUTING":
+                                    rowStatusData.JobStatus = JobStatus.EXECUTING;
+                                    break;
+
+                                case "MONITORING_INPUT":
+                                    rowStatusData.JobStatus = JobStatus.MONITORING_INPUT;
+                                    break;
+
+                                case "COPYING_TO_PROCESSING":
+                                    rowStatusData.JobStatus = JobStatus.COPYING_TO_PROCESSING;
+                                    break;
+
+                                case "MONITORING_PROCESSING":
+                                    rowStatusData.JobStatus = JobStatus.MONITORING_PROCESSING;
+                                    break;
+
+                                case "MONITORING_TCPIP":
+                                    rowStatusData.JobStatus = JobStatus.MONITORING_TCPIP;
+                                    break;
+
+                                case "COPYING_TO_ARCHIVE":
+                                    rowStatusData.JobStatus = JobStatus.COPYING_TO_ARCHIVE;
+                                    break;
+
+                                case "COMPLETE":
+                                    rowStatusData.JobStatus = JobStatus.COMPLETE;
+                                    break;
+                            }
+
+                            // Check Time Received if older than history limit
+                            DateTime timeReceived = Convert.ToDateTime(rowData[2]);
+                            if (((DateTime.Now - timeReceived).TotalDays > logFileHistory) && (timeReceived != DateTime.MinValue))
+                            {
+                                oldRecord = true;
+                            }
+                            else
+                            {
+                                rowStatusData.TimeReceived = Convert.ToDateTime(rowData[2]);
+                            }
+
+                            // Check Time Started if older than history limit
+                            DateTime timeStarted = Convert.ToDateTime(rowData[3]);
+                            if (((DateTime.Now - timeStarted).TotalDays > logFileHistory) && (timeStarted != DateTime.MinValue))
+                            {
+                                oldRecord = true;
+                            }
+                            else
+                            {
+                                rowStatusData.TimeStarted = Convert.ToDateTime(rowData[3]);
+                            }
+
+                            // Check Time Complete if older than history limit
+                            DateTime timeCompleted = Convert.ToDateTime(rowData[4]);
+                            if (((DateTime.Now - timeCompleted).TotalDays > logFileHistory) && (timeCompleted != DateTime.MinValue))
+                            {
+                                oldRecord = true;
+                            }
+                            else
+                            {
+                                rowStatusData.TimeCompleted = Convert.ToDateTime(rowData[4]);
+                            }
+
+                            // Add data to status table if not rejected as old
+                            if (oldRecord == false)
+                            {
+                                statusDataTable.Add(rowStatusData);
+                            }
+
+                            // If the shutdown flag is set, exit method
+                            if (StaticData.ShutdownFlag == true)
+                            {
+                                logger.LogInformation("Shutdown CheckLogFileHistory job {0} row {1}", rowStatusData.Job, rowStatusData);
+                                return;
+                            }
                         }
                     }
 
-                    writer.Close();
+                    // Create new csv file with new data
+                    using (TextWriter writer = new StreamWriter(logFileName))
+                    {
+                        for (int i = 0; i < statusDataTable.Count; i++)
+                        {
+                            lock (csvLock)
+                            {
+                                writer.WriteLine("{0},{1},{2},{3},{4}",
+                                    statusDataTable[i].Job, statusDataTable[i].JobStatus.ToString(),
+                                    statusDataTable[i].TimeReceived, statusDataTable[i].TimeStarted, statusDataTable[i].TimeCompleted);
+                            }
+                        }
+
+                        writer.Close();
+                    }
                 }
             }
         }
