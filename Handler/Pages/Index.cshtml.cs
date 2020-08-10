@@ -4,6 +4,7 @@ using Status.Services;
 using StatusModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Handler.Pages
 {
@@ -28,6 +29,15 @@ namespace Handler.Pages
         private readonly IStatusRepository MonitorDataRepository;
         private static bool firstTime = true;
 
+        public enum ButtonPress { Home = 1, Start = 2, Refresh = 3, Pause = 4, Stop = 5, History = 6 };
+        public enum ButtonState { Primary = 1, SecondaryOn = 2, SecondaryOff = 3 };
+        public ButtonState bsHome { get; set; }
+        public ButtonState bsStart { get; set; }
+        public ButtonState bsRefresh { get; set; }
+        public ButtonState bsPause { get; set; }
+        public ButtonState bsStop { get; set; }
+        public ButtonState bsHistory { get; set; }
+
         /// <summary>
         /// Index Model CTOR
         /// </summary>
@@ -38,18 +48,113 @@ namespace Handler.Pages
             this.MonitorDataRepository = monitorDataRepository;
             Logger = logger;
         }
-        
+
+        private void SetButtonState(ButtonPress buttonPress)
+        {
+            // Based on the button pressed, set the classes of the other buttons to control which actions are enabled
+            String bsPrimary = "btn btn-primary";
+            String bsSecondaryOn = "btn btn-primary";
+            String bsSecondaryOff = "btn btn-primary";
+            // Watch the following settings.  Because disabled=disabled we have to invert the intuitive logic
+            Boolean bsDisabled = true;
+            Boolean bsEnabled = false;
+            ViewData["bsStartDisabled"] = bsEnabled;
+            ViewData["bsRefreshDisabled"] = bsEnabled;
+            ViewData["bsPauseDisabled"] = bsEnabled;
+            ViewData["bsStopDisabled"] = bsEnabled;
+
+            switch (buttonPress)
+            {
+                case ButtonPress.Home:
+                    ViewData["PageName"] = "Home";
+                    ViewData["bsHome"] = bsPrimary;
+                    ViewData["bsStart"] = bsPrimary; 
+                    ViewData["bsRefresh"] = bsSecondaryOff;
+                    ViewData["bsPause"] = bsSecondaryOff;
+                    ViewData["bsStop"] = bsSecondaryOff;
+                    ViewData["bsHistory"] = bsPrimary; 
+                    ViewData["bsRefreshDisabled"] = bsDisabled;
+                    ViewData["bsPauseDisabled"] = bsDisabled;
+                    ViewData["bsStopDisabled"] = bsDisabled;
+                    break;
+                case ButtonPress.Start:
+                    ViewData["PageName"] = "Start";
+                    ViewData["bsHome"] = bsSecondaryOn;
+                    ViewData["bsStart"] = bsSecondaryOff;
+                    ViewData["bsRefresh"] = bsSecondaryOn;
+                    ViewData["bsPause"] = bsSecondaryOn;
+                    ViewData["bsStop"] = bsPrimary;
+                    ViewData["bsHistory"] = bsSecondaryOn;
+                    ViewData["bsStartDisabled"] = bsDisabled;
+                    break;
+                case ButtonPress.Stop:
+                    ViewData["PageName"] = "Stop";
+                    ViewData["bsHome"] = bsPrimary;
+                    ViewData["bsStart"] = bsPrimary; 
+                    ViewData["bsRefresh"] = bsSecondaryOff;
+                    ViewData["bsPause"] = bsSecondaryOff;
+                    ViewData["bsStop"] = bsSecondaryOff;
+                    ViewData["bsHistory"] = bsPrimary; 
+                    ViewData["bsRefreshDisabled"] = bsDisabled;
+                    ViewData["bsPauseDisabled"] = bsDisabled;
+                    ViewData["bsStopDisabled"] = bsDisabled;
+                    break;
+                case ButtonPress.Pause:
+                    ViewData["PageName"] = "Pause";
+                    ViewData["bsHome"] = bsPrimary; 
+                    ViewData["bsStart"] = bsPrimary;
+                    ViewData["bsRefresh"] = bsSecondaryOff;
+                    ViewData["bsPause"] = bsSecondaryOff;
+                    ViewData["bsStop"] = bsSecondaryOff;
+                    ViewData["bsHistory"] = bsPrimary; 
+                    ViewData["bsRefreshDisabled"] = bsDisabled;
+                    ViewData["bsPauseDisabled"] = bsDisabled;
+                    ViewData["bsStopDisabled"] = bsDisabled;
+                    break;
+                case ButtonPress.Refresh:
+                    ViewData["PageName"] = "Refresh";
+                    ViewData["bsHome"] = bsPrimary; 
+                    ViewData["bsStart"] = bsSecondaryOff;
+                    ViewData["bsRefresh"] = bsPrimary;
+                    ViewData["bsPause"] = bsPrimary; 
+                    ViewData["bsStop"] = bsPrimary; 
+                    ViewData["bsHistory"] = bsPrimary; 
+                    break;
+                case ButtonPress.History:
+                    ViewData["PageName"] = "History";
+                    ViewData["bsHome"] = bsPrimary; 
+                    ViewData["bsStart"] = bsPrimary; 
+                    ViewData["bsRefresh"] = bsSecondaryOff;
+                    ViewData["bsPause"] = bsSecondaryOff;
+                    ViewData["bsStop"] = bsSecondaryOff;
+                    ViewData["bsHistory"] = bsPrimary;
+                    ViewData["bsRefreshDisabled"] = bsDisabled;
+                    ViewData["bsPauseDisabled"] = bsDisabled;
+                    ViewData["bsStopDisabled"] = bsDisabled;
+                    break;
+                default:
+                    ViewData["PageName"] = "Home";                    
+                    break;
+            }
+        }
+
         /// <summary>
         /// On Get
         /// </summary>
         public void OnGet()
         {
-            ViewData["PageName"] = "Home";
+            SetButtonState(ButtonPress.Home);            
             if (firstTime)
             {
                 MonitorDataRepository.GetIniFileData();
                 MonitorDataRepository.CheckLogFileHistory();
                 firstTime = false;
+            }
+            else
+            {
+                SetButtonState(ButtonPress.Start);
+                MonitorDataRepository.GetIniFileData();
+                MonitorDataRepository.CheckLogFileHistory();
             }
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
         }
@@ -59,8 +164,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostHomeButton()
         {
-            ViewData["PageName"] = "Home";
-            Console.WriteLine("\nHome Button pressed\n");
+            SetButtonState(ButtonPress.Home);
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
         }
 
@@ -69,8 +173,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostStartButton()
         {
-            ViewData["PageName"] = "Start";
-            Console.WriteLine("\nStart Button pressed\n");
+            SetButtonState(ButtonPress.Start);
             MonitorDataRepository.StartMonitorProcess();
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
         }
@@ -80,8 +183,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostRefreshButton()
         {
-            ViewData["PageName"] = "Refresh";
-            Console.WriteLine("\nRefresh Button pressed\n");
+            SetButtonState(ButtonPress.Refresh);
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
         }
 
@@ -90,8 +192,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostPauseButton()
         {
-            ViewData["PageName"] = "Pause";
-            Console.WriteLine("\nPause Button pressed\n");
+            SetButtonState(ButtonPress.Pause);
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetJobStatus();
         }
 
@@ -100,8 +201,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostStopButton()
         {
-            ViewData["PageName"] = "Stop";
-            Console.WriteLine("\nStop Button pressed\n");
+            SetButtonState(ButtonPress.Stop);
             MonitorDataRepository.StopMonitor();
         }
 
@@ -110,8 +210,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostHistoryButton()
         {
-            ViewData["PageName"] = "History";
-            Console.WriteLine("\nHistory Button pressed\n");
+            SetButtonState(ButtonPress.History);
             statusData = (IEnumerable<StatusWrapper.StatusData>)MonitorDataRepository.GetHistoryData();
         }
     }

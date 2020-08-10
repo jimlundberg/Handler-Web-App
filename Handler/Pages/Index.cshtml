@@ -9,7 +9,7 @@
 {
     <meta http-equiv="refresh" content="5">
 }
-
+  
 @section Scripts {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/datatables.min.js"></script>
@@ -20,27 +20,29 @@
 @section menu {
     <div class="btn-group" role="group">
         <form method="post">
-            <input class="@(((string)@ViewData["PageName"] == "Home") ? "btn btn-primary" : "btn btn-secondary")"
-                   type="submit" value="Home" asp-page-handler="HomeButton" />
-            <input class="@(((string)@ViewData["PageName"] == "Start") ? "btn btn-primary" : "btn btn-secondary")"
+            <input class="@(  @ViewData["bsHome"] )" type="submit" value="Home" asp-page-handler="HomeButton" />
+            <input class="@(  @ViewData["bsStart"] )" 
+                   disabled="@ViewData["bsStartDisabled"]"
                    type="submit" value="Start" asp-page-handler="StartButton" />
-            <input class="@(((string)@ViewData["PageName"] == "Refresh") ? "btn btn-primary" : "btn btn-secondary")"
+            <input class="@(  @ViewData["bsRefresh"] )" 
+                   disabled="@(  @ViewData["bsRefreshDisabled"] )" 
                    type="submit" value="Refresh" asp-page-handler="RefreshButton" />
-            <input class="@(((string)@ViewData["PageName"] == "Pause") ? "btn btn-primary" : "btn btn-secondary")"
+            <input class="@(  @ViewData["bsPause"] )" 
+                   disabled="@(  @ViewData["bsPauseDisabled"] )" 
                    type="submit" value="Pause" asp-page-handler="PauseButton" />
-            <input class="@(((string)@ViewData["PageName"] == "Stop") ? "btn btn-primary" : "btn btn-secondary")"
+            <input class="@(  @ViewData["bsStop"] )" 
+                   disabled="@(  @ViewData["bsStopDisabled"] )" 
                    type="submit" value="Stop" asp-page-handler="StopButton" />
-            <input class="@(((string)@ViewData["PageName"] == "History") ? "btn btn-primary" : "btn btn-secondary")"
-                   type="submit" value="History" asp-page-handler="HistoryButton" />
+            <input class="@(  @ViewData["bsHistory"] )" type="submit" value="History" asp-page-handler="HistoryButton" />
         </form>
     </div>
 }
 
 @if ((string)@ViewData["PageName"] != "Home")
 {
-<div class="center">   
-    @await Html.PartialAsync("_JobGrid.cshtml", Model)
-</div>
+    <div class="center">
+        @await Html.PartialAsync("_JobGrid.cshtml", Model)
+    </div>
 }
 
 <script type="text/javascript">
@@ -48,14 +50,5 @@
         $('#jobGrid').dataTable({
             fixedHeader: true
         });
-    });
-    var makePrimary = function () {
-        //$("#Home").addClass("btn-secondary");
-        //$(this).removeClass("btn-secondary");
-        //$(this).addClass("btn-primary");
-    }
-    $("input").click(function () {
-        $("input").removeClass("btn-primary");
-        $(this).addClass("btn-primary");
     });
 </script>
