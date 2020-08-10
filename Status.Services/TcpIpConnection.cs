@@ -125,6 +125,7 @@ namespace Status.Services
                                 StaticData.Log(iniData.ProcessLogFile, 
                                     String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
+                                Thread.Sleep(100);
                                 StaticData.TcpIpScanComplete = true;
                                 jobComplete = true;
                                 break;

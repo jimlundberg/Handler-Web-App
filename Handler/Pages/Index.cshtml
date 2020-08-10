@@ -20,20 +20,12 @@
 @section menu {
     <div class="btn-group" role="group">
         <form method="post">
-            <input class="@(  @ViewData["bsHome"] )" type="submit" value="Home" asp-page-handler="HomeButton" />
-            <input class="@(  @ViewData["bsStart"] )" 
-                   disabled="@ViewData["bsStartDisabled"]"
-                   type="submit" value="Start" asp-page-handler="StartButton" />
-            <input class="@(  @ViewData["bsRefresh"] )" 
-                   disabled="@(  @ViewData["bsRefreshDisabled"] )" 
-                   type="submit" value="Refresh" asp-page-handler="RefreshButton" />
-            <input class="@(  @ViewData["bsPause"] )" 
-                   disabled="@(  @ViewData["bsPauseDisabled"] )" 
-                   type="submit" value="Pause" asp-page-handler="PauseButton" />
-            <input class="@(  @ViewData["bsStop"] )" 
-                   disabled="@(  @ViewData["bsStopDisabled"] )" 
-                   type="submit" value="Stop" asp-page-handler="StopButton" />
-            <input class="@(  @ViewData["bsHistory"] )" type="submit" value="History" asp-page-handler="HistoryButton" />
+            <input class="btn btn-primary" type="submit" value="Home" asp-page-handler="HomeButton" />
+            <input class="btn btn-primary" type="submit" value="Start" asp-page-handler="StartButton" disabled="@ViewData["bsStartDisabled"]" />
+            <input class="btn btn-primary" type="submit" value="Refresh" asp-page-handler="RefreshButton" disabled="@(  @ViewData["bsRefreshDisabled"] )" />
+            <input class="btn btn-primary" type="submit" value="Pause" asp-page-handler="PauseButton" disabled="@(  @ViewData["bsPauseDisabled"] )" />
+            <input class="btn btn-primary" type="submit" value="Stop" asp-page-handler="StopButton" disabled="@(  @ViewData["bsStopDisabled"] )" />
+            <input class="btn btn-primary" type="submit" value="History" asp-page-handler="HistoryButton" />
         </form>
     </div>
 }

@@ -64,58 +64,7 @@ namespace Handler.Pages
             /// </summary>
             History = 6 
         };
-
-        /// <summary>
-        /// Button State
-        /// </summary>
-        public enum ButtonState 
-        {
-            /// <summary>
-            /// Primary
-            /// </summary>
-            Primary = 1, 
-
-            /// <summary>
-            /// Secondary On
-            /// </summary>
-            SecondaryOn = 2, 
-
-            /// <summary>
-            /// Secondary Off
-            /// </summary>
-            SecondaryOff = 3 
-        };
-
-        /// <summary>
-        /// Button State Home
-        /// </summary>
-        public ButtonState bsHome { get; set; }
-
-        /// <summary>
-        /// Button State Start
-        /// </summary>
-        public ButtonState bsStart { get; set; }
-
-        /// <summary>
-        /// Button State bsRefresh
-        /// </summary>
-        public ButtonState bsRefresh { get; set; }
-
-        /// <summary>
-        /// Button State Pause
-        /// </summary>
-        public ButtonState bsPause { get; set; }
-
-        /// <summary>
-        /// Button State Stop
-        /// </summary>
-        public ButtonState bsStop { get; set; }
-
-        /// <summary>
-        /// Button State History
-        /// </summary>
-        public ButtonState bsHistory { get; set; }
-
+         
         /// <summary>
         /// Index Model CTOR
         /// </summary>
@@ -129,11 +78,7 @@ namespace Handler.Pages
 
         private void SetButtonState(ButtonPress buttonPress)
         {
-            // Based on the button pressed, set the classes of the other buttons to control which actions are enabled
-            String bsPrimary = "btn btn-primary";
-            String bsSecondaryOn = "btn btn-primary";
-            String bsSecondaryOff = "btn btn-primary";
-            // Watch the following settings.  Because disabled=disabled we have to invert the intuitive logic
+            // Watch the following settings.  Because disabled=disabled we have to invert the intuitive logic upside down.
             Boolean bsDisabled = true;
             Boolean bsEnabled = false;
             ViewData["bsStartDisabled"] = bsEnabled;
@@ -144,78 +89,36 @@ namespace Handler.Pages
             switch (buttonPress)
             {
                 case ButtonPress.Home:
-                    ViewData["PageName"] = "Home";
-                    ViewData["bsHome"] = bsPrimary;
-                    ViewData["bsStart"] = bsPrimary; 
-                    ViewData["bsRefresh"] = bsSecondaryOff;
-                    ViewData["bsPause"] = bsSecondaryOff;
-                    ViewData["bsStop"] = bsSecondaryOff;
-                    ViewData["bsHistory"] = bsPrimary; 
+                    ViewData["PageName"] = "Home";                   
                     ViewData["bsRefreshDisabled"] = bsDisabled;
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
-
                 case ButtonPress.Start:
-                    ViewData["PageName"] = "Start";
-                    ViewData["bsHome"] = bsSecondaryOn;
-                    ViewData["bsStart"] = bsSecondaryOff;
-                    ViewData["bsRefresh"] = bsSecondaryOn;
-                    ViewData["bsPause"] = bsSecondaryOn;
-                    ViewData["bsStop"] = bsPrimary;
-                    ViewData["bsHistory"] = bsSecondaryOn;
+                    ViewData["PageName"] = "Start";                 
                     ViewData["bsStartDisabled"] = bsDisabled;
                     break;
-
                 case ButtonPress.Stop:
-                    ViewData["PageName"] = "Stop";
-                    ViewData["bsHome"] = bsPrimary;
-                    ViewData["bsStart"] = bsPrimary; 
-                    ViewData["bsRefresh"] = bsSecondaryOff;
-                    ViewData["bsPause"] = bsSecondaryOff;
-                    ViewData["bsStop"] = bsSecondaryOff;
-                    ViewData["bsHistory"] = bsPrimary; 
+                    ViewData["PageName"] = "Stop";                 
                     ViewData["bsRefreshDisabled"] = bsDisabled;
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
-
                 case ButtonPress.Pause:
-                    ViewData["PageName"] = "Pause";
-                    ViewData["bsHome"] = bsPrimary; 
-                    ViewData["bsStart"] = bsPrimary;
-                    ViewData["bsRefresh"] = bsSecondaryOff;
-                    ViewData["bsPause"] = bsSecondaryOff;
-                    ViewData["bsStop"] = bsSecondaryOff;
-                    ViewData["bsHistory"] = bsPrimary; 
+                    ViewData["PageName"] = "Pause";                 
                     ViewData["bsRefreshDisabled"] = bsDisabled;
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
-
                 case ButtonPress.Refresh:
-                    ViewData["PageName"] = "Refresh";
-                    ViewData["bsHome"] = bsPrimary; 
-                    ViewData["bsStart"] = bsSecondaryOff;
-                    ViewData["bsRefresh"] = bsPrimary;
-                    ViewData["bsPause"] = bsPrimary; 
-                    ViewData["bsStop"] = bsPrimary; 
-                    ViewData["bsHistory"] = bsPrimary; 
+                    ViewData["PageName"] = "Refresh";                   
                     break;
-
                 case ButtonPress.History:
-                    ViewData["PageName"] = "History";
-                    ViewData["bsHome"] = bsPrimary; 
-                    ViewData["bsStart"] = bsPrimary; 
-                    ViewData["bsRefresh"] = bsSecondaryOff;
-                    ViewData["bsPause"] = bsSecondaryOff;
-                    ViewData["bsStop"] = bsSecondaryOff;
-                    ViewData["bsHistory"] = bsPrimary;
+                    ViewData["PageName"] = "History";                   
                     ViewData["bsRefreshDisabled"] = bsDisabled;
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
-
                 default:
                     ViewData["PageName"] = "Home";                    
                     break;
@@ -294,7 +197,7 @@ namespace Handler.Pages
         public void OnPostHistoryButton()
         {
             SetButtonState(ButtonPress.History);
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetHistoryData().Reverse();
+            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetHistoryData();
         }
     }
 }

@@ -1,5 +1,5 @@
-netstat -na | grep "3000"
-netstat -na | grep "3001"
-netstat -na | grep "3002"
-netstat -na | grep "3003"
-netstat -na | grep "3004"
+netstat | findstr /i /S /R /n 3000
+netstat | findstr /i /S /R /n 3001
+netstat | findstr /i /S /R /n 3002
+netstat | findstr /i /S /R /n 3003
+netstat | findstr /i /S /R /n 3004
