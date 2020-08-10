@@ -1,11 +1,13 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using System;
 using System.IO;
+using System.Linq;
 
 namespace Status.Services
 {
     class LoggingToFile
     {
-        string LogFileName;
+        public static string LogFileName;
         private static Object fileLock = new Object();
 
         /// <summary>
@@ -25,9 +27,29 @@ namespace Status.Services
         {
             lock (fileLock)
             {
-                using (StreamWriter writer = File.AppendText(LogFileName))
+                using (var stream = new FileStream(LogFileName, FileMode.Append))
+                using (var writer = new StreamWriter(stream))
                 {
-                    Log(text, writer);
+                    // Check file size before writing
+                    if (stream.Position < StaticData.sizeLimitInBytes)
+                    {
+                        writer.WriteLine(text);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Log file of {0} lines too big", stream.Position); 
+                        using (var reduceStream = new FileStream(LogFileName, FileMode.Truncate))
+                        {
+                            long start = stream.Length * (long)0.1;
+                            long count = stream.Length; 
+
+                            //reduceStream.WriteAllLines(LogFileName, File.ReadAllLines(LogFileName)
+                            //    .Where((line, index) => index < start - 1 ||
+                            //    index >= start + count - 1));
+
+                            writer.WriteLine(text);
+                        }
+                    }
                 }
             }
         }
@@ -67,9 +89,13 @@ namespace Status.Services
         public static void DumpLog(StreamReader reader)
         {
             string line;
-            while ((line = reader.ReadLine()) != null)
+
+            lock (fileLock)
             {
-                Console.WriteLine(line);
+                while ((line = reader.ReadLine()) != null)
+                {
+                    Console.WriteLine(line);
+                }
             }
         }
     }
