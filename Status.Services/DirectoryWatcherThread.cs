@@ -10,8 +10,9 @@ namespace Status.Services
 {
     public class DirectoryWatcherThread
     {
-        public string Directory;
-        private IniFileData IniData;
+        public static string Directory;
+        public static IniFileData IniData;
+        public static List<StatusWrapper.StatusData> StatusData;
         private static readonly List<String> directoryInfoList = new List<String>();
         private static Thread thread;
         public event EventHandler ProcessCompleted;
@@ -23,9 +24,11 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public DirectoryWatcherThread(IniFileData iniData, ILogger<StatusRepository> logger)
+        public DirectoryWatcherThread(IniFileData iniData,
+            List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
+            StatusData = statusData;
             Directory = iniData.InputDir;
             Logger = logger;
         }
@@ -52,6 +55,15 @@ namespace Status.Services
             thread.Start();
         }
 
+        /// <summary>
+        /// Access method to get the current directory list
+        /// </summary>
+        /// <returns></returns>
+        public static List<String> GetCurrentDirectoryList()
+        {
+            return directoryInfoList;
+        }
+
         // Define the event handlers.
         /// <summary>
         /// The Add or Change of directory callback
@@ -62,7 +74,9 @@ namespace Status.Services
         {
             // Directory Added (or changed???)
             Console.WriteLine($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
-            directoryInfoList.Add(e.FullPath);
+
+            // Run the job
+            NewJobsScanThread.StartJob(e.FullPath, IniData, StatusData, Logger);
         }
 
         /// <summary>
@@ -74,16 +88,6 @@ namespace Status.Services
         {
             // Specify what is done when a directory is deleted.
             Console.WriteLine($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
-            directoryInfoList.Remove(e.FullPath);
-        }
-
-        /// <summary>
-        /// Access method to get the current directory list
-        /// </summary>
-        /// <returns></returns>
-        public static List<String> GetCurrentDirectoryList()
-        {
-            return directoryInfoList;
         }
 
         /// <summary>

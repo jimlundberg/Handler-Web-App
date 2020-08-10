@@ -14,8 +14,8 @@ namespace Status.Services
     public class NewJobsScanThread
     {
         private static Thread thread;
-        private static IniFileData IniData;
-        private static List<StatusWrapper.StatusData> StatusData;
+        public static IniFileData IniData;
+        public static List<StatusWrapper.StatusData> StatusData;
         public static ILogger<StatusRepository> Logger;
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Status.Services
             oldJobs.ScanForOldJobs(iniData, statusData, logger);
 
             // Register with the Directory Watcher class event and start its thread
-            DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(iniData, logger);
+            DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(iniData, statusData, logger);
             if (dirWatch == null)
             {
                 Logger.LogError("NewJobsScanThread dirWatch failed to instantiate");
@@ -118,21 +118,9 @@ namespace Status.Services
             runDirectoryInfoList = runDirectoryInfo.EnumerateDirectories().ToList();
             foreach (var dir in runDirectoryInfoList)
             {
-                if (!runDirectoryList.Contains(dir.ToString()))
-                {
-                    runDirectoryList.Add(dir.ToString());
-                }
+                // Run the directory list found on initial scan of the Input Buffer
+                StartJob(dir.ToString(), iniFileData, statusData, logger);
             }
-
-            // Debugging only
-            Console.WriteLine("\nCurrent run directory List:");
-            foreach (var dir in runDirectoryList)
-            {
-                Console.WriteLine(dir);
-            }
-
-            // Run the directory list found on initial scan of the Input Buffer
-            StartJobs(runDirectoryList, iniFileData, statusData, logger);
         }
 
         /// <summary>
@@ -142,88 +130,70 @@ namespace Status.Services
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void StartJobs(List<String> jobList, IniFileData iniFileData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
+        public static void StartJob(string jobDirectory, IniFileData iniFileData, List<StatusWrapper.StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            while (true)
+            if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
             {
-                // First run directory jobs found
-                foreach (var dir in jobList)
+                // Increment counters to track job execution
+                StaticData.IncrementNumberOfJobsExecuting();
+
+                // Get job name from directory name
+                string job = jobDirectory.Replace(iniFileData.InputDir, "").Remove(0, 1);
+
+                Console.WriteLine("Starting job {0} index {1} at {2:HH:mm:ss.fff}", 
+                    job, StaticData.NumberOfJobsExecuting, DateTime.Now);
+
+                // Start scan for new directory in the Input Buffer
+                ScanDirectory scanDir = new ScanDirectory();
+                if (scanDir == null)
                 {
-                    if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
-                    {
-                        // Increment counters to track job execution
-                        StaticData.IncrementNumberOfJobsExecuting();
+                    Logger.LogError("ScanForNewJobs scanDir failed to instantiate");
+                }
+                StatusModels.JobXmlData jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job, logger);
 
-                        // Get job name from directory name
-                        string job = dir.Replace(iniFileData.InputDir, "").Remove(0, 1);
+                // Get data found in Job xml file
+                StatusModels.StatusMonitorData xmlData = new StatusModels.StatusMonitorData();
+                if (xmlData == null)
+                {
+                    Logger.LogError("ScanForNewJobs data failed to instantiate");
+                }
+                xmlData.Job = job;
+                xmlData.JobDirectory = jobXmlData.JobDirectory;
+                xmlData.JobSerialNumber = jobXmlData.JobSerialNumber;
+                xmlData.TimeStamp = jobXmlData.TimeStamp;
+                xmlData.XmlFileName = jobXmlData.XmlFileName;
+                xmlData.JobIndex = StaticData.RunningJobsIndex++;
 
-                        Console.WriteLine("**********Processing job {0} index {1}", job, StaticData.NumberOfJobsExecuting);
+                // Display xmlData found
+                Console.WriteLine("");
+                Console.WriteLine("Found new Job         = " + xmlData.Job);
+                Console.WriteLine("New Job Directory     = " + xmlData.JobDirectory);
+                Console.WriteLine("New Serial Number     = " + xmlData.JobSerialNumber);
+                Console.WriteLine("New Time Stamp        = " + xmlData.TimeStamp);
+                Console.WriteLine("New Job Xml File      = " + xmlData.XmlFileName);
 
-                        // Start scan for new directory in the Input Buffer
-                        ScanDirectory scanDir = new ScanDirectory();
-                        if (scanDir == null)
-                        {
-                            Logger.LogError("ScanForNewJobs scanDir failed to instantiate");
-                        }
-                        StatusModels.JobXmlData jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job, logger);
+                Console.WriteLine("Job {0} started executing slot {1} at {2:HH:mm:ss.fff}", 
+                    xmlData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now);
 
-                        // Get data found in Job xml file
-                        StatusModels.StatusMonitorData xmlData = new StatusModels.StatusMonitorData();
-                        if (xmlData == null)
-                        {
-                            Logger.LogError("ScanForNewJobs data failed to instantiate");
-                        }
-                        xmlData.Job = job;
-                        xmlData.JobDirectory = jobXmlData.JobDirectory;
-                        xmlData.JobSerialNumber = jobXmlData.JobSerialNumber;
-                        xmlData.TimeStamp = jobXmlData.TimeStamp;
-                        xmlData.XmlFileName = jobXmlData.XmlFileName;
-                        xmlData.JobIndex = StaticData.RunningJobsIndex++;
+                // Create a thread to execute the task, and then start the thread.
+                JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, xmlData, statusData, logger);
+                if (jobThread == null)
+                {
+                    Logger.LogError("ScanForNewJobs jobThread failed to instantiate");
+                }
+                jobThread.ThreadProc();
 
-                        // Display xmlData found
-                        Console.WriteLine("");
-                        Console.WriteLine("Found new Job         = " + xmlData.Job);
-                        Console.WriteLine("New Job Directory     = " + xmlData.JobDirectory);
-                        Console.WriteLine("New Serial Number     = " + xmlData.JobSerialNumber);
-                        Console.WriteLine("New Time Stamp        = " + xmlData.TimeStamp);
-                        Console.WriteLine("New Job Xml File      = " + xmlData.XmlFileName);
-
-                        Console.WriteLine("Job {0} started executing slot {1} at {2:HH:mm:ss.fff}", 
-                            xmlData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now);
-
-                        // Create a thread to execute the task, and then start the thread.
-                        JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, xmlData, statusData, logger);
-                        if (jobThread == null)
-                        {
-                            Logger.LogError("ScanForNewJobs jobThread failed to instantiate");
-                        }
-                        jobThread.ThreadProc();
-
-                        // Cieck if the shutdown flag is set, exit method
-                        if (StaticData.ShutdownFlag == true)
-                        {
-                            logger.LogInformation("Shutdown ScanForNewJobs job {0}", job);
-                            return;
-                        }
-
-                        Thread.Sleep(iniFileData.ScanTime);
-                    }
-                    else
-                    {
-                        Thread.Sleep(iniFileData.ScanTime);
-                    }
+                // Cieck if the shutdown flag is set, exit method
+                if (StaticData.ShutdownFlag == true)
+                {
+                    logger.LogInformation("Shutdown ScanForNewJobs job {0}", job);
+                    return;
                 }
 
-                // Get new list to see if there are new ones
-                jobList = DirectoryWatcherThread.GetCurrentDirectoryList();
-
-                Console.WriteLine("\nCurrent run Job List:");
-                foreach (string dir in jobList)
-                {
-                    Console.WriteLine(dir);
-                }
-
-                // Sleep between directory scans
+                Thread.Sleep(iniFileData.ScanTime);
+            }
+            else
+            {
                 Thread.Sleep(iniFileData.ScanTime);
             }
         }
