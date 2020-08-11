@@ -162,21 +162,21 @@ namespace Status.Services
             }
 
             // If the directory is the Input Buffer, move the directory to Processing
-            string InputBufferDir = monitorData.JobDirectory;
-            string ProcessingBufferDir = iniData.ProcessingDir + @"\" + job;
+            string InputBufferJobDir = monitorData.JobDirectory;
+            string ProcessingBufferJobDir = iniData.ProcessingDir + @"\" + job;
 
             // If this job comes from the Input directory, run the scan and copy
             if (scanDirectory == iniData.InputDir)
             {
                 // Monitor the Input directory until it has the total number of consumed files
-                if (Directory.Exists(InputBufferDir))
+                if (Directory.Exists(InputBufferJobDir))
                 {
                     // Set Tcp/Ip Job Complete flag for Input Directory Monitoring
                     StaticData.TcpIpScanComplete = true;
 
                     // Register with the File Watcher class event and start its thread
-                    FileWatcherThread inputFileWatch = new FileWatcherThread(monitorData.NumFilesConsumed,
-                        iniData.InputDir, iniData, monitorData, statusData, logger);
+                    FileWatcherThread inputFileWatch = new FileWatcherThread(InputBufferJobDir,
+                        monitorData.NumFilesConsumed, iniData, monitorData, statusData, logger);
                     if (inputFileWatch == null)
                     {
                         logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
@@ -194,7 +194,7 @@ namespace Status.Services
                     StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, iniData.StatusLogFile, logger);
 
                     // Move files from Input directory to the Processing directory, creating it first if needed
-                    FileHandling.CopyFolderContents(InputBufferDir, ProcessingBufferDir, logger, true, true);
+                    FileHandling.CopyFolderContents(InputBufferJobDir, ProcessingBufferJobDir, logger, true, true);
                 }
                 else
                 {
@@ -216,7 +216,7 @@ namespace Status.Services
             // Load and execute Modeler using command line generator
             CommandLineGenerator cl = new CommandLineGenerator();
             cl.SetExecutableFile(iniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
-            cl.SetRepositoryDir(ProcessingBufferDir);
+            cl.SetRepositoryDir(ProcessingBufferJobDir);
             cl.SetStartPort(monitorData.JobPortNumber);
             cl.SetCpuCores(iniData.CPUCores);
             cl.SetLogger(logger);
@@ -248,8 +248,9 @@ namespace Status.Services
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
 
             // Register with the File Watcher class with an event and start its thread
-            FileWatcherThread ProcessingFileWatch = new FileWatcherThread(monitorData.NumFilesConsumed + monitorData.NumFilesProduced,
-                iniData.ProcessingDir, iniData, monitorData, statusData, logger);
+            string processingBufferJobDir = iniData.ProcessingDir + @"\" + MonitorData.Job;
+            FileWatcherThread ProcessingFileWatch = new FileWatcherThread(processingBufferJobDir,
+                monitorData.NumFilesConsumed + monitorData.NumFilesProduced, iniData, monitorData, statusData, logger);
             if (ProcessingFileWatch == null)
             {
                 logger.LogError("Job Run Thread ProcessingFileWatch failed to instantiate");
@@ -275,7 +276,7 @@ namespace Status.Services
                 // Check for Data.xml in the Processing Directory
                 do
                 {
-                    String[] files = System.IO.Directory.GetFiles(ProcessingBufferDir, "Data.xml");
+                    String[] files = System.IO.Directory.GetFiles(ProcessingBufferJobDir, "Data.xml");
                     if (files.Length > 0)
                     {
                         xmlFileName = files[0];
@@ -320,7 +321,7 @@ namespace Status.Services
                         }
 
                         // Move Processing Buffer Files to the Repository directory when passed
-                        FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
+                        FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
                     }
                     else
                     {
@@ -338,7 +339,7 @@ namespace Status.Services
                         }
 
                         // Move Processing Buffer Files to the Repository directory when failed
-                        FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
+                        FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
                     }
                 }
                 else
@@ -357,7 +358,7 @@ namespace Status.Services
                     }
 
                     // Move Processing Buffer Files to the Repository directory when failed
-                    FileHandling.CopyFolderContents(ProcessingBufferDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
+                    FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
                 }
 
                 StaticData.DecrementNumberOfJobsExecuting();

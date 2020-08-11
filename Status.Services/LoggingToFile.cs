@@ -47,7 +47,7 @@ namespace Status.Services
 
             if (tooBig)
             {
-                Console.WriteLine("Process log file too big");
+                Console.WriteLine("Process log file too big. Reducing 10%");
                 lock (fileLock)
                 {
                     // Remove old data from log file
