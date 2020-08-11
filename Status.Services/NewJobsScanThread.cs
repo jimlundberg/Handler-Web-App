@@ -121,15 +121,17 @@ namespace Status.Services
             {
                 Logger.LogError("ScanForNewJobs runDirectoryInfo failed to instantiate");
             }
+
+            // Get the list of directories from the Input Buffer
             runDirectoryInfoList = runDirectoryInfo.EnumerateDirectories().ToList();
             if (runDirectoryInfoList.Count > 0)
             {
                 StaticData.Log(IniData.ProcessLogFile, "\nProcesssing unfinished new job(s)...");
             }
 
+            // Start the jobs in the directory list found on initial scan of the Input Buffer
             foreach (var dir in runDirectoryInfoList)
             {
-                // Run the directory list found on initial scan of the Input Buffer
                 StartJob(dir.ToString(), iniFileData, statusData, logger);
             }
         }
