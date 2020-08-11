@@ -128,7 +128,7 @@ namespace Status.Services
             runDirectoryInfoList = runDirectoryInfo.EnumerateDirectories().ToList();
             if (runDirectoryInfoList.Count > 0)
             {
-                StaticData.Log(IniData.ProcessLogFile, "\nProcesssing unfinished new job(s)...");
+                StaticData.Log(IniData.ProcessLogFile, "\nProcesssing unfinished new jobs...");
             }
 
             // Start the jobs in the directory list found on initial scan of the Input Buffer

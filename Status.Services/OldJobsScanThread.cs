@@ -82,12 +82,12 @@ namespace Status.Services
             // Look for a difference between new and run directory lists
             if (runDirectoryList.Count() == 0)
             {
-                StaticData.Log(IniData.ProcessLogFile, "\nNo unfinished job(s) Found...");
+                StaticData.Log(IniData.ProcessLogFile, "\nNo unfinished jobs Found...");
                 StaticData.OldJobScanComplete = true;
                 return;
             }
 
-            StaticData.Log(IniData.ProcessLogFile, "Found unfinished job(s)...");
+            StaticData.Log(IniData.ProcessLogFile, "Found unfinished jobs...");
 
             foreach (var dir in runDirectoryList)
             {
@@ -165,7 +165,7 @@ namespace Status.Services
                 }
             }
 
-            StaticData.Log(IniData.ProcessLogFile, "\nNo more unfinished job(s) Found...");
+            StaticData.Log(IniData.ProcessLogFile, "\nNo more unfinished jobs Found...");
             StaticData.OldJobScanComplete = true;
         }
     }
