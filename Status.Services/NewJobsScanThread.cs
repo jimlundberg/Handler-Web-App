@@ -98,6 +98,8 @@ namespace Status.Services
         /// <param name="logger"></param>
         public static void ScanForCurrentNewJobs(IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
+            StaticData.Log(iniFileData.ProcessLogFile, "\nScanning for New Jobs");
+
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
             if (jobXmlData == null)
             {

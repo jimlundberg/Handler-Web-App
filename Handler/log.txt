@@ -1315,3 +1315,43 @@ Status: Job:1202741_202003101418 Job Status:EXECUTING Time Type:TIME_START
 Starting Job 1202741_202003101418 with Modeler 780200XXC00 on port 3001 with 4 CPU's at 21:37:37.606
 Status: Job:1202741_202003101418 Job Status:MONITORING_PROCESSING Time Type:TIME_START
 Starting monitoring for Job 1202741_202003101418 Processing Buffer output files at 21:37:37.623
+
+Config.ini data found:
+
+Input Dir             = C:\SSMCharacterizationHandler\Input Buffer
+Processing Dir        = C:\SSMCharacterizationHandler\ProcessingBuffer
+Repository Dir        = C:\SSMCharacterizationHandler\Archive
+Finished Dir          = C:\SSMCharacterizationHandler\Output Buffer
+Error Dir             = C:\SSMCharacterizationHandler\Error Buffer
+Modeler Root Dir      = C:\SSMCharacterizationHandler\Application\Modelers
+Status Log File       = StatusData.csv
+Process Log File      = log.txt
+CPU Cores             = 4 Cores
+Execution Limit       = 3 Jobs
+Start Port            = 3000
+Scan Time             = 5000 Miliseconds
+Max Time Limit        = 28800 Seconds
+Log File History      = 30 Days
+
+No unfinished job(s) Found...
+
+Config.ini data found:
+
+Input Dir             = C:\SSMCharacterizationHandler\Input Buffer
+Processing Dir        = C:\SSMCharacterizationHandler\ProcessingBuffer
+Repository Dir        = C:\SSMCharacterizationHandler\Archive
+Finished Dir          = C:\SSMCharacterizationHandler\Output Buffer
+Error Dir             = C:\SSMCharacterizationHandler\Error Buffer
+Modeler Root Dir      = C:\SSMCharacterizationHandler\Application\Modelers
+Status Log File       = StatusData.csv
+Process Log File      = log.txt
+CPU Cores             = 4 Cores
+Execution Limit       = 3 Jobs
+Start Port            = 3000
+Scan Time             = 5000 Miliseconds
+Max Time Limit        = 28800 Seconds
+Log File History      = 30 Days
+
+No unfinished job(s) Found...
+
+Scanning for New Jobs

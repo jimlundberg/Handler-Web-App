@@ -68,6 +68,9 @@ namespace Status.Services
             // ($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
 
             // Run the job
+            StaticData.Log(IniData.ProcessLogFile, 
+                String.Format("Directory Watcher Starting Job {0} at at {1:HH:mm:ss.fff}",
+                e.FullPath, DateTime.Now));
             NewJobsScanThread.StartJob(e.FullPath, IniData, StatusData, Logger);
         }
 
