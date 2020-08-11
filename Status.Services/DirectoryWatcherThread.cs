@@ -8,6 +8,9 @@ using System.Threading;
 
 namespace Status.Services
 {
+    /// <summary>
+    /// Class to monitor for new directories in a directory
+    /// </summary>
     public class DirectoryWatcherThread
     {
         public static string Directory;
@@ -50,7 +53,7 @@ namespace Status.Services
             thread = new Thread(() => WatchDirectory(Directory));
             if (thread == null)
             {
-                Logger.LogError("NewJobsScanThread thread failed to instantiate");
+                Logger.LogError("Directory Watcher Thread thread failed to instantiate");
             }
             thread.Start();
         }
@@ -64,13 +67,12 @@ namespace Status.Services
         public static void OnChanged(object source, FileSystemEventArgs e)
         {
             // Directory Added (or changed???)
-            // StaticData.Log(IniData.ProcessLogFile,
-            // ($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
+            // StaticData.Log(IniData.ProcessLogFile, ($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
 
             // Run the job
-            StaticData.Log(IniData.ProcessLogFile, 
-                String.Format("Directory Watcher Starting Job {0} at at {1:HH:mm:ss.fff}",
-                e.FullPath, DateTime.Now));
+            //StaticData.Log(IniData.ProcessLogFile, 
+            //    String.Format("Directory Watcher Starting Job {0} at at {1:HH:mm:ss.fff}",
+            //    e.FullPath, DateTime.Now));
             NewJobsScanThread.StartJob(e.FullPath, IniData, StatusData, Logger);
         }
 
@@ -81,9 +83,8 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void OnDeleted(object source, FileSystemEventArgs e)
         {
-            // Specify what is done when a directory is deleted.
-            // StaticData.Log(IniData.ProcessLogFile,
-            // ($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
+            // Directory is deleted
+            // StaticData.Log(IniData.ProcessLogFile,($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
         }
 
         /// <summary>

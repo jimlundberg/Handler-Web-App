@@ -11,34 +11,12 @@ namespace Status.Services
     /// </summary>
     public class JobTcpIpThread
     {
-        // State information used in the task.
         public static IniFileData IniData;
         public static StatusMonitorData MonitorData;
         public static List<StatusData> StatusData;
         private static Thread tcpIpthread;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
-
-        /// <summary>
-        /// Start Tcp/IP scan process
-        /// </summary>
-        /// <param name="iniData"></param>
-        /// <param name="monitorData"></param>
-        /// <param name="statusData"></param>
-        /// <param name="logger"></param>
-        public void StartTcpIpScanProcess(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, ILogger<StatusRepository> logger)
-        {
-            Logger = logger;
-
-            // Start Tcp/Ip thread
-            JobTcpIpThread tcpIp = new JobTcpIpThread(iniData, monitorData, statusData, Logger);
-            tcpIp.ThreadProc();
-        }
-
-        protected virtual void OnProcessCompleted(EventArgs e)
-        {
-            ProcessCompleted?.Invoke(this, e);
-        }
 
         /// <summary>
         /// Job Tcp/IP thread 
@@ -53,6 +31,25 @@ namespace Status.Services
             MonitorData = monitorData;
             StatusData = statusData;
             Logger = logger;
+        }
+
+        /// <summary>
+        /// Start Tcp/IP scan process
+        /// </summary>
+        /// <param name="iniData"></param>
+        /// <param name="monitorData"></param>
+        /// <param name="statusData"></param>
+        /// <param name="logger"></param>
+        public void StartTcpIpScanProcess(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
+        {
+            // Start Tcp/Ip thread
+            JobTcpIpThread tcpIp = new JobTcpIpThread(iniData, monitorData, statusData, Logger);
+            tcpIp.ThreadProc();
+        }
+
+        protected virtual void OnProcessCompleted(EventArgs e)
+        {
+            ProcessCompleted?.Invoke(this, e);
         }
 
         // The thread procedure performs the task

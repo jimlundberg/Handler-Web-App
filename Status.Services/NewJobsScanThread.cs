@@ -41,8 +41,6 @@ namespace Status.Services
             // Set Flag for ending directory scan loop
             StaticData.Log(IniData.ProcessLogFile, "\new Job Scan Received directories");
             StaticData.FoundNewJobsReady = true;
-
-            // What the heck next?
         }
 
         /// <summary>
@@ -156,8 +154,6 @@ namespace Status.Services
                 string job = jobDirectory.Replace(iniFileData.InputDir, "").Remove(0, 1);
 
                 string logFile = iniFileData.ProcessLogFile;
-                StaticData.Log(logFile, String.Format("Starting job {0} index {1} at {2:HH:mm:ss.fff}", 
-                    job, StaticData.NumberOfJobsExecuting, DateTime.Now));
 
                 // Start scan for new directory in the Input Buffer
                 ScanDirectory scanDir = new ScanDirectory();

@@ -10,6 +10,7 @@ namespace Status.Services
         public static volatile bool TcpIpScanComplete = true;
         public static volatile bool OldJobScanComplete = false;
         public static volatile bool ExitDirectoryScan = false;
+        public static volatile bool ExitFileScan = false;
         public static volatile bool FoundNewJobsReady = false;
         public static int sizeLimitInBytes = 5 * 1024 * 1024; // 5 MB
 
