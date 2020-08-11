@@ -25,29 +25,50 @@ namespace Status.Services
         /// <param name="text"></param>
         public void WriteToLogFile(string text)
         {
+            bool tooBig = false;
             lock (fileLock)
             {
                 using (var stream = new FileStream(LogFileName, FileMode.Append))
-                using (var writer = new StreamWriter(stream))
                 {
-                    // Check file size before writing
-                    if (stream.Position < StaticData.sizeLimitInBytes)
+                    using (var writer = new StreamWriter(stream))
                     {
-                        writer.WriteLine(text);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Log file of {0} lines too big", stream.Position); 
-                        using (var reduceStream = new FileStream(LogFileName, FileMode.Truncate))
+                        // Check file size before writing
+                        if (stream.Position < StaticData.sizeLimitInBytes)
                         {
-                            long start = stream.Length * (long)0.1;
-                            long count = stream.Length; 
-
-                            //reduceStream.WriteAllLines(LogFileName, File.ReadAllLines(LogFileName)
-                            //    .Where((line, index) => index < start - 1 ||
-                            //    index >= start + count - 1));
-
                             writer.WriteLine(text);
+                        }
+                        else
+                        {
+                            tooBig = true;
+                        }
+                    }
+                }
+            }
+
+            if (tooBig)
+            {
+                Console.WriteLine("Process log file too big");
+                lock (fileLock)
+                {
+                    // Remove old data from log file
+                    using (MemoryStream memoryStream = new MemoryStream(StaticData.sizeLimitInBytes))
+                    {
+                        using (FileStream stream = new FileStream(LogFileName, FileMode.Open, FileAccess.ReadWrite))
+                        {
+                            int sizeLimit = (int)(StaticData.sizeLimitInBytes * 0.9);
+                            stream.Seek(-sizeLimit, SeekOrigin.End);
+                            byte[] bytes = new byte[sizeLimit];
+                            stream.Read(bytes, 0, sizeLimit);
+                            memoryStream.Write(bytes, 0, sizeLimit);
+                            memoryStream.Position = 0;
+                            stream.SetLength(sizeLimit);
+                            stream.Position = 0;
+                            memoryStream.CopyTo(stream);
+
+                            using (var writer = new StreamWriter(stream))
+                            {
+                                writer.WriteLine(text);
+                            }
                         }
                     }
                 }
