@@ -17,11 +17,12 @@ namespace Status.Services
         public static StatusMonitorData MonitorData;
         public static List<StatusData> StatusData;
         public static string Directory;
-        public static int NumberOfFilesNeeded = 0;
-        public static int NumberOfFilesFound = 0;
         private static Thread thread;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
+        public static int NumberOfFilesNeeded = 0;
+        // Having an xml file triggers the directory scan, so start files found with 1
+        public static int NumberOfFilesFound = 1;
 
         public FileWatcherThread() { }
 
