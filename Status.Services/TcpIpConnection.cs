@@ -172,7 +172,7 @@ namespace Status.Services
 
                 StaticData.Log(iniData.ProcessLogFile, 
                     String.Format("Completed TCP/IP Scan of Job {0} at {1:HH:mm:ss.fff}",
-                    monitorData.Job, DateTime.Now));
+                        monitorData.Job, DateTime.Now));
             }
             catch (ArgumentNullException e)
             {

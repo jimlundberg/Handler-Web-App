@@ -55,6 +55,7 @@ namespace Status.Services
                     {
                         using (FileStream stream = new FileStream(LogFileName, FileMode.Open, FileAccess.ReadWrite))
                         {
+                            // Reduce size of log file by 10%
                             int sizeLimit = (int)(StaticData.sizeLimitInBytes * 0.9);
                             stream.Seek(-sizeLimit, SeekOrigin.End);
                             byte[] bytes = new byte[sizeLimit];
