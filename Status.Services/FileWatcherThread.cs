@@ -81,7 +81,7 @@ namespace Status.Services
                 if (NumberOfFilesFound == NumberOfFilesNeeded)
                 {
                     StaticData.Log(IniData.ProcessLogFile, 
-                        String.Format("File Watcher Found {0} of {1} files in {2} at {3:HH:mm:ss.fff}",
+                        String.Format("File Watcher Found {0} of {1} files in directory {2} at {3:HH:mm:ss.fff}",
                         NumberOfFilesFound, NumberOfFilesNeeded, Directory, DateTime.Now));
 
                     if (ScanType == DirectoryScanType.INPUT_BUFFER)
@@ -128,8 +128,16 @@ namespace Status.Services
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public static void WatchFiles(string directory)
         {
-            // Start with the xml file as 1
-            NumberOfFilesFound = 1;
+            if (ScanType == StatusModels.DirectoryScanType.INPUT_BUFFER)
+            {
+                // Start with the xml file as 1
+                NumberOfFilesFound = 1;
+            }
+            if (ScanType == StatusModels.DirectoryScanType.PROCESSING_BUFFER)
+            {
+                // Start with the number of start files
+                NumberOfFilesFound = MonitorData.NumFilesConsumed;
+            }
 
             // Create a new FileSystemWatcher and set its properties.
             using (FileSystemWatcher watcher = new FileSystemWatcher(directory))
@@ -139,11 +147,8 @@ namespace Status.Services
                     Logger.LogError("FileWatcherThread watcher failed to instantiate");
                 }
 
-                // Watch for changes in the directory list
-                watcher.NotifyFilter = NotifyFilters.LastAccess
-                                     | NotifyFilters.LastWrite
-                                     | NotifyFilters.FileName
-                                     | NotifyFilters.DirectoryName;
+                // Watch for file changes in the watched directory
+                watcher.NotifyFilter = NotifyFilters.FileName;
 
                 // Watch for any file to get directory changes
                 watcher.Filter = "*.*";
@@ -159,6 +164,7 @@ namespace Status.Services
                 Console.WriteLine("FileWatcher watching {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now);
 
+                // Start the TCP/IP scan when monitoring the Process Files
                 if (ScanType == StatusModels.DirectoryScanType.PROCESSING_BUFFER)
                 {
                     // Register with the Tcp/Ip Event and start it's thread

@@ -94,7 +94,7 @@ namespace Status.Services
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public void WatchDirectory(string directory)
         {
-            // Create a new FileSystemWatcher and set its properties.
+            // Create a new FileSystemWatcher and set its properties
             using (FileSystemWatcher watcher = new FileSystemWatcher(directory))
             {
                 if (watcher == null)
@@ -105,7 +105,7 @@ namespace Status.Services
                 // Watch for changes in the directory list
                 watcher.NotifyFilter = NotifyFilters.DirectoryName;
 
-                // Watch for any file to get directory changes
+                // Watch for any directories names added
                 watcher.Filter = "*.*";
                 watcher.IncludeSubdirectories = true;
 
