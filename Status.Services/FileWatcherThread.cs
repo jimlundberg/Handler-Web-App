@@ -20,9 +20,9 @@ namespace Status.Services
         private static Thread thread;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
-        public static int NumberOfFilesNeeded = 0;
-        // Having an xml file triggers the directory scan, so start files found with 1
+        // The directory scan has an xml file, so start files found count with 1
         public static int NumberOfFilesFound = 1;
+        public static int NumberOfFilesNeeded = 0;
         public static DirectoryScanType ScanType;
 
         public FileWatcherThread() { }

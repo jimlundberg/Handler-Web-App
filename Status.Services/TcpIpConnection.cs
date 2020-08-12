@@ -134,7 +134,7 @@ namespace Status.Services
                                 StaticData.Log(iniData.ProcessLogFile, 
                                     String.Format("Received Weird Response: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
-                                logger.LogWarning("Received Weird Response: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                                logger.LogWarning("Received Weird Response: {0} from Job {1} on port {2} at {32qw111:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
                                 break;
                         }

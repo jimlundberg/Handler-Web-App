@@ -9,7 +9,7 @@ using System.Threading;
 namespace Status.Services
 {
     /// <summary>
-    /// Class to monitor for new directories in a directory
+    /// Class to monitor for new directories created in a specified directory
     /// </summary>
     public class DirectoryWatcherThread
     {

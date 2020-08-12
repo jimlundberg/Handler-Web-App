@@ -75,6 +75,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="statusList"></param>
         /// <param name="job"></param>
+        /// <param name="iniData"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
@@ -88,7 +89,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Process of running a job
+        /// Process of running a job 
         /// </summary>
         /// <param name="scanDirectory"></param>
         /// <param name="iniData"></param>
@@ -186,7 +187,7 @@ namespace Status.Services
                     // Reset the Tcp/Ip Job Complete flag for Input Directory Monitoring
                     StaticData.TcpIpScanComplete = false;
 
-                    Console.WriteLine("Start File scan for Input complete for job {0} at {1:HH: mm: ss.fff}", InputBufferJobDir, DateTime.Now);
+                    Console.WriteLine("Start File scan of Input for job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
 
                     // Register with the File Watcher class event and start its thread
                     FileWatcherThread inputFileWatch = new FileWatcherThread(InputBufferJobDir,
@@ -199,9 +200,15 @@ namespace Status.Services
                     inputFileWatch.ProcessCompleted += Input_fileScan_FilesFound;
                     inputFileWatch.ThreadProc();
 
-                    // Wait for file scan to complete
+                    // Wait for Input file scan to complete
                     while (StaticData.ExitInputFileScan == false)
                     {
+                        // If the shutdown flag is set, exit method
+                        if (StaticData.ShutdownFlag == true)
+                        {
+                            logger.LogInformation("Shutdown RunJob for Modeler Job {0}", job);
+                            return;
+                        }
                         Thread.Sleep(100);
                     }
 
@@ -276,7 +283,7 @@ namespace Status.Services
             ProcessingFileWatch.ProcessCompleted += Processing_fileScan_FilesFound;
             ProcessingFileWatch.ThreadProc();
 
-            if (StaticData.ExitProcessingFileScan)
+            do
             {
                 // If the shutdown flag is set, exit method
                 if (StaticData.ShutdownFlag == true)
@@ -284,81 +291,65 @@ namespace Status.Services
                     logger.LogInformation("Shutdown RunJob for Modeler Job {0}", job);
                     return;
                 }
+                Thread.Sleep(100);
+            }
+            while (StaticData.ExitProcessingFileScan == false);
 
-                // Add copy to archieve entry to status list
-                StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.StatusLogFile, logger);
+            // Add copy to archieve entry to status list
+            StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.StatusLogFile, logger);
 
-                // Check .Xml output file for pass/fail
-                bool XmlFileFound = false;
+            // Check .Xml output file for pass/fail
+            bool XmlFileFound = false;
 
-                // Check for Data.xml in the Processing Directory
-                do
+            // Check for Data.xml in the Processing Directory
+            do
+            {
+                String[] files = System.IO.Directory.GetFiles(ProcessingBufferJobDir, "Data.xml");
+                if (files.Length > 0)
                 {
-                    String[] files = System.IO.Directory.GetFiles(ProcessingBufferJobDir, "Data.xml");
-                    if (files.Length > 0)
-                    {
-                        xmlFileName = files[0];
-                        XmlFileFound = true;
-                    }
-
-                    if (StaticData.ShutdownFlag == true)
-                    {
-                        logger.LogInformation("Shutdown RunJob Scanning xml Job {0}", job);
-                        return;
-                    }
-
-                    Thread.Sleep(500);
-                }
-                while (XmlFileFound == false);
-
-                lock (xmlLock)
-                {
-                    // Read output Xml file data
-                    XmlDocument XmlOutputDoc = new XmlDocument();
-                    XmlDoc.Load(xmlFileName);
+                    xmlFileName = files[0];
+                    XmlFileFound = true;
                 }
 
-                // Get the pass or fail data from the OverallResult node
-                XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
-                if (OverallResult != null)
+                if (StaticData.ShutdownFlag == true)
                 {
-                    string passFail = OverallResult.InnerText;
-                    if (passFail == "Pass")
+                    logger.LogInformation("Shutdown RunJob Scanning xml Job {0}", job);
+                    return;
+                }
+
+                Thread.Sleep(500);
+            }
+            while (XmlFileFound == false);
+
+            lock (xmlLock)
+            {
+                // Read output Xml file data
+                XmlDocument XmlOutputDoc = new XmlDocument();
+                XmlDoc.Load(xmlFileName);
+            }
+
+            // Get the pass or fail data from the OverallResult node
+            XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
+            if (OverallResult != null)
+            {
+                string passFail = OverallResult.InnerText;
+                if (passFail == "Pass")
+                {
+                    // If the Finished directory does not exist, create it
+                    if (!Directory.Exists(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber))
                     {
-                        // If the Finished directory does not exist, create it
-                        if (!Directory.Exists(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber))
-                        {
-                            Directory.CreateDirectory(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber);
-                        }
-
-                        // Copy the Transfered files to the Finished directory 
-                        foreach (var file in monitorData.transferedFileList)
-                        {
-                            FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + file,
-                                iniData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);
-                        }
-
-                        // Move Processing Buffer Files to the Repository directory when passed
-                        FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
+                        Directory.CreateDirectory(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber);
                     }
-                    else
+
+                    // Copy the Transfered files to the Finished directory 
+                    foreach (var file in monitorData.transferedFileList)
                     {
-                        // If the Error directory does not exist, create it
-                        if (!Directory.Exists(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber))
-                        {
-                            Directory.CreateDirectory(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber);
-                        }
-
-                        // Copy the Transfered files to the Error directory 
-                        foreach (var file in monitorData.transferedFileList)
-                        {
-                                FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + file,
-                                iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);
-                        }
-
-                        // Move Processing Buffer Files to the Repository directory when failed
-                        FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
+                        FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + file,
+                            iniData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);
                     }
+
+                    // Move Processing Buffer Files to the Repository directory when passed
+                    FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
                 }
                 else
                 {
@@ -371,21 +362,39 @@ namespace Status.Services
                     // Copy the Transfered files to the Error directory 
                     foreach (var file in monitorData.transferedFileList)
                     {
-                        FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + file,
-                        iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);
+                            FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + file,
+                            iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);
                     }
 
                     // Move Processing Buffer Files to the Repository directory when failed
                     FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
                 }
-
-                StaticData.DecrementNumberOfJobsExecuting();
-                StaticData.Log(iniData.ProcessLogFile, String.Format("-----Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
-                    monitorData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now));
-
-                // Add entry to status list
-                StatusDataEntry(statusData, job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
             }
+            else
+            {
+                // If the Error directory does not exist, create it
+                if (!Directory.Exists(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber))
+                {
+                    Directory.CreateDirectory(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber);
+                }
+
+                // Copy the Transfered files to the Error directory 
+                foreach (var file in monitorData.transferedFileList)
+                {
+                    FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + file,
+                    iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);
+                }
+
+                // Move Processing Buffer Files to the Repository directory when failed
+                FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
+            }
+
+            StaticData.DecrementNumberOfJobsExecuting();
+            StaticData.Log(iniData.ProcessLogFile, String.Format("-----Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
+                monitorData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now));
+
+            // Add entry to status list
+            StatusDataEntry(statusData, job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
         }
     }
 }
