@@ -209,7 +209,7 @@ namespace Status.Services
                             logger.LogInformation("Shutdown RunJob for Modeler Job {0}", job);
                             return;
                         }
-                        Thread.Sleep(100);
+                        Thread.Sleep(250);
                     }
 
                     Console.WriteLine("Finished File scan for Input complete for job {0} at {1:HH: mm: ss.fff}", InputBufferJobDir, DateTime.Now);
@@ -291,7 +291,7 @@ namespace Status.Services
                     logger.LogInformation("Shutdown RunJob for Modeler Job {0}", job);
                     return;
                 }
-                Thread.Sleep(100);
+                Thread.Sleep(250);
             }
             while (StaticData.ExitProcessingFileScan == false);
 
@@ -317,7 +317,7 @@ namespace Status.Services
                     return;
                 }
 
-                Thread.Sleep(500);
+                Thread.Sleep(250);
             }
             while (XmlFileFound == false);
 

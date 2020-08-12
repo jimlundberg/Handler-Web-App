@@ -1,10 +1,10 @@
-﻿using StatusModels;
+﻿using Microsoft.Extensions.Logging;
+using StatusModels;
 using System;
-using System.IO;
-using System.Threading;
 using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
+using System.IO;
 using System.Security.Permissions;
+using System.Threading;
 
 namespace Status.Services
 {
@@ -73,19 +73,27 @@ namespace Status.Services
         public static void OnChanged(object source, FileSystemEventArgs e)
         {
             // File Added(or changed???)
-            // StaticData.Log(IniData.ProcessLogFile, ($"File Watcher detected: {e.FullPath} {e.ChangeType}"));
-            NumberOfFilesFound++;
-            if (NumberOfFilesFound == NumberOfFilesNeeded)
+            StaticData.Log(IniData.ProcessLogFile, ($"File Watcher detected: {e.FullPath} {e.ChangeType}"));
+
+            if (e.ChangeType == WatcherChangeTypes.Created)
             {
-                if (ScanType == DirectoryScanType.INPUT_BUFFER)
+                NumberOfFilesFound++;
+                if (NumberOfFilesFound == NumberOfFilesNeeded)
                 {
-                    // Signal the Run thread that the Input files were found
-                    StaticData.ExitInputFileScan = true;
-                }
-                else if (ScanType == DirectoryScanType.PROCESSING_BUFFER)
-                {
-                    // Signal the Run thread that the Processing files were found
-                    StaticData.ExitProcessingFileScan = true;
+                    StaticData.Log(IniData.ProcessLogFile, 
+                        String.Format("File Watcher Found {0} of {1} files in {2} at {3:HH:mm:ss.fff}",
+                        NumberOfFilesFound, NumberOfFilesNeeded, Directory, DateTime.Now));
+
+                    if (ScanType == DirectoryScanType.INPUT_BUFFER)
+                    {
+                        // Signal the Run thread that the Input files were found
+                        StaticData.ExitInputFileScan = true;
+                    }
+                    else if (ScanType == DirectoryScanType.PROCESSING_BUFFER)
+                    {
+                        // Signal the Run thread that the Processing files were found
+                        StaticData.ExitProcessingFileScan = true;
+                    }
                 }
             }
         }
@@ -102,12 +110,27 @@ namespace Status.Services
         }
 
         /// <summary>
+        /// TCP/IP Scan Complete
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public static void TcpIp_ScanCompleted(object sender, EventArgs e)
+        {
+            // Set Flag for ending directory scan loop
+            Console.WriteLine("Monitor directory received Tcp/Ip Scan Completed!");
+            StaticData.TcpIpScanComplete = true;
+        }
+
+        /// <summary>
         /// Monitor a Directory for a selected number of files with a timeout
         /// </summary>
         /// <param name="directory"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public static void WatchFiles(string directory)
         {
+            // Start with the xml file as 1
+            NumberOfFilesFound = 1;
+
             // Create a new FileSystemWatcher and set its properties.
             using (FileSystemWatcher watcher = new FileSystemWatcher(directory))
             {
@@ -136,31 +159,45 @@ namespace Status.Services
                 Console.WriteLine("FileWatcher watching {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now);
 
+                if (ScanType == StatusModels.DirectoryScanType.PROCESSING_BUFFER)
+                {
+                    // Register with the Tcp/Ip Event and start it's thread
+                    JobTcpIpThread tcpIp = new JobTcpIpThread(IniData, MonitorData, StatusData, Logger);
+                    if (tcpIp == null)
+                    {
+                        Logger.LogError("MonitorDirectory tcpIp thread failed to instantiate");
+                    }
+                    tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
+                    tcpIp.StartTcpIpScanProcess(IniData, MonitorData, StatusData);
+                }
+
                 // Enter infinite loop waiting for changes
                 if (ScanType == DirectoryScanType.INPUT_BUFFER)
                 {
                     do
                     {
-                        Thread.Sleep(100);
+                        Thread.Sleep(250);
                     }
                     while ((StaticData.ExitInputFileScan == false) && (StaticData.ShutdownFlag == false));
 
                     // Exiting thread message
                     StaticData.Log(IniData.ProcessLogFile,
-                        String.Format("Exiting FileWatcherThread with ExitFileScan {0} and ShutdownFlag {1}",
+                        String.Format("Exiting FileWatcherThread with ExitInputFileScan {0} and ShutdownFlag {1}",
                         StaticData.ExitInputFileScan, StaticData.ShutdownFlag));
                 }
-                else if (ScanType == DirectoryScanType.INPUT_BUFFER)
+                else if (ScanType == DirectoryScanType.PROCESSING_BUFFER)
                 {
                     do
                     {
-                        Thread.Sleep(100);
+                        Thread.Sleep(250);
                     }
-                    while ((StaticData.ExitProcessingFileScan == false) && (StaticData.ShutdownFlag == false));
+                    while (((StaticData.ExitProcessingFileScan == false) &&
+                           (StaticData.TcpIpScanComplete == false)) &&
+                           (StaticData.ShutdownFlag == false));
 
                     // Exiting thread message
                     StaticData.Log(IniData.ProcessLogFile,
-                        String.Format("Exiting FileWatcherThread with ExitFileScan {0} and ShutdownFlag {1}",
+                        String.Format("Exiting FileWatcherThread with ExitProcessingFileScan {0} and ShutdownFlag {1}",
                         StaticData.ExitProcessingFileScan, StaticData.ShutdownFlag));
                 }
             }

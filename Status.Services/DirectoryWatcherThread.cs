@@ -120,7 +120,7 @@ namespace Status.Services
                 // Enter infinite loop waiting for changes
                 do
                 {
-                    Thread.Sleep(100);
+                    Thread.Sleep(250);
                 }
                 while ((StaticData.ExitDirectoryScan == false) && 
                        (StaticData.ShutdownFlag == false));
