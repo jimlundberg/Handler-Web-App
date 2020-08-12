@@ -44,6 +44,8 @@ namespace Status.Services
             StatusData = statusData;
             Logger = logger;
             NumberOfFilesFound = 1;
+            Console.WriteLine(String.Format("InputFileWatcherThread Instantiation {0} numberOfFilesFound={1}",
+                directory, NumberOfFilesFound));
         }
 
         protected virtual void OnProcessCompleted(EventArgs e)
@@ -73,15 +75,21 @@ namespace Status.Services
             // File Added(or changed???)
             StaticData.Log(IniData.ProcessLogFile, $"File Watcher detected: {e.FullPath} {e.ChangeType}");
 
+            Console.WriteLine(String.Format("InputFileWatcherThread Changed {0} numberOfFilesFound={1}",
+                Directory, NumberOfFilesFound));
+
             lock (changedLock)
             {
                 if (e.ChangeType == WatcherChangeTypes.Created)
                 {
+                    Console.WriteLine(String.Format("InputFileWatcherThread Completed {0} numberOfFilesFound={1}",
+                        Directory, NumberOfFilesFound));
+
                     NumberOfFilesFound++;
                     if (NumberOfFilesFound == NumberOfFilesNeeded)
                     {
                         StaticData.Log(IniData.ProcessLogFile,
-                            String.Format("InputFileWatcherThreadr Found {0} of {1} files in directory {2} at {3:HH:mm:ss.fff}",
+                            String.Format("InputFileWatcherThread Found {0} of {1} files in directory {2} at {3:HH:mm:ss.fff}",
                             NumberOfFilesFound, NumberOfFilesNeeded, Directory, DateTime.Now));
 
                         // Signal the Run thread that the Input files were found
@@ -122,6 +130,8 @@ namespace Status.Services
         public static void WatchFiles(string directory, int numberOfFilesFound)
         {
             NumberOfFilesFound = numberOfFilesFound;
+            Console.WriteLine(String.Format("InputFileWatcherThread Directory {0} numberOfFilesFound={1}",
+                directory, numberOfFilesFound));
 
             // Create a new FileSystemWatcher and set its properties.
             using (FileSystemWatcher watcher = new FileSystemWatcher())
