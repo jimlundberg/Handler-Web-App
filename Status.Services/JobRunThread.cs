@@ -191,6 +191,7 @@ namespace Status.Services
                     Console.WriteLine("Starting File scan of Input for job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
 
                     // Register with the File Watcher class event and start its thread
+                    StaticData.ExitInputFileScan = false;
                     InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(InputBufferJobDir,
                         monitorData.NumFilesConsumed, iniData, monitorData, statusData, logger);
                     if (inputFileWatch == null)
@@ -198,11 +199,7 @@ namespace Status.Services
                         logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
                     }
                     inputFileWatch.ProcessCompleted += Input_fileScan_FilesFound;
-
-                    lock (threadLock)
-                    {
-                        inputFileWatch.ThreadProc();
-                    }
+                    inputFileWatch.ThreadProc();
 
                     // Wait for Input file scan to complete
                     while (StaticData.ExitInputFileScan == false)
@@ -276,6 +273,7 @@ namespace Status.Services
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
 
             // Register with the File Watcher class with an event and start its thread
+            StaticData.ExitProcessingFileScan = false;
             string processingBufferJobDir = iniData.ProcessingDir + @"\" + MonitorData.Job;
             ProcessingFileWatcherThread ProcessingFileWatch = new ProcessingFileWatcherThread(processingBufferJobDir,
                 monitorData.NumFilesConsumed + monitorData.NumFilesProduced, 
