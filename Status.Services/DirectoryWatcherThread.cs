@@ -95,7 +95,7 @@ namespace Status.Services
         public void WatchDirectory(string directory)
         {
             // Create a new FileSystemWatcher and set its properties
-            using (FileSystemWatcher watcher = new FileSystemWatcher(directory))
+            using (FileSystemWatcher watcher = new FileSystemWatcher())
             {
                 if (watcher == null)
                 {
@@ -104,6 +104,7 @@ namespace Status.Services
 
                 // Watch for changes in the directory list
                 watcher.NotifyFilter = NotifyFilters.DirectoryName;
+                watcher.Path = directory;
 
                 // Watch for any directories names added
                 watcher.Filter = "*.*";
