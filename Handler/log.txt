@@ -1,0 +1,384 @@
+
+Config.ini data found:
+
+Input Dir             = C:\SSMCharacterizationHandler\Input Buffer
+Processing Dir        = C:\SSMCharacterizationHandler\ProcessingBuffer
+Repository Dir        = C:\SSMCharacterizationHandler\Archive
+Finished Dir          = C:\SSMCharacterizationHandler\Output Buffer
+Error Dir             = C:\SSMCharacterizationHandler\Error Buffer
+Modeler Root Dir      = C:\SSMCharacterizationHandler\Application\Modelers
+Status Log File       = StatusData.csv
+Process Log File      = log.txt
+CPU Cores             = 4 Cores
+Execution Limit       = 3 Jobs
+Start Port            = 3000
+Scan Time             = 5000 Miliseconds
+Max Time Limit        = 28800 Seconds
+Log File History      = 30 Days
+Log File Max Size     = 5 MegaBytes
+
+No unfinished jobs Found...
+
+Scanning for New Jobs
+
+Found new Job         = 1185840_202003250942
+New Job Directory     = C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942
+New Serial Number     = 1185840
+New Time Stamp        = 202003250942
+New Job Xml File      = 75300037D00.xml
+Job 1185840_202003250942 started executing slot 1 at 08:32:54.738
+Status: Job:1185840_202003250942 Job Status:JOB_STARTED Time Type:TIME_RECEIVED
+Unit Number           = 3155301-029
+Modeler               = 780200XXC00
+Num Files Consumed    = 6
+Num Files Produced    = 7
+Num Files To Transfer = 3
+Num Files To Transfer = 3
+Job Port Number       = 3000
+Status: Job:1185840_202003250942 Job Status:MONITORING_INPUT Time Type:TIME_START
+Transfer File1        = Cap.tab
+Transfer File2        = Tune.tab
+Transfer File3        = Data.xml
+InputFileWatcherThread Found 6 of 6 files in directory C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942 at 08:32:59.278
+Exiting InputFileWatcherThread with ExitInputFileScan=True and ShutdownFlag=False
+Status: Job:1185840_202003250942 Job Status:COPYING_TO_PROCESSING Time Type:TIME_START
+Status: Job:1185840_202003250942 Job Status:EXECUTING Time Type:TIME_START
+Starting Job 1185840_202003250942 with Modeler 780200XXC00 on port 3000 with 4 CPU's at 08:32:59.585
+Status: Job:1185840_202003250942 Job Status:MONITORING_PROCESSING Time Type:TIME_START
+Starting monitoring for Job 1185840_202003250942 Processing Buffer output files at 08:32:59.605
+
+Found new Job         = 1307106_202002181307
+New Job Directory     = C:\SSMCharacterizationHandler\Input Buffer\1307106_202002181307
+New Serial Number     = 1307106
+New Time Stamp        = 202002181307
+New Job Xml File      = 75300037D00.xml
+Job 1307106_202002181307 started executing slot 2 at 08:33:09.703
+Status: Job:1307106_202002181307 Job Status:JOB_STARTED Time Type:TIME_RECEIVED
+Unit Number           = 3155301-029
+Modeler               = 780200XXC00
+Num Files Consumed    = 6
+Num Files Produced    = 7
+Num Files To Transfer = 3
+Num Files To Transfer = 3
+Job Port Number       = 3001
+Status: Job:1307106_202002181307 Job Status:MONITORING_INPUT Time Type:TIME_START
+Transfer File1        = Cap.tab
+Transfer File2        = Tune.tab
+Transfer File3        = Data.xml
+File Watcher detected: C:\SSMCharacterizationHandler\ProcessingBuffer\1185840_202003250942\Data.xml Created
+InputFileWatcherThread Found 6 of 6 files in directory C:\SSMCharacterizationHandler\Input Buffer\1307106_202002181307 at 08:33:14.226
+Exiting InputFileWatcherThread with ExitInputFileScan=True and ShutdownFlag=False
+Status: Job:1307106_202002181307 Job Status:COPYING_TO_PROCESSING Time Type:TIME_START
+Status: Job:1307106_202002181307 Job Status:EXECUTING Time Type:TIME_START
+Starting Job 1307106_202002181307 with Modeler 780200XXC00 on port 3001 with 4 CPU's at 08:33:14.380
+Status: Job:1307106_202002181307 Job Status:MONITORING_PROCESSING Time Type:TIME_START
+Starting monitoring for Job 1307106_202002181307 Processing Buffer output files at 08:33:14.400
+
+Found new Job         = 1278061_202006301109
+New Job Directory     = C:\SSMCharacterizationHandler\Input Buffer\1278061_202006301109
+New Serial Number     = 1278061
+New Time Stamp        = 202006301109
+New Job Xml File      = 75300037D00.xml
+Job 1278061_202006301109 started executing slot 3 at 08:33:24.717
+Status: Job:1278061_202006301109 Job Status:JOB_STARTED Time Type:TIME_RECEIVED
+Unit Number           = 3155301-029
+Modeler               = 780200XXC00
+Num Files Consumed    = 6
+Num Files Produced    = 7
+Num Files To Transfer = 3
+Num Files To Transfer = 3
+Job Port Number       = 3002
+Status: Job:1278061_202006301109 Job Status:MONITORING_INPUT Time Type:TIME_START
+Transfer File1        = Cap.tab
+Transfer File2        = Tune.tab
+Transfer File3        = Data.xml
+File Watcher detected: C:\SSMCharacterizationHandler\ProcessingBuffer\1307106_202002181307\Data.xml Created
+InputFileWatcherThread Found 6 of 6 files in directory C:\SSMCharacterizationHandler\Input Buffer\1278061_202006301109 at 08:33:29.231
+Status: Job:1278061_202006301109 Job Status:COPYING_TO_PROCESSING Time Type:TIME_START
+Exiting InputFileWatcherThread with ExitInputFileScan=True and ShutdownFlag=False
+Status: Job:1278061_202006301109 Job Status:EXECUTING Time Type:TIME_START
+Starting Job 1278061_202006301109 with Modeler 780200XXC00 on port 3002 with 4 CPU's at 08:33:29.389
+Status: Job:1278061_202006301109 Job Status:MONITORING_PROCESSING Time Type:TIME_START
+Starting monitoring for Job 1278061_202006301109 Processing Buffer output files at 08:33:29.401
+File Watcher detected: C:\SSMCharacterizationHandler\ProcessingBuffer\1278061_202006301109\Data.xml Created
+Status: Job:1185840_202003250942 Job Status:MONITORING_TCPIP Time Type:TIME_START
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:33:59.684
+Status: Job:1307106_202002181307 Job Status:MONITORING_TCPIP Time Type:TIME_START
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:34:14.441
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:34:26.214
+Status: Job:1278061_202006301109 Job Status:MONITORING_TCPIP Time Type:TIME_START
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:34:29.448
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:34:41.251
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:34:41.368
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:34:48.166
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:34:56.440
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:34:56.587
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:35:03.293
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:35:03.487
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:35:12.265
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:35:12.429
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:35:14.882
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:35:18.895
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:35:19.044
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:35:28.143
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:35:28.342
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:35:30.628
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:35:30.883
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:35:34.248
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:35:34.306
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:35:44.092
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:35:44.209
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:35:45.980
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:35:46.082
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:35:49.679
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:35:49.853
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:35:59.384
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:35:59.434
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:36:01.305
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:36:01.561
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:36:05.304
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:36:05.418
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:36:15.357
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:36:15.488
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:36:17.495
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:36:17.658
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:36:21.301
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:36:21.438
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:36:30.981
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:36:31.143
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:36:33.179
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:36:33.292
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:36:36.476
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:36:36.594
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:36:47.316
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:36:47.673
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:36:48.525
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:36:48.777
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:36:51.726
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:36:51.823
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:37:04.214
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:37:04.349
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:37:05.786
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:37:05.920
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:37:08.791
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:37:08.892
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:37:19.640
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:37:19.765
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:37:21.129
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:37:21.234
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:37:24.178
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:37:24.324
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:37:34.818
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:37:34.900
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:37:36.286
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:37:36.530
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:37:39.477
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:37:39.595
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:37:50.133
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:37:50.189
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:37:51.779
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:37:51.882
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:37:54.914
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:37:55.025
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:38:05.395
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:38:05.508
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:38:07.109
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:38:07.197
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:38:10.126
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:38:10.306
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:38:20.692
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:38:20.785
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:38:22.245
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:38:22.403
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:38:25.404
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:38:25.489
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:38:35.911
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:38:36.240
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:38:37.507
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:38:37.577
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:38:41.148
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:38:41.392
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:38:51.650
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:38:51.726
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:38:53.070
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:38:53.133
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:38:57.607
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:38:58.099
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:39:07.733
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:39:08.163
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:39:08.176
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:39:08.268
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:39:13.526
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:39:13.672
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:39:23.361
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:39:23.423
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:39:23.425
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:39:23.526
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:39:29.156
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:39:29.303
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:39:38.574
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:39:38.653
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:39:38.655
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:39:38.769
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:39:44.378
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:39:44.474
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:39:54.204
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:39:54.309
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:39:54.310
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:39:54.393
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:40:00.134
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:40:00.287
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:40:09.996
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:40:10.076
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:40:10.082
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:40:10.251
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:40:15.794
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:40:15.848
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:40:25.781
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:40:25.796
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:40:25.916
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:40:25.925
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:40:31.313
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:40:31.368
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:40:41.007
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:40:41.016
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:40:41.139
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:40:41.155
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:40:46.683
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:40:46.856
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:40:56.300
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:40:56.317
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:40:56.379
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:40:56.422
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:41:02.157
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:41:02.252
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:41:11.977
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:41:12.031
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:41:12.058
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:41:12.146
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:41:17.882
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:41:17.978
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:41:27.633
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:41:27.716
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:41:27.733
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:41:27.879
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:41:33.794
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:41:33.938
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:41:43.167
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:41:43.251
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:41:43.348
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:41:43.439
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:41:49.512
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:41:49.643
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:41:58.305
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:41:58.384
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:41:58.492
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:41:58.602
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:42:04.717
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:42:04.771
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:42:13.866
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:42:13.940
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:42:14.113
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:42:14.185
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:42:20.409
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:42:20.508
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:42:29.650
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:42:29.753
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:42:29.851
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:42:29.935
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:42:36.303
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:42:36.382
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:42:44.999
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:42:45.108
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:42:45.191
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:42:45.285
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:42:51.927
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:42:52.057
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:43:01.045
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:43:01.119
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:43:01.218
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:43:01.328
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:43:08.263
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:43:08.357
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:43:16.191
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:43:16.251
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:43:16.407
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:43:16.488
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:43:23.764
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:43:23.904
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:43:31.399
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:43:31.549
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:43:31.786
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:43:31.896
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:43:39.638
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:43:39.742
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:43:47.600
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:43:47.688
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:43:47.798
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:43:47.865
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:43:55.744
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:43:55.853
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:44:03.633
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:44:03.749
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:44:03.768
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:44:03.856
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:44:11.230
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:44:11.349
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:44:19.175
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:44:19.176
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:44:19.261
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:44:19.294
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:44:28.116
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:44:28.220
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:44:37.919
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:44:37.963
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:44:38.072
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:44:38.140
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:44:43.568
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:44:43.713
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:44:53.814
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:44:53.869
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:44:53.906
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:44:53.961
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:44:58.729
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:44:58.873
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:45:09.291
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:45:09.295
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:45:09.385
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:45:09.389
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:45:14.546
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:45:14.707
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:45:24.993
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:45:24.998
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:45:25.183
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:45:25.184
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:45:29.854
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:45:30.004
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:45:41.147
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:45:41.164
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:45:41.219
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:45:41.245
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:45:46.148
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:45:46.249
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:45:56.335
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:45:56.378
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:45:56.425
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:45:56.470
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:46:01.660
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:46:01.736
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:46:11.567
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:46:11.611
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:46:11.644
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:46:11.665
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:46:17.201
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:46:17.286
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:46:27.400
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:46:27.411
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:46:27.480
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:46:27.485
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 08:46:33.048
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 08:46:33.130
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3002 at 08:46:42.999
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 08:46:43.002
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 08:46:43.125
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3002 at 08:46:43.130
