@@ -1,5 +1,5 @@
-netstat | findstr /i /S /R /n 3000
-netstat | findstr /i /S /R /n 3001
-netstat | findstr /i /S /R /n 3002
-netstat | findstr /i /S /R /n 3003
-netstat | findstr /i /S /R /n 3004
+netstat | findstr 3000
+netstat | findstr 3001
+netstat | findstr 3002
+netstat | findstr 3003
+netstat | findstr 3004
