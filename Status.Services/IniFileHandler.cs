@@ -65,7 +65,7 @@ namespace Status.Services
         public string Job;
         public string TimeStamp;
         public string XmlFileName;
-        private static Object xmlLock = new Object();
+        private static readonly Object xmlLock = new Object();
 
         /// <summary>
         /// ScanDirectory default constructor

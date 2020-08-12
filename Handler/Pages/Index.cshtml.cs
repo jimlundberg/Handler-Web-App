@@ -35,32 +35,32 @@ namespace Handler.Pages
         public enum ButtonPress
         {
             /// <summary>
-            /// Home
+            /// Home Button
             /// </summary>
-            Home = 1, 
+            Home = 1,
 
             /// <summary>
-            /// Start
+            /// Start Button
             /// </summary>
             Start = 2,
-            
+
             /// <summary>
-            /// Refresh
+            /// Refresh Button
             /// </summary>
             Refresh = 3,
 
             /// <summary>
-            /// Pause
+            /// Pause Button
             /// </summary>
-            Pause = 4, 
+            Pause = 4,
 
             /// <summary>
-            /// Stop
+            /// Stop Button
             /// </summary>
-            Stop = 5, 
+            Stop = 5,
 
             /// <summary>
-            /// History
+            /// History Button
             /// </summary>
             History = 6 
         };
@@ -94,31 +94,37 @@ namespace Handler.Pages
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
+
                 case ButtonPress.Start:
                     ViewData["PageName"] = "Start";                 
                     ViewData["bsStartDisabled"] = bsDisabled;
                     break;
+
                 case ButtonPress.Stop:
                     ViewData["PageName"] = "Stop";                 
                     ViewData["bsRefreshDisabled"] = bsDisabled;
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
+
                 case ButtonPress.Pause:
                     ViewData["PageName"] = "Pause";                 
                     ViewData["bsRefreshDisabled"] = bsDisabled;
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
+
                 case ButtonPress.Refresh:
                     ViewData["PageName"] = "Refresh";                   
                     break;
+
                 case ButtonPress.History:
                     ViewData["PageName"] = "History";                   
                     ViewData["bsRefreshDisabled"] = bsDisabled;
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
+
                 default:
                     ViewData["PageName"] = "Home";                    
                     break;

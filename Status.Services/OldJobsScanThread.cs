@@ -17,7 +17,7 @@ namespace Status.Services
         private List<StatusData> StatusData;
         private static Thread thread;
         public event EventHandler ProcessCompleted;
-        private static Object delLock = new Object();
+        private static readonly Object delLock = new Object();
         ILogger<StatusRepository> Logger;
 
         /// <summary>

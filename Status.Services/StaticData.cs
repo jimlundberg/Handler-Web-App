@@ -6,13 +6,14 @@ namespace Status.Services
     {
         public static int NumberOfJobsExecuting = 0;
         public static int RunningJobsIndex = 0;
+        public static int logFileSizeLimit = 0;
         public static volatile bool ShutdownFlag = false;
         public static volatile bool TcpIpScanComplete = true;
         public static volatile bool OldJobScanComplete = false;
         public static volatile bool ExitDirectoryScan = false;
-        public static volatile bool ExitFileScan = false;
+        public static volatile bool ExitInputFileScan = false;
+        public static volatile bool ExitProcessingFileScan = false;
         public static volatile bool FoundNewJobsReady = false;
-        public static int sizeLimitInBytes = 5 * 1024 * 1024; // 5 MB
 
         public static void Log(string logFile, string msg)
         {
@@ -30,6 +31,7 @@ namespace Status.Services
         {
             NumberOfJobsExecuting--;
         }
+
         public static string AddQuotesIfRequired(string path)
         {
             return !string.IsNullOrWhiteSpace(path) ?

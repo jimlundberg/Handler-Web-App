@@ -15,9 +15,9 @@ namespace Status.Services
     public class StatusRepository : IStatusRepository
     {
         private NewJobsScanThread newJobsScanThread;
-        private IniFileData iniFileData = new IniFileData();
-        private List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
-        private List<StatusData> statusList = new List<StatusData>();
+        public IniFileData iniFileData = new IniFileData();
+        public List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
+        public List<StatusData> statusList = new List<StatusData>();
         private StatusData statusData = new StatusData();
         public readonly ILogger<StatusRepository> logger;
 
@@ -59,6 +59,11 @@ namespace Status.Services
             iniFileData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             string logFileHistory = IniParser.Read("Process", "LogFileHistory");
             iniFileData.LogFileHistory = Int32.Parse(logFileHistory.Substring(0, logFileHistory.IndexOf("#")));
+            string logFileMaxSize = IniParser.Read("Process", "logFileMaxSize");
+            iniFileData.LogFileMaxSize = Int32.Parse(logFileMaxSize.Substring(0, logFileMaxSize.IndexOf("#")));
+
+            // Set the log file max size
+            StaticData.logFileSizeLimit = iniFileData.LogFileMaxSize;
 
             string logFile = iniFileData.ProcessLogFile;
             StaticData.Log(logFile, "\nConfig.ini data found:\n");
@@ -76,6 +81,7 @@ namespace Status.Services
             StaticData.Log(logFile, "Scan Time             = " + iniFileData.ScanTime + " Miliseconds");
             StaticData.Log(logFile, "Max Time Limit        = " + iniFileData.MaxTimeLimit + " Seconds");
             StaticData.Log(logFile, "Log File History      = " + iniFileData.LogFileHistory + " Days");
+            StaticData.Log(logFile, "Log File Max Size     = " + iniFileData.LogFileMaxSize + " MegaBytes");
         }
 
         /// <summary>

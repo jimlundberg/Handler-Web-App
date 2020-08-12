@@ -23,6 +23,7 @@ namespace Status.Services
         public static int NumberOfFilesNeeded = 0;
         // Having an xml file triggers the directory scan, so start files found with 1
         public static int NumberOfFilesFound = 1;
+        public static DirectoryScanType ScanType;
 
         public FileWatcherThread() { }
 
@@ -33,11 +34,13 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public FileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData,
-            StatusMonitorData monitorData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public FileWatcherThread(string directory, int numberOfFilesNeeded, DirectoryScanType scanType,
+            IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, 
+            ILogger<StatusRepository> logger)
         {
             Directory = directory;
             NumberOfFilesFound = 0;
+            ScanType = scanType;
             NumberOfFilesNeeded = numberOfFilesNeeded;
             IniData = iniData;
             MonitorData = monitorData;
@@ -74,9 +77,16 @@ namespace Status.Services
             NumberOfFilesFound++;
             if (NumberOfFilesFound == NumberOfFilesNeeded)
             {
-                // Signal the Run thread that the files were found
-                StaticData.ExitFileScan = true;
-                return;
+                if (ScanType == DirectoryScanType.INPUT_BUFFER)
+                {
+                    // Signal the Run thread that the Input files were found
+                    StaticData.ExitInputFileScan = true;
+                }
+                else if (ScanType == DirectoryScanType.PROCESSING_BUFFER)
+                {
+                    // Signal the Run thread that the Processing files were found
+                    StaticData.ExitProcessingFileScan = true;
+                }
             }
         }
 
@@ -127,17 +137,32 @@ namespace Status.Services
                     directory, DateTime.Now);
 
                 // Enter infinite loop waiting for changes
-                do
+                if (ScanType == DirectoryScanType.INPUT_BUFFER)
                 {
-                    Thread.Sleep(100);
-                }
-                while ((StaticData.ExitFileScan == false) &&
-                       (StaticData.ShutdownFlag == false));
+                    do
+                    {
+                        Thread.Sleep(100);
+                    }
+                    while ((StaticData.ExitInputFileScan == false) && (StaticData.ShutdownFlag == false));
 
-                // Exiting thread message
-                StaticData.Log(IniData.ProcessLogFile,
-                    String.Format("Exiting FileWatcherThread with ExitFileScan {0} and ShutdownFlag {1}",
-                    StaticData.ExitFileScan, StaticData.ShutdownFlag));
+                    // Exiting thread message
+                    StaticData.Log(IniData.ProcessLogFile,
+                        String.Format("Exiting FileWatcherThread with ExitFileScan {0} and ShutdownFlag {1}",
+                        StaticData.ExitInputFileScan, StaticData.ShutdownFlag));
+                }
+                else if (ScanType == DirectoryScanType.INPUT_BUFFER)
+                {
+                    do
+                    {
+                        Thread.Sleep(100);
+                    }
+                    while ((StaticData.ExitProcessingFileScan == false) && (StaticData.ShutdownFlag == false));
+
+                    // Exiting thread message
+                    StaticData.Log(IniData.ProcessLogFile,
+                        String.Format("Exiting FileWatcherThread with ExitFileScan {0} and ShutdownFlag {1}",
+                        StaticData.ExitProcessingFileScan, StaticData.ShutdownFlag));
+                }
             }
         }
     }

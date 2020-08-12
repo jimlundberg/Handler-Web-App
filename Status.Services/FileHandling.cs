@@ -9,7 +9,7 @@ namespace Status.Services
     /// </summary>
     public class FileHandling
     {
-        private static Object fileLock = new Object();
+        private static readonly Object fileLock = new Object();
 
         /// <summary>
         /// CopyFolderContents - Copy files and folders from source to destination and optionally remove source files/folders

@@ -17,7 +17,7 @@ namespace Status.Services
         readonly JobStatus Status;
         readonly JobType TimeSlot;
         readonly string LogFileName;
-        private static Object csvLock = new Object();
+        private static readonly Object csvLock = new Object();
         ILogger<StatusRepository> Logger;
 
         public StatusEntry() { }

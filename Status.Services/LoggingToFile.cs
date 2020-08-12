@@ -1,14 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
-using System;
+﻿using System;
 using System.IO;
-using System.Linq;
 
 namespace Status.Services
 {
     class LoggingToFile
     {
         public static string LogFileName;
-        private static Object fileLock = new Object();
+        private static readonly Object fileLock = new Object();
 
         /// <summary>
         /// Logging to File Constructor
@@ -26,6 +24,8 @@ namespace Status.Services
         public void WriteToLogFile(string text)
         {
             bool tooBig = false;
+            int MaxFileSize = StaticData.logFileSizeLimit * 1024 * 1024;
+
             lock (fileLock)
             {
                 using (var stream = new FileStream(LogFileName, FileMode.Append))
@@ -33,7 +33,7 @@ namespace Status.Services
                     using (var writer = new StreamWriter(stream))
                     {
                         // Check file size before writing
-                        if (stream.Position < StaticData.sizeLimitInBytes)
+                        if (stream.Position < MaxFileSize)
                         {
                             writer.WriteLine(text);
                         }
@@ -51,12 +51,12 @@ namespace Status.Services
                 lock (fileLock)
                 {
                     // Remove old data from log file
-                    using (MemoryStream memoryStream = new MemoryStream(StaticData.sizeLimitInBytes))
+                    using (MemoryStream memoryStream = new MemoryStream(StaticData.logFileSizeLimit))
                     {
                         using (FileStream stream = new FileStream(LogFileName, FileMode.Open, FileAccess.ReadWrite))
                         {
                             // Reduce size of log file by 10%
-                            int sizeLimit = (int)(StaticData.sizeLimitInBytes * 0.9);
+                            int sizeLimit = (int)(MaxFileSize * 0.9);
                             stream.Seek(-sizeLimit, SeekOrigin.End);
                             byte[] bytes = new byte[sizeLimit];
                             stream.Read(bytes, 0, sizeLimit);

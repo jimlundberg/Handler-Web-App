@@ -38,8 +38,10 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void newJob_DirectoryFound(object sender, EventArgs e)
         {
+            StaticData.Log(IniData.ProcessLogFile, 
+                String.Format("\nnewJob_DirectoryFound Received new directory at {0:HH:mm:ss.fff}", DateTime.Now));
+
             // Set Flag for ending directory scan loop
-            StaticData.Log(IniData.ProcessLogFile, "\new Job Scan Received directories");
             StaticData.FoundNewJobsReady = true;
         }
 
@@ -187,7 +189,7 @@ namespace Status.Services
                 StaticData.Log(logFile, String.Format("Job {0} started executing slot {1} at {2:HH:mm:ss.fff}", 
                     xmlData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now));
 
-                // Create a thread to execute the task, and then start the thread.
+                // Create a thread to execute the job, and start it
                 JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, xmlData, statusData, logger);
                 if (jobThread == null)
                 {
