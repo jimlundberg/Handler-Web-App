@@ -138,6 +138,7 @@ namespace Status.Services
             foreach (var dir in runDirectoryInfoList)
             {
                 StartJob(dir.ToString(), newJobsFound, iniFileData, statusData, logger);
+                Thread.Sleep(iniFileData.ScanTime);
             }
         }
 

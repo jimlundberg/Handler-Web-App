@@ -19,7 +19,6 @@ namespace Status.Services
         public static bool NewJobsFound = false;
         public static string DirectoryName;
         private static readonly Object xmlLock = new Object();
-        private static readonly Object threadLock = new Object();
         ILogger<StatusRepository> Logger;
 
         /// <summary>
