@@ -40,7 +40,7 @@ namespace Status.Services
             MonitorData = new StatusMonitorData();
             MonitorData.Job = xmlData.Job;
             MonitorData.JobDirectory = xmlData.JobDirectory;
-            MonitorData.JobIndex = StaticData.RunningJobsIndex;
+            MonitorData.JobIndex = StaticData.RunningJobsIndex++;
             MonitorData.JobSerialNumber = xmlData.JobSerialNumber;
             MonitorData.TimeStamp = xmlData.TimeStamp;
             MonitorData.XmlFileName = xmlData.XmlFileName;

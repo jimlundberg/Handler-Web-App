@@ -9,8 +9,6 @@ namespace Status.Services
     /// </summary>
     public class FileHandling
     {
-        private static readonly Object fileLock = new Object();
-
         /// <summary>
         /// CopyFolderContents - Copy files and folders from source to destination and optionally remove source files/folders
         /// </summary>
@@ -26,44 +24,38 @@ namespace Status.Services
 
             Console.WriteLine(String.Format("CopyFolderContents from {0} to {1}", sourcePath, destinationPath));
 
-            lock (fileLock)
+            // If the destination directory does not exist, create it
+            if (!destinationDI.Exists)
             {
-                // If the destination directory does not exist, create it
-                if (!destinationDI.Exists)
+                destinationDI.Create();
+            }
+
+            // Copy files one by one
+            FileInfo[] sourceFiles = sourceDI.GetFiles();
+            foreach (FileInfo sourceFile in sourceFiles)
+            {
+                // This is the destination folder plus the new filename
+                FileInfo destFile = new FileInfo(Path.Combine(destinationDI.FullName, sourceFile.Name));
+
+                // Delete the destination file if overwrite is true
+                if (destFile.Exists && overwrite)
                 {
-                    destinationDI.Create();
+                    destFile.Delete();
                 }
 
-                // Copy files one by one
-                FileInfo[] sourceFiles = sourceDI.GetFiles();
-                foreach (FileInfo sourceFile in sourceFiles)
+                sourceFile.CopyTo(Path.Combine(destinationDI.FullName, sourceFile.Name));
+
+                // Delete the source file if removeSource is true
+                if (removeSource)
                 {
-                    // This is the destination folder plus the new filename
-                    FileInfo destFile = new FileInfo(Path.Combine(destinationDI.FullName, sourceFile.Name));
-
-                    // Delete the destination file if overwrite is true
-                    if (destFile.Exists && overwrite)
-                    {
-                        destFile.Delete();
-                    }
-
-                    sourceFile.CopyTo(Path.Combine(destinationDI.FullName, sourceFile.Name));
-
-                    // Delete the source file if removeSource is true
-                    if (removeSource)
-                    {
-                        sourceFile.Delete();
-                    }
+                    sourceFile.Delete();
                 }
             }
 
             // Delete the source directory if removeSource is true
             if (removeSource)
             {
-                lock (fileLock)
-                {
-                    sourceDI.Delete();
-                }
+                sourceDI.Delete();
             }
         }
 
@@ -78,16 +70,10 @@ namespace Status.Services
             FileInfo Target = new FileInfo(targetFile);
             if (Target.Exists)
             {
-                lock (fileLock)
-                {
-                    Target.Delete();
-                }
+                Target.Delete();
             }
 
-            lock (fileLock)
-            {
-                Source.CopyTo(targetFile);
-            }
+            Source.CopyTo(targetFile);
 
             Console.WriteLine("Copied {0} -> {1}", sourceFile, targetFile);
         }
