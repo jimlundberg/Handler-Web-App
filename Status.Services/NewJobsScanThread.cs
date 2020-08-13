@@ -98,6 +98,8 @@ namespace Status.Services
         /// <param name="logger"></param>
         public static void ScanForCurrentNewJobs(IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
+            bool newJobsFound = false;
+
             StaticData.Log(iniFileData.ProcessLogFile, "\nScanning for New Unfinished Jobs");
 
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
@@ -128,13 +130,14 @@ namespace Status.Services
             runDirectoryInfoList = runDirectoryInfo.EnumerateDirectories().ToList();
             if (runDirectoryInfoList.Count > 0)
             {
+                newJobsFound = true;
                 StaticData.Log(IniData.ProcessLogFile, "\nProcesssing unfinished new jobs...");
             }
 
             // Start the jobs in the directory list found on initial scan of the Input Buffer
             foreach (var dir in runDirectoryInfoList)
             {
-                StartJob(dir.ToString(), false, iniFileData, statusData, logger);
+                StartJob(dir.ToString(), newJobsFound, iniFileData, statusData, logger);
             }
         }
 

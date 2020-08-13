@@ -87,7 +87,7 @@ namespace Status.Services
                 return;
             }
 
-            StaticData.Log(IniData.ProcessLogFile, "Found unfinished jobs...");
+            StaticData.Log(IniData.ProcessLogFile, "\nFound old unfinished jobs...");
 
             foreach (var dir in runDirectoryList)
             {

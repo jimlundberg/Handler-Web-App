@@ -188,7 +188,7 @@ namespace Status.Services
             string ProcessingBufferJobDir = iniData.ProcessingDir + @"\" + job;
 
             // If this job comes from the Input directory, run the scan and copy
-            if ((jobDirectory == iniData.InputDir) && (NewJobsFound == true))
+            if (jobDirectory == iniData.InputDir)
             {
                 // Monitor the Input directory until it has the total number of consumed files
                 if (Directory.Exists(InputBufferJobDir))
@@ -196,32 +196,36 @@ namespace Status.Services
                     // Reset the Tcp/Ip Job Complete flag for Input Directory Monitoring
                     StaticData.TcpIpScanComplete = false;
 
-                    Console.WriteLine("Starting File scan of Input for job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
-
-                    // Register with the File Watcher class event and start its thread
-                    StaticData.ExitInputFileScan = false;
-                    InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(InputBufferJobDir,
-                        monitorData.NumFilesConsumed, iniData, monitorData, statusData, logger);
-                    if (inputFileWatch == null)
+                    // Skip if this is a new job found no started
+                    if (newJobsFound == false)
                     {
-                        logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
-                    }
-                    inputFileWatch.ProcessCompleted += Input_fileScan_FilesFound;
-                    inputFileWatch.ThreadProc();
+                        Console.WriteLine("Starting File scan of Input for job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
 
-                    // Wait for Input file scan to complete
-                    while (StaticData.ExitInputFileScan == false)
-                    {
-                        // If the shutdown flag is set, exit method
-                        if (StaticData.ShutdownFlag == true)
+                        // Register with the File Watcher class event and start its thread
+                        StaticData.ExitInputFileScan = false;
+                        InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(InputBufferJobDir,
+                            monitorData.NumFilesConsumed, iniData, monitorData, statusData, logger);
+                        if (inputFileWatch == null)
                         {
-                            logger.LogInformation("Shutdown RunJob for Modeler Job {0}", job);
-                            return;
+                            logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
                         }
-                        Thread.Sleep(250);
-                    }
+                        inputFileWatch.ProcessCompleted += Input_fileScan_FilesFound;
+                        inputFileWatch.ThreadProc();
 
-                    Console.WriteLine("Finished File scan for Input complete for job {0} at {1:HH: mm: ss.fff}", InputBufferJobDir, DateTime.Now);
+                        // Wait for Input file scan to complete
+                        while (StaticData.ExitInputFileScan == false)
+                        {
+                            // If the shutdown flag is set, exit method
+                            if (StaticData.ShutdownFlag == true)
+                            {
+                                logger.LogInformation("Shutdown RunJob for Modeler Job {0}", job);
+                                return;
+                            }
+                            Thread.Sleep(250);
+                        }
+
+                        Console.WriteLine("Finished scan for Input files of job {0} at {1:HH: mm: ss.fff}", InputBufferJobDir, DateTime.Now);
+                    }
 
                     // Add entry to status list
                     StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, iniData.StatusLogFile, logger);
