@@ -71,7 +71,7 @@ namespace Status.Services
         public static void OnChanged(object source, FileSystemEventArgs e)
         {
             // File Added(or changed???)
-            // StaticData.Log(IniData.ProcessLogFile, $"File Watcher detected: {e.FullPath} {e.ChangeType}");
+            StaticData.Log(IniData.ProcessLogFile, $"File Watcher detected: {e.FullPath} {e.ChangeType}");
 
             lock (changedLock)
             {
@@ -118,6 +118,7 @@ namespace Status.Services
         /// Monitor a Directory for a selected number of files with a timeout
         /// </summary>
         /// <param name="directory"></param>
+        /// <param name="numberOfFilesFound"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public static void WatchFiles(string directory, int numberOfFilesFound)
         {

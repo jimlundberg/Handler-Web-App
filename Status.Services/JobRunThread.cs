@@ -157,7 +157,6 @@ namespace Status.Services
             StaticData.Log(iniData.ProcessLogFile, String.Format("Num Files Consumed    = " + monitorData.NumFilesConsumed));
             StaticData.Log(iniData.ProcessLogFile, String.Format("Num Files Produced    = " + monitorData.NumFilesProduced));
             StaticData.Log(iniData.ProcessLogFile, String.Format("Num Files To Transfer = " + monitorData.NumFilesToTransfer));
-            StaticData.Log(iniData.ProcessLogFile, String.Format("Num Files To Transfer = " + monitorData.NumFilesToTransfer));
             StaticData.Log(iniData.ProcessLogFile, String.Format("Job Port Number       = " + monitorData.JobPortNumber));
 
             // Add initial entry to status list
