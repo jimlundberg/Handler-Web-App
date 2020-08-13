@@ -16,6 +16,7 @@ namespace Status.Services
         public static IniFileData IniData;
         public static StatusMonitorData MonitorData;
         public static List<StatusData> StatusData;
+        public static bool NewJobsFound = false;
         public static string DirectoryName;
         private static readonly Object xmlLock = new Object();
         private static readonly Object threadLock = new Object();
@@ -29,9 +30,10 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public JobRunThread(string directory, IniFileData iniData, JobXmlData xmlData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public JobRunThread(string directory, bool newJobsFound, IniFileData iniData, JobXmlData xmlData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
+            NewJobsFound = newJobsFound;
             StatusData = statusData;
             DirectoryName = directory;
             Logger = logger;
@@ -50,7 +52,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            Thread thread = new Thread(() => RunJob(DirectoryName, IniData, MonitorData, StatusData, Logger));
+            Thread thread = new Thread(() => RunJob(DirectoryName, NewJobsFound, IniData, MonitorData, StatusData, Logger));
             thread.Start();
         }
 
@@ -104,7 +106,7 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void RunJob(string jobDirectory, IniFileData iniData, StatusMonitorData monitorData,
+        public static void RunJob(string jobDirectory, bool newJobsFound, IniFileData iniData, StatusMonitorData monitorData,
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Add initial entry to status list
@@ -186,7 +188,7 @@ namespace Status.Services
             string ProcessingBufferJobDir = iniData.ProcessingDir + @"\" + job;
 
             // If this job comes from the Input directory, run the scan and copy
-            if (jobDirectory == iniData.InputDir)
+            if ((jobDirectory == iniData.InputDir) && (NewJobsFound == true))
             {
                 // Monitor the Input directory until it has the total number of consumed files
                 if (Directory.Exists(InputBufferJobDir))

@@ -134,7 +134,7 @@ namespace Status.Services
             // Start the jobs in the directory list found on initial scan of the Input Buffer
             foreach (var dir in runDirectoryInfoList)
             {
-                StartJob(dir.ToString(), iniFileData, statusData, logger);
+                StartJob(dir.ToString(), false, iniFileData, statusData, logger);
             }
         }
 
@@ -145,7 +145,7 @@ namespace Status.Services
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void StartJob(string jobDirectory, IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public static void StartJob(string jobDirectory, bool newJobsFound, IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
             {
@@ -188,7 +188,7 @@ namespace Status.Services
                     xmlData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now));
 
                 // Create a thread to execute the job, and start it
-                JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, iniFileData, xmlData, statusData, logger);
+                JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, newJobsFound, iniFileData, xmlData, statusData, logger);
                 if (jobThread == null)
                 {
                     Logger.LogError("NewJobsScanThread jobThread failed to instantiate");
