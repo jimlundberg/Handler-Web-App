@@ -100,7 +100,7 @@ namespace Status.Services
         {
             bool newJobsFound = false;
 
-            StaticData.Log(iniFileData.ProcessLogFile, "\nScanning for New Unfinished Jobs");
+            StaticData.Log(iniFileData.ProcessLogFile, "\nChecking for Unfinished Input Jobs");
 
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
             if (jobXmlData == null)

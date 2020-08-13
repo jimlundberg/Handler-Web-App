@@ -105,7 +105,7 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void RunJob(string jobDirectory, bool newJobsFound, IniFileData iniData, StatusMonitorData monitorData,
+        public static void RunJob(string jobDirectory, bool runningNewJobs, IniFileData iniData, StatusMonitorData monitorData,
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Add initial entry to status list
@@ -196,7 +196,7 @@ namespace Status.Services
                     StaticData.TcpIpScanComplete = false;
 
                     // Skip if this is a new job found no started
-                    if (newJobsFound == false)
+                    if (runningNewJobs == false)
                     {
                         Console.WriteLine("Starting File scan of Input for job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
 

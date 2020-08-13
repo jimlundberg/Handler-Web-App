@@ -73,7 +73,7 @@ namespace Status.Services
             //StaticData.Log(IniData.ProcessLogFile, 
             //    String.Format("Directory Watcher Starting Job {0} at at {1:HH:mm:ss.fff}",
             //    e.FullPath, DateTime.Now));
-            NewJobsScanThread.StartJob(e.FullPath, true, IniData, StatusData, Logger);
+            NewJobsScanThread.StartJob(e.FullPath, false, IniData, StatusData, Logger);
         }
 
         /// <summary>
