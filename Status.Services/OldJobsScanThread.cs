@@ -117,7 +117,7 @@ namespace Status.Services
                     jobXmlData = scanDir.GetJobXmlData(job, iniFileData.ProcessingDir + @"\" + job, logger);
 
                     // Get data found in Xml file into Monitor Data
-                    StatusModels.StatusMonitorData xmlData = new StatusModels.StatusMonitorData();
+                    JobXmlData xmlData = new JobXmlData();
                     if (xmlData == null)
                     {
                         Logger.LogError("ScanForOldJobs xmlData failed to instantiate");
@@ -128,7 +128,6 @@ namespace Status.Services
                     xmlData.JobSerialNumber = jobXmlData.JobSerialNumber;
                     xmlData.TimeStamp = jobXmlData.TimeStamp;
                     xmlData.XmlFileName = jobXmlData.XmlFileName;
-                    xmlData.JobIndex = StaticData.RunningJobsIndex++;
 
                     // Display Monitor Data found
                     StaticData.Log(iniFileData.ProcessLogFile, "");
@@ -138,7 +137,7 @@ namespace Status.Services
                     StaticData.Log(iniFileData.ProcessLogFile, "Old Time Stamp        = " + xmlData.TimeStamp);
                     StaticData.Log(iniFileData.ProcessLogFile, "Old Job Xml File      = " + xmlData.XmlFileName);
                     StaticData.Log(iniFileData.ProcessLogFile, 
-                        String.Format("Old Job {0} Executing slot {1}", 
+                        String.Format("Old Job {0} Executing slot {1}",
                         xmlData.Job, StaticData.NumberOfJobsExecuting));
                     StaticData.Log(iniFileData.ProcessLogFile, "Starting Job " + xmlData.Job);
 

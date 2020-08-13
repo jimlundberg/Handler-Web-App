@@ -29,13 +29,20 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public JobRunThread(string directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public JobRunThread(string directory, IniFileData iniData, JobXmlData xmlData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
-            MonitorData = monitorData;
             StatusData = statusData;
             DirectoryName = directory;
             Logger = logger;
+
+            MonitorData = new StatusMonitorData();
+            MonitorData.Job = xmlData.Job;
+            MonitorData.JobDirectory = xmlData.JobDirectory;
+            MonitorData.JobIndex = StaticData.RunningJobsIndex;
+            MonitorData.JobSerialNumber = xmlData.JobSerialNumber;
+            MonitorData.TimeStamp = xmlData.TimeStamp;
+            MonitorData.XmlFileName = xmlData.XmlFileName;
         }
 
         /// <summary>
@@ -92,12 +99,12 @@ namespace Status.Services
         /// <summary>
         /// Process of running a job 
         /// </summary>
-        /// <param name="scanDirectory"></param>
+        /// <param name="jobDirectory"></param>
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void RunJob(string scanDirectory, IniFileData iniData, StatusMonitorData monitorData, 
+        public static void RunJob(string jobDirectory, IniFileData iniData, StatusMonitorData monitorData,
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Add initial entry to status list
@@ -108,7 +115,7 @@ namespace Status.Services
 
             // Wait until Xml file is copied to the directory being scanned
             string job = monitorData.Job;
-            string xmlFileName = scanDirectory + @"\" + job + @"\" + monitorData.XmlFileName;
+            string xmlFileName = jobDirectory + @"\" + job + @"\" + monitorData.XmlFileName;
             int NumFilesToTransfer = 0;
             string TopNode;
             XmlDocument XmlDoc;
@@ -163,14 +170,14 @@ namespace Status.Services
             StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_INPUT, JobType.TIME_START, iniData.StatusLogFile, logger);
 
             // Create the Transfered file list from the Xml file entries
-            monitorData.transferedFileList = new List<String>(NumFilesToTransfer);
+            monitorData.TransferedFileList = new List<String>(NumFilesToTransfer);
             List<XmlNode> TransFeredFileXml = new List<XmlNode>();
-            monitorData.transferedFileList = new List<String>();
+            monitorData.TransferedFileList = new List<String>();
             for (int i = 1; i < NumFilesToTransfer + 1; i++)
             {
                 string transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
                 XmlNode TransferedFileXml = XmlDoc.DocumentElement.SelectSingleNode(transferFileNodeName);
-                monitorData.transferedFileList.Add(TransferedFileXml.InnerText);
+                monitorData.TransferedFileList.Add(TransferedFileXml.InnerText);
                 StaticData.Log(iniData.ProcessLogFile, String.Format("Transfer File{0}        = {1}", i, TransferedFileXml.InnerText));
             }
 
@@ -179,7 +186,7 @@ namespace Status.Services
             string ProcessingBufferJobDir = iniData.ProcessingDir + @"\" + job;
 
             // If this job comes from the Input directory, run the scan and copy
-            if (scanDirectory == iniData.InputDir)
+            if (jobDirectory == iniData.InputDir)
             {
                 // Monitor the Input directory until it has the total number of consumed files
                 if (Directory.Exists(InputBufferJobDir))
@@ -343,7 +350,7 @@ namespace Status.Services
                     }
 
                     // Copy the Transfered files to the Finished directory 
-                    foreach (var file in monitorData.transferedFileList)
+                    foreach (var file in monitorData.TransferedFileList)
                     {
                         FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + file,
                             iniData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);
@@ -361,7 +368,7 @@ namespace Status.Services
                     }
 
                     // Copy the Transfered files to the Error directory 
-                    foreach (var file in monitorData.transferedFileList)
+                    foreach (var file in monitorData.TransferedFileList)
                     {
                             FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + file,
                             iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);
@@ -380,7 +387,7 @@ namespace Status.Services
                 }
 
                 // Copy the Transfered files to the Error directory 
-                foreach (var file in monitorData.transferedFileList)
+                foreach (var file in monitorData.TransferedFileList)
                 {
                     FileHandling.CopyFile(iniData.ProcessingDir + @"\" + job + @"\" + file,
                     iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);

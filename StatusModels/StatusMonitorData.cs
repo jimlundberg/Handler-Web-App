@@ -21,6 +21,6 @@ namespace StatusModels
         public int NumFilesProduced { get; set; }
         public int NumFilesToTransfer { get; set; }
         public DateTime StartTime { get; set; }
-        public List<String> transferedFileList { get; set; }
+        public List<String> TransferedFileList { get; set; }
     }
 }
