@@ -67,7 +67,7 @@ namespace Status.Services
         public static void OnChanged(object source, FileSystemEventArgs e)
         {
             // Directory Added
-            StaticData.Log(IniData.ProcessLogFile, ($"Directory watcher detected: {e.FullPath} {e.ChangeType}");
+            StaticData.Log(IniData.ProcessLogFile, ($"Directory watcher detected: {e.FullPath} {e.ChangeType}"));
 
             // Run the job
             NewJobsScanThread.StartJob(e.FullPath, false, IniData, StatusData, Logger);
