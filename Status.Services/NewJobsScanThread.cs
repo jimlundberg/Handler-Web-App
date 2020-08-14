@@ -92,12 +92,12 @@ namespace Status.Services
             oldJobs.ProcessCompleted += oldJob_ProcessCompleted;
             oldJobs.ThreadProc();
 
-            // Wait while scanning for old jobs
+            // Wait while scanning for unfinished Processing jobs
             do
             {
                 Thread.Sleep(250);
             }
-            while (StaticData.OldJobScanComplete == false);
+            while ((StaticData.OldJobScanComplete == false) && (StaticData.ShutdownFlag == false));
 
             StaticData.Log(logFile, "\nChecking for unfinished Input Jobs...");
 
@@ -145,7 +145,9 @@ namespace Status.Services
                 Thread.Sleep(iniFileData.ScanTime);
             }
 
-            StaticData.Log(logFile, "\nChecking for New Jobs...\n");
+            StaticData.Log(logFile, "\nNo more unfinished Input Jobs...");
+
+            StaticData.Log(logFile, "\nChecking for Input Jobs...");
 
             // Start the Directory Watcher class to scan for new jobs
             DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(IniData, StatusData, Logger);
@@ -162,10 +164,10 @@ namespace Status.Services
             {
                 Thread.Sleep(250);
             }
-            while (StaticData.FoundNewJobsReady == false);
+            while ((StaticData.FoundNewJobsReady == false) && (StaticData.ShutdownFlag == false));
 
             // Exit thread
-            StaticData.Log(logFile, String.Format("Exiting New Job Scan at {0:HH:mm:ss.fff}", DateTime.Now));
+            StaticData.Log(logFile, String.Format("Exiting Input Job Scan at {0:HH:mm:ss.fff}", DateTime.Now));
         }
 
         /// <summary>
