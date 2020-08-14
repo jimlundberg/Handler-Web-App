@@ -80,7 +80,7 @@ namespace Status.Services
 
                     // Receive the TcpServer.response.
                     StaticData.Log(iniData.ProcessLogFile, 
-                        String.Format("Sending {0} msg to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                        String.Format("\nSending {0} msg to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
                         message, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
 
                     // Buffer to store the response bytes.

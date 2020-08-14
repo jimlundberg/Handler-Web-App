@@ -164,7 +164,7 @@ namespace Status.Services
                 }
             }
 
-            StaticData.Log(IniData.ProcessLogFile, "\nNo more unfinished jobs Found...");
+            StaticData.Log(IniData.ProcessLogFile, "\nNo more unfinished Processing jobs Found...");
             StaticData.OldJobScanComplete = true;
         }
     }
