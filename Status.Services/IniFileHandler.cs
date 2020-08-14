@@ -9,7 +9,7 @@ using System.Threading;
 namespace Status.Services
 {
     /// <summary>
-    /// Class to Read and Ini file data
+    /// Class to read the Config.ini data file
     /// </summary>
     public class IniFileHandler
     {

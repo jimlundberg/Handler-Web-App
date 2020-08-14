@@ -4,7 +4,7 @@ using System.Text;
 using System.Collections.Generic;
 
 /// <summary>
-/// Read Write CSV Files handler
+/// Separate Read/Write CSV file handler Namespace
 /// </summary>
 namespace ReadWriteCsvFile
 {

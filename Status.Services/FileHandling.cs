@@ -78,6 +78,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="sourceFile"></param>
         /// <param name="targetFile"></param>
+        /// <param name="logger"></param>
         public static void CopyFile(string sourceFile, string targetFile, ILogger<StatusRepository> logger)
         {
             FileInfo Source = new FileInfo(sourceFile);

@@ -9,7 +9,7 @@ using System.Threading;
 namespace Status.Services
 {
     /// <summary>
-    /// Class to Monitor the number of files in a directory
+    /// Class to Monitor the number of files in the Input job directory
     /// </summary>
     public class InputFileWatcherThread
     {
@@ -24,11 +24,16 @@ namespace Status.Services
         public static int NumberOfFilesNeeded;
         private static readonly Object changedLock = new Object();
 
+        /// <summary>
+        /// Default Input File Watcher Thread Constructore
+        /// </summary>
         public InputFileWatcherThread() { }
 
         /// <summary>
-        /// File Watcher scan
+        /// Input directory file watcher thread
         /// </summary>
+        /// <param name="directory"></param>
+        /// <param name="numberOfFilesNeeded"></param>
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
@@ -46,11 +51,18 @@ namespace Status.Services
             NumberOfFilesFound = 1;
         }
 
+        /// <summary>
+        /// Input File watcher Callback
+        /// </summary>
+        /// <param name="e"></param>
         protected virtual void OnProcessCompleted(EventArgs e)
         {
             ProcessCompleted?.Invoke(this, e);
         }
 
+        /// <summary>
+        /// Thread procedure to run Input job files watcher
+        /// </summary>
         // The thread procedure performs the task
         public void ThreadProc()
         {
@@ -70,8 +82,8 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void OnChanged(object source, FileSystemEventArgs e)
         {
-            // File Added(or changed???)
-            StaticData.Log(IniData.ProcessLogFile, $"File Watcher detected: {e.FullPath} {e.ChangeType}");
+            // File Added
+            StaticData.Log(IniData.ProcessLogFile, $"File watcher detected: {e.FullPath} {e.ChangeType}");
 
             lock (changedLock)
             {
@@ -99,7 +111,7 @@ namespace Status.Services
         public static void OnDeleted(object source, FileSystemEventArgs e)
         {
             // File is deleted
-            // StaticData.Log(IniData.ProcessLogFile, ($"File Watcher detected: {e.FullPath} {e.ChangeType}");
+            // StaticData.Log(IniData.ProcessLogFile, ($"File watcher detected: {e.FullPath} {e.ChangeType}");
         }
 
         /// <summary>
@@ -145,7 +157,7 @@ namespace Status.Services
                 // Enter infinite loop waiting for changes
                 do
                 {
-                    Thread.Sleep(100);
+                    Thread.Sleep(250);
                 }
                 while ((StaticData.ExitInputFileScan == false) && (StaticData.ShutdownFlag == false));
 

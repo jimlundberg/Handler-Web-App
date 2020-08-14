@@ -39,7 +39,6 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
-        /// <param name="logger"></param>
         public void StartTcpIpScanProcess(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
         {
             // Start Tcp/Ip thread
@@ -47,12 +46,18 @@ namespace Status.Services
             tcpIp.ThreadProc();
         }
 
+        /// <summary>
+        /// TCP/IP process complete callback
+        /// </summary>
+        /// <param name="e"></param>
         protected virtual void OnProcessCompleted(EventArgs e)
         {
             ProcessCompleted?.Invoke(this, e);
         }
 
-        // The thread procedure performs the task
+        /// <summary>
+        /// Thread procedure to run the TCP/IP communications with the Modeler
+        /// </summary>
         public void ThreadProc()
         {
             tcpIpthread = new Thread(() => TcpIpMonitor());
@@ -92,7 +97,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Start Tcp/Ip Monitor
+        /// Start Tcp/Ip communications monitor
         /// </summary>
         public static void TcpIpMonitor()
         {

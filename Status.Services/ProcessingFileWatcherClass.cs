@@ -52,6 +52,9 @@ namespace Status.Services
         }
 
         // The thread procedure performs the task
+        /// <summary>
+        /// Thread procedure to start the Processing job file watching
+        /// </summary>
         public void ThreadProc()
         {
             thread = new Thread(() => WatchFiles(Directory, NumberOfFilesFound));
@@ -62,7 +65,6 @@ namespace Status.Services
             thread.Start();
         }
 
-        // Define the event handlers.
         /// <summary>
         /// The Add or Change of files callback
         /// </summary>
@@ -152,9 +154,10 @@ namespace Status.Services
                 tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
                 tcpIp.StartTcpIpScanProcess(IniData, MonitorData, StatusData);
 
+                // Wait for the TCP/IP Scan to Complete
                 do
                 {
-                    Thread.Sleep(100);
+                    Thread.Sleep(250);
                 }
                 while (((StaticData.ExitProcessingFileScan == false) &&
                         (StaticData.TcpIpScanComplete == false)) &&

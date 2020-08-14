@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.IO;
 
 /// <summary>
-/// Status data services
+/// Status data repository services
 /// </summary>
 namespace Status.Services
 {
     /// <summary>
-    /// Status Data storage object
+    /// Status Data storage object repository
     /// </summary>
     public class StatusRepository : IStatusRepository
     {
@@ -19,11 +19,15 @@ namespace Status.Services
         public List<StatusMonitorData> monitorData = new List<StatusMonitorData>();
         public List<StatusData> statusList = new List<StatusData>();
         private StatusData statusData = new StatusData();
-        public readonly ILogger<StatusRepository> logger;
+        public readonly ILogger<StatusRepository> Logger;
 
-        public StatusRepository(ILogger<StatusRepository> _logger)
+        /// <summary>
+        /// StatusRepository contructor
+        /// </summary>
+        /// <param name="_logger"></param>
+        public StatusRepository(ILogger<StatusRepository> logger)
         {
-            logger = _logger;
+            Logger = logger;
         }
 
         /// <summary>
@@ -35,7 +39,7 @@ namespace Status.Services
             string IniFileName = "Config.ini";
             if (File.Exists(IniFileName) == false)
             {
-                logger.LogCritical("Missing Config.ini file");
+                Logger.LogCritical("Missing Config.ini file");
                 throw new System.InvalidOperationException("Config.ini file does not exist in the Handler directory");
             }
 
@@ -92,7 +96,7 @@ namespace Status.Services
             StatusEntry status = new StatusEntry();
             if (status == null)
             {
-                logger.LogError("Log File History status failed to instantiate");
+                Logger.LogError("Log File History status failed to instantiate");
             }
             status.CheckLogFileHistory(iniFileData.StatusLogFile, iniFileData.LogFileHistory, logger);
         }
@@ -117,7 +121,7 @@ namespace Status.Services
             newJobsScanThread = new NewJobsScanThread(iniFileData, statusList, logger);
             if (newJobsScanThread == null)
             {
-                logger.LogError("StartMonitorProcess newJobsScanThread failed to instantiate");
+                Logger.LogError("StartMonitorProcess newJobsScanThread failed to instantiate");
             }
             newJobsScanThread.ThreadProc();
         }
@@ -132,7 +136,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Get csV history data
+        /// Get CSV file history data
         /// </summary>
         /// <returns>History Status Data List</returns>
         public IEnumerable<StatusData> GetHistoryData()
@@ -142,7 +146,7 @@ namespace Status.Services
             statusList = status.ReadFromCsvFile(iniFileData.StatusLogFile, iniFileData, logger);
             if (statusList == null)
             {
-                logger.LogError("GetHistoryData statusList failed to instantiate");
+                Logger.LogError("GetHistoryData statusList failed to instantiate");
             }
             return statusList;
         }

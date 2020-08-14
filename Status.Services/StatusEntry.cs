@@ -85,6 +85,7 @@ namespace Status.Services
         /// Write Status data to the designated log file
         /// </summary>
         /// <param name="job"></param>
+        /// <param name="iniData"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
@@ -136,9 +137,10 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Read Status Data from CSV File
+        /// Read Status Data from CSV File 
         /// </summary>
         /// <param name="logFileName"></param>
+        /// <param name="iniData"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
         public List<StatusData> ReadFromCsvFile(string logFileName, IniFileData iniData, ILogger<StatusRepository> logger)

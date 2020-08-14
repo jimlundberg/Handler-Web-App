@@ -2,6 +2,9 @@
 
 namespace Status.Services
 {
+    /// <summary>
+    /// Static Data with global access
+    /// </summary>
     public static class StaticData
     {
         public static int NumberOfJobsExecuting = 0;
@@ -15,6 +18,11 @@ namespace Status.Services
         public static volatile bool ExitProcessingFileScan = false;
         public static volatile bool FoundNewJobsReady = false;
 
+        /// <summary>
+        /// Global log to file method
+        /// </summary>
+        /// <param name="logFile"></param>
+        /// <param name="msg"></param>
         public static void Log(string logFile, string msg)
         {
             LoggingToFile log = new LoggingToFile(logFile);

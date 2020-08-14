@@ -101,6 +101,7 @@ namespace Status.Services
         /// Process of running a job 
         /// </summary>
         /// <param name="jobDirectory"></param>
+        /// <param name="runningNewJobs"></param>
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
@@ -296,17 +297,12 @@ namespace Status.Services
             ProcessingFileWatch.ProcessCompleted += Processing_fileScan_FilesFound;
             ProcessingFileWatch.ThreadProc();
 
+            // Wait for the unfinishd job Processing completes
             do
             {
-                // If the shutdown flag is set, exit method
-                if (StaticData.ShutdownFlag == true)
-                {
-                    logger.LogInformation("Shutdown RunJob for Modeler Job {0}", job);
-                    return;
-                }
                 Thread.Sleep(250);
             }
-            while (StaticData.ExitProcessingFileScan == false);
+            while ((StaticData.ExitProcessingFileScan == false) && (StaticData.ShutdownFlag == false));
 
             // Add copy to archieve entry to status list
             StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.StatusLogFile, logger);
@@ -403,7 +399,7 @@ namespace Status.Services
             }
 
             StaticData.NumberOfJobsExecuting--;
-            StaticData.Log(iniData.ProcessLogFile, String.Format("-----Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
+            StaticData.Log(iniData.ProcessLogFile, String.Format("Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
                 monitorData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now));
 
             // Add entry to status list

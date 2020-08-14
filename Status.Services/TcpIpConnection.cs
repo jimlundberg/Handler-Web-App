@@ -12,11 +12,13 @@ namespace Status.Services
     /// </summary>
     public class TcpIpConnection
     {
+        // Status Data Entry
         /// <summary>
-        /// Status Data Entry
+        /// Status Data Entry Method
         /// </summary>
         /// <param name="statusList"></param>
         /// <param name="job"></param>
+        /// <param name="iniData"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
@@ -125,7 +127,7 @@ namespace Status.Services
                                 StaticData.Log(iniData.ProcessLogFile, 
                                     String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
-                                Thread.Sleep(250);
+                                Thread.Sleep(1000);
                                 StaticData.TcpIpScanComplete = true;
                                 jobComplete = true;
                                 break;

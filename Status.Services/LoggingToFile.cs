@@ -3,6 +3,9 @@ using System.IO;
 
 namespace Status.Services
 {
+    /// <summary>
+    /// Class to log to and control the size of the process log file
+    /// </summary>
     class LoggingToFile
     {
         public static string LogFileName;

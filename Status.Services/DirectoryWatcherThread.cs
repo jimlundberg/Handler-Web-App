@@ -66,13 +66,10 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void OnChanged(object source, FileSystemEventArgs e)
         {
-            // Directory Added (or changed???)
-            // StaticData.Log(IniData.ProcessLogFile, ($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
+            // Directory Added
+            StaticData.Log(IniData.ProcessLogFile, ($"Directory watcher detected: {e.FullPath} {e.ChangeType}");
 
             // Run the job
-            //StaticData.Log(IniData.ProcessLogFile, 
-            //    String.Format("Directory Watcher Starting Job {0} at at {1:HH:mm:ss.fff}",
-            //    e.FullPath, DateTime.Now));
             NewJobsScanThread.StartJob(e.FullPath, false, IniData, StatusData, Logger);
         }
 
@@ -84,7 +81,7 @@ namespace Status.Services
         public static void OnDeleted(object source, FileSystemEventArgs e)
         {
             // Directory is deleted
-            // StaticData.Log(IniData.ProcessLogFile,($"WatchDirectory detected: {e.FullPath} {e.ChangeType}");
+            // StaticData.Log(IniData.ProcessLogFile,($"Directory watcher detected: {e.FullPath} {e.ChangeType}");
         }
 
         /// <summary>
