@@ -402,7 +402,7 @@ namespace Status.Services
                 FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
             }
 
-            StaticData.DecrementNumberOfJobsExecuting();
+            StaticData.NumberOfJobsExecuting--;
             StaticData.Log(iniData.ProcessLogFile, String.Format("-----Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
                 monitorData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now));
 

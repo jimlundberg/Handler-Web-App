@@ -94,7 +94,7 @@ namespace Status.Services
                 if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
                 {
                     // Increment counts to track job execution and port id
-                    StaticData.IncrementNumberOfJobsExecuting();
+                    StaticData.NumberOfJobsExecuting++;
 
                     string job = dir.Replace(iniFileData.ProcessingDir, "").Remove(0, 1);
 

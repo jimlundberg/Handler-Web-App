@@ -21,23 +21,5 @@ namespace Status.Services
             log.WriteToLogFile(msg);
             Console.WriteLine(msg);
         }
-
-        public static void IncrementNumberOfJobsExecuting()
-        {
-            NumberOfJobsExecuting++;
-        }
-
-        public static void DecrementNumberOfJobsExecuting()
-        {
-            NumberOfJobsExecuting--;
-        }
-
-        public static string AddQuotesIfRequired(string path)
-        {
-            return !string.IsNullOrWhiteSpace(path) ?
-                path.Contains(" ") && (!path.StartsWith("\"") && !path.EndsWith("\"")) ?
-                    "\"" + path + "\"" : path :
-                    string.Empty;
-        }
     }
 }

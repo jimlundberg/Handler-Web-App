@@ -154,7 +154,7 @@ namespace Status.Services
             if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
             {
                 // Increment counters to track job execution
-                StaticData.IncrementNumberOfJobsExecuting();
+                StaticData.NumberOfJobsExecuting++;
 
                 // Get job name from directory name
                 string job = jobDirectory.Replace(iniFileData.InputDir, "").Remove(0, 1);
