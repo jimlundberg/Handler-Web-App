@@ -22,7 +22,6 @@ namespace Status.Services
         public static ILogger<StatusRepository> Logger;
         public static int NumberOfFilesFound;
         public static int NumberOfFilesNeeded;
-        private static readonly Object changedLock = new Object();
 
         /// <summary>
         /// Default Input File Watcher Thread Constructore
@@ -85,20 +84,17 @@ namespace Status.Services
             // File Added
             StaticData.Log(IniData.ProcessLogFile, $"File watcher detected: {e.FullPath} {e.ChangeType}");
 
-            lock (changedLock)
+            if (e.ChangeType == WatcherChangeTypes.Created)
             {
-                if (e.ChangeType == WatcherChangeTypes.Created)
+                NumberOfFilesFound++;
+                if (NumberOfFilesFound == NumberOfFilesNeeded)
                 {
-                    NumberOfFilesFound++;
-                    if (NumberOfFilesFound == NumberOfFilesNeeded)
-                    {
-                        StaticData.Log(IniData.ProcessLogFile,
-                            String.Format("InputFileWatcherThread Found {0} of {1} files in directory {2} at {3:HH:mm:ss.fff}",
-                            NumberOfFilesFound, NumberOfFilesNeeded, Directory, DateTime.Now));
+                    StaticData.Log(IniData.ProcessLogFile,
+                        String.Format("InputFileWatcherThread Found {0} of {1} files in directory {2} at {3:HH:mm:ss.fff}",
+                        NumberOfFilesFound, NumberOfFilesNeeded, Directory, DateTime.Now));
 
-                        // Signal the Run thread that the Input files were found
-                        StaticData.ExitInputFileScan = true;
-                    }
+                    // Signal the Run thread that the Input files were found
+                    StaticData.ExitInputFileScan = true;
                 }
             }
         }
