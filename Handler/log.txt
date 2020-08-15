@@ -807,3 +807,144 @@ Scan Time             = 5000 Miliseconds
 Max Time Limit        = 28800 Seconds
 Log File History      = 30 Days
 Log File Max Size     = 5 MegaBytes
+
+Config.ini data found:
+
+Input Dir             = C:\SSMCharacterizationHandler\Input Buffer
+Processing Dir        = C:\SSMCharacterizationHandler\ProcessingBuffer
+Repository Dir        = C:\SSMCharacterizationHandler\Archive
+Finished Dir          = C:\SSMCharacterizationHandler\Output Buffer
+Error Dir             = C:\SSMCharacterizationHandler\Error Buffer
+Modeler Root Dir      = C:\SSMCharacterizationHandler\Application\Modelers
+Status Log File       = StatusData.csv
+Process Log File      = log.txt
+CPU Cores             = 4 Cores
+Execution Limit       = 5 Jobs
+Start Port            = 3000
+Scan Time             = 5000 Miliseconds
+Max Time Limit        = 28800 Seconds
+Log File History      = 30 Days
+Log File Max Size     = 5 MegaBytes
+
+Checking for unfinished Processing Jobs...
+
+No unfinished Processing jobs found...
+
+Checking for unfinished Input Jobs...
+
+No unfinished Input Jobs Found...
+
+Checking for new Input Jobs...
+
+Directory watcher detected: C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942 Created
+
+Found new Job         = 1185840_202003250942
+New Job Directory     = C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942
+New Serial Number     = 1185840
+New Time Stamp        = 202003250942
+New Job Xml File      = 75300037D00.xml
+Job 1185840_202003250942 started executing slot 1 at 12:01:29.696
+Status: Job:1185840_202003250942 Job Status:JOB_STARTED Time Type:TIME_RECEIVED
+Unit Number           = 3155301-029
+Modeler               = 780200XXC00
+Num Files Consumed    = 6
+Num Files Produced    = 7
+Num Files To Transfer = 3
+Job Port Number       = 3000
+Status: Job:1185840_202003250942 Job Status:MONITORING_INPUT Time Type:TIME_START
+Transfer File1        = Cap.tab
+Transfer File2        = Tune.tab
+Transfer File3        = Data.xml
+
+Config.ini data found:
+
+Input Dir             = C:\SSMCharacterizationHandler\Input Buffer
+Processing Dir        = C:\SSMCharacterizationHandler\ProcessingBuffer
+Repository Dir        = C:\SSMCharacterizationHandler\Archive
+Finished Dir          = C:\SSMCharacterizationHandler\Output Buffer
+Error Dir             = C:\SSMCharacterizationHandler\Error Buffer
+Modeler Root Dir      = C:\SSMCharacterizationHandler\Application\Modelers
+Status Log File       = StatusData.csv
+Process Log File      = log.txt
+CPU Cores             = 4 Cores
+Execution Limit       = 5 Jobs
+Start Port            = 3000
+Scan Time             = 5000 Miliseconds
+Max Time Limit        = 28800 Seconds
+Log File History      = 30 Days
+Log File Max Size     = 5 MegaBytes
+
+Checking for unfinished Processing Jobs...
+
+No unfinished Processing jobs found...
+
+Checking for unfinished Input Jobs...
+
+No unfinished Input Jobs Found...
+
+Checking for new Input Jobs...
+
+Directory watcher detected: C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942 Created
+
+Found new Job         = 1185840_202003250942
+New Job Directory     = C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942
+New Serial Number     = 1185840
+New Time Stamp        = 202003250942
+New Job Xml File      = 75300037D00.xml
+Job 1185840_202003250942 started executing slot 1 at 12:08:17.783
+Status: Job:1185840_202003250942 Job Status:JOB_STARTED Time Type:TIME_RECEIVED
+Unit Number           = 3155301-029
+Modeler               = 780200XXC00
+Num Files Consumed    = 6
+Num Files Produced    = 7
+Num Files To Transfer = 3
+Job Port Number       = 3000
+Status: Job:1185840_202003250942 Job Status:MONITORING_INPUT Time Type:TIME_START
+Transfer File1        = Cap.tab
+Transfer File2        = Tune.tab
+Transfer File3        = Data.xml
+InputFileWatcherThread Found 6 of 6 files in job directory C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942 at 12:08:17.999
+Status: Job:1185840_202003250942 Job Status:COPYING_TO_PROCESSING Time Type:TIME_START
+Exiting InputFileWatcherThread with ExitInputFileScan=True and ShutdownFlag=False
+Status: Job:1185840_202003250942 Job Status:EXECUTING Time Type:TIME_START
+Starting Job 1185840_202003250942 with Modeler 780200XXC00 on port 3000 with 4 CPU's at 12:08:18.339
+Status: Job:1185840_202003250942 Job Status:MONITORING_PROCESSING Time Type:TIME_START
+Starting monitoring for Job 1185840_202003250942 Processing Buffer output files at 12:08:18.354
+File Watcher detected: C:\SSMCharacterizationHandler\ProcessingBuffer\1185840_202003250942\Data.xml Created
+Directory watcher detected: C:\SSMCharacterizationHandler\Input Buffer\1307106_202002181307 Created
+
+Found new Job         = 1307106_202002181307
+New Job Directory     = C:\SSMCharacterizationHandler\Input Buffer\1307106_202002181307
+New Serial Number     = 1307106
+New Time Stamp        = 202002181307
+New Job Xml File      = 75300037D00.xml
+Job 1307106_202002181307 started executing slot 2 at 12:08:53.635
+Status: Job:1307106_202002181307 Job Status:JOB_STARTED Time Type:TIME_RECEIVED
+Unit Number           = 3155301-029
+Modeler               = 780200XXC00
+Num Files Consumed    = 6
+Num Files Produced    = 7
+Num Files To Transfer = 3
+Job Port Number       = 3001
+Status: Job:1307106_202002181307 Job Status:MONITORING_INPUT Time Type:TIME_START
+Transfer File1        = Cap.tab
+Transfer File2        = Tune.tab
+Transfer File3        = Data.xml
+InputFileWatcherThread Found 6 of 6 files in job directory C:\SSMCharacterizationHandler\Input Buffer\1307106_202002181307 at 12:08:53.702
+Status: Job:1307106_202002181307 Job Status:COPYING_TO_PROCESSING Time Type:TIME_START
+Exiting InputFileWatcherThread with ExitInputFileScan=True and ShutdownFlag=False
+Status: Job:1307106_202002181307 Job Status:EXECUTING Time Type:TIME_START
+Starting Job 1307106_202002181307 with Modeler 780200XXC00 on port 3001 with 4 CPU's at 12:08:54.010
+Status: Job:1307106_202002181307 Job Status:MONITORING_PROCESSING Time Type:TIME_START
+Starting monitoring for Job 1307106_202002181307 Processing Buffer output files at 12:08:54.025
+File Watcher detected: C:\SSMCharacterizationHandler\ProcessingBuffer\1307106_202002181307\Data.xml Created
+Status: Job:1185840_202003250942 Job Status:MONITORING_TCPIP Time Type:TIME_START
+
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 12:09:25.391
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 12:09:48.323
+Status: Job:1307106_202002181307 Job Status:MONITORING_TCPIP Time Type:TIME_START
+
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 12:09:54.090
+
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3000 at 12:10:03.330
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3000 at 12:10:03.402

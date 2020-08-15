@@ -42,23 +42,13 @@ namespace Status.Services
             ILogger<StatusRepository> logger)
         {
             Directory = directory;
-            NumberOfFilesNeeded = numberOfFilesNeeded;
             IniData = iniData;
             MonitorData = monitorData;
             StatusData = statusData;
             Logger = logger;
             DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
             NumberOfFilesFound = InputJobInfo.GetFiles().Length;
-            NumberOfFilesNeeded = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
-            if (NumberOfFilesFound == NumberOfFilesNeeded)
-            {
-                StaticData.Log(IniData.ProcessLogFile,
-                    String.Format("InputFileWatcherThread Found {0} of {1} files in job directory {2} at {3:HH:mm:ss.fff}",
-                    NumberOfFilesFound, NumberOfFilesNeeded, Directory, DateTime.Now));
-
-                // Signal the Run thread that the Input files were found
-                StaticData.ExitInputFileScan = true;
-            }
+            NumberOfFilesNeeded = numberOfFilesNeeded;
         }
 
         /// <summary>
@@ -141,6 +131,16 @@ namespace Status.Services
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public static void WatchFiles(string directory, int numberOfFilesFound)
         {
+            if (NumberOfFilesFound == NumberOfFilesNeeded)
+            {
+                StaticData.Log(IniData.ProcessLogFile,
+                   String.Format("InputFileWatcherThread Found {0} of {1} files in job directory {2} at {3:HH:mm:ss.fff}",
+                    NumberOfFilesFound, NumberOfFilesNeeded, Directory, DateTime.Now));
+
+                // Signal the Run thread that the Input files were found
+                StaticData.ExitInputFileScan = true;
+            }
+
             // Create a new FileSystemWatcher and set its properties.
             using (FileSystemWatcher watcher = new FileSystemWatcher())
             {
@@ -169,7 +169,8 @@ namespace Status.Services
                 {
                     Thread.Sleep(250);
                 }
-                while ((StaticData.ExitInputFileScan == false) && (StaticData.ShutdownFlag == false));
+                while ((StaticData.ExitInputFileScan == false) &&
+                (StaticData.ShutdownFlag == false));
 
                 // Exiting thread message
                 StaticData.Log(IniData.ProcessLogFile,
