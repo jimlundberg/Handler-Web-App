@@ -20,6 +20,7 @@ namespace Status.Services
         private static Thread thread;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
+        public static bool jobWaiting = false;
 
         /// <summary>
         /// New Jobs Directory Scan Thread constructor receiving data buffers
@@ -53,7 +54,7 @@ namespace Status.Services
             thread = new Thread(() => WatchDirectory(Directory));
             if (thread == null)
             {
-                Logger.LogError("Directory Watcher Thread thread failed to instantiate");
+                Logger.LogError("DirectoryWatcherThread thread failed to instantiate");
             }
             thread.Start();
         }
@@ -69,7 +70,7 @@ namespace Status.Services
             // Directory Added
             StaticData.Log(IniData.ProcessLogFile, ($"Directory watcher detected: {e.FullPath} {e.ChangeType}"));
 
-            // Store jobs to run
+            // Store job to run now or later
             string job = e.FullPath;
             StaticData.newJobsToRun.Add(job);
 
@@ -80,6 +81,11 @@ namespace Status.Services
                 StaticData.newJobsToRun.Remove(job);
                 StaticData.FoundNewJobReadyToRun = true;
                 Thread.Sleep(IniData.ScanTime);
+                jobWaiting = false;
+            }
+            else
+            {
+                jobWaiting = true;
             }
         }
 
@@ -106,7 +112,7 @@ namespace Status.Services
             {
                 if (watcher == null)
                 {
-                    Logger.LogError("NewJobScanThread watcher failed to instantiate");
+                    Logger.LogError("DirectoryWatcherThread watcher failed to instantiate");
                 }
 
                 // Watch for changes in the directory list
@@ -131,6 +137,19 @@ namespace Status.Services
                 // Enter infinite loop waiting for changes
                 do
                 {
+                    // Run new jobs waiting
+                    if (jobWaiting && (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit))
+                    {
+                        if (StaticData.newJobsToRun.Count > 0)
+                        {
+                            foreach (var dir in StaticData.newJobsToRun)
+                            {
+                                NewJobsScanThread.StartJob(dir, true, IniData, StatusData, Logger);
+                                Thread.Sleep(IniData.ScanTime);
+                            }
+                        }
+                    }
+
                     Thread.Sleep(250);
                 }
                 while ((StaticData.ExitDirectoryScan == false) && 

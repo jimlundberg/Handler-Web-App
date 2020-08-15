@@ -148,7 +148,7 @@ namespace Status.Services
                                 String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now));
 
                             StatusDataEntry(statusData, monitorData.Job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
-
+                            StaticData.NumberOfJobsExecuting--;
                             StaticData.TcpIpScanComplete = true;
                             jobComplete = true;
                         }
