@@ -43,7 +43,8 @@ namespace Status.Services
             MonitorData = monitorData;
             StatusData = statusData;
             Logger = logger;
-            NumberOfFilesFound = monitorData.NumFilesConsumed;
+            DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
+            NumberOfFilesFound = InputJobInfo.GetFiles().Length;
         }
 
         protected virtual void OnProcessCompleted(EventArgs e)
@@ -123,7 +124,24 @@ namespace Status.Services
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public static void WatchFiles(string directory, int numberOfFilesFound)
         {
-            NumberOfFilesFound = numberOfFilesFound;
+            // Start the Tcp/Ip Communications thread before checking files
+            JobTcpIpThread tcpIp = new JobTcpIpThread(IniData, MonitorData, StatusData, Logger);
+            if (tcpIp == null)
+            {
+                Logger.LogError("ProcessingFileWatcherThread tcpIp thread failed to instantiate");
+            }
+            tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
+            tcpIp.StartTcpIpScanProcess(IniData, MonitorData, StatusData);
+
+            if (NumberOfFilesFound == NumberOfFilesNeeded)
+            {
+                StaticData.Log(IniData.ProcessLogFile,
+                   String.Format("InputFileWatcherThread Found {0} of {1} files in job directory {2} at {3:HH:mm:ss.fff}",
+                    NumberOfFilesFound, NumberOfFilesNeeded, Directory, DateTime.Now));
+
+                // Signal the Run thread that the Input files were found
+                StaticData.ExitInputFileScan = true;
+            }
 
             // Create a new FileSystemWatcher and set its properties.
             using (FileSystemWatcher watcher = new FileSystemWatcher())
@@ -142,15 +160,6 @@ namespace Status.Services
 
                 // Begin watching for changes to input directory
                 watcher.EnableRaisingEvents = true;
-
-                // Register with the Tcp/Ip Event and start it's thread
-                JobTcpIpThread tcpIp = new JobTcpIpThread(IniData, MonitorData, StatusData, Logger);
-                if (tcpIp == null)
-                {
-                    Logger.LogError("ProcessingFileWatcherThread tcpIp thread failed to instantiate");
-                }
-                tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
-                tcpIp.StartTcpIpScanProcess(IniData, MonitorData, StatusData);
 
                 Console.WriteLine("ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now);
 
