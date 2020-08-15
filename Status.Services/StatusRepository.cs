@@ -50,19 +50,19 @@ namespace Status.Services
             IniData.FinishedDir = IniParser.Read("Paths", "Finished");
             IniData.ErrorDir = IniParser.Read("Paths", "Error");
             IniData.ModelerRootDir = IniParser.Read("Paths", "ModelerRootDir");
-            IniData.CPUCores = Int32.Parse(IniParser.Read("Process", "CPUCores"));
-            IniData.ExecutionLimit = Int32.Parse(IniParser.Read("Process", "ExecutionLimit"));
-            IniData.StartPort = Int32.Parse(IniParser.Read("Process", "StartPort"));
+            IniData.CPUCores = int.Parse(IniParser.Read("Process", "CPUCores"));
+            IniData.ExecutionLimit = int.Parse(IniParser.Read("Process", "ExecutionLimit"));
+            IniData.StartPort = int.Parse(IniParser.Read("Process", "StartPort"));
             IniData.StatusLogFile = IniParser.Read("Process", "StatusLogFile");
             IniData.ProcessLogFile = IniParser.Read("Process", "ProcessLogFile");
             string scanTime = IniParser.Read("Process", "ScanTime");
-            IniData.ScanTime = Int32.Parse(scanTime.Substring(0, scanTime.IndexOf("#")));
+            IniData.ScanTime = int.Parse(scanTime.Substring(0, scanTime.IndexOf("#")));
             string timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
-            IniData.MaxTimeLimit = Int32.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
+            IniData.MaxTimeLimit = int.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             string logFileHistory = IniParser.Read("Process", "LogFileHistory");
-            IniData.LogFileHistory = Int32.Parse(logFileHistory.Substring(0, logFileHistory.IndexOf("#")));
+            IniData.LogFileHistory = int.Parse(logFileHistory.Substring(0, logFileHistory.IndexOf("#")));
             string logFileMaxSize = IniParser.Read("Process", "logFileMaxSize");
-            IniData.LogFileMaxSize = Int32.Parse(logFileMaxSize.Substring(0, logFileMaxSize.IndexOf("#")));
+            IniData.LogFileMaxSize = int.Parse(logFileMaxSize.Substring(0, logFileMaxSize.IndexOf("#")));
 
             // Set the log file max size
             StaticData.logFileSizeLimit = IniData.LogFileMaxSize;

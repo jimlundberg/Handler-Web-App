@@ -42,7 +42,7 @@ namespace Status.Services
                 String.Format("\nnewJob_DirectoryFound Received new directory at {0:HH:mm:ss.fff}", DateTime.Now));
 
             // Set Flag for ending directory scan loop
-            StaticData.FoundNewJobsReady = true;
+            StaticData.FoundNewJobReadyToRun = true;
         }
 
         /// <summary>
@@ -167,7 +167,7 @@ namespace Status.Services
             {
                 Thread.Sleep(250);
             }
-            while ((StaticData.FoundNewJobsReady == false) && (StaticData.ShutdownFlag == false));
+            while ((StaticData.FoundNewJobReadyToRun == false) && (StaticData.ShutdownFlag == false));
 
             // Exit thread
             StaticData.Log(logFile, String.Format("Exiting Input Job Scan at {0:HH:mm:ss.fff}", DateTime.Now));
@@ -183,66 +183,57 @@ namespace Status.Services
         /// <param name="logger"></param>
         public static void StartJob(string jobDirectory, bool newJobsFound, IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
+            // Increment counters to track job execution
+            StaticData.NumberOfJobsExecuting++;
+
+            // Get job name from directory name
+            string job = jobDirectory.Replace(iniFileData.InputDir, "").Remove(0, 1);
+
+            // Start scan for new directory in the Input Buffer
+            ScanDirectory scanDir = new ScanDirectory();
+            if (scanDir == null)
             {
-                // Increment counters to track job execution
-                StaticData.NumberOfJobsExecuting++;
-
-                // Get job name from directory name
-                string job = jobDirectory.Replace(iniFileData.InputDir, "").Remove(0, 1);
-
-                // Start scan for new directory in the Input Buffer
-                ScanDirectory scanDir = new ScanDirectory();
-                if (scanDir == null)
-                {
-                    Logger.LogError("NewJobsScanThread scanDir failed to instantiate");
-                }
-                StatusModels.JobXmlData jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job, logger);
-
-                // Get data found in Job xml file
-                JobXmlData xmlData = new JobXmlData();
-                if (xmlData == null)
-                {
-                    Logger.LogError("NewJobsScanThread data failed to instantiate");
-                }
-                xmlData.Job = job;
-                xmlData.JobDirectory = jobXmlData.JobDirectory;
-                xmlData.JobSerialNumber = jobXmlData.JobSerialNumber;
-                xmlData.TimeStamp = jobXmlData.TimeStamp;
-                xmlData.XmlFileName = jobXmlData.XmlFileName;
-
-                // Display xmlData found
-                string logFile = iniFileData.ProcessLogFile;
-                StaticData.Log(logFile, "");
-                StaticData.Log(logFile, "Found new Job         = " + xmlData.Job);
-                StaticData.Log(logFile, "New Job Directory     = " + xmlData.JobDirectory);
-                StaticData.Log(logFile, "New Serial Number     = " + xmlData.JobSerialNumber);
-                StaticData.Log(logFile, "New Time Stamp        = " + xmlData.TimeStamp);
-                StaticData.Log(logFile, "New Job Xml File      = " + xmlData.XmlFileName);
-
-                StaticData.Log(logFile, String.Format("Job {0} started executing slot {1} at {2:HH:mm:ss.fff}", 
-                    xmlData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now));
-
-                // Create a thread to execute the job, and start it
-                JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, newJobsFound, iniFileData, xmlData, statusData, logger);
-                if (jobThread == null)
-                {
-                    Logger.LogError("NewJobsScanThread jobThread failed to instantiate");
-                }
-                jobThread.ThreadProc();
-
-                // Cieck if the shutdown flag is set, exit method
-                if (StaticData.ShutdownFlag == true)
-                {
-                    logger.LogInformation("Shutdown NewJobsScanThread job {0}", job);
-                    return;
-                }
-
-                Thread.Sleep(iniFileData.ScanTime);
+                Logger.LogError("NewJobsScanThread scanDir failed to instantiate");
             }
-            else
+            StatusModels.JobXmlData jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job, logger);
+
+            // Get data found in Job xml file
+            JobXmlData xmlData = new JobXmlData();
+            if (xmlData == null)
             {
-                Thread.Sleep(iniFileData.ScanTime);
+                Logger.LogError("NewJobsScanThread data failed to instantiate");
+            }
+            xmlData.Job = job;
+            xmlData.JobDirectory = jobXmlData.JobDirectory;
+            xmlData.JobSerialNumber = jobXmlData.JobSerialNumber;
+            xmlData.TimeStamp = jobXmlData.TimeStamp;
+            xmlData.XmlFileName = jobXmlData.XmlFileName;
+
+            // Display xmlData found
+            string logFile = iniFileData.ProcessLogFile;
+            StaticData.Log(logFile, "");
+            StaticData.Log(logFile, "Found new Job         = " + xmlData.Job);
+            StaticData.Log(logFile, "New Job Directory     = " + xmlData.JobDirectory);
+            StaticData.Log(logFile, "New Serial Number     = " + xmlData.JobSerialNumber);
+            StaticData.Log(logFile, "New Time Stamp        = " + xmlData.TimeStamp);
+            StaticData.Log(logFile, "New Job Xml File      = " + xmlData.XmlFileName);
+
+            StaticData.Log(logFile, String.Format("Job {0} started executing slot {1} at {2:HH:mm:ss.fff}",
+                xmlData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now));
+
+            // Create a thread to execute the job, and start it
+            JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, newJobsFound, iniFileData, xmlData, statusData, logger);
+            if (jobThread == null)
+            {
+                Logger.LogError("NewJobsScanThread jobThread failed to instantiate");
+            }
+            jobThread.ThreadProc();
+
+            // Cieck if the shutdown flag is set, exit method
+            if (StaticData.ShutdownFlag == true)
+            {
+                logger.LogInformation("Shutdown NewJobsScanThread job {0}", job);
+                return;
             }
         }
     }

@@ -170,12 +170,12 @@ namespace Status.Services
                     Thread.Sleep(250);
                 }
                 while ((StaticData.ExitInputFileScan == false) &&
-                (StaticData.ShutdownFlag == false));
+                       (StaticData.ShutdownFlag == false));
 
                 // Exiting thread message
                 StaticData.Log(IniData.ProcessLogFile,
-                    String.Format("Exiting InputFileWatcherThread with ExitInputFileScan={0} and ShutdownFlag={1}",
-                    StaticData.ExitInputFileScan, StaticData.ShutdownFlag));
+                    String.Format("Exiting InputFileWatcherThread of dir {0} with ExitInputFileScan={1} and ShutdownFlag={2}",
+                    directory, StaticData.ExitInputFileScan, StaticData.ShutdownFlag));
             }
         }
     }

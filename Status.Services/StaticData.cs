@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Status.Services
 {
@@ -16,7 +17,8 @@ namespace Status.Services
         public static volatile bool ExitDirectoryScan = false;
         public static volatile bool ExitInputFileScan = false;
         public static volatile bool ExitProcessingFileScan = false;
-        public static volatile bool FoundNewJobsReady = false;
+        public static volatile bool FoundNewJobReadyToRun = false;
+        public static List<String> newJobsToRun = new List<String>();
 
         /// <summary>
         /// Global log to file method

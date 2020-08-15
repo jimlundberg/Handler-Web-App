@@ -94,7 +94,7 @@ namespace Status.Services
                     // Read the first batch of the TcpServer response bytes.
                     if (stream.CanRead)
                     {
-                        Int32 bytes = stream.Read(data, 0, data.Length);
+                        int bytes = stream.Read(data, 0, data.Length);
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
 
                         // Send status for response received
@@ -148,6 +148,7 @@ namespace Status.Services
                                 String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now));
 
                             StatusDataEntry(statusData, monitorData.Job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
+
                             StaticData.TcpIpScanComplete = true;
                             jobComplete = true;
                         }

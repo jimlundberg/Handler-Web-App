@@ -69,8 +69,18 @@ namespace Status.Services
             // Directory Added
             StaticData.Log(IniData.ProcessLogFile, ($"Directory watcher detected: {e.FullPath} {e.ChangeType}"));
 
-            // Run the job
-            NewJobsScanThread.StartJob(e.FullPath, false, IniData, StatusData, Logger);
+            // Store jobs to run
+            string job = e.FullPath;
+            StaticData.newJobsToRun.Add(job);
+
+            if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
+            {
+                // Run the job and remove it from the list
+                NewJobsScanThread.StartJob(job, false, IniData, StatusData, Logger);
+                StaticData.newJobsToRun.Remove(job);
+                StaticData.FoundNewJobReadyToRun = true;
+                Thread.Sleep(IniData.ScanTime);
+            }
         }
 
         /// <summary>

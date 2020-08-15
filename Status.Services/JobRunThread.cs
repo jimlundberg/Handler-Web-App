@@ -297,12 +297,15 @@ namespace Status.Services
             ProcessingFileWatch.ProcessCompleted += Processing_fileScan_FilesFound;
             ProcessingFileWatch.ThreadProc();
 
-            // Wait for the unfinishd job Processing completes
+            // Wait for job Processing to complete
             do
             {
                 Thread.Sleep(250);
             }
             while ((StaticData.ExitProcessingFileScan == false) && (StaticData.ShutdownFlag == false));
+
+            // Decrement number of jobs executing here
+            StaticData.NumberOfJobsExecuting--;
 
             // Add copy to archieve entry to status list
             StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.StatusLogFile, logger);
@@ -313,7 +316,7 @@ namespace Status.Services
             // Check for Data.xml in the Processing Directory
             do
             {
-                String[] files = System.IO.Directory.GetFiles(ProcessingBufferJobDir, "Data.xml");
+                String[] files = Directory.GetFiles(ProcessingBufferJobDir, "Data.xml");
                 if (files.Length > 0)
                 {
                     xmlFileName = files[0];
@@ -398,7 +401,6 @@ namespace Status.Services
                 FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
             }
 
-            StaticData.NumberOfJobsExecuting--;
             StaticData.Log(iniData.ProcessLogFile, String.Format("Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
                 monitorData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now));
 

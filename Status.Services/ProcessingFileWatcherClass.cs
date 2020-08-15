@@ -58,7 +58,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            thread = new Thread(() => WatchFiles(Directory, NumberOfFilesFound));
+            thread = new Thread(() => WatchFiles(Directory, NumberOfFilesFound, NumberOfFilesNeeded));
             if (thread == null)
             {
                 Logger.LogError("ProcessingFileWatcherThread thread failed to instantiate");
@@ -89,6 +89,7 @@ namespace Status.Services
 
                         // Signal the Run thread that the Processing files were found
                         StaticData.ExitProcessingFileScan = true;
+                        StaticData.TcpIpScanComplete = true;
                     }
                 }
             }
@@ -122,7 +123,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="directory"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-        public static void WatchFiles(string directory, int numberOfFilesFound)
+        public static void WatchFiles(string directory, int numberOfFilesFound, int numberOfFilesNeeded)
         {
             // Start the Tcp/Ip Communications thread before checking files
             JobTcpIpThread tcpIp = new JobTcpIpThread(IniData, MonitorData, StatusData, Logger);
@@ -133,14 +134,14 @@ namespace Status.Services
             tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
             tcpIp.StartTcpIpScanProcess(IniData, MonitorData, StatusData);
 
-            if (NumberOfFilesFound == NumberOfFilesNeeded)
+            if (numberOfFilesFound == numberOfFilesNeeded)
             {
                 StaticData.Log(IniData.ProcessLogFile,
-                   String.Format("InputFileWatcherThread Found {0} of {1} files in job directory {2} at {3:HH:mm:ss.fff}",
+                   String.Format("ProcessingFileWatcherThread Found {0} of {1} files in job directory {2} at {3:HH:mm:ss.fff}",
                     NumberOfFilesFound, NumberOfFilesNeeded, Directory, DateTime.Now));
 
-                // Signal the Run thread that the Input files were found
-                StaticData.ExitInputFileScan = true;
+                // Signal the Run thread that the Processing files were found
+                StaticData.ExitProcessingFileScan = true;
             }
 
             // Create a new FileSystemWatcher and set its properties.
@@ -177,8 +178,8 @@ namespace Status.Services
 
                 // Exiting thread message
                 StaticData.Log(IniData.ProcessLogFile,
-                    String.Format("Exiting ProcessingFileWatcherThread with ExitProcessingFileScan={0} TcpIpScanComplete={1} and ShutdownFlag={2}",
-                    StaticData.ExitProcessingFileScan, StaticData.TcpIpScanComplete, StaticData.ShutdownFlag));
+                    String.Format("Exiting ProcessingFileWatcherThread of dir {0} with ExitProcessingFileScan={1} TcpIpScanComplete={2} and ShutdownFlag={3}",
+                    directory, StaticData.ExitProcessingFileScan, StaticData.TcpIpScanComplete, StaticData.ShutdownFlag));
             }
         }
     }
