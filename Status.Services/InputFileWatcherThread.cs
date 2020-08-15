@@ -148,6 +148,9 @@ namespace Status.Services
                 // Begin watching for changes to input directory
                 watcher.EnableRaisingEvents = true;
 
+                // Clears cache
+                new System.Threading.AutoResetEvent(false).WaitOne();
+
                 Console.WriteLine("InputFileWatcherThread watching {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now);
 
                 // Enter infinite loop waiting for changes

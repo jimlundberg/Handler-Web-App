@@ -154,7 +154,10 @@ namespace Status.Services
                 tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
                 tcpIp.StartTcpIpScanProcess(IniData, MonitorData, StatusData);
 
-                // Wait for the TCP/IP Scan to Complete
+                // Wait for Scan
+                new System.Threading.AutoResetEvent(false).WaitOne();
+
+                // Wait for the TCP/IP Scan and Processing File Watching to Complete
                 do
                 {
                     Thread.Sleep(250);

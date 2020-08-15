@@ -89,43 +89,44 @@ namespace Handler.Pages
             switch (buttonPress)
             {
                 case ButtonPress.Home:
-                    ViewData["PageName"] = "Home";                   
+                    ViewData["PageName"] = "Home";
                     ViewData["bsRefreshDisabled"] = bsDisabled;
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
 
                 case ButtonPress.Start:
-                    ViewData["PageName"] = "Start";                 
+                    ViewData["PageName"] = "Start";
                     ViewData["bsStartDisabled"] = bsDisabled;
                     break;
 
                 case ButtonPress.Stop:
-                    ViewData["PageName"] = "Stop";                 
+                    ViewData["PageName"] = "Stop";
                     ViewData["bsRefreshDisabled"] = bsDisabled;
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
 
                 case ButtonPress.Pause:
-                    ViewData["PageName"] = "Pause";                 
+                    ViewData["PageName"] = "Pause";
                     ViewData["bsRefreshDisabled"] = bsDisabled;
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
 
                 case ButtonPress.Refresh:
-                    ViewData["PageName"] = "Refresh";                   
+                    ViewData["PageName"] = "Refresh";
+                    ViewData["bsStartDisabled"] = bsDisabled;
                     break;
 
                 case ButtonPress.History:
-                    ViewData["PageName"] = "History";                   
+                    ViewData["PageName"] = "History";
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;
 
                 default:
-                    ViewData["PageName"] = "Home";                    
+                    ViewData["PageName"] = "Home";
                     break;
             }
         }

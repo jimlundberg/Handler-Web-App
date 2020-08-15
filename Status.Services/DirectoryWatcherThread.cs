@@ -115,6 +115,9 @@ namespace Status.Services
                 // Begin watching for changes to input directory
                 watcher.EnableRaisingEvents = true;
 
+                // Clears cache
+                new System.Threading.AutoResetEvent(false).WaitOne();
+
                 // Enter infinite loop waiting for changes
                 do
                 {

@@ -81,7 +81,7 @@ namespace Status.Services
         {
             string logFile = iniFileData.ProcessLogFile;
 
-            StaticData.Log(logFile, "\nChecking for unfinished Processing Jobs");
+            StaticData.Log(logFile, "\nChecking for unfinished Processing Jobs...");
 
             // Register with the Old Jobs Processing class event and start its thread
             OldJobsScanThread oldJobs = new OldJobsScanThread(IniData, StatusData, Logger);
@@ -126,12 +126,12 @@ namespace Status.Services
             }
 
             // Get the list of directories from the Input Buffer
-            bool newJobsFound = false;
+            bool oldProcessingJobsFound = false;
             runDirectoryInfoList = runDirectoryInfo.EnumerateDirectories().ToList();
             if (runDirectoryInfoList.Count > 0)
             {
-                newJobsFound = true;
-                StaticData.Log(logFile, "\nProcesssing unfinished new jobs...");
+                oldProcessingJobsFound = true;
+                StaticData.Log(logFile, "\nProcesssing unfinished Input jobs...");
             }
             else
             {
@@ -141,13 +141,16 @@ namespace Status.Services
             // Start the jobs in the directory list found on initial scan of the Input Buffer
             foreach (var dir in runDirectoryInfoList)
             {
-                StartJob(dir.ToString(), newJobsFound, IniData, StatusData, Logger);
+                StartJob(dir.ToString(), oldProcessingJobsFound, IniData, StatusData, Logger);
                 Thread.Sleep(iniFileData.ScanTime);
             }
 
-            StaticData.Log(logFile, "\nNo more unfinished Input Jobs...");
+            if (oldProcessingJobsFound)
+            {
+                StaticData.Log(logFile, "\nNo more unfinished Input Jobs...");
+            }
 
-            StaticData.Log(logFile, "\nChecking for Input Jobs...\n");
+            StaticData.Log(logFile, "\nChecking for new Input Jobs...\n");
 
             // Start the Directory Watcher class to scan for new jobs
             DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(IniData, StatusData, Logger);
