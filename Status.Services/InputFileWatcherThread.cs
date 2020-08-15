@@ -47,7 +47,18 @@ namespace Status.Services
             MonitorData = monitorData;
             StatusData = statusData;
             Logger = logger;
-            NumberOfFilesFound = 1;
+            DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
+            NumberOfFilesFound = InputJobInfo.GetFiles().Length;
+            NumberOfFilesNeeded = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
+            if (NumberOfFilesFound == NumberOfFilesNeeded)
+            {
+                StaticData.Log(IniData.ProcessLogFile,
+                    String.Format("InputFileWatcherThread Found {0} of {1} files in job directory {2} at {3:HH:mm:ss.fff}",
+                    NumberOfFilesFound, NumberOfFilesNeeded, Directory, DateTime.Now));
+
+                // Signal the Run thread that the Input files were found
+                StaticData.ExitInputFileScan = true;
+            }
         }
 
         /// <summary>
@@ -90,7 +101,7 @@ namespace Status.Services
                 if (NumberOfFilesFound == NumberOfFilesNeeded)
                 {
                     StaticData.Log(IniData.ProcessLogFile,
-                        String.Format("InputFileWatcherThread Found {0} of {1} files in directory {2} at {3:HH:mm:ss.fff}",
+                        String.Format("InputFileWatcherThread Found {0} of {1} files in job directory {2} at {3:HH:mm:ss.fff}",
                         NumberOfFilesFound, NumberOfFilesNeeded, Directory, DateTime.Now));
 
                     // Signal the Run thread that the Input files were found
@@ -148,12 +159,12 @@ namespace Status.Services
                 // Begin watching for changes to input directory
                 watcher.EnableRaisingEvents = true;
 
-                // Clears cache
-                new System.Threading.AutoResetEvent(false).WaitOne();
-
                 Console.WriteLine("InputFileWatcherThread watching {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now);
 
-                // Enter infinite loop waiting for changes
+                // Thread wait
+                // new System.Threading.AutoResetEvent(false).WaitOne();
+
+                // Check for changes
                 do
                 {
                     Thread.Sleep(250);

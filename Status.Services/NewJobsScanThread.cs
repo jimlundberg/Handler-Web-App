@@ -174,9 +174,10 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Method to start new jobs from the Input Buffer
+        /// Method to start new jobs from the Input Buffer 
         /// </summary>
-        /// <param name="jobList"></param>
+        /// <param name="jobDirectory"></param>
+        /// <param name="newJobsFound"></param>
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>

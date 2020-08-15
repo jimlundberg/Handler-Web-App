@@ -143,8 +143,6 @@ namespace Status.Services
                 // Begin watching for changes to input directory
                 watcher.EnableRaisingEvents = true;
 
-                Console.WriteLine("ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now);
-
                 // Register with the Tcp/Ip Event and start it's thread
                 JobTcpIpThread tcpIp = new JobTcpIpThread(IniData, MonitorData, StatusData, Logger);
                 if (tcpIp == null)
@@ -154,8 +152,10 @@ namespace Status.Services
                 tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
                 tcpIp.StartTcpIpScanProcess(IniData, MonitorData, StatusData);
 
-                // Wait for Scan
-                new System.Threading.AutoResetEvent(false).WaitOne();
+                Console.WriteLine("ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now);
+
+                // Thread wait
+                // new System.Threading.AutoResetEvent(false).WaitOne();
 
                 // Wait for the TCP/IP Scan and Processing File Watching to Complete
                 do
