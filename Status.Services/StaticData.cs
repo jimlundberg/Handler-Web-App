@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace Status.Services
 {
     public delegate void TimeoutCallbackType(string job);
+    public delegate void jobCompleteCallbackType(string job);
 
     /// <summary>
     /// Static Data with global access
@@ -14,7 +15,6 @@ namespace Status.Services
         public static int RunningJobsIndex = 0;
         public static int logFileSizeLimit = 0;
         public static volatile bool ShutdownFlag = false;
-//      public static volatile bool TcpIpScanComplete = true;
         public static volatile bool OldJobScanComplete = false;
         public static volatile bool ExitDirectoryScan = false;
         public static volatile bool ExitInputFileScan = false;

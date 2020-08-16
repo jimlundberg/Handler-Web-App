@@ -224,7 +224,7 @@ namespace Status.Services
                             Thread.Sleep(250);
                         }
 
-                        Console.WriteLine("Finished scan for Input files of job {0} at {1:HH: mm: ss.fff}", InputBufferJobDir, DateTime.Now);
+                        Console.WriteLine("Finished scan for Input files of job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
                     }
 
                     // Add entry to status list
