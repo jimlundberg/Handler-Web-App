@@ -176,6 +176,8 @@ namespace Status.Services
                                 Thread.Sleep(IniData.ScanTime);
                                 TcpIpScanComplete = false;
                             }
+
+                            StaticData.newJobsToRun.Clear();
                         }
                     }
 

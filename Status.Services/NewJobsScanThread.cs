@@ -192,7 +192,7 @@ namespace Status.Services
             {
                 Logger.LogError("NewJobsScanThread scanDir failed to instantiate");
             }
-            StatusModels.JobXmlData jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job, logger);
+            JobXmlData jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job, logger);
 
             // Get data found in Job xml file
             JobXmlData xmlData = new JobXmlData();
