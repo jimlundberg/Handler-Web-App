@@ -68,7 +68,7 @@ namespace Status.Services
         public static void OnChanged(object source, FileSystemEventArgs e)
         {
             // Directory Added
-            StaticData.Log(IniData.ProcessLogFile, ($"Directory watcher detected: {e.FullPath} {e.ChangeType}"));
+            StaticData.Log(IniData.ProcessLogFile, ($"\nDirectory watcher detected: {e.FullPath} {e.ChangeType}"));
 
             // Store job to run now or later
             string job = e.FullPath;
@@ -78,6 +78,7 @@ namespace Status.Services
             {
                 // Run the job and remove it from the list
                 NewJobsScanThread.StartJob(job, false, IniData, StatusData, Logger);
+                StaticData.NumberOfJobsExecuting++;
                 StaticData.newJobsToRun.Remove(job);
                 StaticData.FoundNewJobReadyToRun = true;
                 Thread.Sleep(IniData.ScanTime);
@@ -145,6 +146,7 @@ namespace Status.Services
                             foreach (var dir in StaticData.newJobsToRun)
                             {
                                 NewJobsScanThread.StartJob(dir, true, IniData, StatusData, Logger);
+                                StaticData.NumberOfJobsExecuting++;
                                 Thread.Sleep(IniData.ScanTime);
                             }
                         }

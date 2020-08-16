@@ -1032,3 +1032,15 @@ Status: Job:1185841_202005070801 Job Status:MONITORING_PROCESSING Time Type:TIME
 Starting monitoring for Job 1185841_202005070801 Processing Buffer output files at 12:40:40.402
 File Watcher detected: C:\SSMCharacterizationHandler\ProcessingBuffer\1185841_202005070801\Data.xml Created
 Directory watcher detected: C:\SSMCharacterizationHandler\Input Buffer\1307106_202002181307 Created
+
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3001 at 21:29:52.887
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3001 at 21:29:53.146
+
+Sending status msg to Modeler for Job 1185840_202003250942 on port 3002 at 21:29:54.828
+Received: Step 1 in process. from Job 1185840_202003250942 on port 3002 at 21:29:55.033
+
+Sending status msg to Modeler for Job 1178352_202005050818 on port 3000 at 21:30:04.521
+Received: Step 1 in process. from Job 1178352_202005050818 on port 3000 at 21:30:04.763
+
+Sending status msg to Modeler for Job 1278061_202006301109 on port 3001 at 21:30:08.436
+Received: Step 1 in process. from Job 1278061_202006301109 on port 3001 at 21:30:08.592

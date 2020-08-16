@@ -183,9 +183,6 @@ namespace Status.Services
         /// <param name="logger"></param>
         public static void StartJob(string jobDirectory, bool newJobsFound, IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            // Increment counters to track job execution
-            StaticData.NumberOfJobsExecuting++;
-
             // Get job name from directory name
             string job = jobDirectory.Replace(iniFileData.InputDir, "").Remove(0, 1);
 
