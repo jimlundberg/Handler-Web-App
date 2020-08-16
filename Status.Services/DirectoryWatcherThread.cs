@@ -66,10 +66,11 @@ namespace Status.Services
         /// <param name="job"></param>
         public static void TimeoutHandler(StatusMonitorData monitorData)
         {
-            Console.WriteLine(String.Format("Timeout Handler for job {0}", monitorData.Job));
+            string job = monitorData.Job;
+
+            Console.WriteLine(String.Format("Timeout Handler for job {0}", job));
 
             // Get job name from directory name
-            string job = monitorData.Job;
             string processingBufferDirectory = IniData.ProcessingDir + @"\" + job;
             string repositoryDirectory = IniData.RepositoryDir + @"\" + job;
 
