@@ -194,7 +194,7 @@ namespace Status.Services
                 if (Directory.Exists(InputBufferJobDir))
                 {
                     // Reset the Tcp/Ip Job Complete flag for Input Directory Monitoring
-                    StaticData.TcpIpScanComplete = false;
+                    // TcpIpScanComplete = false;
 
                     // Skip if this is a new job found no started
                     if (runningNewJobs == false)
@@ -276,7 +276,7 @@ namespace Status.Services
             StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.StatusLogFile, logger);
 
             // Set Tcp/Ip Job Complete flag for ProcessingBuffer Directory Monitoring
-            StaticData.TcpIpScanComplete = false;
+            //TcpIpScanComplete = false;
 
             // Monitor for complete set of files in the Processing Buffer
             StaticData.Log(iniData.ProcessLogFile, 

@@ -74,7 +74,7 @@ namespace Status.Services
                 }
 
                 bool jobComplete = false;
-                int sleepTime = 15000;
+                int sleepTime = iniData.ScanTime * 3;
                 do
                 {
                     // Send the message to the connected TcpServer.
@@ -127,8 +127,7 @@ namespace Status.Services
                                 StaticData.Log(iniData.ProcessLogFile, 
                                     String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
-                                Thread.Sleep(1000);
-                                StaticData.TcpIpScanComplete = true;
+                                Thread.Sleep(iniData.ScanTime);
                                 jobComplete = true;
                                 break;
 
@@ -147,9 +146,9 @@ namespace Status.Services
                             StaticData.Log(iniData.ProcessLogFile, 
                                 String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now));
 
+                            DirectoryWatcherThread.TimeoutHandler(monitorData);
+
                             StatusDataEntry(statusData, monitorData.Job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
-                            StaticData.NumberOfJobsExecuting--;
-                            StaticData.TcpIpScanComplete = true;
                             jobComplete = true;
                         }
 

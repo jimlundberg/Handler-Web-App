@@ -2,6 +2,7 @@
 using StatusModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Security.Permissions;
 using System.Threading;
@@ -13,14 +14,14 @@ namespace Status.Services
     /// </summary>
     public class DirectoryWatcherThread
     {
-        public static string Directory;
+        public static string DirectoryName;
         public static IniFileData IniData;
         public static List<StatusData> StatusData;
-        private static readonly List<String> directoryInfoList = new List<String>();
         private static Thread thread;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
         public static bool jobWaiting = false;
+        public static bool TcpIpScanComplete = false;
 
         /// <summary>
         /// New Jobs Directory Scan Thread constructor receiving data buffers
@@ -33,7 +34,7 @@ namespace Status.Services
         {
             IniData = iniData;
             StatusData = statusData;
-            Directory = iniData.InputDir;
+            DirectoryName = iniData.InputDir;
             Logger = logger;
         }
 
@@ -51,12 +52,38 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            thread = new Thread(() => WatchDirectory(Directory));
+            thread = new Thread(() => WatchDirectory(DirectoryName));
             if (thread == null)
             {
                 Logger.LogError("DirectoryWatcherThread thread failed to instantiate");
             }
             thread.Start();
+        }
+
+        /// <summary>
+        /// Timeout Handler
+        /// </summary>
+        /// <param name="job"></param>
+        public static void TimeoutHandler(StatusMonitorData monitorData)
+        {
+            Console.WriteLine(String.Format("Timeout Handler for job {0}", monitorData.Job));
+
+            // Get job name from directory name
+            string job = monitorData.Job;
+            string processingBufferDirectory = IniData.ProcessingDir + @"\" + job;
+            string repositoryDirectory = IniData.RepositoryDir + @"\" + job;
+
+            // If the repository directory does not exist, create it
+            if (!Directory.Exists(repositoryDirectory))
+            {
+                Directory.CreateDirectory(repositoryDirectory);
+            }
+
+            // Move Processing Buffer Files to the Repository directory when failed
+            FileHandling.CopyFolderContents(processingBufferDirectory, repositoryDirectory, Logger, true, true);
+
+            StaticData.NumberOfJobsExecuting--;
+            TcpIpScanComplete = true;
         }
 
         // Define the event handlers.
@@ -132,14 +159,12 @@ namespace Status.Services
                 // Begin watching for changes to input directory
                 watcher.EnableRaisingEvents = true;
 
-                // Thread wait
-                // new System.Threading.AutoResetEvent(false).WaitOne();
-
-                // Enter infinite loop waiting for changes
+                // Enter infinite loop waiting for job and Tcp/IP scan complete
                 do
                 {
                     // Run new jobs waiting
-                    if (jobWaiting && (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit))
+                    if (jobWaiting && TcpIpScanComplete &&
+                        (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit))
                     {
                         if (StaticData.newJobsToRun.Count > 0)
                         {
@@ -148,6 +173,7 @@ namespace Status.Services
                                 NewJobsScanThread.StartJob(dir, true, IniData, StatusData, Logger);
                                 StaticData.NumberOfJobsExecuting++;
                                 Thread.Sleep(IniData.ScanTime);
+                                TcpIpScanComplete = false;
                             }
                         }
                     }

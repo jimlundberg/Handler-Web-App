@@ -22,6 +22,7 @@ namespace Status.Services
         public static ILogger<StatusRepository> Logger;
         public static int NumberOfFilesFound;
         public static int NumberOfFilesNeeded;
+        public static bool TcpIpScanComplete = false;
 
         /// <summary>
         /// Default Input File Watcher Thread Constructore
@@ -120,7 +121,7 @@ namespace Status.Services
         {
             // Set Flag for ending directory scan loop
             Console.WriteLine("InputFileWatcherThread received Tcp/Ip Scan Completed!");
-            StaticData.TcpIpScanComplete = true;
+            TcpIpScanComplete = true;
         }
 
         /// <summary>
@@ -161,15 +162,13 @@ namespace Status.Services
 
                 Console.WriteLine("InputFileWatcherThread watching {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now);
 
-                // Thread wait
-                // new System.Threading.AutoResetEvent(false).WaitOne();
-
                 // Check for changes
                 do
                 {
                     Thread.Sleep(250);
                 }
-                while ((StaticData.ExitInputFileScan == false) &&
+                while ((TcpIpScanComplete == false) &&
+                       (StaticData.ExitInputFileScan == false) &&
                        (StaticData.ShutdownFlag == false));
 
                 // Exiting thread message

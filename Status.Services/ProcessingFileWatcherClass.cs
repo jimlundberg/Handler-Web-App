@@ -23,6 +23,7 @@ namespace Status.Services
         public static int NumberOfFilesFound;
         public static int NumberOfFilesNeeded;
         private static readonly Object changedLock = new Object();
+        public static bool TcpIpScanComplete = false;
 
         public ProcessingFileWatcherThread() { }
 
@@ -89,7 +90,7 @@ namespace Status.Services
 
                         // Signal the Run thread that the Processing files were found
                         StaticData.ExitProcessingFileScan = true;
-                        StaticData.TcpIpScanComplete = true;
+                        TcpIpScanComplete = true;
                     }
                 }
             }
@@ -115,7 +116,7 @@ namespace Status.Services
         {
             // Set Flag for ending directory scan loop
             Console.WriteLine("ProcessingFileWatcherThread received Tcp/Ip Scan Completed!");
-            StaticData.TcpIpScanComplete = true;
+            TcpIpScanComplete = true;
         }
 
         /// <summary>
@@ -164,22 +165,19 @@ namespace Status.Services
 
                 Console.WriteLine("ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now);
 
-                // Thread wait
-                // new System.Threading.AutoResetEvent(false).WaitOne();
-
                 // Wait for the TCP/IP Scan and Processing File Watching to Complete
                 do
                 {
                     Thread.Sleep(250);
                 }
                 while (((StaticData.ExitProcessingFileScan == false) &&
-                        (StaticData.TcpIpScanComplete == false)) &&
+                        (TcpIpScanComplete == false)) &&
                         (StaticData.ShutdownFlag == false));
 
                 // Exiting thread message
                 StaticData.Log(IniData.ProcessLogFile,
                     String.Format("Exiting ProcessingFileWatcherThread of dir {0} with ExitProcessingFileScan={1} TcpIpScanComplete={2} and ShutdownFlag={3}",
-                    directory, StaticData.ExitProcessingFileScan, StaticData.TcpIpScanComplete, StaticData.ShutdownFlag));
+                    directory, StaticData.ExitProcessingFileScan, TcpIpScanComplete, StaticData.ShutdownFlag));
             }
         }
     }
