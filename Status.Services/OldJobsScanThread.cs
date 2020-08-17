@@ -141,12 +141,12 @@ namespace Status.Services
                     StaticData.Log(iniFileData.ProcessLogFile, "Starting Job " + xmlData.Job);
 
                     // Create a thread to execute the task, and then start the thread.
-                    JobRunThread jobThread = new JobRunThread(iniFileData.ProcessingDir, false, iniFileData, xmlData, statusData, logger);
-                    if (jobThread == null)
+                    JobRunThread thread = new JobRunThread(iniFileData.ProcessingDir, false, iniFileData, xmlData, statusData, logger);
+                    if (thread == null)
                     {
-                        Logger.LogError("OldJobsScanThread jobThread failed to instantiate");
+                        Logger.LogError("OldJobsScanThread thread failed to instantiate");
                     }
-                    jobThread.ThreadProc();
+                    thread.ThreadProc();
 
                     // Check if the shutdown flag is set, exit method
                     if (StaticData.ShutdownFlag == true)

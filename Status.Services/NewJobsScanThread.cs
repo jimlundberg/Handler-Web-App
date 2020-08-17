@@ -145,6 +145,7 @@ namespace Status.Services
             {
                 NewJobsScanThread newJobsScanThread = new NewJobsScanThread();
                 newJobsScanThread.StartJob(dir.ToString(), oldProcessingJobsFound, IniData, StatusData, Logger);
+                StaticData.NumberOfJobsExecuting++;
                 Thread.Sleep(iniFileData.ScanTime);
             }
 
@@ -222,12 +223,12 @@ namespace Status.Services
                 xmlData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now));
 
             // Create a thread to execute the job, and start it
-            JobRunThread jobThread = new JobRunThread(iniFileData.InputDir, newJobsFound, iniFileData, xmlData, statusData, logger);
-            if (jobThread == null)
+            JobRunThread thread = new JobRunThread(iniFileData.InputDir, newJobsFound, iniFileData, xmlData, statusData, logger);
+            if (thread == null)
             {
-                Logger.LogError("NewJobsScanThread jobThread failed to instantiate");
+                Logger.LogError("NewJobsScanThread thread failed to instantiate");
             }
-            jobThread.ThreadProc();
+            thread.ThreadProc();
 
             // Cieck if the shutdown flag is set, exit method
             if (StaticData.ShutdownFlag == true)
