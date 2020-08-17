@@ -143,10 +143,13 @@ namespace Status.Services
             // Start the jobs in the directory list found on initial scan of the Input Buffer
             foreach (var dir in runDirectoryInfoList)
             {
-                NewJobsScanThread newJobsScanThread = new NewJobsScanThread();
-                newJobsScanThread.StartJob(dir.ToString(), oldProcessingJobsFound, IniData, StatusData, Logger);
-                StaticData.NumberOfJobsExecuting++;
-                Thread.Sleep(iniFileData.ScanTime);
+                if (StaticData.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
+                {
+                    NewJobsScanThread newJobsScanThread = new NewJobsScanThread();
+                    newJobsScanThread.StartJob(dir.ToString(), oldProcessingJobsFound, IniData, StatusData, Logger);
+                    StaticData.NumberOfJobsExecuting++;
+                    Thread.Sleep(iniFileData.ScanTime);
+                }
             }
 
             if (oldProcessingJobsFound)
