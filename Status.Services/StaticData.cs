@@ -15,10 +15,11 @@ namespace Status.Services
         public static int RunningJobsIndex = 0;
         public static int logFileSizeLimit = 0;
         public static volatile bool ShutdownFlag = false;
-        public static volatile bool OldJobScanComplete = false;
-        public static volatile bool ExitDirectoryScan = false;
-        public static volatile bool ExitInputFileScan = false;
-        public static volatile bool ExitProcessingFileScan = false;
+        public static bool OldJobScanComplete = false;
+        public static bool ExitDirectoryScan = false;
+        public static bool ExitInputFileScan = false;
+        public static Dictionary<string, bool> TcpIpScanComplete = new Dictionary<string, bool>();
+        public static Dictionary<string, bool> ExitProcessingFileScan = new Dictionary<string, bool>();
         public static volatile bool FoundNewJobReadyToRun = false;
         public static List<String> newJobsToRun = new List<String>();
 

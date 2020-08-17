@@ -63,8 +63,10 @@ namespace Status.Services
         public static void Input_fileScan_FilesFound(object sender, EventArgs e)
         {
             // Set Flag for ending file scan loop
-            StaticData.Log(IniData.ProcessLogFile, "Input File Scan Received required number of files");
-            StaticData.ExitInputFileScan = true;
+            StaticData.Log(IniData.ProcessLogFile,
+                    String.Format("Input_fileScan_FilesFound Received required number of files for {0}", 
+                    e.ToString()));
+            StaticData.ExitInputFileScan = false;
         }
 
         /// <summary>
@@ -75,8 +77,10 @@ namespace Status.Services
         public static void Processing_fileScan_FilesFound(object sender, EventArgs e)
         {
             // Set Flag for ending file scan loop
-            StaticData.Log(IniData.ProcessLogFile, "Processing File Scan Received required number of files");
-            StaticData.ExitProcessingFileScan = true;
+            StaticData.Log(IniData.ProcessLogFile, 
+                String.Format("Processing_fileScan_FilesFound Received required number of files for {0}",
+                e.ToString()));
+            StaticData.ExitProcessingFileScan.Add(e.ToString(), false);
         }
 
         /// <summary>
@@ -285,7 +289,7 @@ namespace Status.Services
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
 
             // Register with the File Watcher class with an event and start its thread
-            StaticData.ExitProcessingFileScan = false;
+            StaticData.ExitProcessingFileScan[job] = false;
             string processingBufferJobDir = iniData.ProcessingDir + @"\" + MonitorData.Job;
             ProcessingFileWatcherThread ProcessingFileWatch = new ProcessingFileWatcherThread(processingBufferJobDir,
                 monitorData.NumFilesConsumed + monitorData.NumFilesProduced, 
@@ -302,7 +306,8 @@ namespace Status.Services
             {
                 Thread.Sleep(250);
             }
-            while ((StaticData.ExitProcessingFileScan == false) && (StaticData.ShutdownFlag == false));
+            while ((StaticData.ExitProcessingFileScan[job] == false) &&
+                   (StaticData.ShutdownFlag == false));
 
             // Decrement number of jobs executing here
             StaticData.NumberOfJobsExecuting--;

@@ -18,6 +18,8 @@ namespace Status.Services
         public static List<StatusData> StatusData;
         public static ILogger<StatusRepository> Logger;
 
+        public NewJobsScanThread() { }
+
         /// <summary>
         /// Processing complete callback
         /// </summary>
@@ -141,7 +143,8 @@ namespace Status.Services
             // Start the jobs in the directory list found on initial scan of the Input Buffer
             foreach (var dir in runDirectoryInfoList)
             {
-                StartJob(dir.ToString(), oldProcessingJobsFound, IniData, StatusData, Logger);
+                NewJobsScanThread newJobsScanThread = new NewJobsScanThread();
+                newJobsScanThread.StartJob(dir.ToString(), oldProcessingJobsFound, IniData, StatusData, Logger);
                 Thread.Sleep(iniFileData.ScanTime);
             }
 
@@ -181,7 +184,7 @@ namespace Status.Services
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void StartJob(string jobDirectory, bool newJobsFound, IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public void StartJob(string jobDirectory, bool newJobsFound, IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Get job name from directory name
             string job = jobDirectory.Replace(iniFileData.InputDir, "").Remove(0, 1);

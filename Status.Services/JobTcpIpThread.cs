@@ -99,7 +99,7 @@ namespace Status.Services
         /// <summary>
         /// Start Tcp/Ip communications monitor
         /// </summary>
-        public static void TcpIpMonitor()
+        public void TcpIpMonitor()
         {
             TcpIpConnection tcpIpConnection = new TcpIpConnection();
             tcpIpConnection.Connect("127.0.0.1", IniData, MonitorData, StatusData, "status", Logger);

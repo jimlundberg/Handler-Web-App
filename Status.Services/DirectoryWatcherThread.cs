@@ -105,7 +105,8 @@ namespace Status.Services
             if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
             {
                 // Run the job and remove it from the list
-                NewJobsScanThread.StartJob(job, false, IniData, StatusData, Logger);
+                NewJobsScanThread newJobsScanThread = new NewJobsScanThread();
+                newJobsScanThread.StartJob(job, false, IniData, StatusData, Logger);
                 StaticData.NumberOfJobsExecuting++;
                 StaticData.newJobsToRun.Remove(job);
                 StaticData.FoundNewJobReadyToRun = true;
@@ -171,7 +172,8 @@ namespace Status.Services
                         {
                             foreach (var dir in StaticData.newJobsToRun)
                             {
-                                NewJobsScanThread.StartJob(dir, true, IniData, StatusData, Logger);
+                                NewJobsScanThread newJobsScanThread = new NewJobsScanThread();
+                                newJobsScanThread.StartJob(dir, true, IniData, StatusData, Logger);
                                 StaticData.NumberOfJobsExecuting++;
                                 Thread.Sleep(IniData.ScanTime);
                                 TcpIpScanComplete = false;
@@ -183,13 +185,15 @@ namespace Status.Services
 
                     Thread.Sleep(250);
                 }
-                while ((StaticData.ExitDirectoryScan == false) && 
+                while ((StaticData.ExitDirectoryScan == false) &&
                        (StaticData.ShutdownFlag == false));
 
                 // Exiting thread message
-                StaticData.Log(IniData.ProcessLogFile, 
+                StaticData.Log(IniData.ProcessLogFile,
                     String.Format("Exiting DirectoryWatcherThread with ExitDirectoryScan {0} and ShutdownFlag {1}",
                     StaticData.ExitDirectoryScan, StaticData.ShutdownFlag));
+
+                StaticData.ExitDirectoryScan = true;
             }
         }
     }

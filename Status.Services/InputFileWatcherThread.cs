@@ -91,12 +91,17 @@ namespace Status.Services
                 NumberOfFilesFound++;
                 if (NumberOfFilesFound == NumberOfFilesNeeded)
                 {
+                    // Get job name from directory name
+                    string jobDirectory = e.FullPath;
+                    string jobFile = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+                    string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
+
                     StaticData.Log(IniData.ProcessLogFile,
-                        String.Format("InputFileWatcherThread Found {0} of {1} files in job directory {2} at {3:HH:mm:ss.fff}",
-                        NumberOfFilesFound, NumberOfFilesNeeded, Directory, DateTime.Now));
+                        String.Format("InputFileWatcherThread Found {0} of {1} files in job {2} at {3:HH:mm:ss.fff}",
+                        NumberOfFilesFound, NumberOfFilesNeeded, job, DateTime.Now));
 
                     // Signal the Run thread that the Input files were found
-                    StaticData.ExitInputFileScan = true;
+                    StaticData.ExitInputFileScan= true;
                 }
             }
         }
@@ -130,13 +135,13 @@ namespace Status.Services
         /// <param name="directory"></param>
         /// <param name="numberOfFilesFound"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-        public static void WatchFiles(string directory, int numberOfFilesFound)
+        public void WatchFiles(string directory, int numberOfFilesFound)
         {
             if (NumberOfFilesFound == NumberOfFilesNeeded)
             {
                 StaticData.Log(IniData.ProcessLogFile,
-                   String.Format("InputFileWatcherThread Found {0} of {1} files in job directory {2} at {3:HH:mm:ss.fff}",
-                    NumberOfFilesFound, NumberOfFilesNeeded, Directory, DateTime.Now));
+                   String.Format("InputFileWatcherThread Found {0} of {1} files for directory {2} at {3:HH:mm:ss.fff}",
+                    NumberOfFilesFound, NumberOfFilesNeeded, directory, DateTime.Now));
 
                 // Signal the Run thread that the Input files were found
                 StaticData.ExitInputFileScan = true;
@@ -167,8 +172,7 @@ namespace Status.Services
                 {
                     Thread.Sleep(250);
                 }
-                while ((TcpIpScanComplete == false) &&
-                       (StaticData.ExitInputFileScan == false) &&
+                while (((TcpIpScanComplete == false) || (StaticData.ExitInputFileScan == false)) &&
                        (StaticData.ShutdownFlag == false));
 
                 // Exiting thread message
