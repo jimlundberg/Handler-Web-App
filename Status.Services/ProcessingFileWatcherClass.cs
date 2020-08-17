@@ -90,15 +90,15 @@ namespace Status.Services
                         // Get job name from directory name
                         string jobDirectory = e.FullPath;
                         string jobFile = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
-                        string jobComplete = jobFile.Substring(0, jobFile.IndexOf(@"\"));
+                        string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
 
                         StaticData.Log(IniData.ProcessLogFile,
                             String.Format("ProcessingFileWatcherThread Found {0} of {1} files for job {2} at {3:HH:mm:ss.fff}",
-                            NumberOfFilesFound, NumberOfFilesNeeded, jobComplete, DateTime.Now));
+                            NumberOfFilesFound, NumberOfFilesNeeded, job, DateTime.Now));
 
                         // Signal the Run thread that the Processing files were found
-                        TcpIpScanComplete[jobComplete] = true;
-                        ProcessingFileScanComplete[jobComplete] = true;
+                        TcpIpScanComplete[job] = true;
+                        ProcessingFileScanComplete[job] = true;
                     }
                 }
             }

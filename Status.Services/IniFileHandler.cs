@@ -103,7 +103,7 @@ namespace Status.Services
                     }
                 }
 
-                Thread.Sleep(500);
+                Thread.Sleep(250);
             }
             while (XmlFileFound == false);
 

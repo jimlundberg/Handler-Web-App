@@ -44,7 +44,7 @@ namespace Status.Services
             List<StatusData> statusData, string message, ILogger<StatusRepository> logger)
         {
             // Wait a full minute for Modeler start execution
-            Thread.Sleep(60000);
+            Thread.Sleep(iniData.ScanTime * 12);
             Console.WriteLine("\nStarting Tcp/Ip Scan for job {0} on port {1} at {2:HH:mm:ss.fff}",
                 monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
 
@@ -74,7 +74,7 @@ namespace Status.Services
                 }
 
                 bool jobComplete = false;
-                int sleepTime = iniData.ScanTime * 3;
+                int adjustableSleepTime = iniData.ScanTime * 3;
                 do
                 {
                     // Send the message to the connected TcpServer.
@@ -113,14 +113,14 @@ namespace Status.Services
                                 StaticData.Log(iniData.ProcessLogFile, 
                                     String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
-                                sleepTime = 1000;
+                                adjustableSleepTime = 1000;
                                 break;
 
                             case "Step 6 in process.":
                                 StaticData.Log(iniData.ProcessLogFile, 
                                     String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
-                                sleepTime = 100;
+                                adjustableSleepTime = 100;
                                 break;
 
                             case "Whole process done, socket closed.":
@@ -159,7 +159,7 @@ namespace Status.Services
                             jobComplete = true;
                         }
 
-                        Thread.Sleep(sleepTime);
+                        Thread.Sleep(adjustableSleepTime);
                     }
                     else
                     {

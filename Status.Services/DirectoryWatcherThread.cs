@@ -165,21 +165,21 @@ namespace Status.Services
                 do
                 {
                     // Run new jobs waiting
-                    if (jobWaiting && TcpIpScanComplete &&
-                        (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit))
+                    if (jobWaiting && TcpIpScanComplete)
                     {
                         if (StaticData.newJobsToRun.Count > 0)
                         {
-                            foreach (var dir in StaticData.newJobsToRun)
+                            if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
                             {
-                                NewJobsScanThread newJobsScanThread = new NewJobsScanThread();
-                                newJobsScanThread.StartJob(dir, true, IniData, StatusData, Logger);
-                                StaticData.NumberOfJobsExecuting++;
-                                Thread.Sleep(IniData.ScanTime);
-                                TcpIpScanComplete = false;
+                                foreach (var dir in StaticData.newJobsToRun)
+                                {
+                                    NewJobsScanThread newJobsScanThread = new NewJobsScanThread();
+                                    newJobsScanThread.StartJob(dir, true, IniData, StatusData, Logger);
+                                    StaticData.NumberOfJobsExecuting++;
+                                    Thread.Sleep(IniData.ScanTime);
+                                    TcpIpScanComplete = false;
+                                }
                             }
-
-                            StaticData.newJobsToRun.Clear();
                         }
                     }
 

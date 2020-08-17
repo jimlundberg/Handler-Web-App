@@ -312,6 +312,21 @@ namespace Status.Services
             // Decrement number of jobs executing here
             StaticData.NumberOfJobsExecuting--;
 
+            // Run new jobs if found
+            if (StaticData.newJobsToRun.Count > 0)
+            {
+                foreach (var dir in StaticData.newJobsToRun)
+                {
+                    if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
+                    {
+                        NewJobsScanThread newJobsScanThread = new NewJobsScanThread();
+                        newJobsScanThread.StartJob(dir, true, IniData, StatusData, logger);
+                        StaticData.NumberOfJobsExecuting++;
+                        Thread.Sleep(IniData.ScanTime);
+                    }
+                }
+            }
+
             // Add copy to archieve entry to status list
             StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.StatusLogFile, logger);
 
