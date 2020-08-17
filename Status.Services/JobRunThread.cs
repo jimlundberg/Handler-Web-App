@@ -113,6 +113,8 @@ namespace Status.Services
         public static void RunJob(string jobDirectory, bool runningNewJobs, IniFileData iniData, StatusMonitorData monitorData,
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
+            StaticData.NumberOfJobsExecuting++;
+
             // Add initial entry to status list
             StatusDataEntry(statusData, monitorData.Job, iniData, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.StatusLogFile, logger);
 
