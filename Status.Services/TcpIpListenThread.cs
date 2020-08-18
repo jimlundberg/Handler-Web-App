@@ -141,9 +141,8 @@ namespace Status.Services
         public void Connect(string port, IniFileData iniData, StatusMonitorData monitorData,
             List<StatusData> statusData, string message, ILogger<StatusRepository> logger)
         {
-            // Wait about a minute at a 5 second scan rate for Modeler to start execution
-            Thread.Sleep(20000);
-            // Thread.Sleep(iniData.ScanTime * 12);
+            // Wait about 20 seconds for the Modeler to start execution
+            Thread.Sleep(iniData.ScanTime * 4);
 
             Console.WriteLine("\nStarting Tcp/Ip Scan for job {0} on port {1} at {2:HH:mm:ss.fff}",
                 monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
