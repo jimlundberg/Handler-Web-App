@@ -140,7 +140,7 @@ namespace Status.Services
             string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
 
             // Start the Tcp/Ip Communications thread before checking files
-            JobTcpIpThread tcpIp = new JobTcpIpThread(IniData, monitorData, StatusData, Logger);
+            TcpIpListenThread tcpIp = new TcpIpListenThread(IniData, monitorData, StatusData, Logger);
             if (tcpIp == null)
             {
                 Logger.LogError("ProcessingFileWatcherThread tcpIp thread failed to instantiate");

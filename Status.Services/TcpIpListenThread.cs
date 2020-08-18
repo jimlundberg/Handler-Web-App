@@ -1,17 +1,75 @@
-﻿using Microsoft.Extensions.Logging;
-using StatusModels;
+﻿using StatusModels;
 using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
 using System.Threading;
+using Microsoft.Extensions.Logging;
+using System.Reflection;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace Status.Services
 {
     /// <summary>
-    /// Class to monitor and report status the TCP/IP connection to the Monitor application that is executing 
+    /// TCP/IP Thread Class
     /// </summary>
-    public class TcpIpConnection
+    public class TcpIpListenThread
     {
+        public static IniFileData IniData;
+        public static StatusMonitorData MonitorData;
+        public static List<StatusData> StatusData;
+        private static Thread tcpIpthread;
+        public event EventHandler ProcessCompleted;
+        public static ILogger<StatusRepository> Logger;
+        public const string Host = "127.0.0.1";
+        public const int Port = 3000;
+        TcpClient tcpClient;
+
+        /// <summary>
+        /// Job Tcp/IP thread 
+        /// </summary>
+        /// <param name="iniData"></param>
+        /// <param name="monitorData"></param>
+        /// <param name="statusData"></param>
+        /// <param name="logger"></param>
+        public TcpIpListenThread(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        {
+            IniData = iniData;
+            MonitorData = monitorData;
+            StatusData = statusData;
+            Logger = logger;
+        }
+
+        /// <summary>
+        /// Start Tcp/IP scan process
+        /// </summary>
+        /// <param name="iniData"></param>
+        /// <param name="monitorData"></param>
+        /// <param name="statusData"></param>
+        public void StartTcpIpScanProcess(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
+        {
+            // Start Tcp/Ip thread
+            TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData, Logger);
+            tcpIp.ThreadProc();
+        }
+
+        /// <summary>
+        /// TCP/IP process complete callback
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void OnProcessCompleted(EventArgs e)
+        {
+            ProcessCompleted?.Invoke(this, e);
+        }
+
+        /// <summary>
+        /// Thread procedure to run the TCP/IP communications with the Modeler
+        /// </summary>
+        public void ThreadProc()
+        {
+            tcpIpthread = new Thread(() => TcpIpMonitor());
+            tcpIpthread.Start();
+        }
+
         // Status Data Entry
         /// <summary>
         /// Status Data Entry Method
@@ -32,6 +90,46 @@ namespace Status.Services
         }
 
         /// <summary>
+        /// Status data entry
+        /// </summary>
+        /// <param name="statusList"></param>
+        /// <param name="job"></param>
+        /// <param name="status"></param>
+        /// <param name="timeSlot"></param>
+        public static void StatusEntry(List<StatusData> statusList, string job, JobStatus status, JobType timeSlot)
+        {
+            StatusData entry = new StatusData();
+            entry.Job = job;
+            entry.JobStatus = status;
+            switch (timeSlot)
+            {
+                case JobType.TIME_START:
+                    entry.TimeStarted = DateTime.Now;
+                    break;
+
+                case JobType.TIME_RECEIVED:
+                    entry.TimeReceived = DateTime.Now;
+                    break;
+
+                case JobType.TIME_COMPLETE:
+                    entry.TimeCompleted = DateTime.Now;
+                    break;
+            }
+
+            statusList.Add(entry);
+            StaticData.Log(IniData.ProcessLogFile,
+                String.Format("Status: Job:{0} Job Status:{1}", job, status));
+        }
+
+        /// <summary>
+        /// Start Tcp/Ip communications monitor
+        /// </summary>
+        public void TcpIpMonitor()
+        {
+            Connect(Host, IniData, MonitorData, StatusData, "status", Logger);
+        }
+
+        /// <summary>
         /// Connect to TCP/IP Port 
         /// </summary>
         /// <param name="server"></param>
@@ -40,11 +138,13 @@ namespace Status.Services
         /// <param name="statusData"></param>
         /// <param name="message"></param>
         /// <param name="logger"></param>
-        public void Connect(string server, IniFileData iniData, StatusMonitorData monitorData,
+        public void Connect(string port, IniFileData iniData, StatusMonitorData monitorData,
             List<StatusData> statusData, string message, ILogger<StatusRepository> logger)
         {
-            // Wait a full minute for Modeler start execution
-            Thread.Sleep(iniData.ScanTime * 12);
+            // Wait about a minute at a 5 second scan rate for Modeler to start execution
+            Thread.Sleep(20000);
+            // Thread.Sleep(iniData.ScanTime * 12);
+
             Console.WriteLine("\nStarting Tcp/Ip Scan for job {0} on port {1} at {2:HH:mm:ss.fff}",
                 monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
 
@@ -56,7 +156,7 @@ namespace Status.Services
                 // Create a TcpClient.
                 // Note, for this client to work you need to have a TcpServer
                 // connected to the same address as specified by the server, port combination.
-                TcpClient client = new TcpClient(server, monitorData.JobPortNumber);
+                TcpClient client = new TcpClient(port, monitorData.JobPortNumber);
                 if (client == null)
                 {
                     logger.LogError("TcpIp Connectinon client failed to instantiate");
@@ -77,11 +177,11 @@ namespace Status.Services
                 int adjustableSleepTime = iniData.ScanTime * 3;
                 do
                 {
-                    // Send the message to the connected TcpServer.
+                    // Send the message to the Modeler
                     stream.Write(data, 0, data.Length);
 
                     // Receive the TcpServer.response.
-                    StaticData.Log(iniData.ProcessLogFile, 
+                    StaticData.Log(iniData.ProcessLogFile,
                         String.Format("\nSending {0} msg to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
                         message, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
 
@@ -91,10 +191,34 @@ namespace Status.Services
                     // String to store the response ASCII representation.
                     string responseData = String.Empty;
 
-                    // Read the first batch of the TcpServer response bytes.
+                    // Try to read the Modeler response at least 5 times
                     if (stream.CanRead)
                     {
-                        int bytes = stream.Read(data, 0, data.Length);
+                        int bytes = 0;
+                        for (int i = 0; i < 5; i++)
+                        {
+                            try
+                            {
+                                bytes = stream.Read(data, 0, data.Length);
+                                if (bytes > 0)
+                                {
+                                    break;
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(String.Format("Tcp/Ip Read failed with error {0}", e.ToString()));
+                            }
+
+                            if (i == 4)
+                            {
+                                Console.WriteLine("Tcp/Ip Connection Timeout after 5 tries");
+                                return;
+                            }
+
+                            Thread.Sleep(IniData.ScanTime);
+                        }
+
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
 
                         // Send status for response received
@@ -104,13 +228,13 @@ namespace Status.Services
                             case "Step 2 in process.":
                             case "Step 3 in process.":
                             case "Step 4 in process.":
-                               StaticData.Log(iniData.ProcessLogFile, 
-                                   String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                                    responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
+                                StaticData.Log(iniData.ProcessLogFile,
+                                    String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
                                 break;
 
                             case "Step 5 in process.":
-                                StaticData.Log(iniData.ProcessLogFile, 
+                                StaticData.Log(iniData.ProcessLogFile,
                                     String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
                                 adjustableSleepTime = 1000;
@@ -131,7 +255,7 @@ namespace Status.Services
                                 break;
 
                             default:
-                                StaticData.Log(iniData.ProcessLogFile, 
+                                StaticData.Log(iniData.ProcessLogFile,
                                     String.Format("Received Weird Response: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
                                 logger.LogWarning("Received Weird Response: {0} from Job {1} on port {2} at {32qw111:mm:ss.fff}",
@@ -142,7 +266,7 @@ namespace Status.Services
                         // Check for job timeout
                         if ((DateTime.Now - monitorData.StartTime).TotalSeconds > iniData.MaxTimeLimit)
                         {
-                            StaticData.Log(iniData.ProcessLogFile, 
+                            StaticData.Log(iniData.ProcessLogFile,
                                 String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now));
 
                             DirectoryWatcherThread.TimeoutHandler(monitorData);
@@ -171,7 +295,7 @@ namespace Status.Services
                 stream.Close();
                 client.Close();
 
-                StaticData.Log(iniData.ProcessLogFile, 
+                StaticData.Log(iniData.ProcessLogFile,
                     String.Format("Completed TCP/IP Scan of Job {0} at {1:HH:mm:ss.fff}",
                         monitorData.Job, DateTime.Now));
             }
