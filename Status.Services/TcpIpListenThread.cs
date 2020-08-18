@@ -219,6 +219,15 @@ namespace Status.Services
 
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
 
+                        if (responseData.Contains("Whole process done, socket closed."))
+                        {
+                            StaticData.Log(iniData.ProcessLogFile,
+                                String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                                responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
+                            jobComplete = true;
+                            return;
+                        }
+
                         // Send status for response received
                         switch (responseData)
                         {
@@ -245,17 +254,7 @@ namespace Status.Services
                                 adjustableSleepTime = 100;
                                 break;
 
-                            case "Whole process done, socket closed.":
-                                StaticData.Log(iniData.ProcessLogFile,
-                                    String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                                    responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
-                                jobComplete = true;
-                                break;
-
                             default:
-                                StaticData.Log(iniData.ProcessLogFile,
-                                    String.Format("Received Weird Response: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                                    responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
                                 logger.LogWarning("Received Weird Response: {0} from Job {1} on port {2} at {32qw111:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
                                 break;
