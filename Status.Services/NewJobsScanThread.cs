@@ -215,9 +215,9 @@ namespace Status.Services
 
             // Display xmlData found
             string logFile = iniFileData.ProcessLogFile;
-            StaticData.Log(logFile, "");
-            StaticData.Log(logFile, "Found new Job         = " + xmlData.Job);
-            StaticData.Log(logFile, "New Job Directory     = " + xmlData.JobDirectory);
+            StaticData.Log(logFile, " ");
+            StaticData.Log(logFile, "Found new Input Job   = " + xmlData.Job);
+            StaticData.Log(logFile, "New Job directory     = " + xmlData.JobDirectory);
             StaticData.Log(logFile, "New Serial Number     = " + xmlData.JobSerialNumber);
             StaticData.Log(logFile, "New Time Stamp        = " + xmlData.TimeStamp);
             StaticData.Log(logFile, "New Job Xml File      = " + xmlData.XmlFileName);

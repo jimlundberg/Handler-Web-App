@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Permissions;
 using System.Threading;
+using System.Xml;
 
 namespace Status.Services
 {
@@ -16,7 +17,7 @@ namespace Status.Services
         public static IniFileData IniData;
         private StatusMonitorData MonitorData;
         private List<StatusData> StatusData;
-        private static string Directory;
+        private static string DirectoryPath;
         private static Thread thread;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
@@ -25,6 +26,7 @@ namespace Status.Services
         private static readonly Object changedLock = new Object();
         private static Dictionary<string, bool> TcpIpScanComplete = new Dictionary<string, bool>();
         private static Dictionary<string, bool> ProcessingFileScanComplete = new Dictionary<string, bool>();
+        private static readonly Object xmlLock = new Object();
 
         public ProcessingFileWatcherThread() { }
 
@@ -39,7 +41,7 @@ namespace Status.Services
             IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData,
             ILogger<StatusRepository> logger)
         {
-            Directory = directory;
+            DirectoryPath = directory;
             IniData = iniData;
             MonitorData = monitorData;
             StatusData = statusData;
@@ -54,7 +56,7 @@ namespace Status.Services
         protected virtual void OnProcessCompleted(EventArgs e)
         {
             ProcessCompleted?.Invoke(this, e);
-        }
+       }
 
         // The thread procedure performs the task
         /// <summary>
@@ -62,7 +64,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            thread = new Thread(() => WatchFiles(Directory, MonitorData, NumberOfFilesFound, NumberOfFilesNeeded));
+            thread = new Thread(() => WatchFiles(DirectoryPath, MonitorData, NumberOfFilesFound, NumberOfFilesNeeded));
             if (thread == null)
             {
                 Logger.LogError("ProcessingFileWatcherThread thread failed to instantiate");
@@ -185,6 +187,38 @@ namespace Status.Services
                 while (((ProcessingFileScanComplete[job] == false) &&
                         (TcpIpScanComplete[job] == false)) &&
                         (StaticData.ShutdownFlag == false));
+
+                // Wait for the pass/fail in the data.xml file
+                bool xmlFileFound = false;
+                bool OverallResultEntryFound = false;
+                string xmlFileName = directory + @"\" + "Data.xml";
+                XmlDocument XmlDoc;
+                do
+                {
+                    do
+                    {
+                        xmlFileFound = File.Exists(xmlFileName);
+                        Thread.Sleep(250);
+                    }
+                    while ((xmlFileFound == false) && (StaticData.ShutdownFlag == true));
+
+                    lock (xmlLock)
+                    {
+                        // Read output Xml file data
+                        XmlDoc = new XmlDocument();
+                        XmlDoc.Load(xmlFileName);
+                    }
+
+                    // Get the pass or fail data from the OverallResult node
+                    XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
+                    if (OverallResult != null)
+                    {
+                        OverallResultEntryFound = true;
+                    }
+
+                    Thread.Sleep(250);
+                }
+                while ((OverallResultEntryFound == false) && (StaticData.ShutdownFlag == false));
 
                 ProcessingFileScanComplete[job] = true;
                 TcpIpScanComplete[job] = true;

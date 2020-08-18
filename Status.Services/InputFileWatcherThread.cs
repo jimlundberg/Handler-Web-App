@@ -16,7 +16,7 @@ namespace Status.Services
         public static IniFileData IniData;
         public static StatusMonitorData MonitorData;
         public static List<StatusData> StatusData;
-        public static string Directory;
+        public static string DirectoryPath;
         private static Thread thread;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
@@ -42,7 +42,7 @@ namespace Status.Services
             IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, 
             ILogger<StatusRepository> logger)
         {
-            Directory = directory;
+            DirectoryPath = directory;
             IniData = iniData;
             MonitorData = monitorData;
             StatusData = statusData;
@@ -67,7 +67,7 @@ namespace Status.Services
         // The thread procedure performs the task
         public void ThreadProc()
         {
-            thread = new Thread(() => WatchFiles(Directory, NumberOfFilesFound));
+            thread = new Thread(() => WatchFiles(DirectoryPath, NumberOfFilesFound));
             if (thread == null)
             {
                 Logger.LogError("InputFileWatcherThread thread failed to instantiate");
