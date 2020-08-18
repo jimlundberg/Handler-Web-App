@@ -121,6 +121,7 @@ namespace Handler.Pages
 
                 case ButtonPress.History:
                     ViewData["PageName"] = "History";
+                    ViewData["bsStartDisabled"] = bsDisabled;
                     ViewData["bsPauseDisabled"] = bsDisabled;
                     ViewData["bsStopDisabled"] = bsDisabled;
                     break;

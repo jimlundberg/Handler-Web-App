@@ -22,7 +22,6 @@ namespace Status.Services
         public static ILogger<StatusRepository> Logger;
         public const string Host = "127.0.0.1";
         public const int Port = 3000;
-        TcpClient tcpClient;
 
         /// <summary>
         /// Job Tcp/IP thread 
