@@ -21,7 +21,6 @@ namespace Status.Services
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
         public static bool jobWaiting = false;
-        public static bool TcpIpScanComplete = false;
 
         /// <summary>
         /// New Jobs Directory Scan Thread constructor receiving data buffers
@@ -36,6 +35,7 @@ namespace Status.Services
             StatusData = statusData;
             DirectoryName = iniData.InputDir;
             Logger = logger;
+            StaticData.ExitDirectoryScan = false;
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Status.Services
             FileHandling.CopyFolderContents(processingBufferDirectory, repositoryDirectory, Logger, true, true);
 
             StaticData.NumberOfJobsExecuting--;
-            TcpIpScanComplete = true;
+            StaticData.TcpIpScanComplete[job] = true;
         }
 
         // Define the event handlers.
@@ -95,13 +95,14 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void OnChanged(object source, FileSystemEventArgs e)
         {
-            // Directory Add detected
-            StaticData.Log(IniData.ProcessLogFile, (String.Format("\nInput Directory Watcher detected new directory {0} at {1:HH:mm:ss.fff}",
-                e.FullPath, DateTime.Now)));
-
             // Store job to run now or later
             string job = e.FullPath;
-            StaticData.newJobsToRun.Add(job);
+            StaticData.NewJobsToRun.Add(job);
+
+            // Directory Add detected
+            StaticData.Log(IniData.ProcessLogFile,
+                (String.Format("\nInput Directory Watcher detected new directory {0} for job {1} at {2:HH:mm:ss.fff}",
+                e.FullPath, job, DateTime.Now)));
 
             if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
             {
@@ -109,7 +110,7 @@ namespace Status.Services
                 NewJobsScanThread newJobsScanThread = new NewJobsScanThread();
                 newJobsScanThread.StartJob(job, false, IniData, StatusData, Logger);
                 StaticData.NumberOfJobsExecuting++;
-                StaticData.newJobsToRun.Remove(job);
+                StaticData.NewJobsToRun.Remove(job);
                 StaticData.FoundNewJobReadyToRun = true;
                 Thread.Sleep(IniData.ScanTime);
                 jobWaiting = false;
@@ -138,6 +139,9 @@ namespace Status.Services
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public void WatchDirectory(string directory)
         {
+            // Get job name from directory name
+            string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+
             // Create a new FileSystemWatcher and set its properties
             using (FileSystemWatcher watcher = new FileSystemWatcher())
             {
@@ -166,19 +170,19 @@ namespace Status.Services
                 do
                 {
                     // Run new jobs waiting
-                    if (jobWaiting && TcpIpScanComplete)
+                    if (jobWaiting && StaticData.TcpIpScanComplete[job])
                     {
-                        if (StaticData.newJobsToRun.Count > 0)
+                        if (StaticData.NewJobsToRun.Count > 0)
                         {
                             if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
                             {
-                                foreach (var dir in StaticData.newJobsToRun)
+                                foreach (var dir in StaticData.NewJobsToRun)
                                 {
                                     NewJobsScanThread newJobsScanThread = new NewJobsScanThread();
                                     newJobsScanThread.StartJob(dir, true, IniData, StatusData, Logger);
                                     StaticData.NumberOfJobsExecuting++;
                                     Thread.Sleep(IniData.ScanTime);
-                                    TcpIpScanComplete = false;
+                                    StaticData.TcpIpScanComplete[job] = false;
                                 }
                             }
                         }
@@ -193,8 +197,6 @@ namespace Status.Services
                 StaticData.Log(IniData.ProcessLogFile,
                     String.Format("Exiting DirectoryWatcherThread with ExitDirectoryScan {0} and ShutdownFlag {1}",
                     StaticData.ExitDirectoryScan, StaticData.ShutdownFlag));
-
-                StaticData.ExitDirectoryScan = true;
             }
         }
     }

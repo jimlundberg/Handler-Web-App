@@ -62,11 +62,13 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void Input_fileScan_FilesFound(object sender, EventArgs e)
         {
+            string job = e.ToString();
+
             // Set Flag for ending file scan loop
             StaticData.Log(IniData.ProcessLogFile,
                     String.Format("Input_fileScan_FilesFound Received required number of files for {0}", 
                     e.ToString()));
-            StaticData.ExitInputFileScan = false;
+            StaticData.InputFileScanComplete[job] = false;
         }
 
         /// <summary>
@@ -80,7 +82,7 @@ namespace Status.Services
             StaticData.Log(IniData.ProcessLogFile, 
                 String.Format("Processing_fileScan_FilesFound Received required number of files for {0}",
                 e.ToString()));
-            StaticData.ExitProcessingFileScan.Add(e.ToString(), false);
+            StaticData.ProcessingFileScanComplete.Add(e.ToString(), false);
         }
 
         /// <summary>
@@ -206,7 +208,6 @@ namespace Status.Services
                         Console.WriteLine("Starting File scan of Input for job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
 
                         // Register with the File Watcher class event and start its thread
-                        StaticData.ExitInputFileScan = false;
                         InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(InputBufferJobDir,
                             monitorData.NumFilesConsumed, iniData, monitorData, statusData, logger);
                         if (inputFileWatch == null)
@@ -217,7 +218,7 @@ namespace Status.Services
                         inputFileWatch.ThreadProc();
 
                         // Wait for Input file scan to complete
-                        while (StaticData.ExitInputFileScan == false)
+                        do
                         {
                             // If the shutdown flag is set, exit method
                             if (StaticData.ShutdownFlag == true)
@@ -227,6 +228,7 @@ namespace Status.Services
                             }
                             Thread.Sleep(250);
                         }
+                        while (StaticData.InputFileScanComplete[job] == false) ;
 
                         Console.WriteLine("Finished scan for Input files of job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
                     }
@@ -289,7 +291,7 @@ namespace Status.Services
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
 
             // Register with the File Watcher class with an event and start its thread
-            StaticData.ExitProcessingFileScan[job] = false;
+            StaticData.ProcessingFileScanComplete[job] = false;
             string processingBufferJobDir = iniData.ProcessingDir + @"\" + MonitorData.Job;
             ProcessingFileWatcherThread ProcessingFileWatch = new ProcessingFileWatcherThread(processingBufferJobDir,
                 monitorData.NumFilesConsumed + monitorData.NumFilesProduced, 
@@ -306,16 +308,16 @@ namespace Status.Services
             {
                 Thread.Sleep(250);
             }
-            while ((StaticData.ExitProcessingFileScan[job] == false) &&
+            while ((StaticData.ProcessingFileScanComplete[job] == false) &&
                    (StaticData.ShutdownFlag == false));
 
             // Decrement number of jobs executing here
             StaticData.NumberOfJobsExecuting--;
 
             // Run new jobs if found
-            if (StaticData.newJobsToRun.Count > 0)
+            if (StaticData.NewJobsToRun.Count > 0)
             {
-                foreach (var dir in StaticData.newJobsToRun)
+                foreach (var dir in StaticData.NewJobsToRun)
                 {
                     if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
                     {

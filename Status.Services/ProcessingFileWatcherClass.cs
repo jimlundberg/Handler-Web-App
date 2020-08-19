@@ -19,12 +19,9 @@ namespace Status.Services
         private List<StatusData> StatusData;
         private static string DirectoryPath;
         private static Thread thread;
+        private static string Job;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
-        public static int NumberOfFilesFound;
-        public static int NumberOfFilesNeeded;
-        private static Dictionary<string, bool> TcpIpScanComplete = new Dictionary<string, bool>();
-        private static Dictionary<string, bool> ProcessingFileScanComplete = new Dictionary<string, bool>();
         private static readonly Object xmlLock = new Object();
 
         public ProcessingFileWatcherThread() { }
@@ -45,11 +42,12 @@ namespace Status.Services
             MonitorData = monitorData;
             StatusData = statusData;
             Logger = logger;
+            Job = monitorData.Job;
             DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
-            NumberOfFilesFound = InputJobInfo.GetFiles().Length;
-            NumberOfFilesNeeded = numberOfFilesNeeded;
-            TcpIpScanComplete[monitorData.Job] = false;
-            ProcessingFileScanComplete[monitorData.Job] = false;
+            StaticData.NumberOfProcessingFilesFound[Job] = InputJobInfo.GetFiles().Length;
+            StaticData.NumberOfProcessingFilesNeeded[Job] = numberOfFilesNeeded;
+            StaticData.TcpIpScanComplete[Job] = false;
+            StaticData.ProcessingFileScanComplete[Job] = false;
         }
 
         protected virtual void OnProcessCompleted(EventArgs e)
@@ -63,7 +61,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            thread = new Thread(() => WatchFiles(DirectoryPath, MonitorData, NumberOfFilesFound, NumberOfFilesNeeded));
+            thread = new Thread(() => WatchFiles(DirectoryPath, MonitorData));
             if (thread == null)
             {
                 Logger.LogError("ProcessingFileWatcherThread thread failed to instantiate");
@@ -80,22 +78,24 @@ namespace Status.Services
         {
             if (e.ChangeType == WatcherChangeTypes.Created)
             {
-                NumberOfFilesFound++;
-
                 // Get job name from directory name
                 string jobDirectory = e.FullPath;
                 string jobFile = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
                 string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
 
-                // Processing job file added
-                StaticData.Log(IniData.ProcessLogFile, String.Format("\nProcessing File Watcher detected: {0} file {1} of {2} for job {3} at {4:HH:mm:ss.fff}",
-                    e.FullPath, NumberOfFilesFound, NumberOfFilesNeeded, job, DateTime.Now));
+                StaticData.NumberOfProcessingFilesFound[job]++;
 
-                if (NumberOfFilesFound == NumberOfFilesNeeded)
+                // Processing job file added
+                StaticData.Log(IniData.ProcessLogFile,
+                    String.Format("\nProcessing File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
+                    e.FullPath, StaticData.NumberOfProcessingFilesFound[job],
+                    StaticData.NumberOfProcessingFilesNeeded[job], DateTime.Now));
+
+                if (StaticData.NumberOfProcessingFilesFound[job] == StaticData.NumberOfProcessingFilesNeeded[job])
                 {
                     // Signal the Job Run thread that TCP/IP is complet and all the Processing files were found
-                    TcpIpScanComplete[job] = true;
-                    ProcessingFileScanComplete[job] = true;
+                    StaticData.TcpIpScanComplete[job] = true;
+                    StaticData.ProcessingFileScanComplete[job] = true;
                 }
             }
         }
@@ -120,7 +120,7 @@ namespace Status.Services
         {
             // Set Flag for ending directory scan loop
             Console.WriteLine("ProcessingFileWatcherThread received Tcp/Ip Scan Completed!");
-            TcpIpScanComplete[e.ToString()] = true;
+            StaticData.TcpIpScanComplete[Job] = true;
         }
 
         /// <summary>
@@ -128,10 +128,15 @@ namespace Status.Services
         /// </summary>
         /// <param name="directory"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-        public void WatchFiles(string directory, StatusMonitorData monitorData, int numberOfFilesFound, int numberOfFilesNeeded)
+        public void WatchFiles(string directory, StatusMonitorData monitorData)
         {
             // Get job name from directory name
             string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+
+            {
+                // Signal the Run thread that the Processing files were found
+                StaticData.ProcessingFileScanComplete[job] = true;
+            }
 
             // Start the Tcp/Ip Communications thread before checking files
             TcpIpListenThread tcpIp = new TcpIpListenThread(IniData, monitorData, StatusData, Logger);
@@ -142,15 +147,11 @@ namespace Status.Services
             tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
             tcpIp.StartTcpIpScanProcess(IniData, monitorData, StatusData);
 
-            if (numberOfFilesFound == numberOfFilesNeeded)
+            if (StaticData.NumberOfProcessingFilesFound[job] == StaticData.NumberOfProcessingFilesNeeded[job])
             {
-                StaticData.Log(IniData.ProcessLogFile,
-                   String.Format("ProcessingFileWatcherThread Found {0} of {1} files in job directory {2} at {3:HH:mm:ss.fff}",
-                    NumberOfFilesFound, NumberOfFilesNeeded, directory, DateTime.Now));
-
                 // Signal the Run thread that the Processing files were found
-                ProcessingFileScanComplete[job] = true;
-                TcpIpScanComplete[job] = true;
+                StaticData.ProcessingFileScanComplete[job] = true;
+                StaticData.TcpIpScanComplete[job] = true;
             }
 
             // Create a new FileSystemWatcher and set its properties.
@@ -178,11 +179,11 @@ namespace Status.Services
                 {
                     Thread.Sleep(250);
                 }
-                while (((ProcessingFileScanComplete[job] == false) &&
-                        (TcpIpScanComplete[job] == false)) &&
+                while (((StaticData.ProcessingFileScanComplete[job] == false) ||
+                        (StaticData.TcpIpScanComplete[job] == false)) &&
                         (StaticData.ShutdownFlag == false));
 
-                // Wait for the pass/fail in the data.xml file
+                // Wait for the OverallResult entry in the data.xml file
                 bool xmlFileFound = false;
                 bool OverallResultEntryFound = false;
                 string xmlFileName = directory + @"\" + "Data.xml";
@@ -203,7 +204,7 @@ namespace Status.Services
                         XmlDoc.Load(xmlFileName);
                     }
 
-                    // Get the pass or fail data from the OverallResult node
+                    // Check if the OverallResult node exists
                     XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
                     if (OverallResult != null)
                     {
@@ -214,16 +215,11 @@ namespace Status.Services
                 }
                 while ((OverallResultEntryFound == false) && (StaticData.ShutdownFlag == false));
 
-                ProcessingFileScanComplete[job] = true;
-                TcpIpScanComplete[job] = true;
-
-                // Set Processing file scan exit flag
-                StaticData.ExitProcessingFileScan[job] = true;
-
                 // Exiting thread message
                 StaticData.Log(IniData.ProcessLogFile,
-                    String.Format("Exiting ProcessingFileWatcherThread of job {0} with ExitProcessingFileScan={1} TcpIpScanComplete={2} and ShutdownFlag={3}",
-                    monitorData.Job, ProcessingFileScanComplete[monitorData.Job], TcpIpScanComplete[monitorData.Job], StaticData.ShutdownFlag));
+                    String.Format("Exiting ProcessingFileWatcherThread scan of job {0} with ExitProcessingFileScan={1} TcpIpScanComplete={2} and ShutdownFlag={3}",
+                    directory, StaticData.ProcessingFileScanComplete[job], 
+                    StaticData.TcpIpScanComplete[job], StaticData.ShutdownFlag));
             }
         }
     }

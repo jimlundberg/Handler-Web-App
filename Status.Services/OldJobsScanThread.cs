@@ -31,6 +31,7 @@ namespace Status.Services
             IniData = iniData;
             StatusData = statusData;
             Logger = logger;
+            StaticData.OldJobsScanComplete = false;
         }
 
         /// <summary>
@@ -83,7 +84,7 @@ namespace Status.Services
             if (runDirectoryList.Count() == 0)
             {
                 StaticData.Log(IniData.ProcessLogFile, "\nNo unfinished Processing jobs found...");
-                StaticData.OldJobScanComplete = true;
+                StaticData.OldJobsScanComplete = true;
                 return;
             }
 
@@ -164,7 +165,6 @@ namespace Status.Services
             }
 
             StaticData.Log(IniData.ProcessLogFile, "\nNo more unfinished Processing jobs Found...");
-            StaticData.OldJobScanComplete = true;
         }
     }
 }

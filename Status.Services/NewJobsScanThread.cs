@@ -27,9 +27,11 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void oldJob_ProcessCompleted(object sender, EventArgs e)
         {
+            string job = e.ToString();
+
             // Set Flag for ending directory scan loop
-            Console.WriteLine("\nOld Job Scan Completed!");
-            StaticData.OldJobScanComplete = true;
+            Console.WriteLine("\nOld Job Scan Completed...");
+            StaticData.OldJobsScanComplete = true;
             ScanForCurrentNewJobs(IniData, StatusData, Logger);
         }
 
@@ -41,7 +43,7 @@ namespace Status.Services
         public static void newJob_DirectoryFound(object sender, EventArgs e)
         {
             StaticData.Log(IniData.ProcessLogFile, 
-                String.Format("\nnewJob_DirectoryFound Received new directory at {0:HH:mm:ss.fff}", DateTime.Now));
+                String.Format("\nNewJob_DirectoryFound Received new directory at {0:HH:mm:ss.fff}", DateTime.Now));
 
             // Set Flag for ending directory scan loop
             StaticData.FoundNewJobReadyToRun = true;
@@ -99,7 +101,7 @@ namespace Status.Services
             {
                 Thread.Sleep(250);
             }
-            while ((StaticData.OldJobScanComplete == false) && (StaticData.ShutdownFlag == false));
+            while ((StaticData.OldJobsScanComplete == false) && (StaticData.ShutdownFlag == false));
 
             StaticData.Log(logFile, "\nChecking for unfinished Input Jobs...");
 
