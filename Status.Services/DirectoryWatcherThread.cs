@@ -96,7 +96,9 @@ namespace Status.Services
         public static void OnCreated(object source, FileSystemEventArgs e)
         {
             // Store job to run now or later
-            string job = e.FullPath;
+            string jobDirectory = e.FullPath;
+            string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
+
             StaticData.NewJobsToRun.Add(job);
 
             // Directory Add detected
