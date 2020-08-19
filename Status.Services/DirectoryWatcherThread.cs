@@ -95,8 +95,9 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void OnChanged(object source, FileSystemEventArgs e)
         {
-            // Directory Added
-            StaticData.Log(IniData.ProcessLogFile, ($"\nDirectory watcher detected: {e.FullPath} {e.ChangeType}"));
+            // Directory Add detected
+            StaticData.Log(IniData.ProcessLogFile, (String.Format("\nInput Directory Watcher detected new directory {0} at {1:HH:mm:ss.fff}",
+                e.FullPath, DateTime.Now)));
 
             // Store job to run now or later
             string job = e.FullPath;

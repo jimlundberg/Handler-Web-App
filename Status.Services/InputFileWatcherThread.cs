@@ -83,23 +83,21 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void OnChanged(object source, FileSystemEventArgs e)
         {
-            // File Added
-            StaticData.Log(IniData.ProcessLogFile, $"File watcher detected: {e.FullPath} {e.ChangeType}");
-
             if (e.ChangeType == WatcherChangeTypes.Created)
             {
                 NumberOfFilesFound++;
+
+                // Get job name from directory name
+                string jobDirectory = e.FullPath;
+                string jobFile = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
+                string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
+
+                // Input job file added
+                StaticData.Log(IniData.ProcessLogFile, String.Format("\nInput File Watcher detected: {0} file {1} of {2} for job {3} at {4:HH:mm:ss.fff}",
+                    e.FullPath, NumberOfFilesFound, NumberOfFilesNeeded, job, DateTime.Now));
+
                 if (NumberOfFilesFound == NumberOfFilesNeeded)
                 {
-                    // Get job name from directory name
-                    string jobDirectory = e.FullPath;
-                    string jobFile = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
-                    string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
-
-                    StaticData.Log(IniData.ProcessLogFile,
-                        String.Format("InputFileWatcherThread Found {0} of {1} files in job {2} at {3:HH:mm:ss.fff}",
-                        NumberOfFilesFound, NumberOfFilesNeeded, job, DateTime.Now));
-
                     // Signal the Run thread that the Input files were found
                     StaticData.ExitInputFileScan= true;
                 }

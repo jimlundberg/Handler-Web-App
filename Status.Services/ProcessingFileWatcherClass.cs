@@ -23,7 +23,6 @@ namespace Status.Services
         public static ILogger<StatusRepository> Logger;
         public static int NumberOfFilesFound;
         public static int NumberOfFilesNeeded;
-        private static readonly Object changedLock = new Object();
         private static Dictionary<string, bool> TcpIpScanComplete = new Dictionary<string, bool>();
         private static Dictionary<string, bool> ProcessingFileScanComplete = new Dictionary<string, bool>();
         private static readonly Object xmlLock = new Object();
@@ -49,8 +48,8 @@ namespace Status.Services
             DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
             NumberOfFilesFound = InputJobInfo.GetFiles().Length;
             NumberOfFilesNeeded = numberOfFilesNeeded;
-            TcpIpScanComplete.Add(monitorData.Job, false);
-            ProcessingFileScanComplete.Add(monitorData.Job, false);
+            TcpIpScanComplete[monitorData.Job] = false;
+            ProcessingFileScanComplete[monitorData.Job] = false;
         }
 
         protected virtual void OnProcessCompleted(EventArgs e)
@@ -79,29 +78,24 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void OnChanged(object source, FileSystemEventArgs e)
         {
-            // File Added(or changed???)
-            StaticData.Log(IniData.ProcessLogFile, $"File Watcher detected: {e.FullPath} {e.ChangeType}");
-
-            lock (changedLock)
+            if (e.ChangeType == WatcherChangeTypes.Created)
             {
-                if (e.ChangeType == WatcherChangeTypes.Created)
+                NumberOfFilesFound++;
+
+                // Get job name from directory name
+                string jobDirectory = e.FullPath;
+                string jobFile = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+                string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
+
+                // Processing job file added
+                StaticData.Log(IniData.ProcessLogFile, String.Format("\nProcessing File Watcher detected: {0} file {1} of {2} for job {3} at {4:HH:mm:ss.fff}",
+                    e.FullPath, NumberOfFilesFound, NumberOfFilesNeeded, job, DateTime.Now));
+
+                if (NumberOfFilesFound == NumberOfFilesNeeded)
                 {
-                    NumberOfFilesFound++;
-                    if (NumberOfFilesFound == NumberOfFilesNeeded)
-                    {
-                        // Get job name from directory name
-                        string jobDirectory = e.FullPath;
-                        string jobFile = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
-                        string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
-
-                        StaticData.Log(IniData.ProcessLogFile,
-                            String.Format("ProcessingFileWatcherThread Found {0} of {1} files for job {2} at {3:HH:mm:ss.fff}",
-                            NumberOfFilesFound, NumberOfFilesNeeded, job, DateTime.Now));
-
-                        // Signal the Run thread that the Processing files were found
-                        TcpIpScanComplete[job] = true;
-                        ProcessingFileScanComplete[job] = true;
-                    }
+                    // Signal the Job Run thread that TCP/IP is complet and all the Processing files were found
+                    TcpIpScanComplete[job] = true;
+                    ProcessingFileScanComplete[job] = true;
                 }
             }
         }
