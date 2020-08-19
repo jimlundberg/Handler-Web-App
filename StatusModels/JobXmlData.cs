@@ -2,6 +2,9 @@
 
 namespace StatusModels
 {
+    /// <summary>
+    /// Job Xml Data
+    /// </summary>
     public class JobXmlData
     {
         public string Job { get; set; }

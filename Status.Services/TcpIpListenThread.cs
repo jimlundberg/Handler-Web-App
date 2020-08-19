@@ -1,11 +1,9 @@
-﻿using StatusModels;
+﻿using Microsoft.Extensions.Logging;
+using StatusModels;
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using Microsoft.Extensions.Logging;
-using System.Reflection;
 using System.Net.Sockets;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace Status.Services
 {

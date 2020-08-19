@@ -1,5 +1,8 @@
 ﻿namespace StatusModels
 {
+    /// <summary>
+    /// Job Status types
+    /// </summary>
     public enum JobStatus
     {
         NONE,
@@ -14,6 +17,9 @@
         COMPLETE
     }
 
+    /// <summary>
+    /// Job Types
+    /// </summary>
     public enum JobType
     {
         NONE,
@@ -22,6 +28,9 @@
         TIME_COMPLETE
     }
 
+    /// <summary>
+    /// Directory Scan Types
+    /// </summary>
     public enum DirectoryScanType
     {
         NONE,

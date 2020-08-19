@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace StatusModels
 {
+    /// <summary>
+    /// Job Status Data
+    /// </summary>
     public class StatusData
     {
         public string Job { get; set; }
