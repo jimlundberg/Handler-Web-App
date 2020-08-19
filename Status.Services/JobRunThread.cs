@@ -115,10 +115,11 @@ namespace Status.Services
         public static void RunJob(string jobDirectory, bool runningNewJobs, IniFileData iniData, StatusMonitorData monitorData,
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
+            // Increment number of jobs executing at beginning of job
+            StaticData.NumberOfJobsExecuting++;
+
             // Add initial entry to status list
             StatusDataEntry(statusData, monitorData.Job, iniData, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.StatusLogFile, logger);
-
-            StaticData.NumberOfJobsExecuting++;
 
             // Set the Start time of the Job
             monitorData.StartTime = DateTime.Now;
@@ -311,9 +312,6 @@ namespace Status.Services
                     (StaticData.TcpIpScanComplete[job] == false)) &&
                     (StaticData.ShutdownFlag == false));
 
-            // Decrement number of jobs executing here
-            StaticData.NumberOfJobsExecuting--;
-
             // Run new jobs if found
             if (StaticData.NewJobsToRun.Count > 0)
             {
@@ -421,6 +419,9 @@ namespace Status.Services
                 // Move Processing Buffer Files to the Repository directory when failed
                 FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
             }
+
+            // Decrement number of jobs executing after completion
+            StaticData.NumberOfJobsExecuting--;
 
             StaticData.Log(iniData.ProcessLogFile, String.Format("Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
                 monitorData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now));

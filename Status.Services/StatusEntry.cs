@@ -339,6 +339,10 @@ namespace Status.Services
                                     rowStatusData.JobStatus = JobStatus.COPYING_TO_ARCHIVE;
                                     break;
 
+                                case "JOB_TIMEOUT":
+                                    rowStatusData.JobStatus = JobStatus.JOB_TIMEOUT;
+                                    break;
+
                                 case "COMPLETE":
                                     rowStatusData.JobStatus = JobStatus.COMPLETE;
                                     break;
