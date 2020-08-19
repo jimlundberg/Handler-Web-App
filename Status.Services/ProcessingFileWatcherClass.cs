@@ -74,7 +74,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
-        public static void OnChanged(object source, FileSystemEventArgs e)
+        public static void OnCreated(object source, FileSystemEventArgs e)
         {
             if (e.ChangeType == WatcherChangeTypes.Created)
             {
@@ -93,22 +93,11 @@ namespace Status.Services
 
                 if (StaticData.NumberOfProcessingFilesFound[job] == StaticData.NumberOfProcessingFilesNeeded[job])
                 {
-                    // Signal the Job Run thread that TCP/IP is complet and all the Processing files were found
+                    // Signal the Job Run thread that TCP/IP scan is complete and all the Processing files were found
                     StaticData.TcpIpScanComplete[job] = true;
                     StaticData.ProcessingFileScanComplete[job] = true;
                 }
             }
-        }
-
-        /// <summary>
-        /// The Delete of files callback
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="e"></param>
-        public static void OnDeleted(object source, FileSystemEventArgs e)
-        {
-            // File is deleted
-            // StaticData.Log(IniData.ProcessLogFile, ($"File Watcher detected: {e.FullPath} {e.ChangeType}");
         }
 
         /// <summary>
@@ -118,9 +107,13 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void TcpIp_ScanCompleted(object sender, EventArgs e)
         {
+            string job = e.ToString();
+
             // Set Flag for ending directory scan loop
-            Console.WriteLine("ProcessingFileWatcherThread received Tcp/Ip Scan Completed!");
-            StaticData.TcpIpScanComplete[Job] = true;
+            Console.WriteLine(String.Format("ProcessingFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}", 
+                job, DateTime.Now));
+
+            StaticData.TcpIpScanComplete[job] = true;
         }
 
         /// <summary>
@@ -159,9 +152,7 @@ namespace Status.Services
                 watcher.Filter = "*.*";
 
                 // Add event handlers
-                watcher.Changed += OnChanged;
-                watcher.Created += OnChanged;
-                watcher.Deleted += OnDeleted;
+                watcher.Created += OnCreated;
 
                 // Begin watching for changes to input directory
                 watcher.EnableRaisingEvents = true;
@@ -177,7 +168,7 @@ namespace Status.Services
                         (StaticData.TcpIpScanComplete[job] == false)) &&
                         (StaticData.ShutdownFlag == false));
 
-                // Wait for the OverallResult entry in the data.xml file
+                // Wait for the Modeler to deposit the OverallResult entry in the data.xml file
                 bool xmlFileFound = false;
                 bool OverallResultEntryFound = false;
                 string xmlFileName = directory + @"\" + "Data.xml";

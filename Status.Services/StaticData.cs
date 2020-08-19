@@ -15,8 +15,9 @@ namespace Status.Services
         public static int RunningJobsIndex = 0;
         public static int logFileSizeLimit = 0;
         public static volatile bool ShutdownFlag = false;
-        public static volatile bool OldJobsScanComplete = false;
-        public static volatile bool ExitDirectoryScan = false;
+        public static volatile bool CurrentInputJobsScanComplete = false;
+        public static volatile bool CurrentProcessingJobsScanComplete = false;
+        public static volatile bool DirectoryScanComplete = false;
         public static volatile bool FoundNewJobReadyToRun = false;
         public static Dictionary<string, bool> InputFileScanComplete = new Dictionary<string, bool>();
         public static Dictionary<string, bool> ProcessingFileScanComplete = new Dictionary<string, bool>();

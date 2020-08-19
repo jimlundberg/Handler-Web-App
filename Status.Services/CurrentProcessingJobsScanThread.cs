@@ -11,7 +11,7 @@ namespace Status.Services
     /// <summary>
     /// Class to run the whole monitoring process as a thread
     /// </summary>
-    public class OldJobsScanThread
+    public class CurrentProcessingJobsScanThread
     {
         private IniFileData IniData;
         private List<StatusData> StatusData;
@@ -26,12 +26,12 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public OldJobsScanThread(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public CurrentProcessingJobsScanThread(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
             StatusData = statusData;
             Logger = logger;
-            StaticData.OldJobsScanComplete = false;
+            StaticData.CurrentProcessingJobsScanComplete = false;
         }
 
         /// <summary>
@@ -48,7 +48,11 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            thread = new Thread(() => ScanForOldProcessingJobs(IniData, StatusData, Logger));
+            thread = new Thread(() => ScanForCurrentProcessingJobs(IniData, StatusData, Logger));
+            if (thread == null)
+            {
+                Logger.LogError("CurrentProcessingJobsScanThread thread failed to instantiate");
+            }
             thread.Start();
         }
 
@@ -58,20 +62,24 @@ namespace Status.Services
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public void ScanForOldProcessingJobs(IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public void ScanForCurrentProcessingJobs(IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
+            string logFile = iniFileData.ProcessLogFile;
+
+            StaticData.Log(logFile, "\nChecking for unfinished Processing Jobs...");
+
             StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
             List<String> runDirectoryList = new List<String>();
             if (runDirectoryList == null)
             {
-                Logger.LogError("OldJobsScanThread runDirectoryList failed to instantiate");
+                Logger.LogError("CurrentProcessingJobsScanThread runDirectoryList failed to instantiate");
             }
 
             // Get new directory list
             var runDirectoryInfo = new DirectoryInfo(iniFileData.ProcessingDir);
             if (runDirectoryInfo == null)
             {
-                Logger.LogError("OldJobsScanThread runDirectoryInfo failed to instantiate");
+                Logger.LogError("CurrentProcessingJobsScanThread runDirectoryInfo failed to instantiate");
             }
 
             var newDirectoryInfoList = runDirectoryInfo.EnumerateDirectories().ToList();
@@ -80,11 +88,11 @@ namespace Status.Services
                 runDirectoryList.Add(subdirectory.ToString());
             }
 
-            // Look for a difference between new and run directory lists
+            // Look for run directory list contents
             if (runDirectoryList.Count() == 0)
             {
                 StaticData.Log(IniData.ProcessLogFile, "\nNo unfinished Processing jobs found...");
-                StaticData.OldJobsScanComplete = true;
+                StaticData.CurrentProcessingJobsScanComplete = true;
                 return;
             }
 
@@ -113,7 +121,7 @@ namespace Status.Services
                     ScanDirectory scanDir = new ScanDirectory();
                     if (scanDir == null)
                     {
-                        Logger.LogError("OldJobsScanThread scanDir failed to instantiate");
+                        Logger.LogError("CurrentProcessingJobsScanThread scanDir failed to instantiate");
                     }
                     jobXmlData = scanDir.GetJobXmlData(job, iniFileData.ProcessingDir + @"\" + job, logger);
 
@@ -121,7 +129,7 @@ namespace Status.Services
                     JobXmlData xmlData = new JobXmlData();
                     if (xmlData == null)
                     {
-                        Logger.LogError("OldJobsScanThread xmlData failed to instantiate");
+                        Logger.LogError("CurrentProcessingJobsScanThread xmlData failed to instantiate");
                     }
 
                     xmlData.Job = job;
@@ -131,21 +139,21 @@ namespace Status.Services
                     xmlData.XmlFileName = jobXmlData.XmlFileName;
 
                     // Display Monitor Data found
-                    StaticData.Log(iniFileData.ProcessLogFile, "");
-                    StaticData.Log(iniFileData.ProcessLogFile, "Found unfinished Job  = " + xmlData.Job);
-                    StaticData.Log(iniFileData.ProcessLogFile, "Old Job Directory     = " + xmlData.JobDirectory);
-                    StaticData.Log(iniFileData.ProcessLogFile, "Old Serial Number     = " + xmlData.JobSerialNumber);
-                    StaticData.Log(iniFileData.ProcessLogFile, "Old Time Stamp        = " + xmlData.TimeStamp);
-                    StaticData.Log(iniFileData.ProcessLogFile, "Old Job Xml File      = " + xmlData.XmlFileName);
-                    StaticData.Log(iniFileData.ProcessLogFile, String.Format("Old Job {0} Executing slot {1}",
+                    StaticData.Log(logFile, "");
+                    StaticData.Log(logFile, "Found unfinished Job  = " + xmlData.Job);
+                    StaticData.Log(logFile, "Old Job Directory     = " + xmlData.JobDirectory);
+                    StaticData.Log(logFile, "Old Serial Number     = " + xmlData.JobSerialNumber);
+                    StaticData.Log(logFile, "Old Time Stamp        = " + xmlData.TimeStamp);
+                    StaticData.Log(logFile, "Old Job Xml File      = " + xmlData.XmlFileName);
+                    StaticData.Log(logFile, String.Format("Old Job {0} Executing slot {1}",
                         xmlData.Job, StaticData.NumberOfJobsExecuting));
-                    StaticData.Log(iniFileData.ProcessLogFile, "Starting Job " + xmlData.Job);
+                    StaticData.Log(logFile, "Starting Job " + xmlData.Job);
 
                     // Create a thread to execute the task, and then start the thread.
                     JobRunThread thread = new JobRunThread(iniFileData.ProcessingDir, false, iniFileData, xmlData, statusData, logger);
                     if (thread == null)
                     {
-                        Logger.LogError("OldJobsScanThread thread failed to instantiate");
+                        Logger.LogError("CurrentProcessingJobsScanThread thread failed to instantiate");
                     }
                     thread.ThreadProc();
 
@@ -163,6 +171,8 @@ namespace Status.Services
                     Thread.Sleep(iniFileData.ScanTime);
                 }
             }
+
+            StaticData.CurrentProcessingJobsScanComplete = true;
 
             StaticData.Log(IniData.ProcessLogFile, "\nNo more unfinished Processing jobs Found...");
         }

@@ -319,7 +319,7 @@ namespace Status.Services
                 {
                     if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
                     {
-                        NewJobsScanThread newJobsScanThread = new NewJobsScanThread();
+                        CurrentInutJobsScanThread newJobsScanThread = new CurrentInutJobsScanThread();
                         newJobsScanThread.StartJob(dir, true, IniData, StatusData, logger);
                         StaticData.NumberOfJobsExecuting++;
                         Thread.Sleep(IniData.ScanTime);

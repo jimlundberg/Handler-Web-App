@@ -13,7 +13,7 @@ namespace Status.Services
     /// </summary>
     public class StatusRepository : IStatusRepository
     {
-        private NewJobsScanThread newJobsScanThread;
+        private CurrentInutJobsScanThread newJobsScanThread;
         public IniFileData IniData = new IniFileData();
         public List<StatusData> StatusDataList = new List<StatusData>();
         public readonly ILogger<StatusRepository> Logger;
@@ -115,7 +115,7 @@ namespace Status.Services
             StaticData.ShutdownFlag = false;
 
             // Start thread to scan for old then new jobs
-            newJobsScanThread = new NewJobsScanThread(IniData, StatusDataList, Logger);
+            newJobsScanThread = new CurrentInutJobsScanThread(IniData, StatusDataList, Logger);
             if (newJobsScanThread == null)
             {
                 Logger.LogError("StartMonitorProcess newJobsScanThread failed to instantiate");

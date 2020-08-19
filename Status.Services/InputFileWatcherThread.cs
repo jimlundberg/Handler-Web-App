@@ -81,7 +81,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
-        public static void OnChanged(object source, FileSystemEventArgs e)
+        public static void OnCreated(object source, FileSystemEventArgs e)
         {
             if (e.ChangeType == WatcherChangeTypes.Created)
             {
@@ -103,17 +103,6 @@ namespace Status.Services
                     StaticData.InputFileScanComplete[job] = true;
                 }
             }
-        }
-
-        /// <summary>
-        /// The Delete of files callback
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="e"></param>
-        public static void OnDeleted(object source, FileSystemEventArgs e)
-        {
-            // File is deleted
-            // StaticData.Log(IniData.ProcessLogFile, ($"File watcher detected: {e.FullPath} {e.ChangeType}");
         }
 
         /// <summary>
@@ -158,9 +147,7 @@ namespace Status.Services
                 watcher.Filter = "*.*";
 
                 // Add event handlers
-                watcher.Changed += OnChanged;
-                watcher.Created += OnChanged;
-                watcher.Deleted += OnDeleted;
+                watcher.Created += OnCreated;
 
                 // Begin watching for changes to input directory
                 watcher.EnableRaisingEvents = true;

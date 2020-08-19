@@ -35,7 +35,7 @@ namespace Status.Services
             StatusData = statusData;
             DirectoryName = iniData.InputDir;
             Logger = logger;
-            StaticData.ExitDirectoryScan = false;
+            StaticData.DirectoryScanComplete = false;
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace Status.Services
             if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
             {
                 // Run the job and remove it from the list
-                NewJobsScanThread newJobsScanThread = new NewJobsScanThread();
+                CurrentInutJobsScanThread newJobsScanThread = new CurrentInutJobsScanThread();
                 newJobsScanThread.StartJob(job, false, IniData, StatusData, Logger);
                 StaticData.NumberOfJobsExecuting++;
                 StaticData.NewJobsToRun.Remove(job);
@@ -179,7 +179,7 @@ namespace Status.Services
                             {
                                 foreach (var dir in StaticData.NewJobsToRun)
                                 {
-                                    NewJobsScanThread newJobsScanThread = new NewJobsScanThread();
+                                    CurrentInutJobsScanThread newJobsScanThread = new CurrentInutJobsScanThread();
                                     newJobsScanThread.StartJob(dir, true, IniData, StatusData, Logger);
                                     StaticData.NumberOfJobsExecuting++;
                                     Thread.Sleep(IniData.ScanTime);
@@ -191,13 +191,13 @@ namespace Status.Services
 
                     Thread.Sleep(250);
                 }
-                while ((StaticData.ExitDirectoryScan == false) &&
+                while ((StaticData.DirectoryScanComplete == false) &&
                        (StaticData.ShutdownFlag == false));
 
                 // Exiting thread message
                 StaticData.Log(IniData.ProcessLogFile,
                     String.Format("Exiting DirectoryWatcherThread with ExitDirectoryScan {0} and ShutdownFlag {1}",
-                    StaticData.ExitDirectoryScan, StaticData.ShutdownFlag));
+                    StaticData.DirectoryScanComplete, StaticData.ShutdownFlag));
             }
         }
     }
