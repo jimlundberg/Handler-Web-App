@@ -85,7 +85,7 @@ namespace Status.Services
 
             StaticData.NumberOfJobsExecuting--;
             StaticData.TcpIpScanComplete[job] = true;
-            StaticData.ProcessingFileScanComplete[job] = true;
+            StaticData.DirectoryScanComplete = true;
         }
 
         // Define the event handlers.
@@ -94,7 +94,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
-        public static void OnChanged(object source, FileSystemEventArgs e)
+        public static void OnCreated(object source, FileSystemEventArgs e)
         {
             // Store job to run now or later
             string job = e.FullPath;
@@ -102,8 +102,8 @@ namespace Status.Services
 
             // Directory Add detected
             StaticData.Log(IniData.ProcessLogFile,
-                (String.Format("\nInput Directory Watcher detected new directory {0} for job {1} at {2:HH:mm:ss.fff}",
-                e.FullPath, job, DateTime.Now)));
+                (String.Format("\nInput Directory Watcher detected new directory {0} at {1:HH:mm:ss.fff}",
+                e.FullPath, DateTime.Now)));
 
             if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
             {
@@ -114,23 +114,12 @@ namespace Status.Services
                 StaticData.NewJobsToRun.Remove(job);
                 StaticData.FoundNewJobReadyToRun = true;
                 Thread.Sleep(IniData.ScanTime);
-                jobWaiting = false;
+                StaticData.DirectoryScanComplete = false;
             }
             else
             {
-                jobWaiting = true;
+                StaticData.DirectoryScanComplete = true;
             }
-        }
-
-        /// <summary>
-        /// The Delete of directory callback
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="e"></param>
-        public static void OnDeleted(object source, FileSystemEventArgs e)
-        {
-            // Directory is deleted
-            // StaticData.Log(IniData.ProcessLogFile,($"Directory watcher detected: {e.FullPath} {e.ChangeType}");
         }
 
         /// <summary>
@@ -160,9 +149,7 @@ namespace Status.Services
                 watcher.IncludeSubdirectories = true;
 
                 // Add event handlers
-                watcher.Changed += OnChanged;
-                watcher.Created += OnChanged;
-                watcher.Deleted += OnDeleted;
+                watcher.Created += OnCreated;
 
                 // Begin watching for changes to input directory
                 watcher.EnableRaisingEvents = true;
@@ -171,7 +158,7 @@ namespace Status.Services
                 do
                 {
                     // Run new jobs waiting
-                    if (jobWaiting && StaticData.TcpIpScanComplete[job])
+                    if (jobWaiting && (StaticData.DirectoryScanComplete == false))
                     {
                         if (StaticData.NewJobsToRun.Count > 0)
                         {
@@ -183,16 +170,15 @@ namespace Status.Services
                                     newJobsScanThread.StartJob(dir, true, IniData, StatusData, Logger);
                                     StaticData.NumberOfJobsExecuting++;
                                     Thread.Sleep(IniData.ScanTime);
-                                    StaticData.TcpIpScanComplete[job] = false;
                                 }
+                                StaticData.DirectoryScanComplete = true;
                             }
                         }
                     }
 
                     Thread.Sleep(250);
                 }
-                while ((StaticData.DirectoryScanComplete == false) &&
-                       (StaticData.ShutdownFlag == false));
+                while ((StaticData.DirectoryScanComplete == false) && (StaticData.ShutdownFlag == false));
 
                 // Exiting thread message
                 StaticData.Log(IniData.ProcessLogFile,

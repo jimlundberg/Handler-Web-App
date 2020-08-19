@@ -24,11 +24,11 @@ namespace Status.Services
         public static ILogger<StatusRepository> Logger;
         private static readonly Object xmlLock = new Object();
 
-        public ProcessingFileWatcherThread() { }
-
         /// <summary>
-        /// File Watcher scan
+        /// Processing directory file watcher thread
         /// </summary>
+        /// <param name="directory"></param>
+        /// <param name="numberOfFilesNeeded"></param>
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
@@ -43,8 +43,8 @@ namespace Status.Services
             StatusData = statusData;
             Logger = logger;
             Job = monitorData.Job;
-            DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
-            StaticData.NumberOfProcessingFilesFound[Job] = InputJobInfo.GetFiles().Length;
+            DirectoryInfo ProcessingJobInfo = new DirectoryInfo(directory);
+            StaticData.NumberOfProcessingFilesFound[Job] = ProcessingJobInfo.GetFiles().Length;
             StaticData.NumberOfProcessingFilesNeeded[Job] = numberOfFilesNeeded;
             StaticData.TcpIpScanComplete[Job] = false;
             StaticData.ProcessingFileScanComplete[Job] = false;

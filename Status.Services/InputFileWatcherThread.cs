@@ -23,11 +23,6 @@ namespace Status.Services
         public static ILogger<StatusRepository> Logger;
 
         /// <summary>
-        /// Default Input File Watcher Thread Constructore
-        /// </summary>
-        public InputFileWatcherThread() { }
-
-        /// <summary>
         /// Input directory file watcher thread
         /// </summary>
         /// <param name="directory"></param>
