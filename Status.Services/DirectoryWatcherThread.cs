@@ -85,6 +85,7 @@ namespace Status.Services
 
             StaticData.NumberOfJobsExecuting--;
             StaticData.TcpIpScanComplete[job] = true;
+            StaticData.ProcessingFileScanComplete[job] = true;
         }
 
         // Define the event handlers.

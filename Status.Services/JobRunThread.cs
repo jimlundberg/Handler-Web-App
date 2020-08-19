@@ -199,10 +199,7 @@ namespace Status.Services
                 // Monitor the Input directory until it has the total number of consumed files
                 if (Directory.Exists(InputBufferJobDir))
                 {
-                    // Reset the Tcp/Ip Job Complete flag for Input Directory Monitoring
-                    // TcpIpScanComplete = false;
-
-                    // Skip if this is a new job found no started
+                    // Skip if this is a new job found not started
                     if (runningNewJobs == false)
                     {
                         Console.WriteLine("Starting File scan of Input for job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
@@ -308,8 +305,9 @@ namespace Status.Services
             {
                 Thread.Sleep(250);
             }
-            while ((StaticData.ProcessingFileScanComplete[job] == false) &&
-                   (StaticData.ShutdownFlag == false));
+            while (((StaticData.ProcessingFileScanComplete[job] == false) ||
+                    (StaticData.TcpIpScanComplete[job] == false)) &&
+                    (StaticData.ShutdownFlag == false));
 
             // Decrement number of jobs executing here
             StaticData.NumberOfJobsExecuting--;

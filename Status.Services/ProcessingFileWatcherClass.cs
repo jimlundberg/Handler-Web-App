@@ -133,11 +133,6 @@ namespace Status.Services
             // Get job name from directory name
             string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
 
-            {
-                // Signal the Run thread that the Processing files were found
-                StaticData.ProcessingFileScanComplete[job] = true;
-            }
-
             // Start the Tcp/Ip Communications thread before checking files
             TcpIpListenThread tcpIp = new TcpIpListenThread(IniData, monitorData, StatusData, Logger);
             if (tcpIp == null)
@@ -151,7 +146,6 @@ namespace Status.Services
             {
                 // Signal the Run thread that the Processing files were found
                 StaticData.ProcessingFileScanComplete[job] = true;
-                StaticData.TcpIpScanComplete[job] = true;
             }
 
             // Create a new FileSystemWatcher and set its properties.
