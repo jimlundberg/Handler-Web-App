@@ -50,6 +50,10 @@ namespace Status.Services
             StaticData.ProcessingFileScanComplete[Job] = false;
         }
 
+        /// <summary>
+        /// Process complete callback
+        /// </summary>
+        /// <param name="e"></param>
         protected virtual void OnProcessCompleted(EventArgs e)
         {
             ProcessCompleted?.Invoke(this, e);

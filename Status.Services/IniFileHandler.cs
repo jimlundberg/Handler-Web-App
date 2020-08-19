@@ -22,11 +22,21 @@ namespace Status.Services
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
         static extern int GetPrivateProfileString(string Key, string Section, string Default, StringBuilder RetVal, int Size, string FilePath);
 
+        /// <summary>
+        /// set ini path name
+        /// </summary>
+        /// <param name="IniPath"></param>
         public IniFileHandler(string IniPath = null)
         {
             Path = new FileInfo(IniPath ?? EXE + ".ini").FullName;
         }
 
+        /// <summary>
+        /// Read section
+        /// </summary>
+        /// <param name="Section"></param>
+        /// <param name="Key"></param>
+        /// <returns></returns>
         public string Read(string Section, string Key = null)
         {
             StringBuilder RetVal = new StringBuilder(255);
@@ -34,21 +44,42 @@ namespace Status.Services
             return RetVal.ToString();
         }
 
+        /// <summary>
+        /// Write section
+        /// </summary>
+        /// <param name="Key"></param>
+        /// <param name="Value"></param>
+        /// <param name="Section"></param>
         public void Write(string Key, string Value, string Section = null)
         {
             WritePrivateProfileString(Section ?? EXE, Key, Value, Path);
         }
 
+        /// <summary>
+        /// Delete Key
+        /// </summary>
+        /// <param name="Key"></param>
+        /// <param name="Section"></param>
         public void DeleteKey(string Key, string Section = null)
         {
             Write(Key, null, Section ?? EXE);
         }
 
+        /// <summary>
+        /// Delete Section
+        /// </summary>
+        /// <param name="Section"></param>
         public void DeleteSection(string Section = null)
         {
             Write(null, null, Section ?? EXE);
         }
 
+        /// <summary>
+        /// Check if Key Exists
+        /// </summary>
+        /// <param name="Key"></param>
+        /// <param name="Section"></param>
+        /// <returns></returns>
         public bool KeyExists(string Key, string Section = null)
         {
             return Read(Key, Section).Length > 0;
@@ -70,13 +101,12 @@ namespace Status.Services
         /// <summary>
         /// ScanDirectory default constructor
         /// </summary>
-        public ScanDirectory()
-        {
-        }
+        public ScanDirectory() {}
 
         /// <summary>
         /// Get the Job XML data
         /// </summary>
+        /// <param name="job"></param>
         /// <param name="jobDirectory"></param>
         /// <param name="logger"></param>
         /// <returns>JobXmlData</returns>

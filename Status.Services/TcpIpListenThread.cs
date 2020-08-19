@@ -17,7 +17,7 @@ namespace Status.Services
         public static IniFileData IniData;
         public static StatusMonitorData MonitorData;
         public static List<StatusData> StatusData;
-        private static Thread tcpIpthread;
+        private static Thread thread;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
         public const string Host = "127.0.0.1";
@@ -65,8 +65,8 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            tcpIpthread = new Thread(() => TcpIpMonitor());
-            tcpIpthread.Start();
+            thread = new Thread(() => Connect(Host, IniData, MonitorData, StatusData, "status", Logger));
+            thread.Start();
         }
 
         // Status Data Entry
@@ -118,14 +118,6 @@ namespace Status.Services
             statusList.Add(entry);
             StaticData.Log(IniData.ProcessLogFile,
                 String.Format("Status: Job:{0} Job Status:{1}", job, status));
-        }
-
-        /// <summary>
-        /// Start Tcp/Ip communications monitor
-        /// </summary>
-        public void TcpIpMonitor()
-        {
-            Connect(Host, IniData, MonitorData, StatusData, "status", Logger);
         }
 
         /// <summary>

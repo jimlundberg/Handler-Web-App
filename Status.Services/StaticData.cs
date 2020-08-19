@@ -3,9 +3,6 @@ using System.Collections.Generic;
 
 namespace Status.Services
 {
-    public delegate void TimeoutCallbackType(string job);
-    public delegate void jobCompleteCallbackType(string job);
-
     /// <summary>
     /// Static Data with global access
     /// </summary>

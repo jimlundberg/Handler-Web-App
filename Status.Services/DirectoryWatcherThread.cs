@@ -28,8 +28,8 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public DirectoryWatcherThread(IniFileData iniData,
-            List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public DirectoryWatcherThread(IniFileData iniData, List<StatusData> statusData, 
+            ILogger<StatusRepository> logger)
         {
             IniData = iniData;
             StatusData = statusData;
@@ -63,7 +63,7 @@ namespace Status.Services
         /// <summary>
         /// Timeout Handler
         /// </summary>
-        /// <param name="job"></param>
+        /// <param name="monitorData"></param>
         public static void TimeoutHandler(StatusMonitorData monitorData)
         {
             string job = monitorData.Job;
