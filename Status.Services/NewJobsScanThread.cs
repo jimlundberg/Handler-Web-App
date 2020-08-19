@@ -157,7 +157,7 @@ namespace Status.Services
                 StaticData.Log(logFile, "\nNo more unfinished Input Jobs...");
             }
 
-            StaticData.Log(logFile, "\nChecking for new Input Jobs...\n");
+            StaticData.Log(logFile, "\nChecking for new Input Jobs...");
 
             // Start the Directory Watcher class to scan for new jobs
             DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(IniData, StatusData, Logger);
