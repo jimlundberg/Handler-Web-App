@@ -109,7 +109,6 @@ namespace Status.Services
                 // Run the job and remove it from the list
                 CurrentInutJobsScanThread newJobsScanThread = new CurrentInutJobsScanThread();
                 newJobsScanThread.StartJob(job, false, IniData, StatusData, Logger);
-                StaticData.NumberOfJobsExecuting++;
                 StaticData.NewJobsToRun.Remove(job);
                 StaticData.FoundNewJobReadyToRun = true;
                 Thread.Sleep(IniData.ScanTime);
@@ -167,7 +166,6 @@ namespace Status.Services
                                 {
                                     CurrentInutJobsScanThread newJobsScanThread = new CurrentInutJobsScanThread();
                                     newJobsScanThread.StartJob(dir, true, IniData, StatusData, Logger);
-                                    StaticData.NumberOfJobsExecuting++;
                                     Thread.Sleep(IniData.ScanTime);
                                 }
                                 StaticData.DirectoryScanComplete = true;

@@ -150,12 +150,16 @@ namespace Status.Services
                 {
                     CurrentInutJobsScanThread newJobsScanThread = new CurrentInutJobsScanThread();
                     newJobsScanThread.StartJob(dir.ToString(), currentInputJobsFound, IniData, StatusData, Logger);
-                    StaticData.NumberOfJobsExecuting++;
                     Thread.Sleep(iniFileData.ScanTime);
                 }
+                currentInputJobsFound = true;
             }
 
-            if (currentInputJobsFound)
+            if (runDirectoryInfoList.Count() > 0)
+            {
+                StaticData.Log(logFile, "\nUnfinished Input Jobs waiting...");
+            }
+            else if (currentInputJobsFound)
             {
                 StaticData.Log(logFile, "\nNo more unfinished Input Jobs...");
             }

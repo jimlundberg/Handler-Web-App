@@ -118,6 +118,8 @@ namespace Status.Services
             // Add initial entry to status list
             StatusDataEntry(statusData, monitorData.Job, iniData, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.StatusLogFile, logger);
 
+            StaticData.NumberOfJobsExecuting++;
+
             // Set the Start time of the Job
             monitorData.StartTime = DateTime.Now;
 
@@ -321,7 +323,6 @@ namespace Status.Services
                     {
                         CurrentInutJobsScanThread newJobsScanThread = new CurrentInutJobsScanThread();
                         newJobsScanThread.StartJob(dir, true, IniData, StatusData, logger);
-                        StaticData.NumberOfJobsExecuting++;
                         Thread.Sleep(IniData.ScanTime);
                     }
                 }
