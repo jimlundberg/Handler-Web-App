@@ -107,8 +107,9 @@ namespace Status.Services
             if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
             {
                 // Run the job and remove it from the list
+                string directory = IniData.InputDir + @"\" + job;
                 CurrentInutJobsScanThread newJobsScanThread = new CurrentInutJobsScanThread();
-                newJobsScanThread.StartJob(job, false, IniData, StatusData, Logger);
+                newJobsScanThread.StartJob(directory, false, IniData, StatusData, Logger);
                 StaticData.NewJobsToRun.Remove(job);
                 StaticData.FoundNewJobReadyToRun = true;
                 Thread.Sleep(IniData.ScanTime);
@@ -128,7 +129,7 @@ namespace Status.Services
         public void WatchDirectory(string directory)
         {
             // Get job name from directory name
-            string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+            string Job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
 
             // Create a new FileSystemWatcher and set its properties
             using (FileSystemWatcher watcher = new FileSystemWatcher())
@@ -162,10 +163,10 @@ namespace Status.Services
                         {
                             if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
                             {
-                                foreach (var dir in StaticData.NewJobsToRun)
+                                foreach (var job in StaticData.NewJobsToRun)
                                 {
                                     CurrentInutJobsScanThread newJobsScanThread = new CurrentInutJobsScanThread();
-                                    newJobsScanThread.StartJob(dir, true, IniData, StatusData, Logger);
+                                    newJobsScanThread.StartJob(directory, true, IniData, StatusData, Logger);
                                     Thread.Sleep(IniData.ScanTime);
                                 }
                                 StaticData.DirectoryScanComplete = true;
