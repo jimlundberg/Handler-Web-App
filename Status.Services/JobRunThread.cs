@@ -312,20 +312,6 @@ namespace Status.Services
                     (StaticData.TcpIpScanComplete[job] == false)) &&
                     (StaticData.ShutdownFlag == false));
 
-            // Run new jobs if found
-            if (StaticData.NewJobsToRun.Count > 0)
-            {
-                foreach (var dir in StaticData.NewJobsToRun)
-                {
-                    if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
-                    {
-                        CurrentInutJobsScanThread newJobsScanThread = new CurrentInutJobsScanThread();
-                        newJobsScanThread.StartJob(dir, true, IniData, StatusData, logger);
-                        Thread.Sleep(IniData.ScanTime);
-                    }
-                }
-            }
-
             // Add copy to archieve entry to status list
             StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.StatusLogFile, logger);
 
@@ -420,7 +406,7 @@ namespace Status.Services
                 FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
             }
 
-            // Decrement number of jobs executing after completion
+            // Decrement the number of jobs executing after one completes
             StaticData.NumberOfJobsExecuting--;
 
             StaticData.Log(iniData.ProcessLogFile, String.Format("Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
@@ -428,6 +414,20 @@ namespace Status.Services
 
             // Add entry to status list
             StatusDataEntry(statusData, job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
+
+            // Run new jobs if found
+            if (StaticData.NewJobsToRun.Count > 0)
+            {
+                foreach (var dir in StaticData.NewJobsToRun)
+                {
+                    if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
+                    {
+                        CurrentInutJobsScanThread newJobsScanThread = new CurrentInutJobsScanThread();
+                        newJobsScanThread.StartJob(dir, true, IniData, StatusData, logger);
+                        Thread.Sleep(IniData.ScanTime);
+                    }
+                }
+            }
         }
     }
 }

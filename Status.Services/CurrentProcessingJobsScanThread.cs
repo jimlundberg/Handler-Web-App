@@ -165,6 +165,10 @@ namespace Status.Services
                 }
                 else
                 {
+                    // Get job name from directory name
+                    string job = dir.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
+                    StaticData.NewJobsToRun.Add(job);
+
                     Thread.Sleep(iniFileData.ScanTime);
                 }
             }

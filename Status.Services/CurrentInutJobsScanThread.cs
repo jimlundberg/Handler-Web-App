@@ -27,8 +27,6 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void currentInputJob_ProcessCompleted(object sender, EventArgs e)
         {
-            string job = e.ToString();
-
             // Set Flag for ending directory scan loop
             Console.WriteLine("\nCurrent Input Job Scan Completed...");
             StaticData.CurrentInputJobsScanComplete = false;
@@ -117,13 +115,11 @@ namespace Status.Services
             {
                 Logger.LogError("CurrentInutJobsScanThread runDirectoryInfoList failed to instantiate");
             }
-
             List<String> runDirectoryList = new List<String>();
             if (runDirectoryList == null)
             {
                 Logger.LogError("CurrentInutJobsScanThread runDirectoryList failed to instantiate");
             }
-
             DirectoryInfo runDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
             if (runDirectoryInfo == null)
             {
@@ -152,6 +148,13 @@ namespace Status.Services
                     newJobsScanThread.StartJob(dir.ToString(), currentInputJobsFound, IniData, StatusData, Logger);
                     Thread.Sleep(iniFileData.ScanTime);
                 }
+                else
+                {
+                    // Get job name from directory name
+                    string job = dir.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
+                    StaticData.NewJobsToRun.Add(job);
+                }
+
                 currentInputJobsFound = true;
             }
 
@@ -207,7 +210,7 @@ namespace Status.Services
             {
                 Logger.LogError("CurrentInutJobsScanThread scanDir failed to instantiate");
             }
-            JobXmlData jobXmlData = scanDir.GetJobXmlData(job, iniFileData.InputDir + @"\" + job, logger);
+            JobXmlData jobXmlData = scanDir.GetJobXmlData(job, jobDirectory, logger);
 
             // Get data found in Job xml file
             JobXmlData xmlData = new JobXmlData();

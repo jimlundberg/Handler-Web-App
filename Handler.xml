@@ -1,0 +1,176 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Handler</name>
+    </assembly>
+    <members>
+        <member name="T:Handler.Pages.ErrorModel">
+            <summary>
+            Error Model Class
+            </summary>
+        </member>
+        <member name="P:Handler.Pages.ErrorModel.RequestId">
+            <summary>
+            Requet ID
+            </summary>
+        </member>
+        <member name="P:Handler.Pages.ErrorModel.ShowRequestId">
+            <summary>
+            Show Request Id
+            </summary>
+        </member>
+        <member name="M:Handler.Pages.ErrorModel.#ctor(Microsoft.Extensions.Logging.ILogger{Handler.Pages.ErrorModel})">
+            <summary>
+            Error Model logger
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:Handler.Pages.ErrorModel.OnGet">
+            <summary>
+            On Get
+            </summary>
+        </member>
+        <member name="T:Handler.Pages.IndexModel">
+            <summary>
+            Index Model Class
+            </summary>
+        </member>
+        <member name="F:Handler.Pages.IndexModel.Logger">
+            <summary>
+            ILogger member
+            </summary>
+        </member>
+        <member name="P:Handler.Pages.IndexModel.statusData">
+            <summary>
+            status data
+            </summary>
+        </member>
+        <member name="F:Handler.Pages.IndexModel.MonitorDataRepository">
+            <summary>
+            Monitor Data Repository
+            </summary>
+        </member>
+        <member name="T:Handler.Pages.IndexModel.ButtonPress">
+            <summary>
+            Button Press
+            </summary>
+        </member>
+        <member name="F:Handler.Pages.IndexModel.ButtonPress.Home">
+            <summary>
+            Home Button
+            </summary>
+        </member>
+        <member name="F:Handler.Pages.IndexModel.ButtonPress.Start">
+            <summary>
+            Start Button
+            </summary>
+        </member>
+        <member name="F:Handler.Pages.IndexModel.ButtonPress.Refresh">
+            <summary>
+            Refresh Button
+            </summary>
+        </member>
+        <member name="F:Handler.Pages.IndexModel.ButtonPress.Pause">
+            <summary>
+            Pause Button
+            </summary>
+        </member>
+        <member name="F:Handler.Pages.IndexModel.ButtonPress.Stop">
+            <summary>
+            Stop Button
+            </summary>
+        </member>
+        <member name="F:Handler.Pages.IndexModel.ButtonPress.History">
+            <summary>
+            History Button
+            </summary>
+        </member>
+        <member name="M:Handler.Pages.IndexModel.#ctor(Status.Services.IStatusRepository,Microsoft.Extensions.Logging.ILogger{Handler.Pages.IndexModel})">
+            <summary>
+            Index Model CTOR
+            </summary>
+            <param name="monitorDataRepository"></param>
+            <param name="logger"></param>
+        </member>
+        <member name="M:Handler.Pages.IndexModel.OnGet">
+            <summary>
+            On Get
+            </summary>
+        </member>
+        <member name="M:Handler.Pages.IndexModel.OnPostHomeButton">
+            <summary>
+            On Post Home Button
+            </summary>
+        </member>
+        <member name="M:Handler.Pages.IndexModel.OnPostStartButton">
+            <summary>
+            On Post Start Button
+            </summary>
+        </member>
+        <member name="M:Handler.Pages.IndexModel.OnPostRefreshButton">
+            <summary>
+            On Post Refresh Button
+            </summary>
+        </member>
+        <member name="M:Handler.Pages.IndexModel.OnPostPauseButton">
+            <summary>
+            On Post Pause Button
+            </summary>
+        </member>
+        <member name="M:Handler.Pages.IndexModel.OnPostStopButton">
+            <summary>
+            On Post Stop Button
+            </summary>
+        </member>
+        <member name="M:Handler.Pages.IndexModel.OnPostHistoryButton">
+            <summary>
+            On Post History Button
+            </summary>
+        </member>
+        <member name="T:Handler.Program">
+            <summary>
+             Program class
+            </summary>
+        </member>
+        <member name="M:Handler.Program.Main(System.String[])">
+            <summary>
+            Main entry
+            </summary>
+            <param name="args"></param>
+        </member>
+        <member name="M:Handler.Program.CreateHostBuilder(System.String[])">
+            <summary>
+            Create Host Builder with logging configuration
+            </summary>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="T:Handler.Startup">
+            <summary>
+            Startup Class
+            </summary>
+        </member>
+        <member name="M:Handler.Startup.#ctor(Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Startup Connstructor
+            </summary>
+            <param name="configuration"></param>
+        </member>
+        <member name="P:Handler.Startup.Configuration">
+            <summary>
+            Configuration get
+            </summary>
+        </member>
+        <member name="M:Handler.Startup.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            This method gets called by the runtime. Use this method to add services to the container. 
+            </summary>
+            <param name="services"></param>
+        </member>
+        <member name="M:Handler.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+            </summary>
+        </member>
+    </members>
+</doc>
