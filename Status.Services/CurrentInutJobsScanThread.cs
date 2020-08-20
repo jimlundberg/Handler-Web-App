@@ -152,7 +152,7 @@ namespace Status.Services
                 {
                     // Get job name from directory name
                     string job = dir.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
-                    StaticData.NewJobsToRun.Add(job);
+                    StaticData.NewInputJobsToRun.Add(job);
                 }
 
                 currentInputJobsFound = true;
@@ -167,7 +167,7 @@ namespace Status.Services
                 StaticData.Log(logFile, "\nNo more unfinished Input Jobs...");
             }
 
-            StaticData.Log(logFile, "\nChecking for new Input Jobs...");
+            StaticData.Log(logFile, "\nWatching for new Input Jobs...");
 
             // Start the Directory Watcher class to scan for new jobs
             DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(IniData, StatusData, Logger);

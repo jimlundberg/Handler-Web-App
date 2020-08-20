@@ -410,6 +410,12 @@ namespace Status.Services
             // Decrement the number of jobs executing after one completes
             StaticData.NumberOfJobsExecuting--;
 
+            // If this job is from the new jobs to run list, remove it
+            if (StaticData.NewInputJobsToRun.Contains(Job))
+            {
+                StaticData.NewInputJobsToRun.Remove(Job);
+            }
+
             StaticData.Log(iniData.ProcessLogFile, String.Format("Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
                 monitorData.Job, StaticData.NumberOfJobsExecuting, DateTime.Now));
 
@@ -417,15 +423,16 @@ namespace Status.Services
             StatusDataEntry(statusData, Job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
 
             // Run new jobs if found
-            if (StaticData.NewJobsToRun.Count > 0)
+            if (StaticData.NewInputJobsToRun.Count > 0)
             {
-                foreach (var job in StaticData.NewJobsToRun)
+                for (int i = 0; i < StaticData.NewInputJobsToRun.Count; i++)
                 {
                     if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
                     {
-                        string directory = iniData.InputDir + @"\" + job;
+                        string directory = iniData.InputDir + @"\" + StaticData.NewInputJobsToRun[i];
                         CurrentInutJobsScanThread newJobsScanThread = new CurrentInutJobsScanThread();
                         newJobsScanThread.StartJob(directory, true, IniData, StatusData, logger);
+                        StaticData.NewInputJobsToRun.RemoveAt(i);
                         Thread.Sleep(IniData.ScanTime);
                     }
                 }

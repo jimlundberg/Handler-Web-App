@@ -83,6 +83,13 @@ namespace Status.Services
             FileHandling.CopyFolderContents(processingBufferDirectory, repositoryDirectory, Logger, true, true);
 
             StaticData.NumberOfJobsExecuting--;
+
+            // If this job is from the new jobs to run list, remove it
+            if (StaticData.NewInputJobsToRun.Contains(job))
+            {
+                StaticData.NewInputJobsToRun.Remove(job);
+            }
+
             StaticData.TcpIpScanComplete[job] = true;
             StaticData.DirectoryScanComplete = true;
         }
@@ -99,7 +106,7 @@ namespace Status.Services
             string jobDirectory = e.FullPath;
             string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
 
-            StaticData.NewJobsToRun.Add(job);
+            StaticData.NewInputJobsToRun.Add(job);
 
             // Directory Add detected
             StaticData.Log(IniData.ProcessLogFile,
@@ -112,7 +119,7 @@ namespace Status.Services
                 string directory = IniData.InputDir + @"\" + job;
                 CurrentInutJobsScanThread newJobsScanThread = new CurrentInutJobsScanThread();
                 newJobsScanThread.StartJob(directory, false, IniData, StatusData, Logger);
-                StaticData.NewJobsToRun.Remove(job);
+                StaticData.NewInputJobsToRun.Remove(job);
                 StaticData.FoundNewJobReadyToRun = true;
                 Thread.Sleep(IniData.ScanTime);
                 StaticData.DirectoryScanComplete = false;
@@ -128,10 +135,10 @@ namespace Status.Services
         /// </summary>
         /// <param name="directory"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-        public void WatchDirectory(string directory)
+        public void WatchDirectory(string Directory)
         {
             // Get job name from directory name
-            string Job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+            string Job = Directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
 
             // Create a new FileSystemWatcher and set its properties
             using (FileSystemWatcher watcher = new FileSystemWatcher())
@@ -143,7 +150,7 @@ namespace Status.Services
 
                 // Watch for changes in the directory list
                 watcher.NotifyFilter = NotifyFilters.DirectoryName;
-                watcher.Path = directory;
+                watcher.Path = Directory;
 
                 // Watch for any directories names added
                 watcher.Filter = "*.*";
@@ -161,16 +168,19 @@ namespace Status.Services
                     // Run new jobs waiting
                     if (jobWaiting && (StaticData.DirectoryScanComplete == false))
                     {
-                        if (StaticData.NewJobsToRun.Count > 0)
+                        if (StaticData.NewInputJobsToRun.Count > 0)
                         {
                             if (StaticData.NumberOfJobsExecuting < IniData.ExecutionLimit)
                             {
-                                foreach (var job in StaticData.NewJobsToRun)
+                                for (int i = 0; i < StaticData.NewInputJobsToRun.Count; i++)
                                 {
+                                    string directory = IniData.InputDir + @"\" + StaticData.NewInputJobsToRun[i];
                                     CurrentInutJobsScanThread newJobsScanThread = new CurrentInutJobsScanThread();
                                     newJobsScanThread.StartJob(directory, true, IniData, StatusData, Logger);
+                                    StaticData.NewInputJobsToRun.RemoveAt(i);
                                     Thread.Sleep(IniData.ScanTime);
                                 }
+
                                 StaticData.DirectoryScanComplete = true;
                             }
                         }

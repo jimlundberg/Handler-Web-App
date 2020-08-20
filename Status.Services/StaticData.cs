@@ -23,7 +23,7 @@ namespace Status.Services
         public static Dictionary<string, int> NumberOfInputFilesNeeded = new Dictionary<string, int>();
         public static Dictionary<string, int> NumberOfProcessingFilesFound = new Dictionary<string, int>();
         public static Dictionary<string, int> NumberOfProcessingFilesNeeded = new Dictionary<string, int>();
-        public static List<String> NewJobsToRun = new List<String>();
+        public static List<String> NewInputJobsToRun = new List<String>();
 
         /// <summary>
         /// Global log to file method

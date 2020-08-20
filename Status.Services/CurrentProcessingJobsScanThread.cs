@@ -167,7 +167,7 @@ namespace Status.Services
                 {
                     // Get job name from directory name
                     string job = dir.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
-                    StaticData.NewJobsToRun.Add(job);
+                    StaticData.NewInputJobsToRun.Add(job);
 
                     Thread.Sleep(iniFileData.ScanTime);
                 }
