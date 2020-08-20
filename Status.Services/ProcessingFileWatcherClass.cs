@@ -17,7 +17,7 @@ namespace Status.Services
         public static IniFileData IniData;
         private StatusMonitorData MonitorData;
         private List<StatusData> StatusData;
-        private static string DirectoryPath;
+        private static string DirectoryName;
         private static Thread thread;
         private static string Job;
         public event EventHandler ProcessCompleted;
@@ -37,17 +37,17 @@ namespace Status.Services
             IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData,
             ILogger<StatusRepository> logger)
         {
-            DirectoryPath = directory;
+            DirectoryName = directory;
             IniData = iniData;
             MonitorData = monitorData;
             StatusData = statusData;
             Logger = logger;
             Job = monitorData.Job;
             DirectoryInfo ProcessingJobInfo = new DirectoryInfo(directory);
-            StaticData.NumberOfProcessingFilesFound[Job] = ProcessingJobInfo.GetFiles().Length;
-            StaticData.NumberOfProcessingFilesNeeded[Job] = numberOfFilesNeeded;
-            StaticData.TcpIpScanComplete[Job] = false;
-            StaticData.ProcessingFileScanComplete[Job] = false;
+            StaticClass.NumberOfProcessingFilesFound[Job] = ProcessingJobInfo.GetFiles().Length;
+            StaticClass.NumberOfProcessingFilesNeeded[Job] = numberOfFilesNeeded;
+            StaticClass.TcpIpScanComplete[Job] = false;
+            StaticClass.ProcessingFileScanComplete = false;
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            thread = new Thread(() => WatchFiles(DirectoryPath, MonitorData));
+            thread = new Thread(() => WatchFiles(DirectoryName, MonitorData));
             if (thread == null)
             {
                 Logger.LogError("ProcessingFileWatcherThread thread failed to instantiate");
@@ -87,21 +87,86 @@ namespace Status.Services
                 string jobFile = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
                 string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
 
-                StaticData.NumberOfProcessingFilesFound[job]++;
+                StaticClass.NumberOfProcessingFilesFound[job]++;
 
                 // Processing job file added
-                StaticData.Log(IniData.ProcessLogFile,
+                StaticClass.Log(IniData.ProcessLogFile,
                     String.Format("\nProcessing File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
-                    e.FullPath, StaticData.NumberOfProcessingFilesFound[job],
-                    StaticData.NumberOfProcessingFilesNeeded[job], DateTime.Now));
+                    e.FullPath, StaticClass.NumberOfProcessingFilesFound[job],
+                    StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
 
-                if (StaticData.NumberOfProcessingFilesFound[job] == StaticData.NumberOfProcessingFilesNeeded[job])
+                if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
                 {
                     // Signal the Job Run thread that TCP/IP scan is complete and all the Processing files were found
-                    StaticData.TcpIpScanComplete[job] = true;
-                    StaticData.ProcessingFileScanComplete[job] = true;
+                    StaticClass.TcpIpScanComplete[job] = true;
+                    StaticClass.ProcessingFileScanComplete = true;
                 }
             }
+        }
+
+        /// <summary>
+        /// Check if a Processing Job is complete
+        /// </summary>
+        /// <param name="job"></param>
+        /// <param name="iniData"></param>
+        /// <param name="statusData"></param>
+        /// <param name="logger"></param>
+        public void ProcessingJobReadyCheck(string job, IniFileData iniData,
+            List<StatusData> statusData, ILogger<StatusRepository> logger)
+        {
+            if ((StaticClass.TcpIpScanComplete[job] == true) && (StaticClass.ProcessingFileScanComplete == true))
+            {
+                if (StaticClass.NewInputJobsToRun.Count > 0)
+                {
+                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                    {
+                        // Run new Input jobs waiting
+                        for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
+                        {
+                            string directory = iniData.InputDir + @"\" + StaticClass.NewInputJobsToRun[i];
+                            CurrentInputJobsScanThread newJobsScanThread = new CurrentInputJobsScanThread();
+                            newJobsScanThread.StartJob(directory, true, iniData, statusData, logger);
+                            StaticClass.NewInputJobsToRun.RemoveAt(i);
+                            Thread.Sleep(iniData.ScanTime);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Check if the Modeler has deposited the OverallResult entry in the job data.xml file
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <returns></returns>
+        public bool OverallResultEntryCheck(string directory)
+        {
+            bool xmlFileFound = false;
+            bool OverallResultEntryFound = false;
+            string xmlFileName = directory + @"\" + "Data.xml";
+            XmlDocument XmlDoc;
+            do
+            {
+                xmlFileFound = File.Exists(xmlFileName);
+                Thread.Sleep(250);
+            }
+            while ((xmlFileFound == false) && (StaticClass.ShutdownFlag == true));
+
+            lock (xmlLock)
+            {
+                // Read output Xml file data
+                XmlDoc = new XmlDocument();
+                XmlDoc.Load(xmlFileName);
+            }
+
+            // Check if the OverallResult node exists
+            XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
+            if (OverallResult != null)
+            {
+                OverallResultEntryFound = true;
+            }
+
+            return OverallResultEntryFound;
         }
 
         /// <summary>
@@ -117,7 +182,7 @@ namespace Status.Services
             Console.WriteLine(String.Format("ProcessingFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}", 
                 job, DateTime.Now));
 
-            StaticData.TcpIpScanComplete[job] = true;
+            StaticClass.TcpIpScanComplete[job] = true;
         }
 
         /// <summary>
@@ -139,10 +204,10 @@ namespace Status.Services
             tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
             tcpIp.StartTcpIpScanProcess(IniData, monitorData, StatusData);
 
-            if (StaticData.NumberOfProcessingFilesFound[job] == StaticData.NumberOfProcessingFilesNeeded[job])
+            if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
                 // Signal the Run thread that the Processing files were found
-                StaticData.ProcessingFileScanComplete[job] = true;
+                StaticClass.ProcessingFileScanComplete = true;
             }
 
             // Create a new FileSystemWatcher and set its properties.
@@ -161,54 +226,21 @@ namespace Status.Services
                 // Begin watching for changes to input directory
                 watcher.EnableRaisingEvents = true;
 
-                Console.WriteLine("ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now);
+                Console.WriteLine("ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}", 
+                    directory, DateTime.Now);
 
                 // Wait for the TCP/IP Scan and Processing File Watching to Complete
                 do
                 {
-                    Thread.Sleep(250);
-                }
-                while (((StaticData.ProcessingFileScanComplete[job] == false) ||
-                        (StaticData.TcpIpScanComplete[job] == false)) &&
-                        (StaticData.ShutdownFlag == false));
-
-                // Wait for the Modeler to deposit the OverallResult entry in the data.xml file
-                bool xmlFileFound = false;
-                bool OverallResultEntryFound = false;
-                string xmlFileName = directory + @"\" + "Data.xml";
-                XmlDocument XmlDoc;
-                do
-                {
-                    do
-                    {
-                        xmlFileFound = File.Exists(xmlFileName);
-                        Thread.Sleep(250);
-                    }
-                    while ((xmlFileFound == false) && (StaticData.ShutdownFlag == true));
-
-                    lock (xmlLock)
-                    {
-                        // Read output Xml file data
-                        XmlDoc = new XmlDocument();
-                        XmlDoc.Load(xmlFileName);
-                    }
-
-                    // Check if the OverallResult node exists
-                    XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
-                    if (OverallResult != null)
-                    {
-                        OverallResultEntryFound = true;
-                    }
 
                     Thread.Sleep(250);
                 }
-                while ((OverallResultEntryFound == false) && (StaticData.ShutdownFlag == false));
+                while ((OverallResultEntryCheck(directory) == false) && (StaticClass.ShutdownFlag == false));
 
                 // Exiting thread message
-                StaticData.Log(IniData.ProcessLogFile,
-                    String.Format("Exiting ProcessingFileWatcherThread scan of job {0} with ExitProcessingFileScan={1} TcpIpScanComplete={2} and ShutdownFlag={3}",
-                    directory, StaticData.ProcessingFileScanComplete[job], 
-                    StaticData.TcpIpScanComplete[job], StaticData.ShutdownFlag));
+                StaticClass.Log(IniData.ProcessLogFile,
+                    String.Format("ProcessingFileWatcherThread scan of job {0} Complete at {1:HH:mm:ss.fff}",
+                    directory, DateTime.Now));
             }
         }
     }

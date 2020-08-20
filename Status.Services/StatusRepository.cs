@@ -13,7 +13,7 @@ namespace Status.Services
     /// </summary>
     public class StatusRepository : IStatusRepository
     {
-        private CurrentInutJobsScanThread newJobsScanThread;
+        private CurrentInputJobsScanThread newJobsScanThread;
         public IniFileData IniData = new IniFileData();
         public List<StatusData> StatusDataList = new List<StatusData>();
         public readonly ILogger<StatusRepository> Logger;
@@ -64,25 +64,25 @@ namespace Status.Services
             IniData.LogFileMaxSize = int.Parse(logFileMaxSize.Substring(0, logFileMaxSize.IndexOf("#")));
 
             // Set the log file max size
-            StaticData.logFileSizeLimit = IniData.LogFileMaxSize;
+            StaticClass.logFileSizeLimit = IniData.LogFileMaxSize;
 
             string logFile = IniData.ProcessLogFile;
-            StaticData.Log(logFile, "\nConfig.ini data found:\n");
-            StaticData.Log(logFile, "Input Dir             = " + IniData.InputDir);
-            StaticData.Log(logFile, "Processing Dir        = " + IniData.ProcessingDir);
-            StaticData.Log(logFile, "Repository Dir        = " + IniData.RepositoryDir);
-            StaticData.Log(logFile, "Finished Dir          = " + IniData.FinishedDir);
-            StaticData.Log(logFile, "Error Dir             = " + IniData.ErrorDir);
-            StaticData.Log(logFile, "Modeler Root Dir      = " + IniData.ModelerRootDir);
-            StaticData.Log(logFile, "Status Log File       = " + IniData.StatusLogFile);
-            StaticData.Log(logFile, "Process Log File      = " + IniData.ProcessLogFile);
-            StaticData.Log(logFile, "CPU Cores             = " + IniData.CPUCores + " Cores");
-            StaticData.Log(logFile, "Execution Limit       = " + IniData.ExecutionLimit + " Jobs");
-            StaticData.Log(logFile, "Start Port            = " + IniData.StartPort);
-            StaticData.Log(logFile, "Scan Time             = " + IniData.ScanTime + " Miliseconds");
-            StaticData.Log(logFile, "Max Time Limit        = " + IniData.MaxTimeLimit + " Seconds");
-            StaticData.Log(logFile, "Log File History      = " + IniData.LogFileHistory + " Days");
-            StaticData.Log(logFile, "Log File Max Size     = " + IniData.LogFileMaxSize + " MegaBytes");
+            StaticClass.Log(logFile, "\nConfig.ini data found:\n");
+            StaticClass.Log(logFile, "Input Dir             = " + IniData.InputDir);
+            StaticClass.Log(logFile, "Processing Dir        = " + IniData.ProcessingDir);
+            StaticClass.Log(logFile, "Repository Dir        = " + IniData.RepositoryDir);
+            StaticClass.Log(logFile, "Finished Dir          = " + IniData.FinishedDir);
+            StaticClass.Log(logFile, "Error Dir             = " + IniData.ErrorDir);
+            StaticClass.Log(logFile, "Modeler Root Dir      = " + IniData.ModelerRootDir);
+            StaticClass.Log(logFile, "Status Log File       = " + IniData.StatusLogFile);
+            StaticClass.Log(logFile, "Process Log File      = " + IniData.ProcessLogFile);
+            StaticClass.Log(logFile, "CPU Cores             = " + IniData.CPUCores + " Cores");
+            StaticClass.Log(logFile, "Execution Limit       = " + IniData.ExecutionLimit + " Jobs");
+            StaticClass.Log(logFile, "Start Port            = " + IniData.StartPort);
+            StaticClass.Log(logFile, "Scan Time             = " + IniData.ScanTime + " Miliseconds");
+            StaticClass.Log(logFile, "Max Time Limit        = " + IniData.MaxTimeLimit + " Seconds");
+            StaticClass.Log(logFile, "Log File History      = " + IniData.LogFileHistory + " Days");
+            StaticClass.Log(logFile, "Log File Max Size     = " + IniData.LogFileMaxSize + " MegaBytes");
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace Status.Services
         public void StopMonitor()
         {
             // Exit threads by setting shutdown flag
-            StaticData.ShutdownFlag = true;
+            StaticClass.ShutdownFlag = true;
         }
 
         /// <summary>
@@ -112,10 +112,10 @@ namespace Status.Services
         /// </summary>
         public void StartMonitorProcess()
         {
-            StaticData.ShutdownFlag = false;
+            StaticClass.ShutdownFlag = false;
 
             // Start thread to scan for old then new jobs
-            newJobsScanThread = new CurrentInutJobsScanThread(IniData, StatusDataList, Logger);
+            newJobsScanThread = new CurrentInputJobsScanThread(IniData, StatusDataList, Logger);
             if (newJobsScanThread == null)
             {
                 Logger.LogError("StartMonitorProcess newJobsScanThread failed to instantiate");

@@ -27,7 +27,7 @@ namespace Status.Services
         public void WriteToLogFile(string text)
         {
             bool tooBig = false;
-            int MaxFileSize = StaticData.logFileSizeLimit * 1024 * 1024;
+            int MaxFileSize = StaticClass.logFileSizeLimit * 1024 * 1024;
 
             lock (fileLock)
             {
@@ -54,7 +54,7 @@ namespace Status.Services
                 lock (fileLock)
                 {
                     // Remove old data from log file
-                    using (MemoryStream memoryStream = new MemoryStream(StaticData.logFileSizeLimit))
+                    using (MemoryStream memoryStream = new MemoryStream(StaticClass.logFileSizeLimit))
                     {
                         using (FileStream stream = new FileStream(LogFileName, FileMode.Open, FileAccess.ReadWrite))
                         {

@@ -42,9 +42,9 @@ namespace Status.Services
             Logger = logger;
             Job = monitorData.Job;
             DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
-            StaticData.NumberOfInputFilesFound[Job] = InputJobInfo.GetFiles().Length;
-            StaticData.NumberOfInputFilesNeeded[Job] = numberOfFilesNeeded;
-            StaticData.InputFileScanComplete[Job] = false;
+            StaticClass.NumberOfInputFilesFound[Job] = InputJobInfo.GetFiles().Length;
+            StaticClass.NumberOfInputFilesNeeded[Job] = numberOfFilesNeeded;
+            StaticClass.InputFileScanComplete[Job] = false;
         }
 
         /// <summary>
@@ -85,17 +85,17 @@ namespace Status.Services
                 string jobFile = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
                 string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
 
-                StaticData.NumberOfInputFilesFound[job]++;
+                StaticClass.NumberOfInputFilesFound[job]++;
 
                 // Input job file added
-                StaticData.Log(IniData.ProcessLogFile,
+                StaticClass.Log(IniData.ProcessLogFile,
                     String.Format("\nInput File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
-                    e.FullPath, StaticData.NumberOfInputFilesFound[job], StaticData.NumberOfInputFilesNeeded[job], DateTime.Now));
+                    e.FullPath, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
 
-                if (StaticData.NumberOfInputFilesFound[job] == StaticData.NumberOfInputFilesNeeded[job])
+                if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
                 {
                     // Signal the Run thread that the Input files were found
-                    StaticData.InputFileScanComplete[job] = true;
+                    StaticClass.InputFileScanComplete[job] = true;
                 }
             }
         }
@@ -111,7 +111,7 @@ namespace Status.Services
 
             // Set Flag for ending directory scan loop
             Console.WriteLine("InputFileWatcherThread received Tcp/Ip Scan Completed!");
-            StaticData.InputFileScanComplete[Job] = true;
+            StaticClass.InputFileScanComplete[Job] = true;
         }
 
         /// <summary>
@@ -124,10 +124,10 @@ namespace Status.Services
             // Get job name from directory name
             string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
 
-            if (StaticData.NumberOfInputFilesFound[Job] == StaticData.NumberOfInputFilesNeeded[job])
+            if (StaticClass.NumberOfInputFilesFound[Job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
                 // Signal the Run thread that the Input files were found
-                StaticData.InputFileScanComplete[Job] = true;
+                StaticClass.InputFileScanComplete[Job] = true;
                 return;
             }
 
@@ -154,12 +154,12 @@ namespace Status.Services
                 {
                     Thread.Sleep(250);
                 }
-                while (((StaticData.InputFileScanComplete[Job] == false)) && (StaticData.ShutdownFlag == false));
+                while (((StaticClass.InputFileScanComplete[Job] == false)) && (StaticClass.ShutdownFlag == false));
 
                 // Exiting thread message
-                StaticData.Log(IniData.ProcessLogFile,
+                StaticClass.Log(IniData.ProcessLogFile,
                     String.Format("Exiting InputFileWatcherThread scan of dir {0} with ExitInputFileScan={1} and ShutdownFlag={2}",
-                    directory, StaticData.InputFileScanComplete[Job], StaticData.ShutdownFlag));
+                    directory, StaticClass.InputFileScanComplete[Job], StaticClass.ShutdownFlag));
             }
         }
     }

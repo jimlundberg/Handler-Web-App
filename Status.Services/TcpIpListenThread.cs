@@ -114,7 +114,7 @@ namespace Status.Services
             }
 
             statusList.Add(entry);
-            StaticData.Log(IniData.ProcessLogFile,
+            StaticClass.Log(IniData.ProcessLogFile,
                 String.Format("Status: Job:{0} Job Status:{1}", job, status));
         }
 
@@ -169,7 +169,7 @@ namespace Status.Services
                     stream.Write(data, 0, data.Length);
 
                     // Receive the TcpServer.response.
-                    StaticData.Log(iniData.ProcessLogFile,
+                    StaticClass.Log(iniData.ProcessLogFile,
                         String.Format("\nSending {0} msg to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
                         message, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
 
@@ -211,7 +211,7 @@ namespace Status.Services
 
                         if (responseData.Contains("Whole process done, socket closed."))
                         {
-                            StaticData.Log(iniData.ProcessLogFile,
+                            StaticClass.Log(iniData.ProcessLogFile,
                                 String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                 responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
                             jobComplete = true;
@@ -225,20 +225,20 @@ namespace Status.Services
                             case "Step 2 in process.":
                             case "Step 3 in process.":
                             case "Step 4 in process.":
-                                StaticData.Log(iniData.ProcessLogFile,
+                                StaticClass.Log(iniData.ProcessLogFile,
                                     String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                      responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
                                 break;
 
                             case "Step 5 in process.":
-                                StaticData.Log(iniData.ProcessLogFile,
+                                StaticClass.Log(iniData.ProcessLogFile,
                                     String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
                                 adjustableSleepTime = 1000;
                                 break;
 
                             case "Step 6 in process.":
-                                StaticData.Log(iniData.ProcessLogFile,
+                                StaticClass.Log(iniData.ProcessLogFile,
                                     String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
                                 adjustableSleepTime = 100;
@@ -253,17 +253,20 @@ namespace Status.Services
                         // Check for job timeout
                         if ((DateTime.Now - monitorData.StartTime).TotalSeconds > iniData.MaxTimeLimit)
                         {
-                            StaticData.Log(iniData.ProcessLogFile,
-                                String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}", monitorData.Job, DateTime.Now));
+                            string job = monitorData.Job;
 
-                            DirectoryWatcherThread.TimeoutHandler(monitorData);
+                            StaticClass.Log(iniData.ProcessLogFile, String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}", job, DateTime.Now));
 
+                            // Handle timeout
+                            StaticClass.TimeoutHandler(job, monitorData, iniData, logger);
+
+                            // Create job Timeout status
                             StatusDataEntry(statusData, monitorData.Job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
                             jobComplete = true;
                         }
 
                         // Check if the shutdown flag is set, then exit method
-                        if (StaticData.ShutdownFlag == true)
+                        if (StaticClass.ShutdownFlag == true)
                         {
                             logger.LogInformation("Shutdown Connect job {0}", monitorData.Job);
                             jobComplete = true;
@@ -282,7 +285,7 @@ namespace Status.Services
                 stream.Close();
                 client.Close();
 
-                StaticData.Log(iniData.ProcessLogFile,
+                StaticClass.Log(iniData.ProcessLogFile,
                     String.Format("Completed TCP/IP Scan of Job {0} at {1:HH:mm:ss.fff}",
                         monitorData.Job, DateTime.Now));
             }
