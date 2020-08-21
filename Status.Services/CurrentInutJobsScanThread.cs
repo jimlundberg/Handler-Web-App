@@ -223,7 +223,7 @@ namespace Status.Services
                 StaticClass.Log(logFile, "New Job Xml File      = " + xmlData.XmlFileName);
 
                 StaticClass.Log(logFile, String.Format("Started Input Job {0} executing slot {1} at {2:HH:mm:ss.fff}",
-                    xmlData.Job, StaticClass.NumberOfJobsExecuting, DateTime.Now));
+                    xmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
                 // Create a thread to run the job, and then start the thread
                 JobRunThread thread = new JobRunThread(DirectoryScanType.INPUT_BUFFER,
@@ -236,7 +236,6 @@ namespace Status.Services
 
                 // Remove job after run thread launched
                 StaticClass.NewInputJobsToRun.Remove(job);
-                StaticClass.NumberOfJobsExecuting--;
 
                 // Cieck if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)

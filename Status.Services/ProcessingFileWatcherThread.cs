@@ -44,8 +44,8 @@ namespace Status.Services
             Logger = logger;
             Job = monitorData.Job;
             DirectoryInfo ProcessingJobInfo = new DirectoryInfo(directory);
-            StaticClass.NumberOfProcessingFilesFound[Job] = ProcessingJobInfo.GetFiles().Length;
-            StaticClass.NumberOfProcessingFilesNeeded[Job] = numberOfFilesNeeded;
+            StaticClass.NumberOfProcessingFilesFound.Add(Job, ProcessingJobInfo.GetFiles().Length);
+            StaticClass.NumberOfProcessingFilesNeeded.Add(Job, numberOfFilesNeeded);
             StaticClass.TcpIpScanComplete[Job] = false;
             StaticClass.ProcessingFileScanComplete[Job] = false;
 

@@ -172,7 +172,7 @@ namespace Status.Services
                 StaticClass.Log(logFile, "Old Job Xml File      = " + xmlData.XmlFileName);
 
                 StaticClass.Log(logFile, String.Format("Starting Processing directory Job {0} Executing slot {1} at {2:HH:mm:ss.fff}",
-                    xmlData.Job, StaticClass.NumberOfJobsExecuting, DateTime.Now));
+                    xmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
                 // Create a thread to run the job, and then start the thread
                 JobRunThread thread = new JobRunThread(DirectoryScanType.PROCESSING_BUFFER,

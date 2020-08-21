@@ -194,7 +194,6 @@ namespace Status.Services
 
                 // Remove job started from the Input job list
                 StaticClass.NewInputJobsToRun.Remove(job);
-                StaticClass.NumberOfJobsExecuting--;
 
                 // Exiting thread message
                 StaticClass.Log(IniData.ProcessLogFile,

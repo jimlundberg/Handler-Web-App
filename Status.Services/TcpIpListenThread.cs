@@ -145,7 +145,6 @@ namespace Status.Services
 
             // Remove job from Input jobs to run list and decrement execution count
             StaticClass.NewInputJobsToRun.Remove(job);
-            StaticClass.NumberOfJobsExecuting--;
         }
 
         /// <summary>
