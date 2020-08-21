@@ -126,6 +126,11 @@ namespace Status.Services
 
             if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
+                // All files needed dected
+                StaticClass.Log(IniData.ProcessLogFile,
+                    String.Format("\nProcessing File Watcher detected all job {0} Input files {1} of {2} at {3:HH:mm:ss.fff}",
+                    e.FullPath, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
+
                 // Signal the Run thread that the Input files were found
                 StaticClass.InputFileScanComplete[job] = true;
             }
