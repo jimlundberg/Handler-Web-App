@@ -240,9 +240,6 @@ namespace Status.Services
                 }
                 while ((StaticClass.ProcessingFileScanComplete[job] == false) && (StaticClass.ShutdownFlag == false));
 
-                // Remove job started from the Processing job list
-                StaticClass.NewProcessingJobsToRun.Remove(job);
-
                 // Wait for the TCP/IP Scan to Complete when the Modeler deposits the results in data.xml
                 bool foundOverallResultEntry = false;
                 do
@@ -251,6 +248,9 @@ namespace Status.Services
                     Thread.Sleep(250);
                 }
                 while ((foundOverallResultEntry == false) && (StaticClass.ShutdownFlag == false));
+
+                // Remove job started from the Processing job list
+                StaticClass.NewProcessingJobsToRun.Remove(job);
 
                 // Exiting thread message
                 StaticClass.Log(IniData.ProcessLogFile,

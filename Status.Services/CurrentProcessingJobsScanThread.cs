@@ -157,7 +157,7 @@ namespace Status.Services
                 StaticClass.Log(logFile, "Old Time Stamp        = " + xmlData.TimeStamp);
                 StaticClass.Log(logFile, "Old Job Xml File      = " + xmlData.XmlFileName);
 
-                StaticClass.Log(logFile, String.Format("starting Processing directory Job {0} Executing slot {1} at {2:HH:mm:ss.fff}",
+                StaticClass.Log(logFile, String.Format("Starting Processing directory Job {0} Executing slot {1} at {2:HH:mm:ss.fff}",
                     xmlData.Job, StaticClass.NumberOfJobsExecuting, DateTime.Now));
 
                 // Create a thread to execute the task, and then start the thread.
