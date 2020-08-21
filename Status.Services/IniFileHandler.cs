@@ -14,7 +14,7 @@ namespace Status.Services
     public class IniFileHandler
     {
         string Path;
-        readonly String EXE = Assembly.GetExecutingAssembly().GetName().Name;
+        readonly string EXE = Assembly.GetExecutingAssembly().GetName().Name;
 
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
         static extern long WritePrivateProfileString(string Key, string Section, string Value, string FilePath);
@@ -124,7 +124,7 @@ namespace Status.Services
             {
                 lock (xmlLock)
                 {
-                    String[] files = Directory.GetFiles(jobDirectory, "*.xml");
+                    string[] files = Directory.GetFiles(jobDirectory, "*.xml");
                     if (files.Length > 0)
                     {
                         jobScanXmlData.XmlFileName = Path.GetFileName(files[0]);

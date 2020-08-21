@@ -192,9 +192,9 @@ namespace Status.Services
             StatusDataEntry(statusData, Job, iniData, JobStatus.MONITORING_INPUT, JobType.TIME_START, iniData.StatusLogFile, logger);
 
             // Create the Transfered file list from the Xml file entries
-            monitorData.TransferedFileList = new List<String>(NumFilesToTransfer);
+            monitorData.TransferedFileList = new List<string>(NumFilesToTransfer);
             List<XmlNode> TransFeredFileXml = new List<XmlNode>();
-            monitorData.TransferedFileList = new List<String>();
+            monitorData.TransferedFileList = new List<string>();
             for (int i = 1; i < NumFilesToTransfer + 1; i++)
             {
                 string transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
@@ -369,7 +369,7 @@ namespace Status.Services
                     }
 
                     // Copy the Transfered files to the Finished directory 
-                    foreach (var file in monitorData.TransferedFileList)
+                    foreach (string file in monitorData.TransferedFileList)
                     {
                         FileHandling.CopyFile(iniData.ProcessingDir + @"\" + Job + @"\" + file,
                             iniData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);
@@ -387,7 +387,7 @@ namespace Status.Services
                     }
 
                     // Copy the Transfered files to the Error directory 
-                    foreach (var file in monitorData.TransferedFileList)
+                    foreach (string file in monitorData.TransferedFileList)
                     {
                             FileHandling.CopyFile(iniData.ProcessingDir + @"\" + Job + @"\" + file,
                             iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);
@@ -406,7 +406,7 @@ namespace Status.Services
                 }
 
                 // Copy the Transfered files to the Error directory 
-                foreach (var file in monitorData.TransferedFileList)
+                foreach (string file in monitorData.TransferedFileList)
                 {
                     FileHandling.CopyFile(iniData.ProcessingDir + @"\" + Job + @"\" + file,
                     iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + file, logger);

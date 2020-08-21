@@ -66,19 +66,19 @@ namespace Status.Services
         public static void OnCreated(object source, FileSystemEventArgs e)
         {
             // Store job to run now or later
-            string jobDirectory = e.FullPath;
-            string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
+            string newJobDirectory = e.FullPath;
+            string newJobName = newJobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
 
             // Directory Add detected
             StaticClass.Log(IniData.ProcessLogFile,
                 (String.Format("\nInput Directory Watcher detected new directory {0} at {1:HH:mm:ss.fff}",
-                jobDirectory, DateTime.Now)));
+                newJobDirectory, DateTime.Now)));
 
             // Add new job found to the Input job list
-            StaticClass.NewInputJobsToRun.Add(job);
+            StaticClass.NewInputJobsToRun.Add(newJobName);
 
             // Check the list to see if you can run a job
-            for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
+            foreach (string job in StaticClass.NewInputJobsToRun)
             {
                 // Check how many jobs are executing
                 if (StaticClass.NumberOfJobsExecuting < IniData.ExecutionLimit)
@@ -87,7 +87,6 @@ namespace Status.Services
                     string directory = IniData.InputDir + @"\" + job;
                     CurrentInputJobsScanThread newJobsScanThread = new CurrentInputJobsScanThread();
                     newJobsScanThread.StartInputJob(directory, IniData, StatusData, Logger);
-                    Thread.Sleep(IniData.ScanTime);
                 }
             }
         }
@@ -124,7 +123,7 @@ namespace Status.Services
                 // Begin watching for changes to input directory
                 watcher.EnableRaisingEvents = true;
 
-                // Wait until shutdown for the Directory scans to trigger
+                // Scan Input directory forever or at least until shutdown
                 do
                 {
                     Thread.Sleep(250);

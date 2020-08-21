@@ -20,8 +20,8 @@ namespace Status.Services
 		public static volatile bool CurrentInputJobsScanComplete = false;
 		public static volatile bool CurrentProcessingJobScanComplete = false;
 
-		public static List<String> NewInputJobsToRun = new List<String>();
-		public static List<String> NewProcessingJobsToRun = new List<String>();
+		public static List<string> NewInputJobsToRun = new List<String>();
+		public static List<string> NewProcessingJobsToRun = new List<String>();
 
 		public static Dictionary<string, bool> InputFileScanComplete = new Dictionary<string, bool>();
 		public static Dictionary<string, bool> ProcessingFileScanComplete = new Dictionary<string, bool>();

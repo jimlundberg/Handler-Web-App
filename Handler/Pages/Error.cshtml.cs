@@ -18,7 +18,7 @@ namespace Handler.Pages
         /// <summary>
         /// Requet ID
         /// </summary>
-        public String RequestId { get; set; }
+        public string RequestId { get; set; }
 
         /// <summary>
         /// Show Request Id

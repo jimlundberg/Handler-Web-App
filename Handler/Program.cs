@@ -18,7 +18,7 @@ namespace Handler
         /// Main entry
         /// </summary>
         /// <param name="args"></param>
-        public static void Main(String[] args)
+        public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
         }

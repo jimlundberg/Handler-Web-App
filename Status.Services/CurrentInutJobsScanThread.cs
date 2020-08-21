@@ -137,7 +137,7 @@ namespace Status.Services
             }
 
             // Start the jobs in the directory list found on initial scan of the Input Buffer
-            foreach (var dir in InputDirectoryInfoList)
+            foreach (DirectoryInfo dir in InputDirectoryInfoList)
             {
                 // Get job name by clearing the Input Directory string
                 string job = dir.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
@@ -252,6 +252,8 @@ namespace Status.Services
                     logger.LogInformation("CurrentInputJobsScanThread Shutdown of job {0}", job);
                     return;
                 }
+
+                Thread.Sleep(IniData.ScanTime);
             }
             else
             {

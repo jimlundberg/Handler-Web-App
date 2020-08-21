@@ -98,7 +98,7 @@ namespace Status.Services
             }
 
             // Start the jobs in the directory list found on initial scan of the Processing Buffer
-            foreach (var dir in ProcessingDirectoryInfoList)
+            foreach (DirectoryInfo dir in ProcessingDirectoryInfoList)
             {
                 // Get job name by clearing the Processing Directory string
                 string job = dir.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
