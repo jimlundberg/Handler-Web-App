@@ -245,6 +245,11 @@ namespace Status.Services
                             StaticClass.Log(iniData.ProcessLogFile,
                                 String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                 responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
+
+                            StaticClass.Log(iniData.ProcessLogFile,
+                                String.Format("TCP/IP for Job {1} on port {2} received Process Done at {3:HH:mm:ss.fff}",
+                                responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
+
                             StaticClass.TcpIpScanComplete[job] = true;
                             jobComplete = true;
                             return;
