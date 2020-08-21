@@ -78,7 +78,7 @@ namespace Status.Services
                             Thread.Sleep(iniData.ScanTime);
                         }
 
-                        StaticClass.CurrentProcessingJobScanComplete = true;
+                        StaticClass.ProcessingFileScanComplete[job] = true;
                     }
                 }
             }
@@ -124,18 +124,17 @@ namespace Status.Services
             // Processing job file added
             StaticClass.Log(IniData.ProcessLogFile,
                 String.Format("\nProcessing File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
-                job, StaticClass.NumberOfProcessingFilesFound[job],
+                jobDirectory, StaticClass.NumberOfProcessingFilesFound[job],
                 StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
 
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
                 StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("\nProcessing File Watcher detected all job {0} Processing files at {1:HH:mm:ss.fff}",
+                    String.Format("\nProcessing File Watcher detected all Job {0} Processing files at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
 
-                // Signal the Job Run thread that TCP/IP scan is complete and all the Processing files were found
-                StaticClass.TcpIpScanComplete[job] = true;
-                StaticClass.CurrentProcessingJobScanComplete = true;
+                // Signal the Processing job Scan thread that all the Processing files were found for a job
+                StaticClass.ProcessingFileScanComplete[job] = true;
             }
         }
 
@@ -184,10 +183,8 @@ namespace Status.Services
             string job = e.ToString();
 
             // Set Flag for ending directory scan loop
-            Console.WriteLine(String.Format("ProcessingFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}", 
+            Console.WriteLine(String.Format("*****ProcessingFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}", 
                 job, DateTime.Now));
-
-            StaticClass.TcpIpScanComplete[job] = true;
         }
 
         /// <summary>
@@ -212,7 +209,7 @@ namespace Status.Services
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
                 // Signal the Run thread that the Processing files were found
-                StaticClass.CurrentProcessingJobScanComplete = true;
+                StaticClass.ProcessingFileScanComplete[job] = true;
             }
 
             // Create a new FileSystemWatcher and set its properties.

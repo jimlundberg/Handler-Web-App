@@ -76,7 +76,7 @@ namespace Status.Services
                     job, DateTime.Now));
 
             // Set Flag for ending file scan loop
-            StaticClass.InputFileScanComplete[job] = false;
+            StaticClass.InputFileScanComplete[job] = true;
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Status.Services
                 job, DateTime.Now));
 
             // Set Flag for ending file scan loop
-            StaticClass.CurrentProcessingJobScanComplete = true;
+            StaticClass.ProcessingFileScanComplete[job] = true;
         }
 
         /// <summary>
@@ -290,9 +290,6 @@ namespace Status.Services
             // Add entry to status list
             StatusDataEntry(statusData, Job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.StatusLogFile, logger);
 
-            // Set Tcp/Ip Job Complete flag for ProcessingBuffer Directory Monitoring
-            //TcpIpScanComplete = false;
-
             // Monitor for complete set of files in the Processing Buffer
             StaticClass.Log(iniData.ProcessLogFile, 
                 String.Format("Starting monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}", 
@@ -301,7 +298,6 @@ namespace Status.Services
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
 
             // Register with the File Watcher class with an event and start its thread
-            StaticClass.CurrentProcessingJobScanComplete = false;
             string processingBufferJobDir = iniData.ProcessingDir + @"\" + MonitorData.Job;
             ProcessingFileWatcherThread ProcessingFileWatch = new ProcessingFileWatcherThread(processingBufferJobDir,
                 monitorData.NumFilesConsumed + monitorData.NumFilesProduced, 
@@ -313,12 +309,12 @@ namespace Status.Services
             ProcessingFileWatch.ProcessCompleted += Processing_fileScan_FilesFound;
             ProcessingFileWatch.ThreadProc();
 
-            // Wait for job Processing to complete
+            // Wait for both job Processing and TCP/IP to complete
             do
             {
                 Thread.Sleep(250);
             }
-            while (((StaticClass.CurrentProcessingJobScanComplete == false) ||
+            while (((StaticClass.ProcessingFileScanComplete[Job] == false) ||
                     (StaticClass.TcpIpScanComplete[Job] == false)) &&
                     (StaticClass.ShutdownFlag == false));
 

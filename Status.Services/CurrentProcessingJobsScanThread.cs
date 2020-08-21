@@ -80,7 +80,6 @@ namespace Status.Services
             }
 
             // Get the current list of directories from the Processing Buffer
-            bool currentProcessingJobsRun = false;
             List<DirectoryInfo> ProcessingDirectoryInfoList = ProcessingDirectoryInfo.EnumerateDirectories().ToList();
             if (ProcessingDirectoryInfoList == null)
             {
@@ -89,7 +88,6 @@ namespace Status.Services
 
             if (ProcessingDirectoryInfoList.Count > 0)
             {
-                currentProcessingJobsRun = true;
                 StaticClass.Log(logFile, "\nStarting unfinished Processing jobs...");
             }
             else
@@ -109,21 +107,14 @@ namespace Status.Services
                     // Create new Processing job Scan thread and run
                     CurrentProcessingJobsScanThread newProcessingJobsScanThread = new CurrentProcessingJobsScanThread();
                     newProcessingJobsScanThread.StartProcessingJob(directory, IniData, StatusData, Logger);
-                    currentProcessingJobsRun = true;
                 }
                 else
                 {
                     // Add currently unfinished job to Processing Jobs run list
                     StaticClass.NewProcessingJobsToRun.Add(job);
                 }
-
-                if (currentProcessingJobsRun)
-                {
-                    StaticClass.Log(logFile, "\nStarted unfinished Processing Job(s)...");
-                }
             }
 
-            // Flag that the Current Processing job(s) scan is complete
             StaticClass.CurrentProcessingJobScanComplete = true;
         }
 

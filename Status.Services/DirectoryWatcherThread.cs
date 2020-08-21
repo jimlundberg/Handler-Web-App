@@ -88,7 +88,6 @@ namespace Status.Services
                     string directory = IniData.InputDir + @"\" + job;
                     CurrentInputJobsScanThread newJobsScanThread = new CurrentInputJobsScanThread();
                     newJobsScanThread.StartInputJob(directory, IniData, StatusData, Logger);
-                 // Thread.Sleep(iniFileData.ScanTime);
                 }
             }
         }

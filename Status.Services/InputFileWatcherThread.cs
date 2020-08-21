@@ -122,7 +122,7 @@ namespace Status.Services
             // Input job file added
             StaticClass.Log(IniData.ProcessLogFile,
                 String.Format("\nInput File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
-                job, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
+                jobDirectory, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
 
             if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
@@ -145,10 +145,8 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            // Set Flag for ending directory scan loop
-            Console.WriteLine("InputFileWatcherThread received Tcp/Ip Scan Completed!");
-
-            StaticClass.InputFileScanComplete[job] = true;
+            Console.WriteLine(String.Format("*****InputFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
         }
 
         /// <summary>
@@ -196,6 +194,7 @@ namespace Status.Services
 
                 // Remove job started from the Input job list
                 StaticClass.NewInputJobsToRun.Remove(job);
+                StaticClass.NumberOfJobsExecuting--;
 
                 // Exiting thread message
                 StaticClass.Log(IniData.ProcessLogFile,

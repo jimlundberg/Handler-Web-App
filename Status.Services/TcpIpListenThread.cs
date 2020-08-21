@@ -168,8 +168,10 @@ namespace Status.Services
 
             try
             {
+                string job = monitorData.Job;
+
                 // Log Tcp/Ip monitoring entry
-                StatusDataEntry(statusData, monitorData.Job, iniData, JobStatus.MONITORING_TCPIP, JobType.TIME_START, iniData.StatusLogFile, logger);
+                StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_TCPIP, JobType.TIME_START, iniData.StatusLogFile, logger);
 
                 // Create a TcpClient.
                 // Note, for this client to work you need to have a TcpServer
@@ -201,7 +203,7 @@ namespace Status.Services
                     // Receive the TcpServer.response.
                     StaticClass.Log(iniData.ProcessLogFile,
                         String.Format("\nSending {0} msg to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                        message, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
+                        message, job, monitorData.JobPortNumber, DateTime.Now));
 
                     // Buffer to store the response bytes.
                     data = new Byte[256];
@@ -244,6 +246,7 @@ namespace Status.Services
                             StaticClass.Log(iniData.ProcessLogFile,
                                 String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                 responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
+                            StaticClass.TcpIpScanComplete[job] = true;
                             jobComplete = true;
                             return;
                         }
@@ -283,8 +286,6 @@ namespace Status.Services
                         // Check for job timeout
                         if ((DateTime.Now - monitorData.StartTime).TotalSeconds > iniData.MaxTimeLimit)
                         {
-                            string job = monitorData.Job;
-
                             StaticClass.Log(iniData.ProcessLogFile, String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}", job, DateTime.Now));
 
                             // Handle job timeout

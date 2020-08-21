@@ -90,12 +90,12 @@ namespace Status.Services
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void CheckForCurrentInputJobs(IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public static void CheckForCurrentInputJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            string logFile = iniFileData.ProcessLogFile;
+            string logFile = iniData.ProcessLogFile;
 
             // Register with the Old Jobs Processing class event and start its thread
-            CurrentProcessingJobsScanThread currentProcessingJobs = new CurrentProcessingJobsScanThread(IniData, StatusData, Logger);
+            CurrentProcessingJobsScanThread currentProcessingJobs = new CurrentProcessingJobsScanThread(iniData, statusData, logger);
             if (currentProcessingJobs == null)
             {
                 Logger.LogError("CurrentInputJobsScanThread oldJobs failed to instantiate");
@@ -112,7 +112,7 @@ namespace Status.Services
 
             StaticClass.Log(logFile, "\nChecking for unfinished Input Jobs...");
 
-            DirectoryInfo InputDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
+            DirectoryInfo InputDirectoryInfo = new DirectoryInfo(iniData.InputDir);
             if (InputDirectoryInfo == null)
             {
                 Logger.LogError("CurrentInputJobsScanThread InputDirectoryInfo failed to instantiate");
@@ -135,30 +135,23 @@ namespace Status.Services
             }
 
             // Start the jobs in the directory list found on initial scan of the Input Buffer
-            bool currentInputJobsRun = false;
             foreach (DirectoryInfo dir in InputDirectoryInfoList)
             {
                 // Get job name by clearing the Input Directory string
                 string job = dir.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
                 string directory = dir.ToString();
 
-                if (StaticClass.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
+                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
                     // Create new Input job Scan thread and run
                     CurrentInputJobsScanThread newInputJobsScanThread = new CurrentInputJobsScanThread();
                     newInputJobsScanThread.StartInputJob(directory, IniData, StatusData, Logger);
-                    Thread.Sleep(iniFileData.ScanTime);
-                    currentInputJobsRun = true;
+                    Thread.Sleep(iniData.ScanTime);
                 }
                 else
                 {
                     // Add currently unfinished job to Input Jobs run list
                     StaticClass.NewInputJobsToRun.Add(job);
-                }
-
-                if (currentInputJobsRun)
-                {
-                    StaticClass.Log(logFile, "\nStarted unfinished Input Job(s)...");
                 }
             }
 
@@ -243,6 +236,7 @@ namespace Status.Services
 
                 // Remove job after run thread launched
                 StaticClass.NewInputJobsToRun.Remove(job);
+                StaticClass.NumberOfJobsExecuting--;
 
                 // Cieck if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)
