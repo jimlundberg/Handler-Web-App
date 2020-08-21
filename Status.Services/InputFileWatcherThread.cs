@@ -66,9 +66,10 @@ namespace Status.Services
                 {
                     if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                     {
-                        // Run Input jobs currently waiting
+                        // Strt Input jobs currently waiting
                         for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
                         {
+                            StaticClass.CurrentInputJobsScanComplete = false;
                             string directory = iniData.InputDir + @"\" + StaticClass.NewInputJobsToRun[i];
                             CurrentInputJobsScanThread currentInputJobsScan = new CurrentInputJobsScanThread();
                             currentInputJobsScan.StartInputJobs(directory, iniData, statusData, logger);
@@ -190,6 +191,9 @@ namespace Status.Services
                     Thread.Sleep(250);
                 }
                 while (((StaticClass.InputFileScanComplete[job] == false)) && (StaticClass.ShutdownFlag == false));
+
+                // Remove job started from the Input job list
+                StaticClass.NewInputJobsToRun.Remove(job);
 
                 // Exiting thread message
                 StaticClass.Log(IniData.ProcessLogFile,

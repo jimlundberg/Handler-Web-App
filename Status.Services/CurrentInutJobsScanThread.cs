@@ -165,7 +165,7 @@ namespace Status.Services
                 }
                 else
                 {
-                    // Add unrun job to Input Jobs to run queue
+                    // Add currently unfinished job to Input Jobs run list
                     StaticClass.NewInputJobsToRun.Add(job);
                 }
 

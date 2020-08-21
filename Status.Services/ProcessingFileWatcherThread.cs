@@ -47,7 +47,7 @@ namespace Status.Services
             StaticClass.NumberOfProcessingFilesFound[Job] = ProcessingJobInfo.GetFiles().Length;
             StaticClass.NumberOfProcessingFilesNeeded[Job] = numberOfFilesNeeded;
             StaticClass.TcpIpScanComplete[Job] = false;
-            StaticClass.CurrentProcessingJobScanComplete = false;
+            StaticClass.ProcessingFileScanComplete[Job] = false;
 
             // Check for current unfinished job(s) in the Processing Buffer
             ProcessingsJobsReadyCheck(Job, iniData, statusData, logger);
@@ -63,15 +63,16 @@ namespace Status.Services
         public void ProcessingsJobsReadyCheck(string job, IniFileData iniData,
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            if ((StaticClass.TcpIpScanComplete[job] == true) && (StaticClass.CurrentProcessingJobScanComplete == true))
+            if (StaticClass.ProcessingFileScanComplete[job] == true)
             {
                 if (StaticClass.NewProcessingJobsToRun.Count > 0)
                 {
                     if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                     {
-                        // Run Processing jobs currently waiting
+                        // Start Processing jobs currently waiting
                         for (int i = 0; i < StaticClass.NewProcessingJobsToRun.Count; i++)
                         {
+                            StaticClass.CurrentProcessingJobScanComplete = false;
                             string directory = iniData.InputDir + @"\" + StaticClass.NewProcessingJobsToRun[i];
                             CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
                             currentProcessingJobsScan.StartProcessingJobs(directory, iniData, statusData, logger);
@@ -237,7 +238,10 @@ namespace Status.Services
                 {
                     Thread.Sleep(250);
                 }
-                while ((StaticClass.CurrentProcessingJobScanComplete == false) && (StaticClass.ShutdownFlag == false));
+                while ((StaticClass.ProcessingFileScanComplete[job] == false) && (StaticClass.ShutdownFlag == false));
+
+                // Remove job started from the Processing job list
+                StaticClass.NewProcessingJobsToRun.Remove(job);
 
                 // Wait for the TCP/IP Scan to Complete when the Modeler deposits the results in data.xml
                 bool foundOverallResultEntry = false;
