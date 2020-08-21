@@ -129,7 +129,7 @@ namespace Status.Services
             if (InputDirectoryInfoList.Count > 0)
             {
                 currentInputJobsFound = true;
-                StaticClass.Log(logFile, "\nStarting unfinished Input jobs...");
+                StaticClass.Log(logFile, "\nUnfinished Input Jobs waiting...");
             }
             else
             {
@@ -159,11 +159,7 @@ namespace Status.Services
                 currentInputJobsFound = true;
             }
 
-            if (InputDirectoryInfoList.Count() > 0)
-            {
-                StaticClass.Log(logFile, "\nUnfinished Input Jobs waiting...");
-            }
-            else if (currentInputJobsFound)
+            if (currentInputJobsFound)
             {
                 StaticClass.Log(logFile, "\nNo more unfinished Input Jobs...");
             }
