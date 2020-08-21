@@ -170,12 +170,28 @@ namespace Status.Services
             dirWatch.ProcessCompleted += newJob_DirectoryFound;
             dirWatch.ThreadProc();
 
-            // Wait while scanning for new jobs
+            // Wait forever while scanning for new jobs
             do
             {
+                if (StaticClass.NewInputJobsToRun.Count > 0)
+                {
+                    // Check if there are jobs waiting to run
+                    for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
+                    {
+                        if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                        {
+                            string job = StaticClass.NewInputJobsToRun[i];
+                            string directory = iniData.InputDir + @"\" + job;
+                            CurrentInputJobsScanThread newInputJobsScan = new CurrentInputJobsScanThread();
+                            newInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
+                            Thread.Sleep(iniData.ScanTime);
+                        }
+                    }
+                }
+
                 Thread.Sleep(250);
             }
-            while ((StaticClass.NewInputJobsToRun.Count > 0) && (StaticClass.ShutdownFlag == false));
+            while (StaticClass.ShutdownFlag == false);
         }
 
         /// <summary>
