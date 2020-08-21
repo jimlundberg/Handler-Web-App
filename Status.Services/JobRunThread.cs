@@ -340,6 +340,9 @@ namespace Status.Services
                 XmlDoc.Load(xmlFileName);
             }
 
+            // Add copy to archieve entry to status list
+            StatusDataEntry(statusData, Job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.StatusLogFile, logger);
+
             // Get the pass or fail data from the OverallResult node
             XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
             if (OverallResult != null)
