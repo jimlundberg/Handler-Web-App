@@ -2,6 +2,7 @@
 using StatusModels;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -116,6 +117,39 @@ namespace Status.Services
             statusList.Add(entry);
             StaticClass.Log(IniData.ProcessLogFile,
                 String.Format("Status: Job:{0} Job Status:{1}", job, status));
+        }
+
+        /// <summary>
+        /// Job timeout handler
+        /// </summary>
+        /// <param name="job"></param>
+        /// <param name="monitorData"></param>
+        /// <param name="iniData"></param>
+        /// <param name="logger"></param>
+        public static void TimeoutHandler(string job, IniFileData iniData, ILogger<StatusRepository> logger)
+        {
+            Console.WriteLine(String.Format("Timeout Handler for job {0}", job));
+
+            // Get job name from directory name
+            string processingBufferDirectory = iniData.ProcessingDir + @"\" + job;
+            string repositoryDirectory = iniData.RepositoryDir + @"\" + job;
+
+            // If the repository directory does not exist, create it
+            if (!Directory.Exists(repositoryDirectory))
+            {
+                Directory.CreateDirectory(repositoryDirectory);
+            }
+
+            // Move Processing Buffer Files to the Repository directory when failed
+            FileHandling.CopyFolderContents(processingBufferDirectory, repositoryDirectory, logger, true, true);
+
+            // If this job is from the new jobs to run list, remove it
+            if (StaticClass.NewInputJobsToRun.Contains(job))
+            {
+                StaticClass.NewInputJobsToRun.Remove(job);
+            }
+
+            StaticClass.NumberOfJobsExecuting--;
         }
 
         /// <summary>
@@ -257,8 +291,8 @@ namespace Status.Services
 
                             StaticClass.Log(iniData.ProcessLogFile, String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}", job, DateTime.Now));
 
-                            // Handle timeout
-                            StaticClass.TimeoutHandler(job, monitorData, iniData, logger);
+                            // Handle job timeout
+                            TimeoutHandler(job, iniData, logger);
 
                             // Create job Timeout status
                             StatusDataEntry(statusData, monitorData.Job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);

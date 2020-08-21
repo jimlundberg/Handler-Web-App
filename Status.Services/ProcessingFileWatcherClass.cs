@@ -47,7 +47,7 @@ namespace Status.Services
             StaticClass.NumberOfProcessingFilesFound[Job] = ProcessingJobInfo.GetFiles().Length;
             StaticClass.NumberOfProcessingFilesNeeded[Job] = numberOfFilesNeeded;
             StaticClass.TcpIpScanComplete[Job] = false;
-            StaticClass.ProcessingFileScanComplete = false;
+            StaticClass.CurrentProcessingJobScanComplete = false;
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Status.Services
                 {
                     // Signal the Job Run thread that TCP/IP scan is complete and all the Processing files were found
                     StaticClass.TcpIpScanComplete[job] = true;
-                    StaticClass.ProcessingFileScanComplete = true;
+                    StaticClass.CurrentProcessingJobScanComplete = true;
                 }
             }
         }
@@ -114,19 +114,19 @@ namespace Status.Services
         public void ProcessingJobReadyCheck(string job, IniFileData iniData,
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            if ((StaticClass.TcpIpScanComplete[job] == true) && (StaticClass.ProcessingFileScanComplete == true))
+            if ((StaticClass.TcpIpScanComplete[job] == true) && (StaticClass.CurrentProcessingJobScanComplete == true))
             {
-                if (StaticClass.NewInputJobsToRun.Count > 0)
+                if (StaticClass.NewProcessingJobsToRun.Count > 0)
                 {
                     if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                     {
-                        // Run new Input jobs waiting
+                        // Run Processing jobs currently waiting
                         for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
                         {
-                            string directory = iniData.InputDir + @"\" + StaticClass.NewInputJobsToRun[i];
-                            CurrentInputJobsScanThread newJobsScanThread = new CurrentInputJobsScanThread();
-                            newJobsScanThread.StartJob(directory, true, iniData, statusData, logger);
-                            StaticClass.NewInputJobsToRun.RemoveAt(i);
+                            string directory = iniData.InputDir + @"\" + StaticClass.NewProcessingJobsToRun[i];
+                            CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
+                            currentProcessingJobsScan.StartProcessingJobs(directory, iniData, statusData, logger);
+                            StaticClass.NewProcessingJobsToRun.RemoveAt(i);
                             Thread.Sleep(iniData.ScanTime);
                         }
                     }
@@ -207,7 +207,7 @@ namespace Status.Services
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
                 // Signal the Run thread that the Processing files were found
-                StaticClass.ProcessingFileScanComplete = true;
+                StaticClass.CurrentProcessingJobScanComplete = true;
             }
 
             // Create a new FileSystemWatcher and set its properties.

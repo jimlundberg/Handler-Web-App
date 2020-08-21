@@ -16,7 +16,6 @@ namespace Status.Services
         public static IniFileData IniData;
         public static StatusMonitorData MonitorData;
         public static List<StatusData> StatusData;
-        public static bool NewJobsFound = false;
         public static string DirectoryName;
         private static readonly Object xmlLock = new Object();
         ILogger<StatusRepository> Logger;
@@ -29,13 +28,21 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public JobRunThread(string directory, bool newJobsFound, IniFileData iniData, JobXmlData xmlData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public JobRunThread(DirectoryScanType scanType, IniFileData iniData, JobXmlData xmlData,
+            List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
-            NewJobsFound = newJobsFound;
             StatusData = statusData;
-            DirectoryName = directory;
             Logger = logger;
+
+            if (scanType == DirectoryScanType.INPUT_BUFFER)
+            {
+                DirectoryName = iniData.InputDir;
+            }
+            else if (scanType == DirectoryScanType.PROCESSING_BUFFER)
+            {
+                DirectoryName = iniData.ProcessingDir;
+            }
 
             MonitorData = new StatusMonitorData();
             MonitorData.Job = xmlData.Job;
@@ -51,7 +58,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            Thread thread = new Thread(() => RunJob(DirectoryName, NewJobsFound, IniData, MonitorData, StatusData, Logger));
+            Thread thread = new Thread(() => RunJob(DirectoryName, IniData, MonitorData, StatusData, Logger));
             thread.Start();
         }
 
@@ -64,10 +71,11 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            // Set Flag for ending file scan loop
             StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("Input_fileScan_FilesFound Received required number of files for {0}", 
-                    e.ToString()));
+                    String.Format("Input_fileScan_FilesFound Received required number of files for {0} at {1:HH:mm:ss.fff}", 
+                    job, DateTime.Now));
+
+            // Set Flag for ending file scan loop
             StaticClass.InputFileScanComplete[job] = false;
         }
 
@@ -78,12 +86,14 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void Processing_fileScan_FilesFound(object sender, EventArgs e)
         {
-            // Set Flag for ending file scan loop
-            StaticClass.Log(IniData.ProcessLogFile, 
-                String.Format("Processing_fileScan_FilesFound Received required number of files for {0}",
-                e.ToString()));
+            string job = e.ToString();
 
-            StaticClass.ProcessingFileScanComplete = false;
+            StaticClass.Log(IniData.ProcessLogFile, 
+                String.Format("Processing_fileScan_FilesFound Received required number of files for {0} at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
+
+            // Set Flag for ending file scan loop
+            StaticClass.CurrentProcessingJobScanComplete = false;
         }
 
         /// <summary>
@@ -113,7 +123,7 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void RunJob(string jobDirectory, bool runningNewJobs, IniFileData iniData, StatusMonitorData monitorData,
+        public static void RunJob(string jobDirectory, IniFileData iniData, StatusMonitorData monitorData,
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Increment number of jobs executing at beginning of job
@@ -203,36 +213,32 @@ namespace Status.Services
                 // Monitor the Input directory until it has the total number of consumed files
                 if (Directory.Exists(InputBufferJobDir))
                 {
-                    // Skip if this is a new job found not started
-                    if (runningNewJobs == false)
+                    Console.WriteLine("Starting File scan of Input for job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
+
+                    // Register with the File Watcher class event and start its thread
+                    InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(InputBufferJobDir,
+                        monitorData.NumFilesConsumed, iniData, monitorData, statusData, logger);
+                    if (inputFileWatch == null)
                     {
-                        Console.WriteLine("Starting File scan of Input for job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
-
-                        // Register with the File Watcher class event and start its thread
-                        InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(InputBufferJobDir,
-                            monitorData.NumFilesConsumed, iniData, monitorData, statusData, logger);
-                        if (inputFileWatch == null)
-                        {
-                            logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
-                        }
-                        inputFileWatch.ProcessCompleted += Input_fileScan_FilesFound;
-                        inputFileWatch.ThreadProc();
-
-                        // Wait for Input file scan to complete
-                        do
-                        {
-                            // If the shutdown flag is set, exit method
-                            if (StaticClass.ShutdownFlag == true)
-                            {
-                                logger.LogInformation("Shutdown RunJob for Modeler Job {0}", Job);
-                                return;
-                            }
-                            Thread.Sleep(250);
-                        }
-                        while (StaticClass.InputFileScanComplete[Job] == false) ;
-
-                        Console.WriteLine("Finished scan for Input files of job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
+                        logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
                     }
+                    inputFileWatch.ProcessCompleted += Input_fileScan_FilesFound;
+                    inputFileWatch.ThreadProc();
+
+                    // Wait for Input file scan to complete
+                    do
+                    {
+                        // If the shutdown flag is set, exit method
+                        if (StaticClass.ShutdownFlag == true)
+                        {
+                            logger.LogInformation("Shutdown RunJob for Modeler Job {0}", Job);
+                            return;
+                        }
+                        Thread.Sleep(250);
+                    }
+                    while (StaticClass.InputFileScanComplete[Job] == false) ;
+
+                    Console.WriteLine("Finished scan for Input files of job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
 
                     // Add entry to status list
                     StatusDataEntry(statusData, Job, iniData, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, iniData.StatusLogFile, logger);
@@ -293,7 +299,7 @@ namespace Status.Services
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
 
             // Register with the File Watcher class with an event and start its thread
-            StaticClass.ProcessingFileScanComplete = false;
+            StaticClass.CurrentProcessingJobScanComplete = false;
             string processingBufferJobDir = iniData.ProcessingDir + @"\" + MonitorData.Job;
             ProcessingFileWatcherThread ProcessingFileWatch = new ProcessingFileWatcherThread(processingBufferJobDir,
                 monitorData.NumFilesConsumed + monitorData.NumFilesProduced, 
@@ -310,7 +316,7 @@ namespace Status.Services
             {
                 Thread.Sleep(250);
             }
-            while (((StaticClass.ProcessingFileScanComplete == false) ||
+            while (((StaticClass.CurrentProcessingJobScanComplete == false) ||
                     (StaticClass.TcpIpScanComplete[Job] == false)) &&
                     (StaticClass.ShutdownFlag == false));
 
