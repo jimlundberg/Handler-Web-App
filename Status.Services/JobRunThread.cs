@@ -318,13 +318,8 @@ namespace Status.Services
                     (StaticClass.TcpIpScanComplete[Job] == false)) &&
                     (StaticClass.ShutdownFlag == false));
 
-            // Add copy to archieve entry to status list
-            StatusDataEntry(statusData, Job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.StatusLogFile, logger);
-
-            // Check .Xml output file for pass/fail
-            bool XmlFileFound = false;
-
             // Check for Data.xml in the Processing Directory
+            bool XmlFileFound = false;
             do
             {
                 String[] files = Directory.GetFiles(ProcessingBufferJobDir, "Data.xml");
@@ -334,15 +329,9 @@ namespace Status.Services
                     XmlFileFound = true;
                 }
 
-                if (StaticClass.ShutdownFlag == true)
-                {
-                    logger.LogInformation("Shutdown RunJob Scanning xml Job {0}", Job);
-                    return;
-                }
-
                 Thread.Sleep(250);
             }
-            while (XmlFileFound == false);
+            while ((XmlFileFound == false) && (StaticClass.ShutdownFlag == false));
 
             lock (xmlLock)
             {
