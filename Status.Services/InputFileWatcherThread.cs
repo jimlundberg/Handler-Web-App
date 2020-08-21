@@ -111,7 +111,8 @@ namespace Status.Services
 
             // Set Flag for ending directory scan loop
             Console.WriteLine("InputFileWatcherThread received Tcp/Ip Scan Completed!");
-            StaticClass.InputFileScanComplete[Job] = true;
+
+            StaticClass.InputFileScanComplete[job] = true;
         }
 
         /// <summary>
@@ -124,10 +125,10 @@ namespace Status.Services
             // Get job name from directory name
             string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
 
-            if (StaticClass.NumberOfInputFilesFound[Job] == StaticClass.NumberOfInputFilesNeeded[job])
+            if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
                 // Signal the Run thread that the Input files were found
-                StaticClass.InputFileScanComplete[Job] = true;
+                StaticClass.InputFileScanComplete[job] = true;
                 return;
             }
 
@@ -147,19 +148,20 @@ namespace Status.Services
                 // Begin watching for changes to input directory
                 watcher.EnableRaisingEvents = true;
 
-                Console.WriteLine("InputFileWatcherThread watching {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now);
+                Console.WriteLine("InputFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
+                    directory, DateTime.Now);
 
-                // Check for changes
+                // Wait for Input file Scan to Complete with enough files to start job
                 do
                 {
                     Thread.Sleep(250);
                 }
-                while (((StaticClass.InputFileScanComplete[Job] == false)) && (StaticClass.ShutdownFlag == false));
+                while (((StaticClass.InputFileScanComplete[job] == false)) && (StaticClass.ShutdownFlag == false));
 
                 // Exiting thread message
                 StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("Exiting InputFileWatcherThread scan of dir {0} with ExitInputFileScan={1} and ShutdownFlag={2}",
-                    directory, StaticClass.InputFileScanComplete[Job], StaticClass.ShutdownFlag));
+                    String.Format("InputFileWatcherThread exit of scan of {0} with InputFileScanComplete={1} and ShutdownFlag={2} at at {1:HH:mm:ss.fff}",
+                    directory, StaticClass.InputFileScanComplete[job], StaticClass.ShutdownFlag, DateTime.Now));
             }
         }
     }

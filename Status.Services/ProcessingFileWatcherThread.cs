@@ -229,13 +229,21 @@ namespace Status.Services
                 Console.WriteLine("ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}", 
                     directory, DateTime.Now);
 
-                // Wait for the TCP/IP Scan and Processing File Watching to Complete
+                // Wait for Processing file scan to Complete with a full set of job output files
                 do
                 {
-
                     Thread.Sleep(250);
                 }
-                while ((OverallResultEntryCheck(directory) == false) && (StaticClass.ShutdownFlag == false));
+                while ((StaticClass.CurrentProcessingJobScanComplete == false) && (StaticClass.ShutdownFlag == false));
+
+                // Wait for the TCP/IP Scan to Complete when the Modeler deposits the results in data.xml
+                bool foundOverallResultEntry = false;
+                do
+                {
+                    foundOverallResultEntry = OverallResultEntryCheck(directory);
+                    Thread.Sleep(250);
+                }
+                while ((foundOverallResultEntry == false) && (StaticClass.ShutdownFlag == false));
 
                 // Exiting thread message
                 StaticClass.Log(IniData.ProcessLogFile,
