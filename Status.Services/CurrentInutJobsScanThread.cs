@@ -119,7 +119,6 @@ namespace Status.Services
             }
 
             // Get the current list of directories from the Input Buffer
-            bool currentInputJobsFound = false;
             List<DirectoryInfo> InputDirectoryInfoList = InputDirectoryInfo.EnumerateDirectories().ToList();
             if (InputDirectoryInfoList == null)
             {
@@ -128,7 +127,6 @@ namespace Status.Services
 
             if (InputDirectoryInfoList.Count > 0)
             {
-                currentInputJobsFound = true;
                 StaticClass.Log(logFile, "\nUnfinished Input Jobs waiting...");
             }
             else
@@ -137,6 +135,7 @@ namespace Status.Services
             }
 
             // Start the jobs in the directory list found on initial scan of the Input Buffer
+            bool currentInputJobsRun = false;
             foreach (DirectoryInfo dir in InputDirectoryInfoList)
             {
                 // Get job name by clearing the Input Directory string
@@ -149,6 +148,7 @@ namespace Status.Services
                     CurrentInputJobsScanThread newInputJobsScanThread = new CurrentInputJobsScanThread();
                     newInputJobsScanThread.StartInputJob(directory, IniData, StatusData, Logger);
                     Thread.Sleep(iniFileData.ScanTime);
+                    currentInputJobsRun = true;
                 }
                 else
                 {
@@ -156,12 +156,10 @@ namespace Status.Services
                     StaticClass.NewInputJobsToRun.Add(job);
                 }
 
-                currentInputJobsFound = true;
-            }
-
-            if (currentInputJobsFound)
-            {
-                StaticClass.Log(logFile, "\nNo more unfinished Input Jobs...");
+                if (currentInputJobsRun)
+                {
+                    StaticClass.Log(logFile, "\nStarted unfinished Input Job(s)...");
+                }
             }
 
             // Flag that the Current Input job(s) scan is complete
