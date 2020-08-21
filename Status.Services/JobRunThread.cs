@@ -93,7 +93,7 @@ namespace Status.Services
                 job, DateTime.Now));
 
             // Set Flag for ending file scan loop
-            StaticClass.CurrentProcessingJobScanComplete = false;
+            StaticClass.CurrentProcessingJobScanComplete = true;
         }
 
         /// <summary>
@@ -416,12 +416,6 @@ namespace Status.Services
 
             // Decrement the number of jobs executing after one completes
             StaticClass.NumberOfJobsExecuting--;
-
-            // If this job is from the new jobs to run list, remove it
-            if (StaticClass.NewInputJobsToRun.Contains(Job))
-            {
-                StaticClass.NewInputJobsToRun.Remove(Job);
-            }
 
             StaticClass.Log(iniData.ProcessLogFile, String.Format("Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
                 monitorData.Job, StaticClass.NumberOfJobsExecuting, DateTime.Now));

@@ -69,13 +69,13 @@ namespace Status.Services
                         // Strt Input jobs currently waiting
                         for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
                         {
-                            StaticClass.CurrentInputJobsScanComplete = false;
                             string directory = iniData.InputDir + @"\" + StaticClass.NewInputJobsToRun[i];
                             CurrentInputJobsScanThread currentInputJobsScan = new CurrentInputJobsScanThread();
-                            currentInputJobsScan.StartInputJobs(directory, iniData, statusData, logger);
-                            StaticClass.NewInputJobsToRun.RemoveAt(i);
+                            currentInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
                             Thread.Sleep(iniData.ScanTime);
                         }
+
+                        StaticClass.CurrentInputJobsScanComplete = true;
                     }
                 }
             }

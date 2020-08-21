@@ -94,8 +94,6 @@ namespace Status.Services
         {
             string logFile = iniFileData.ProcessLogFile;
 
-            StaticClass.Log(logFile, "\nChecking for unfinished Input Jobs...");
-
             // Register with the Old Jobs Processing class event and start its thread
             CurrentProcessingJobsScanThread currentProcessingJobs = new CurrentProcessingJobsScanThread(IniData, StatusData, Logger);
             if (currentProcessingJobs == null)
@@ -110,39 +108,28 @@ namespace Status.Services
             {
                 Thread.Sleep(250);
             }
-            while ((StaticClass.CurrentInputJobsScanComplete == false) && (StaticClass.ShutdownFlag == false));
+            while ((StaticClass.CurrentProcessingJobScanComplete == false) && (StaticClass.ShutdownFlag == false));
 
             StaticClass.Log(logFile, "\nChecking for unfinished Input Jobs...");
 
-            StatusModels.JobXmlData jobXmlData = new StatusModels.JobXmlData();
-            if (jobXmlData == null)
+            DirectoryInfo InputDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
+            if (InputDirectoryInfo == null)
             {
-                Logger.LogError("CurrentInputJobsScanThread jobXmlDatafailed failed to instantiate");
+                Logger.LogError("CurrentInputJobsScanThread InputDirectoryInfo failed to instantiate");
             }
 
-            List<DirectoryInfo> runDirectoryInfoList = new List<DirectoryInfo>();
-            if (runDirectoryInfoList == null)
-            {
-                Logger.LogError("CurrentInputJobsScanThread runDirectoryInfoList failed to instantiate");
-            }
-            List<String> runDirectoryList = new List<String>();
-            if (runDirectoryList == null)
-            {
-                Logger.LogError("CurrentInputJobsScanThread runDirectoryList failed to instantiate");
-            }
-            DirectoryInfo runDirectoryInfo = new DirectoryInfo(iniFileData.InputDir);
-            if (runDirectoryInfo == null)
-            {
-                Logger.LogError("CurrentInputJobsScanThread runDirectoryInfo failed to instantiate");
-            }
-
-            // Get the list of directories from the Input Buffer
+            // Get the current list of directories from the Input Buffer
             bool currentInputJobsFound = false;
-            runDirectoryInfoList = runDirectoryInfo.EnumerateDirectories().ToList();
-            if (runDirectoryInfoList.Count > 0)
+            List<DirectoryInfo> InputDirectoryInfoList = InputDirectoryInfo.EnumerateDirectories().ToList();
+            if (InputDirectoryInfoList == null)
+            {
+                Logger.LogError("CurrentInputJobsScanThread InputDirectoryInfoList failed to instantiate");
+            }
+
+            if (InputDirectoryInfoList.Count > 0)
             {
                 currentInputJobsFound = true;
-                StaticClass.Log(logFile, "\nProcesssing unfinished Input jobs...");
+                StaticClass.Log(logFile, "\nStarting unfinished Input jobs...");
             }
             else
             {
@@ -150,7 +137,7 @@ namespace Status.Services
             }
 
             // Start the jobs in the directory list found on initial scan of the Input Buffer
-            foreach (var dir in runDirectoryInfoList)
+            foreach (var dir in InputDirectoryInfoList)
             {
                 // Get job name by clearing the Input Directory string
                 string job = dir.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
@@ -160,7 +147,7 @@ namespace Status.Services
                 {
                     // Create new Input job Scan thread and run
                     CurrentInputJobsScanThread newInputJobsScanThread = new CurrentInputJobsScanThread();
-                    newInputJobsScanThread.StartInputJobs(directory, IniData, StatusData, Logger);
+                    newInputJobsScanThread.StartInputJob(directory, IniData, StatusData, Logger);
                     Thread.Sleep(iniFileData.ScanTime);
                 }
                 else
@@ -172,7 +159,7 @@ namespace Status.Services
                 currentInputJobsFound = true;
             }
 
-            if (runDirectoryInfoList.Count() > 0)
+            if (InputDirectoryInfoList.Count() > 0)
             {
                 StaticClass.Log(logFile, "\nUnfinished Input Jobs waiting...");
             }
@@ -180,6 +167,9 @@ namespace Status.Services
             {
                 StaticClass.Log(logFile, "\nNo more unfinished Input Jobs...");
             }
+
+            // Flag that the Current Input job(s) scan is complete
+            StaticClass.CurrentInputJobsScanComplete = true;
 
             StaticClass.Log(logFile, "\nWatching for new Input Jobs...");
 
@@ -198,10 +188,10 @@ namespace Status.Services
             {
                 Thread.Sleep(250);
             }
-            while ((StaticClass.NewInputJobsToRun.Count == 0) && (StaticClass.ShutdownFlag == false));
+            while ((StaticClass.NewInputJobsToRun.Count > 0) && (StaticClass.ShutdownFlag == false));
 
-            // Exit thread
-            StaticClass.Log(logFile, String.Format("Exiting Current Input Job Scan at {0:HH:mm:ss.fff}", DateTime.Now));
+            // Exit Input job scan
+            StaticClass.Log(logFile, String.Format("Exiting unfinished Input Job Scan at {0:HH:mm:ss.fff}", DateTime.Now));
         }
 
         /// <summary>
@@ -211,7 +201,7 @@ namespace Status.Services
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public void StartInputJobs(string directory, IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public void StartInputJob(string directory, IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Get job name from directory name
             string logFile = iniFileData.ProcessLogFile;
@@ -241,17 +231,17 @@ namespace Status.Services
                 xmlData.XmlFileName = jobXmlData.XmlFileName;
 
                 // Display xmlData found
-                StaticClass.Log(logFile, " ");
+                StaticClass.Log(logFile, "");
                 StaticClass.Log(logFile, "Found Input Job       = " + xmlData.Job);
                 StaticClass.Log(logFile, "New Job directory     = " + xmlData.JobDirectory);
                 StaticClass.Log(logFile, "New Serial Number     = " + xmlData.JobSerialNumber);
                 StaticClass.Log(logFile, "New Time Stamp        = " + xmlData.TimeStamp);
                 StaticClass.Log(logFile, "New Job Xml File      = " + xmlData.XmlFileName);
 
-                StaticClass.Log(logFile, String.Format("Job {0} started executing slot {1} at {2:HH:mm:ss.fff}",
+                StaticClass.Log(logFile, String.Format("Started Input Job {0} executing slot {1} at {2:HH:mm:ss.fff}",
                     xmlData.Job, StaticClass.NumberOfJobsExecuting, DateTime.Now));
 
-                // Create a thread to execute the job, and start it
+                // Create a thread to run the job, and then start the thread
                 JobRunThread thread = new JobRunThread(DirectoryScanType.INPUT_BUFFER,
                     iniFileData, xmlData, statusData, logger);
                 if (thread == null)
@@ -266,20 +256,14 @@ namespace Status.Services
                     logger.LogInformation("CurrentInputJobsScanThread Shutdown of job {0}", job);
                     return;
                 }
-
-                // Remove this job from the Input Job list
-                StaticClass.NewInputJobsToRun.Remove(job);
-                Thread.Sleep(iniFileData.ScanTime);
             }
             else
             {
-                // Add new job to the Input Job list
+                // Add jobs over execution limit to the Input Job list
                 StaticClass.NewInputJobsToRun.Add(job);
-                Thread.Sleep(iniFileData.ScanTime);
             }
 
-            // Flag that the Input Scan is complete
-            StaticClass.CurrentInputJobsScanComplete = true;
+            Thread.Sleep(iniFileData.ScanTime);
         }
     }
 }

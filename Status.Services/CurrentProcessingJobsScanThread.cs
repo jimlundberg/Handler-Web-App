@@ -73,45 +73,72 @@ namespace Status.Services
 
             StaticClass.Log(logFile, "\nChecking for unfinished Processing Jobs...");
 
-            // Get new Processing directory list of directories
-            var runDirectoryInfo = new DirectoryInfo(iniFileData.ProcessingDir);
-            if (runDirectoryInfo == null)
+            DirectoryInfo ProcessingDirectoryInfo = new DirectoryInfo(iniFileData.ProcessingDir);
+            if (ProcessingDirectoryInfo == null)
             {
-                Logger.LogError("CurrentProcessingJobsScanThread runDirectoryInfo failed to instantiate");
+                Logger.LogError("CurrentProcessingJobsScanThread ProcessingDirectoryInfo failed to instantiate");
             }
 
-            var newDirectoryInfoList = runDirectoryInfo.EnumerateDirectories().ToList();
-            foreach (var dir in newDirectoryInfoList)
+            // Get the current list of directories from the Processing Buffer
+            bool currentProcessingJobsFound = false;
+            List<DirectoryInfo> ProcessingDirectoryInfoList = ProcessingDirectoryInfo.EnumerateDirectories().ToList();
+            if (ProcessingDirectoryInfoList == null)
             {
-                StaticClass.NewProcessingJobsToRun.Add(dir.ToString());
+                Logger.LogError("CurrentProcessingJobsScanThread ProcessingDirectoryInfoList failed to instantiate");
             }
 
-            // Look for run directory list contents
-            if (StaticClass.NewProcessingJobsToRun.Count() == 0)
+            if (ProcessingDirectoryInfoList.Count > 0)
             {
-                StaticClass.Log(logFile, "\nNo unfinished Processing jobs found...");
-                StaticClass.CurrentProcessingJobScanComplete = true;
-                return;
+                currentProcessingJobsFound = true;
+                StaticClass.Log(logFile, "\nStarting unfinished Processing jobs...");
+            }
+            else
+            {
+                StaticClass.Log(logFile, "\nNo unfinished Processing Jobs Found...");
             }
 
-            StaticClass.Log(logFile, "\nFound unfinished Processing job(s)...");
-
-            // Start as many current Processing directory Job(s) as possible
-            foreach (var dir in StaticClass.NewProcessingJobsToRun)
+            // Start the jobs in the directory list found on initial scan of the Processing Buffer
+            foreach (var dir in ProcessingDirectoryInfoList)
             {
-                StartProcessingJobs(dir.ToString(), iniFileData, statusData, logger);
+                // Get job name by clearing the Processing Directory string
+                string job = dir.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
+                string directory = dir.ToString();
+
+                if (StaticClass.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
+                {
+                    // Create new Processing job Scan thread and run
+                    CurrentProcessingJobsScanThread newProcessingJobsScanThread = new CurrentProcessingJobsScanThread();
+                    newProcessingJobsScanThread.StartProcessingJob(directory, IniData, StatusData, Logger);
+                }
+                else
+                {
+                    // Add currently unfinished job to Processing Jobs run list
+                    StaticClass.NewProcessingJobsToRun.Add(job);
+                }
+
+                currentProcessingJobsFound = true;
             }
 
-            StaticClass.Log(IniData.ProcessLogFile, "\nDone with current Processing jobs Found...");
+            if (currentProcessingJobsFound)
+            {
+                StaticClass.Log(logFile, "\nNo more unfinished Processing Jobs...");
+            }
+
+            // Flag that the Current Processing job(s) scan is complete
+            StaticClass.CurrentProcessingJobScanComplete = true;
+
+            // Exit Processing job scan
+            StaticClass.Log(logFile, String.Format("Exiting unfinished Processing Job Scan at {0:HH:mm:ss.fff}", DateTime.Now));
         }
 
         /// <summary>
         /// Start a processing directory job
         /// </summary>
+        /// <param name="directory"></param>
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public void StartProcessingJobs(string directory, IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public void StartProcessingJob(string directory, IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             string logFile = iniFileData.ProcessLogFile;
             string job = directory.Replace(iniFileData.ProcessingDir, "").Remove(0, 1);
@@ -160,7 +187,7 @@ namespace Status.Services
                 StaticClass.Log(logFile, String.Format("Starting Processing directory Job {0} Executing slot {1} at {2:HH:mm:ss.fff}",
                     xmlData.Job, StaticClass.NumberOfJobsExecuting, DateTime.Now));
 
-                // Create a thread to execute the task, and then start the thread.
+                // Create a thread to run the job, and then start the thread
                 JobRunThread thread = new JobRunThread(DirectoryScanType.PROCESSING_BUFFER,
                     iniFileData, xmlData, statusData, logger);
                 if (thread == null)
@@ -175,20 +202,14 @@ namespace Status.Services
                     logger.LogInformation("CurrentProcessingJobsScanThread Shutdown of job {0}", xmlData.Job);
                     return;
                 }
-
-                // Remove this job from the Processing Job list
-                StaticClass.NewProcessingJobsToRun.Remove(job);
-                Thread.Sleep(iniFileData.ScanTime);
             }
             else
             {
-                // Add new job to the Processing Job list
+                // Add jobs over execution limit to the Processing Job list
                 StaticClass.NewProcessingJobsToRun.Add(job);
-                Thread.Sleep(iniFileData.ScanTime);
             }
 
-            // Flag that the Processing Scan is complete
-            StaticClass.CurrentProcessingJobScanComplete = true;
+            Thread.Sleep(iniFileData.ScanTime);
         }
     }
 }

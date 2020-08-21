@@ -42,51 +42,5 @@ namespace Status.Services
 			log.WriteToLogFile(msg);
 			Console.WriteLine(msg);
 		}
-
-		/// <summary>
-		/// Check for if new jobs are waiting in either the Input or Processing dir and run them if they are
-		/// </summary>
-		/// <param name="scanType"></param>
-		/// <param name="iniData"></param>
-		/// <param name="statusData"></param>
-		/// <param name="logger"></param>
-		public static void NewJobsWaitingCheck(DirectoryScanType scanType, IniFileData iniData,
-			List<StatusData> statusData, ILogger<StatusRepository> logger)
-		{
-			// Run new Input jobs if found in the list
-			if (StaticClass.NewInputJobsToRun.Count > 0)
-			{
-				for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
-				{
-					if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
-					{
-						if (scanType == DirectoryScanType.INPUT_BUFFER)
-                        {
-							string directory = iniData.InputDir + @"\" + StaticClass.NewInputJobsToRun[i];
-							CurrentInputJobsScanThread currentInputJobsScanThread = new CurrentInputJobsScanThread();
-							currentInputJobsScanThread.StartInputJobs(directory, iniData, statusData, logger);
-						}
-						else if (scanType == DirectoryScanType.PROCESSING_BUFFER)
-                        {
-							string directory = iniData.ProcessingDir + @"\" + StaticClass.NewProcessingJobsToRun[i];
-							CurrentProcessingJobsScanThread currentProcessingJobsScanThread = new CurrentProcessingJobsScanThread();
-							currentProcessingJobsScanThread.StartProcessingJobs(directory, iniData, statusData, logger);
-						}
-
-						// Remove job from Input List
-						if (scanType == DirectoryScanType.INPUT_BUFFER)
-						{
-							StaticClass.NewInputJobsToRun.RemoveAt(i);
-						}
-						else if (scanType == DirectoryScanType.PROCESSING_BUFFER)
-						{
-							StaticClass.NewProcessingJobsToRun.RemoveAt(i);
-						}
-
-						Thread.Sleep(iniData.ScanTime);
-					}
-				}
-			}
-		}
 	}
 }
