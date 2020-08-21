@@ -45,6 +45,39 @@ namespace Status.Services
             StaticClass.NumberOfInputFilesFound[Job] = InputJobInfo.GetFiles().Length;
             StaticClass.NumberOfInputFilesNeeded[Job] = numberOfFilesNeeded;
             StaticClass.InputFileScanComplete[Job] = false;
+
+            // Check for current unfinished job(s) in the Input Buffer
+            InputJobsReadyCheck(Job, iniData, statusData, logger);
+        }
+
+        /// <summary>
+        /// Check if unfinished Input Jobs jobs are currently waiting to run
+        /// </summary>
+        /// <param name="job"></param>
+        /// <param name="iniData"></param>
+        /// <param name="statusData"></param>
+        /// <param name="logger"></param>
+        public void InputJobsReadyCheck(string job, IniFileData iniData,
+            List<StatusData> statusData, ILogger<StatusRepository> logger)
+        {
+            if (StaticClass.CurrentInputJobsScanComplete == true)
+            {
+                if (StaticClass.NewInputJobsToRun.Count > 0)
+                {
+                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                    {
+                        // Run Input jobs currently waiting
+                        for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
+                        {
+                            string directory = iniData.InputDir + @"\" + StaticClass.NewInputJobsToRun[i];
+                            CurrentInputJobsScanThread currentInputJobsScan = new CurrentInputJobsScanThread();
+                            currentInputJobsScan.StartInputJobs(directory, iniData, statusData, logger);
+                            StaticClass.NewInputJobsToRun.RemoveAt(i);
+                            Thread.Sleep(iniData.ScanTime);
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
