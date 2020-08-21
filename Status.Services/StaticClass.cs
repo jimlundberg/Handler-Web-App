@@ -1,16 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
-using StatusModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Threading;
+using System.Diagnostics;
 
 namespace Status.Services
 {
-	/// <summary>
-	/// Static Data with global access
-	/// </summary>
-	public static class StaticClass
+    /// <summary>
+    /// Static Data with global access
+    /// </summary>
+    public static class StaticClass
 	{
 		public static int NumberOfJobsExecuting = 0;
 		public static int RunningJobsIndex = 0;
@@ -40,7 +37,7 @@ namespace Status.Services
 		{
 			LoggingToFile log = new LoggingToFile(logFile);
 			log.WriteToLogFile(msg);
-			Console.WriteLine(msg);
+			Debug.WriteLine(msg);
 		}
 	}
 }

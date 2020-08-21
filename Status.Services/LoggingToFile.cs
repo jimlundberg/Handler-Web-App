@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Diagnostics;
 
 namespace Status.Services
 {
@@ -50,7 +51,7 @@ namespace Status.Services
 
             if (tooBig)
             {
-                Console.WriteLine("Process log file too big. Reducing 10%");
+                Debug.WriteLine("Process log file too big. Reducing 10%");
                 lock (fileLock)
                 {
                     // Remove old data from log file
@@ -119,7 +120,7 @@ namespace Status.Services
             {
                 while ((line = reader.ReadLine()) != null)
                 {
-                    Console.WriteLine(line);
+                    Debug.WriteLine(line);
                 }
             }
         }

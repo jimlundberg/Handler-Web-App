@@ -128,7 +128,8 @@ namespace Status.Services
         /// <param name="logger"></param>
         public static void TimeoutHandler(string job, IniFileData iniData, ILogger<StatusRepository> logger)
         {
-            Console.WriteLine(String.Format("Timeout Handler for job {0}", job));
+            // Log job timeout
+            StaticClass.Log(iniData.ProcessLogFile, String.Format("Timeout Handler for job {0}", job));
 
             // Get job name from directory name
             string processingBufferDirectory = iniData.ProcessingDir + @"\" + job;
@@ -162,8 +163,8 @@ namespace Status.Services
             // Wait about a minute for the Modeler to start execution
             Thread.Sleep(iniData.ScanTime * 12);
 
-            Console.WriteLine("\nStarting Tcp/Ip Scan for job {0} on port {1} at {2:HH:mm:ss.fff}",
-                monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
+            StaticClass.Log(IniData.ProcessLogFile, String.Format("\nStarting Tcp/Ip Scan for job {0} on port {1} at {2:HH:mm:ss.fff}",
+                monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
 
             try
             {
@@ -226,13 +227,13 @@ namespace Status.Services
                             }
                             catch (Exception e)
                             {
-                                Console.WriteLine(String.Format("Tcp/Ip Read failed with error {0}", e.ToString()));
-                            }
+                                logger.LogWarning(String.Format("Tcp/Ip Read failed with error {0}", e));
 
-                            if (i == 4)
-                            {
-                                Console.WriteLine("Tcp/Ip Connection Timeout after 5 tries");
-                                return;
+                                if (i == 4)
+                                {
+                                    logger.LogError(String.Format("Tcp/Ip Connection Timeout after 5 tries {0}", e));
+                                    return;
+                                }
                             }
 
                             Thread.Sleep(IniData.ScanTime);
@@ -282,7 +283,7 @@ namespace Status.Services
                                 break;
 
                             default:
-                                logger.LogWarning("Received Weird Response: {0} from Job {1} on port {2} at {32qw111:mm:ss.fff}",
+                                logger.LogWarning("Received Weird Response: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now);
                                 break;
                         }
@@ -322,7 +323,7 @@ namespace Status.Services
 
                 StaticClass.Log(iniData.ProcessLogFile,
                     String.Format("Completed TCP/IP Scan of Job {0} at {1:HH:mm:ss.fff}",
-                        monitorData.Job, DateTime.Now));
+                    monitorData.Job, DateTime.Now));
             }
             catch (ArgumentNullException e)
             {

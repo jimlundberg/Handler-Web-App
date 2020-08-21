@@ -2,6 +2,7 @@
 using StatusModels;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Security.Permissions;
 using System.Threading;
@@ -182,8 +183,8 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            // Set Flag for ending directory scan loop
-            Console.WriteLine(String.Format("*****ProcessingFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}", 
+            StaticClass.Log(IniData.ProcessLogFile,
+                String.Format("*****ProcessingFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -228,8 +229,9 @@ namespace Status.Services
                 // Begin watching for changes to input directory
                 watcher.EnableRaisingEvents = true;
 
-                Console.WriteLine("ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}", 
-                    directory, DateTime.Now);
+                StaticClass.Log(IniData.ProcessLogFile,
+                    String.Format("ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
+                    directory, DateTime.Now));
 
                 // Wait for Processing file scan to Complete with a full set of job output files
                 do

@@ -145,8 +145,9 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            Console.WriteLine(String.Format("*****InputFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
+            StaticClass.Log(IniData.ProcessLogFile,
+                String.Format(String.Format("InputFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
+                job, DateTime.Now)));
         }
 
         /// <summary>
@@ -182,8 +183,10 @@ namespace Status.Services
                 // Begin watching for changes to input directory
                 watcher.EnableRaisingEvents = true;
 
-                Console.WriteLine("InputFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
-                    directory, DateTime.Now);
+                // Exiting thread message
+                StaticClass.Log(IniData.ProcessLogFile,
+                    String.Format("InputFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
+                    directory, DateTime.Now));
 
                 // Wait for Input file Scan to Complete with enough files to start job
                 do

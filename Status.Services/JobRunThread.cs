@@ -213,7 +213,9 @@ namespace Status.Services
                 // Monitor the Input directory until it has the total number of consumed files
                 if (Directory.Exists(InputBufferJobDir))
                 {
-                    Console.WriteLine("Starting File scan of Input for job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
+                    StaticClass.Log(IniData.ProcessLogFile,
+                        String.Format("Starting File scan of Input for job {0} at {1:HH:mm:ss.fff}",
+                        InputBufferJobDir, DateTime.Now));
 
                     // Register with the File Watcher class event and start its thread
                     InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(InputBufferJobDir,
@@ -238,7 +240,7 @@ namespace Status.Services
                     }
                     while (StaticClass.InputFileScanComplete[Job] == false) ;
 
-                    StaticClass.Log(IniData.ProcessLogFile, 
+                    StaticClass.Log(IniData.ProcessLogFile,
                         String.Format("Finished scan for Input files of job {0} at {1:HH:mm:ss.fff}",
                         InputBufferJobDir, DateTime.Now));
 
