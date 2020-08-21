@@ -143,12 +143,8 @@ namespace Status.Services
             // Move Processing Buffer Files to the Repository directory when failed
             FileHandling.CopyFolderContents(processingBufferDirectory, repositoryDirectory, logger, true, true);
 
-            // If this job is from the new jobs to run list, remove it
-            if (StaticClass.NewInputJobsToRun.Contains(job))
-            {
-                StaticClass.NewInputJobsToRun.Remove(job);
-            }
-
+            // Remove job from Input jobs to run list and decrement execution count
+            StaticClass.NewInputJobsToRun.Remove(job);
             StaticClass.NumberOfJobsExecuting--;
         }
 

@@ -238,9 +238,11 @@ namespace Status.Services
                     }
                     while (StaticClass.InputFileScanComplete[Job] == false) ;
 
-                    Console.WriteLine("Finished scan for Input files of job {0} at {1:HH:mm:ss.fff}", InputBufferJobDir, DateTime.Now);
+                    StaticClass.Log(IniData.ProcessLogFile, 
+                        String.Format("Finished scan for Input files of job {0} at {1:HH:mm:ss.fff}",
+                        InputBufferJobDir, DateTime.Now));
 
-                    // Add entry to status list
+                    // Add copying entry to status list
                     StatusDataEntry(statusData, Job, iniData, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, iniData.StatusLogFile, logger);
 
                     // Move files from Input directory to the Processing directory, creating it first if needed

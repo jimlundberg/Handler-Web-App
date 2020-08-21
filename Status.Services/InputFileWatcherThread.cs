@@ -112,25 +112,22 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void OnCreated(object source, FileSystemEventArgs e)
         {
-            if (e.ChangeType == WatcherChangeTypes.Created)
+            // Get job name from directory name
+            string jobDirectory = e.FullPath;
+            string jobFile = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
+            string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
+
+            StaticClass.NumberOfInputFilesFound[job]++;
+
+            // Input job file added
+            StaticClass.Log(IniData.ProcessLogFile,
+                String.Format("\nInput File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
+                e.FullPath, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
+
+            if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
-                // Get job name from directory name
-                string jobDirectory = e.FullPath;
-                string jobFile = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
-                string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
-
-                StaticClass.NumberOfInputFilesFound[job]++;
-
-                // Input job file added
-                StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("\nInput File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
-                    e.FullPath, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
-
-                if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
-                {
-                    // Signal the Run thread that the Input files were found
-                    StaticClass.InputFileScanComplete[job] = true;
-                }
+                // Signal the Run thread that the Input files were found
+                StaticClass.InputFileScanComplete[job] = true;
             }
         }
 
@@ -190,7 +187,7 @@ namespace Status.Services
                 {
                     Thread.Sleep(250);
                 }
-                while (((StaticClass.InputFileScanComplete[job] == false)) && (StaticClass.ShutdownFlag == false));
+                while ((StaticClass.InputFileScanComplete[job] == false) && (StaticClass.ShutdownFlag == false));
 
                 // Remove job started from the Input job list
                 StaticClass.NewInputJobsToRun.Remove(job);

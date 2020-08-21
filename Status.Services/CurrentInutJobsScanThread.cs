@@ -185,9 +185,6 @@ namespace Status.Services
                 Thread.Sleep(250);
             }
             while ((StaticClass.NewInputJobsToRun.Count > 0) && (StaticClass.ShutdownFlag == false));
-
-            // Exit Input job scan
-            StaticClass.Log(logFile, String.Format("Exiting unfinished Input Job Scan at {0:HH:mm:ss.fff}", DateTime.Now));
         }
 
         /// <summary>
@@ -245,6 +242,9 @@ namespace Status.Services
                     Logger.LogError("CurrentInputJobsScanThread thread failed to instantiate");
                 }
                 thread.ThreadProc();
+
+                // Remove job after run thread launched
+                StaticClass.NewInputJobsToRun.Remove(job);
 
                 // Cieck if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)

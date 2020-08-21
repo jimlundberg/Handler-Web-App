@@ -126,9 +126,6 @@ namespace Status.Services
 
             // Flag that the Current Processing job(s) scan is complete
             StaticClass.CurrentProcessingJobScanComplete = true;
-
-            // Exit Processing job scan
-            StaticClass.Log(logFile, String.Format("Exiting unfinished Processing Job Scan at {0:HH:mm:ss.fff}", DateTime.Now));
         }
 
         /// <summary>

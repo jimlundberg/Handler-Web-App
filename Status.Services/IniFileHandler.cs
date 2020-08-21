@@ -112,11 +112,11 @@ namespace Status.Services
         /// <returns>JobXmlData</returns>
         public StatusModels.JobXmlData GetJobXmlData(string job, string jobDirectory, ILogger<StatusRepository> logger)
         {
-            StatusModels.JobXmlData jobScanData = new StatusModels.JobXmlData();
-            jobScanData.JobDirectory = jobDirectory;
-            jobScanData.JobSerialNumber = job.Substring(0, job.IndexOf("_"));
+            StatusModels.JobXmlData jobScanXmlData = new StatusModels.JobXmlData();
+            jobScanXmlData.JobDirectory = jobDirectory;
+            jobScanXmlData.JobSerialNumber = job.Substring(0, job.IndexOf("_"));
             int start = job.IndexOf("_") + 1;
-            jobScanData.TimeStamp = job.Substring(start, job.Length - start);
+            jobScanXmlData.TimeStamp = job.Substring(start, job.Length - start);
 
             // Wait until the Xml file shows up
             bool XmlFileFound = false;
@@ -127,9 +127,9 @@ namespace Status.Services
                     String[] files = Directory.GetFiles(jobDirectory, "*.xml");
                     if (files.Length > 0)
                     {
-                        jobScanData.XmlFileName = Path.GetFileName(files[0]);
+                        jobScanXmlData.XmlFileName = Path.GetFileName(files[0]);
                         XmlFileFound = true;
-                        return jobScanData;
+                        return jobScanXmlData;
                     }
                 }
 
@@ -137,7 +137,7 @@ namespace Status.Services
             }
             while (XmlFileFound == false);
 
-            return jobScanData;
+            return jobScanXmlData;
         }
     }
 }

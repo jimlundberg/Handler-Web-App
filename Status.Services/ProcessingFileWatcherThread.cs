@@ -114,27 +114,24 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void OnCreated(object source, FileSystemEventArgs e)
         {
-            if (e.ChangeType == WatcherChangeTypes.Created)
+            // Get job name from directory name
+            string jobDirectory = e.FullPath;
+            string jobFile = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+            string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
+
+            StaticClass.NumberOfProcessingFilesFound[job]++;
+
+            // Processing job file added
+            StaticClass.Log(IniData.ProcessLogFile,
+                String.Format("\nProcessing File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
+                e.FullPath, StaticClass.NumberOfProcessingFilesFound[job],
+                StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
+
+            if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
-                // Get job name from directory name
-                string jobDirectory = e.FullPath;
-                string jobFile = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
-                string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
-
-                StaticClass.NumberOfProcessingFilesFound[job]++;
-
-                // Processing job file added
-                StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("\nProcessing File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
-                    e.FullPath, StaticClass.NumberOfProcessingFilesFound[job],
-                    StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
-
-                if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
-                {
-                    // Signal the Job Run thread that TCP/IP scan is complete and all the Processing files were found
-                    StaticClass.TcpIpScanComplete[job] = true;
-                    StaticClass.CurrentProcessingJobScanComplete = true;
-                }
+                // Signal the Job Run thread that TCP/IP scan is complete and all the Processing files were found
+                StaticClass.TcpIpScanComplete[job] = true;
+                StaticClass.CurrentProcessingJobScanComplete = true;
             }
         }
 

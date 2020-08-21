@@ -69,12 +69,27 @@ namespace Status.Services
             string jobDirectory = e.FullPath;
             string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
 
-            StaticClass.NewInputJobsToRun.Add(job);
-
             // Directory Add detected
             StaticClass.Log(IniData.ProcessLogFile,
                 (String.Format("\nInput Directory Watcher detected new directory {0} at {1:HH:mm:ss.fff}",
-                e.FullPath, DateTime.Now)));
+                jobDirectory, DateTime.Now)));
+
+            // Add new job found to the Input job list
+            StaticClass.NewInputJobsToRun.Add(job);
+
+            // Check the list to see if you can run a job
+            for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
+            {
+                // Check how many jobs are executing
+                if (StaticClass.NumberOfJobsExecuting < IniData.ExecutionLimit)
+                {
+                    // Run the job and remove it from the list
+                    string directory = IniData.InputDir + @"\" + job;
+                    CurrentInputJobsScanThread newJobsScanThread = new CurrentInputJobsScanThread();
+                    newJobsScanThread.StartInputJob(directory, IniData, StatusData, Logger);
+                    Thread.Sleep(IniData.ScanTime);
+                }
+            }
         }
 
         /// <summary>
