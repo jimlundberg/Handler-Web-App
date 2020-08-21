@@ -76,20 +76,6 @@ namespace Status.Services
 
             // Add new job found to the Input job list
             StaticClass.NewInputJobsToRun.Add(newJobName);
-
-            // Check the list to see if you can run a job
-            for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
-            {
-                // Check how many jobs are executing
-                if (StaticClass.NumberOfJobsExecuting < IniData.ExecutionLimit)
-                {
-                    // Run the job and remove it from the list
-                    string job = StaticClass.NewInputJobsToRun[i];
-                    string directory = IniData.InputDir + @"\" + job;
-                    CurrentInputJobsScanThread newJobsScanThread = new CurrentInputJobsScanThread();
-                    newJobsScanThread.StartInputJob(directory, IniData, StatusData, Logger);
-                }
-            }
         }
 
         /// <summary>
