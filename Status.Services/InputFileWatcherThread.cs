@@ -122,14 +122,14 @@ namespace Status.Services
             // Input job file added
             StaticClass.Log(IniData.ProcessLogFile,
                 String.Format("\nInput File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
-                e.FullPath, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
+                job, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
 
             if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
                 // All files needed dected
                 StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("\nProcessing File Watcher detected all job {0} Input files {1} of {2} at {3:HH:mm:ss.fff}",
-                    e.FullPath, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
+                    String.Format("\nProcessing File Watcher detected all job {0} Input files at {1:HH:mm:ss.fff}",
+                    job, DateTime.Now));
 
                 // Signal the Run thread that the Input files were found
                 StaticClass.InputFileScanComplete[job] = true;
