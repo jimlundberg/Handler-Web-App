@@ -35,9 +35,9 @@ namespace Status.Services
 		/// <param name="msg"></param>
 		public static void Log(string logFile, string msg)
 		{
+			Debug.WriteLine(msg);
 			LoggingToFile log = new LoggingToFile(logFile);
 			log.WriteToLogFile(msg);
-			Debug.WriteLine(msg);
 		}
 	}
 }
