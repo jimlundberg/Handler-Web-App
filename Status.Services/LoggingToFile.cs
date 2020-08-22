@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Diagnostics;
 
 namespace Status.Services
 {
@@ -51,7 +50,7 @@ namespace Status.Services
 
             if (tooBig)
             {
-                Debug.WriteLine("Process log file too big. Reducing 10%");
+                Console.WriteLine("Process log file too big. Reducing 10%");
                 lock (fileLock)
                 {
                     // Remove old data from log file
@@ -96,7 +95,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Log string
+        /// Log string to Console
         /// </summary>
         /// <param name="logMessage"></param>
         /// <param name="writer"></param>
@@ -105,23 +104,6 @@ namespace Status.Services
             lock (fileLock)
             {
                 writer.WriteLine(logMessage);
-            }
-        }
-
-        /// <summary>
-        /// Dump log to console
-        /// </summary>
-        /// <param name="reader"></param>
-        public static void DumpLog(StreamReader reader)
-        {
-            string line;
-
-            lock (fileLock)
-            {
-                while ((line = reader.ReadLine()) != null)
-                {
-                    Debug.WriteLine(line);
-                }
             }
         }
     }

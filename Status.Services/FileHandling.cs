@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Diagnostics;
 using System.IO;
 
 namespace Status.Services
@@ -25,7 +24,7 @@ namespace Status.Services
             DirectoryInfo sourceDI = new DirectoryInfo(sourcePath);
             DirectoryInfo destinationDI = new DirectoryInfo(destinationPath);
 
-            Debug.WriteLine(String.Format("CopyFolderContents from {0} to {1}", sourcePath, destinationPath));
+            Console.WriteLine(String.Format("CopyFolderContents from {0} to {1}", sourcePath, destinationPath));
 
             // If the destination directory does not exist, create it
             if (!destinationDI.Exists)
@@ -97,7 +96,7 @@ namespace Status.Services
                 Source.CopyTo(targetFile);
             }
 
-            Debug.WriteLine("Copied {0} -> {1}", sourceFile, targetFile);
+            Console.WriteLine("Copied {0} -> {1}", sourceFile, targetFile);
         }
     }
 }
