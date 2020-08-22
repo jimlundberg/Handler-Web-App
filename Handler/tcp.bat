@@ -1,5 +1,5 @@
-netstat | findstr 3000
-netstat | findstr 3001
-netstat | findstr 3002
-netstat | findstr 3003
-netstat | findstr 3004
+netstat -ano | findstr :3000
+netstat -ano | findstr :3001
+netstat -ano | findstr :3002
+netstat -ano | findstr :3003
+netstat -ano | findstr :3004
