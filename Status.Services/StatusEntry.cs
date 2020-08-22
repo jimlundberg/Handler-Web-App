@@ -4,7 +4,6 @@ using StatusModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Diagnostics;
 
 namespace Status.Services
 {
