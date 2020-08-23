@@ -106,8 +106,6 @@ namespace Status.Services
             StaticClass.Log(logFileName, $"GetType                     : {ModelerProcess.GetType()}");
             StaticClass.Log(logFileName, $"PriorityClass               : {ModelerProcess.PriorityClass}");
             StaticClass.Log(logFileName, $"Basepriority                : {ModelerProcess.BasePriority}");
-            StaticClass.Log(logFileName, $"Process Number of Modules   : {ModelerProcess.Modules}");
-            StaticClass.Log(logFileName, $"Threads                     : {ModelerProcess.Threads}");
             StaticClass.Log(logFileName, $"HandleCount                 : {ModelerProcess.HandleCount}");
             StaticClass.Log(logFileName, $"MaxWorkingSet               : {ModelerProcess.MaxWorkingSet}");
             StaticClass.Log(logFileName, $"MinWorkingSet               : {ModelerProcess.MinWorkingSet}");

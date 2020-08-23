@@ -259,8 +259,6 @@ namespace Status.Services
                     logger.LogInformation("CurrentInputJobsScanThread Shutdown of job {0}", job);
                     return;
                 }
-
-                Thread.Sleep(IniData.ScanTime);
             }
             else
             {
