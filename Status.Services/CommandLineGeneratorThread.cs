@@ -67,7 +67,7 @@ namespace Status.Services
         public Process ExecuteCommand(StatusMonitorData monitorData, IniFileData iniData, ILogger<StatusRepository> logger)
         {
             string job = monitorData.Job;
-            string logFileName = iniData.IniFileName;
+            string logFileName = iniData.ProcessLogFile;
 
             ProcessStartInfo startInfo = new ProcessStartInfo(Executable);
             startInfo.Arguments = String.Format("{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
@@ -102,7 +102,6 @@ namespace Status.Services
             StaticClass.Log(logFileName, $"Id                          : {ModelerProcess.Id}");
             StaticClass.Log(logFileName, $"SessionId                   : {ModelerProcess.SessionId}");
             StaticClass.Log(logFileName, $"Handle                      : {ModelerProcess.Handle}");
-            StaticClass.Log(logFileName, $"SafeHandle                  : {ModelerProcess.SafeHandle}");
             StaticClass.Log(logFileName, $"GetType                     : {ModelerProcess.GetType()}");
             StaticClass.Log(logFileName, $"PriorityClass               : {ModelerProcess.PriorityClass}");
             StaticClass.Log(logFileName, $"Basepriority                : {ModelerProcess.BasePriority}");

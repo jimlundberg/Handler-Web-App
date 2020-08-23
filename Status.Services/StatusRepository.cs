@@ -123,11 +123,14 @@ namespace Status.Services
             // Exit Handler threads by setting shutdown flag
             StaticClass.ShutdownFlag = true;
 
-            // Kill Modeler executables
+            // Shutdown Modeler executables
             foreach (KeyValuePair<string, Process> process in StaticClass.ProcessHandles)
             {
                 process.Value.Kill();
             }
+
+            // Clear the Dictionary after shutdowns complete
+            StaticClass.ProcessHandles.Clear();
         }
 
         /// <summary>
