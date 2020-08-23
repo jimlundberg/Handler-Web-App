@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using StatusModels;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -85,7 +86,7 @@ namespace Status.Services
             ModelerProcess.PriorityClass = ProcessPriorityClass.High;
 
             // Store process handle to use for stopping
-            StaticClass.ProcessHandles[job] = ModelerProcess;
+            StaticClass.ProcessHandles.Add(job, ModelerProcess);
 
             // Give the Modeler time to start so you can read the main window title
             Thread.Sleep(250);
@@ -93,14 +94,13 @@ namespace Status.Services
             StaticClass.Log(logFileName, String.Format("{0} {1}", ModelerProcess.MainWindowTitle, ModelerProcess.StartInfo.Arguments));
 
             // Wait for Modeler to startup before reading data
-            Thread.Sleep(30000);
+            Thread.Sleep(4000);
 
             // Display Modeler Executable information
             StaticClass.Log(logFileName, $"\nJob {monitorData.Job} Modeler execution process data:");
             StaticClass.Log(logFileName, $"ProcessName                 : {ModelerProcess.ProcessName}");
             StaticClass.Log(logFileName, $"StartInfo                   : {ModelerProcess.StartInfo}");
             StaticClass.Log(logFileName, $"Id                          : {ModelerProcess.Id}");
-            StaticClass.Log(logFileName, $"SessionId                   : {ModelerProcess.SessionId}");
             StaticClass.Log(logFileName, $"Handle                      : {ModelerProcess.Handle}");
             StaticClass.Log(logFileName, $"GetType                     : {ModelerProcess.GetType()}");
             StaticClass.Log(logFileName, $"PriorityClass               : {ModelerProcess.PriorityClass}");

@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using StatusModels;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 
 /// <summary>
 /// Status data repository services
@@ -69,21 +71,21 @@ namespace Status.Services
 
             string logFile = IniData.ProcessLogFile;
             StaticClass.Log(logFile, "\nConfig.ini data found:\n");
-            StaticClass.Log(logFile, "Input Dir             = " + IniData.InputDir);
-            StaticClass.Log(logFile, "Processing Dir        = " + IniData.ProcessingDir);
-            StaticClass.Log(logFile, "Repository Dir        = " + IniData.RepositoryDir);
-            StaticClass.Log(logFile, "Finished Dir          = " + IniData.FinishedDir);
-            StaticClass.Log(logFile, "Error Dir             = " + IniData.ErrorDir);
-            StaticClass.Log(logFile, "Modeler Root Dir      = " + IniData.ModelerRootDir);
-            StaticClass.Log(logFile, "Status Log File       = " + IniData.StatusLogFile);
-            StaticClass.Log(logFile, "Process Log File      = " + IniData.ProcessLogFile);
-            StaticClass.Log(logFile, "CPU Cores             = " + IniData.CPUCores + " Cores");
-            StaticClass.Log(logFile, "Execution Limit       = " + IniData.ExecutionLimit + " Jobs");
-            StaticClass.Log(logFile, "Start Port            = " + IniData.StartPort);
-            StaticClass.Log(logFile, "Scan Time             = " + IniData.ScanTime + " Miliseconds");
-            StaticClass.Log(logFile, "Max Time Limit        = " + IniData.MaxTimeLimit + " Seconds");
-            StaticClass.Log(logFile, "Log File History      = " + IniData.LogFileHistory + " Days");
-            StaticClass.Log(logFile, "Log File Max Size     = " + IniData.LogFileMaxSize + " MegaBytes");
+            StaticClass.Log(logFile, "Input Dir                   : " + IniData.InputDir);
+            StaticClass.Log(logFile, "Processing Dir              : " + IniData.ProcessingDir);
+            StaticClass.Log(logFile, "Repository Dir              : " + IniData.RepositoryDir);
+            StaticClass.Log(logFile, "Finished Dir                : " + IniData.FinishedDir);
+            StaticClass.Log(logFile, "Error Dir                   : " + IniData.ErrorDir);
+            StaticClass.Log(logFile, "Modeler Root Dir            : " + IniData.ModelerRootDir);
+            StaticClass.Log(logFile, "Status Log File             : " + IniData.StatusLogFile);
+            StaticClass.Log(logFile, "Process Log File            : " + IniData.ProcessLogFile);
+            StaticClass.Log(logFile, "CPU Cores                   : " + IniData.CPUCores + " Cores");
+            StaticClass.Log(logFile, "Execution Limit             : " + IniData.ExecutionLimit + " Jobs");
+            StaticClass.Log(logFile, "Start Port                  : " + IniData.StartPort);
+            StaticClass.Log(logFile, "Scan Time                   : " + IniData.ScanTime + " Miliseconds");
+            StaticClass.Log(logFile, "Max Time Limit              : " + IniData.MaxTimeLimit + " Seconds");
+            StaticClass.Log(logFile, "Log File History            : " + IniData.LogFileHistory + " Days");
+            StaticClass.Log(logFile, "Log File Max Size           : " + IniData.LogFileMaxSize + " MegaBytes");
         }
 
         /// <summary>
@@ -120,17 +122,28 @@ namespace Status.Services
         /// </summary>
         public void StopMonitor()
         {
-            // Exit Handler threads by setting shutdown flag
-            StaticClass.ShutdownFlag = true;
-
             // Shutdown Modeler executables
             foreach (KeyValuePair<string, Process> process in StaticClass.ProcessHandles)
             {
                 process.Value.Kill();
             }
 
-            // Clear the Dictionary after shutdowns complete
+            // Exit Handler threads by setting shutdown flag
+            StaticClass.ShutdownFlag = true;
+
+            // Clear the Dictionaries after Modeler shutdowns complete
+            StaticClass.NewInputJobsToRun.Clear();
+            StaticClass.NewProcessingJobsToRun.Clear();
             StaticClass.ProcessHandles.Clear();
+            StaticClass.InputFileScanComplete.Clear();
+            StaticClass.ProcessingFileScanComplete.Clear();
+            StaticClass.TcpIpScanComplete.Clear();
+            StaticClass.NumberOfInputFilesFound.Clear();
+            StaticClass.NumberOfInputFilesNeeded.Clear();
+            StaticClass.NumberOfProcessingFilesFound.Clear();
+            StaticClass.NumberOfProcessingFilesNeeded.Clear();
+            StaticClass.NumberOfJobsExecuting = 0;
+            StaticClass.RunningJobsIndex = 0;
         }
 
         /// <summary>

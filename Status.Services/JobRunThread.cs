@@ -181,12 +181,12 @@ namespace Status.Services
             }
 
             // Get the modeler and number of files to transfer
-            StaticClass.Log(iniData.ProcessLogFile, String.Format("Unit Number           = " + monitorData.UnitNumber));
-            StaticClass.Log(iniData.ProcessLogFile, String.Format("Modeler               = " + monitorData.Modeler));
-            StaticClass.Log(iniData.ProcessLogFile, String.Format("Num Files Consumed    = " + monitorData.NumFilesConsumed));
-            StaticClass.Log(iniData.ProcessLogFile, String.Format("Num Files Produced    = " + monitorData.NumFilesProduced));
-            StaticClass.Log(iniData.ProcessLogFile, String.Format("Num Files To Transfer = " + monitorData.NumFilesToTransfer));
-            StaticClass.Log(iniData.ProcessLogFile, String.Format("Job Port Number       = " + monitorData.JobPortNumber));
+            StaticClass.Log(iniData.ProcessLogFile, String.Format("Unit Number                 : " + monitorData.UnitNumber));
+            StaticClass.Log(iniData.ProcessLogFile, String.Format("Modeler                     : " + monitorData.Modeler));
+            StaticClass.Log(iniData.ProcessLogFile, String.Format("Num Files Consumed          : " + monitorData.NumFilesConsumed));
+            StaticClass.Log(iniData.ProcessLogFile, String.Format("Num Files Produced          : " + monitorData.NumFilesProduced));
+            StaticClass.Log(iniData.ProcessLogFile, String.Format("Num Files To Transfer       : " + monitorData.NumFilesToTransfer));
+            StaticClass.Log(iniData.ProcessLogFile, String.Format("Job Port Number             : " + monitorData.JobPortNumber));
 
             // Add initial entry to status list
             StatusDataEntry(statusData, Job, iniData, JobStatus.MONITORING_INPUT, JobType.TIME_START, iniData.StatusLogFile, logger);
@@ -200,7 +200,7 @@ namespace Status.Services
                 string transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
                 XmlNode TransferedFileXml = XmlDoc.DocumentElement.SelectSingleNode(transferFileNodeName);
                 monitorData.TransferedFileList.Add(TransferedFileXml.InnerText);
-                StaticClass.Log(iniData.ProcessLogFile, String.Format("Transfer File{0}        = {1}", i, TransferedFileXml.InnerText));
+                StaticClass.Log(iniData.ProcessLogFile, String.Format("Transfer File{0}              : {1}", i, TransferedFileXml.InnerText));
             }
 
             // If the directory is the Input Buffer, move the directory to Processing
@@ -230,13 +230,12 @@ namespace Status.Services
                     // Wait for Input file scan to complete
                     do
                     {
-                        // If the shutdown flag is set, exit method
+                        Thread.Sleep(250);
+
                         if (StaticClass.ShutdownFlag == true)
                         {
-                            logger.LogInformation("Shutdown RunJob for Modeler Job {0}", Job);
                             return;
                         }
-                        Thread.Sleep(250);
                     }
                     while (StaticClass.InputFileScanComplete[Job] == false) ;
 
@@ -284,7 +283,6 @@ namespace Status.Services
             // If the shutdown flag is set, exit method
             if (StaticClass.ShutdownFlag == true)
             {
-                logger.LogInformation("Shutdown RunJob for Modeler Job {0}", Job);
                 return;
             }
 
@@ -297,6 +295,11 @@ namespace Status.Services
                 Job, DateTime.Now));
 
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
+
+            if (StaticClass.ShutdownFlag == true)
+            {
+                return;
+            }
 
             // Register with the File Watcher class with an event and start its thread
             string processingBufferJobDir = iniData.ProcessingDir + @"\" + MonitorData.Job;
@@ -314,10 +317,14 @@ namespace Status.Services
             do
             {
                 Thread.Sleep(250);
+
+                if (StaticClass.ShutdownFlag == false)
+                {
+                    return;
+                }
             }
-            while (((StaticClass.ProcessingFileScanComplete[Job] == false) ||
-                    (StaticClass.TcpIpScanComplete[Job] == false)) &&
-                    (StaticClass.ShutdownFlag == false));
+            while ((StaticClass.ProcessingFileScanComplete[Job] == false) ||
+                    (StaticClass.TcpIpScanComplete[Job] == false));
 
             // Check for Data.xml in the Processing Directory
             bool XmlFileFound = false;
@@ -331,8 +338,13 @@ namespace Status.Services
                 }
 
                 Thread.Sleep(250);
+
+                if (StaticClass.ShutdownFlag == true)
+                {
+                    return;
+                }
             }
-            while ((XmlFileFound == false) && (StaticClass.ShutdownFlag == false));
+            while (XmlFileFound == false);
 
             lock (xmlLock)
             {
@@ -343,6 +355,11 @@ namespace Status.Services
 
             // Add copy to archieve entry to status list
             StatusDataEntry(statusData, Job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.StatusLogFile, logger);
+
+            if (StaticClass.ShutdownFlag == true)
+            {
+                return;
+            }
 
             // Get the pass or fail data from the OverallResult node
             XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");

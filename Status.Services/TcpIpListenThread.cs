@@ -197,6 +197,11 @@ namespace Status.Services
                 int adjustableSleepTime = iniData.ScanTime * 3;
                 do
                 {
+                    if (StaticClass.ShutdownFlag == true)
+                    {
+                        return;
+                    }
+
                     // Send the message to the Modeler
                     stream.Write(data, 0, data.Length);
 
@@ -219,6 +224,11 @@ namespace Status.Services
                         {
                             try
                             {
+                                if (StaticClass.ShutdownFlag == true)
+                                {
+                                    return;
+                                }
+
                                 bytes = stream.Read(data, 0, data.Length);
                                 if (bytes > 0)
                                 {

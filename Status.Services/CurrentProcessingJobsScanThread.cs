@@ -165,11 +165,11 @@ namespace Status.Services
 
                 // Display Monitor Data found
                 StaticClass.Log(logFile, "");
-                StaticClass.Log(logFile, "Found Processing Job  = " + xmlData.Job);
-                StaticClass.Log(logFile, "Old Job Directory     = " + xmlData.JobDirectory);
-                StaticClass.Log(logFile, "Old Serial Number     = " + xmlData.JobSerialNumber);
-                StaticClass.Log(logFile, "Old Time Stamp        = " + xmlData.TimeStamp);
-                StaticClass.Log(logFile, "Old Job Xml File      = " + xmlData.XmlFileName);
+                StaticClass.Log(logFile, "Found Processing Job        : " + xmlData.Job);
+                StaticClass.Log(logFile, "Old Job Directory           : " + xmlData.JobDirectory);
+                StaticClass.Log(logFile, "Old Serial Number           : " + xmlData.JobSerialNumber);
+                StaticClass.Log(logFile, "Old Time Stamp              : " + xmlData.TimeStamp);
+                StaticClass.Log(logFile, "Old Job Xml File            : " + xmlData.XmlFileName);
 
                 StaticClass.Log(logFile, String.Format("Starting Processing directory Job {0} Executing slot {1} at {2:HH:mm:ss.fff}",
                     xmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));

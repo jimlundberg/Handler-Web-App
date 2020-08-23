@@ -134,6 +134,11 @@ namespace Status.Services
                 }
 
                 Thread.Sleep(250);
+
+                if (StaticClass.ShutdownFlag == true)
+                {
+                    return null;
+                }
             }
             while (XmlFileFound == false);
 

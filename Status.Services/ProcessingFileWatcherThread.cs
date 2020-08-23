@@ -153,8 +153,13 @@ namespace Status.Services
             {
                 xmlFileFound = File.Exists(xmlFileName);
                 Thread.Sleep(250);
+
+                if (StaticClass.ShutdownFlag == true)
+                {
+                    return false;
+                }
             }
-            while ((xmlFileFound == false) && (StaticClass.ShutdownFlag == true));
+            while (xmlFileFound == false);
 
             lock (xmlLock)
             {
@@ -236,8 +241,13 @@ namespace Status.Services
                 do
                 {
                     Thread.Sleep(250);
+
+                    if (StaticClass.ShutdownFlag == true)
+                    {
+                        return;
+                    }
                 }
-                while ((StaticClass.ProcessingFileScanComplete[job] == false) && (StaticClass.ShutdownFlag == false));
+                while (StaticClass.ProcessingFileScanComplete[job] == false);
 
                 // Wait for the TCP/IP Scan to Complete when the Modeler deposits the results in data.xml
                 bool foundOverallResultEntry = false;
@@ -245,8 +255,13 @@ namespace Status.Services
                 {
                     foundOverallResultEntry = OverallResultEntryCheck(directory);
                     Thread.Sleep(250);
+
+                    if (StaticClass.ShutdownFlag == true)
+                    {
+                        return;
+                    }
                 }
-                while ((foundOverallResultEntry == false) && (StaticClass.ShutdownFlag == false));
+                while (foundOverallResultEntry == false);
 
                 // Remove job started from the Processing job list
                 StaticClass.NewProcessingJobsToRun.Remove(job);

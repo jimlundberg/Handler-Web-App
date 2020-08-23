@@ -107,8 +107,13 @@ namespace Status.Services
             do
             {
                 Thread.Sleep(250);
+
+                if (StaticClass.ShutdownFlag == true)
+                {
+                    return;
+                }
             }
-            while ((StaticClass.CurrentProcessingJobScanComplete == false) && (StaticClass.ShutdownFlag == false));
+            while (StaticClass.CurrentProcessingJobScanComplete == false);
 
             StaticClass.Log(logFile, "\nChecking for unfinished Input Jobs...");
 
@@ -232,11 +237,11 @@ namespace Status.Services
 
                 // Display xmlData found
                 StaticClass.Log(logFile, "");
-                StaticClass.Log(logFile, "Found Input Job       = " + xmlData.Job);
-                StaticClass.Log(logFile, "New Job directory     = " + xmlData.JobDirectory);
-                StaticClass.Log(logFile, "New Serial Number     = " + xmlData.JobSerialNumber);
-                StaticClass.Log(logFile, "New Time Stamp        = " + xmlData.TimeStamp);
-                StaticClass.Log(logFile, "New Job Xml File      = " + xmlData.XmlFileName);
+                StaticClass.Log(logFile, "Found Input Job             : " + xmlData.Job);
+                StaticClass.Log(logFile, "New Job directory           : " + xmlData.JobDirectory);
+                StaticClass.Log(logFile, "New Serial Number           : " + xmlData.JobSerialNumber);
+                StaticClass.Log(logFile, "New Time Stamp              : " + xmlData.TimeStamp);
+                StaticClass.Log(logFile, "New Job Xml File            : " + xmlData.XmlFileName);
 
                 StaticClass.Log(logFile, String.Format("Started Input Job {0} executing slot {1} at {2:HH:mm:ss.fff}",
                     xmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));

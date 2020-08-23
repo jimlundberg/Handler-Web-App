@@ -192,8 +192,13 @@ namespace Status.Services
                 do
                 {
                     Thread.Sleep(250);
+
+                    if (StaticClass.ShutdownFlag == true)
+                    {
+                        return;
+                    }
                 }
-                while ((StaticClass.InputFileScanComplete[job] == false) && (StaticClass.ShutdownFlag == false));
+                while (StaticClass.InputFileScanComplete[job] == false);
 
                 // Remove job started from the Input job list
                 StaticClass.NewInputJobsToRun.Remove(job);
