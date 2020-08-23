@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Status.Services.StatusRepository" Collapsed="true">
+    <Position X="6.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAQAIAAAAoAAAAACAAAAAAAAAAAEAAAEAIAEA=</HashCode>
+      <FileName>StatusRepository.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.638" />
+  </Class>
+  <Class Name="Status.Services.StatusEntry" Collapsed="true">
+    <Position X="8.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAEAAIAAAAgQAAACABAAEACIAIAAAAAAAAAAAA=</HashCode>
+      <FileName>StatusEntry.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Status.Services.StaticClass" Collapsed="true">
+    <Position X="8.5" Y="1" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>YICAAAAAAEkBJAAACAAQAAAAAAgAAAAAAAECAAAAQAA=</HashCode>
+      <FileName>StaticClass.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ReadWriteCsvFile.CsvRow" Collapsed="true">
+    <Position X="0.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAA=</HashCode>
+      <FileName>ReadWriteCsvFile.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ReadWriteCsvFile.CsvFileWriter" Collapsed="true">
+    <Position X="0.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAA=</HashCode>
+      <FileName>ReadWriteCsvFile.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ReadWriteCsvFile.CsvFileReader" Collapsed="true">
+    <Position X="0.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEA=</HashCode>
+      <FileName>ReadWriteCsvFile.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Status.Services.ProcessingFileWatcherThread" Collapsed="true">
+    <Position X="3.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAIACAEAIBAAUAAAAAACgAACACAAAAAAAgAAgCEAA=</HashCode>
+      <FileName>ProcessingFileWatcherThread.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Status.Services.LoggingToFile" Collapsed="true">
+    <Position X="10.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAQAAAAAAAABgAAAIAAAAIAAAAAAA=</HashCode>
+      <FileName>LoggingToFile.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Status.Services.JobRunThread" Collapsed="true">
+    <Position X="6.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAIBAAQCAAAAACgAgAAAAAAAAAAAAAAgEAE=</HashCode>
+      <FileName>JobRunThread.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Status.Services.InputFileWatcherThread" Collapsed="true">
+    <Position X="3.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AECAAACAAAIBAAUAAAAAACgAACACAAAAAAAgAAgAAAA=</HashCode>
+      <FileName>InputFileWatcherThread.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Status.Services.IniFileHandler" Collapsed="true">
+    <Position X="10.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAkAIQAAAAAAAgAACgAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>IniFileHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Status.Services.ScanDirectory" Collapsed="true">
+    <Position X="3.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>MAAAIACAAAAAAAAAAAAAAAAAAAgCAAAAAAACAAAAAAA=</HashCode>
+      <FileName>IniFileHandler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Status.Services.FileHandling" Collapsed="true">
+    <Position X="10.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAEAABAAAAABAAAAAAAAAAA=</HashCode>
+      <FileName>FileHandling.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Status.Services.DirectoryWatcherThread" Collapsed="true">
+    <Position X="3.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAACAAAIBAAEAAAEAACgAACAAAAAAAAAAAAAAEAA=</HashCode>
+      <FileName>DirectoryWatcherThread.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Status.Services.CurrentProcessingJobsScanThread" Collapsed="true">
+    <Position X="0.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAACEAgIBAAEBAAAAACgAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CurrentProcessingJobsScanThread.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Status.Services.CurrentInputJobsScanThread" Collapsed="true">
+    <Position X="0.75" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIDAAECAAAAACgAAAAAAAAAAAAAAACCAAA=</HashCode>
+      <FileName>CurrentInutJobsScanThread.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Status.Services.CommandLineGeneratorThread" Collapsed="true">
+    <Position X="10.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAIAAAAAAAAAAAgAAAAAAAAAAAAAAAAQAAA=</HashCode>
+      <FileName>CommandLineGeneratorThread.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Status.Services.CommandLineGenerator" Collapsed="true">
+    <Position X="10.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIIgAAAAAAIAAAAAAIAEAgQAAAAAgAAAAAAQAAAACAg=</HashCode>
+      <FileName>CommandLineGeneratorThread.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Status.Services.TcpIpListenThread" Collapsed="true">
+    <Position X="6.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAACAAAIBAAUAABAAEKgACAAACAAAAAAAACAgAAA=</HashCode>
+      <FileName>TcpIpListenThread.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="Status.Services.IStatusRepository" Collapsed="true">
+    <Position X="6.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAQAAAAAAgAAAAAAAAAAAAAAAAAAAAAEAIAEA=</HashCode>
+      <FileName>IStatusRepository.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

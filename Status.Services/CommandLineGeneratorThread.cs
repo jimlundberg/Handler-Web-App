@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
+using StatusModels;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 
 namespace Status.Services
 {
@@ -14,6 +16,8 @@ namespace Status.Services
         /// Object used in the task
         /// </summary>
         private CommandLineGenerator CommandLineGenerator;
+        private static IniFileData IniData;
+        private static StatusMonitorData MonitorData;
         public static ILogger<StatusRepository> Logger;
 
         /// <summary>
@@ -21,9 +25,11 @@ namespace Status.Services
         /// </summary>
         /// <param name="_commandLineGenerator"></param>
         /// <param name="logger"></param>
-        public CommandLineGeneratorThread(CommandLineGenerator _commandLineGenerator, ILogger<StatusRepository> logger)
+        public CommandLineGeneratorThread(CommandLineGenerator _commandLineGenerator, StatusMonitorData monitorData, IniFileData iniData, ILogger<StatusRepository> logger)
         {
             CommandLineGenerator = _commandLineGenerator;
+            MonitorData = monitorData;
+            IniData = iniData;
             Logger = logger;
         }
 
@@ -32,7 +38,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            CommandLineGenerator.ExecuteCommand(Logger);
+            CommandLineGenerator.ExecuteCommand(MonitorData, IniData, Logger);
         }
     }
 
@@ -41,40 +47,90 @@ namespace Status.Services
     /// </summary>
     public class CommandLineGenerator
     {
-        private string Executable = "Executable";
-        private string ProcessingDir = "Processing dir";
-        private string StartPort = "Start Port";
-        private string CpuCores = "Cpu Cores";
-        private ILogger<StatusRepository> Logger;
+        private string Executable;
+        private string ProcessingDir;
+        private string StartPort;
+        private string CpuCores;
 
         public CommandLineGenerator() { }
         public string GetCurrentDirector() { return Directory.GetCurrentDirectory(); }
-        public void SetExecutableFile(string _Executable) { Executable = _Executable; }
-        public void SetRepositoryDir(string _ProcessingDir) { ProcessingDir = "-d " + _ProcessingDir; }
-        public void SetStartPort(int _StartPort) { StartPort = "-s " + _StartPort.ToString(); }
-        public void SetCpuCores(int _CpuCores) { CpuCores = "-p " + _CpuCores.ToString(); }
-        public void SetLogger(ILogger<StatusRepository> logger) { Logger = logger; }
+        public void SetExecutableFile(string executable) { Executable = executable; }
+        public void SetRepositoryDir(string processingDir) { ProcessingDir = "-d " + processingDir; }
+        public void SetStartPort(int startPort) { StartPort = "-s " + startPort.ToString(); }
+        public void SetCpuCores(int cpuCores) { CpuCores = "-p " + cpuCores.ToString(); }
 
         /// <summary>
         /// Execute the Modeler command line
         /// </summary>
         /// <param name="logger"></param>
-        public void ExecuteCommand(ILogger<StatusRepository> logger)
+        /// <returns>Process handle</returns>
+        public Process ExecuteCommand(StatusMonitorData monitorData, IniFileData iniData, ILogger<StatusRepository> logger)
         {
-            var process = new Process();
-            process.StartInfo.FileName = Executable;
-            process.StartInfo.Arguments = String.Format(@"{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            Console.WriteLine("{0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
-            process.Start();
+            string job = monitorData.Job;
+            string logFileName = iniData.IniFileName;
 
-            string outPut = process.StandardOutput.ReadToEnd();
-            Console.WriteLine(outPut);
+            ProcessStartInfo startInfo = new ProcessStartInfo(Executable);
+            startInfo.Arguments = String.Format("{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
+            startInfo.UseShellExecute = true;
+            startInfo.WorkingDirectory = ProcessingDir;
+            startInfo.WindowStyle = ProcessWindowStyle.Normal;
 
-            process.WaitForExit();
-            var exitCode = process.ExitCode;
-            process.Close();
+            Process ModelerProcess = Process.Start(startInfo);
+            if (ModelerProcess == null)
+            {
+                logger.LogError(String.Format("CommandLineGeneratorThread ModelerProcess failes to instantiate"));
+            }
+
+            // Set Process Priority to high
+            ModelerProcess.PriorityClass = ProcessPriorityClass.High;
+
+            // Store process handle to use for stopping
+            StaticClass.ProcessHandles[job] = ModelerProcess;
+
+            // Give the Modeler time to start so you can read the main window title
+            Thread.Sleep(250);
+
+            StaticClass.Log(logFileName, String.Format("{0} {1}", ModelerProcess.MainWindowTitle, ModelerProcess.StartInfo.Arguments));
+
+            // Wait for Modeler to startup before reading data
+            Thread.Sleep(20000);
+
+            // Display Modeler Executable information
+            StaticClass.Log(logFileName, $"\nJob {monitorData.Job} Modeler execution process data:");
+            StaticClass.Log(logFileName, $"ProcessName                 : {ModelerProcess.ProcessName}");
+            StaticClass.Log(logFileName, $"StartInfo                   : {ModelerProcess.StartInfo}");
+            StaticClass.Log(logFileName, $"Id                          : {ModelerProcess.Id}");
+            StaticClass.Log(logFileName, $"SessionId                   : {ModelerProcess.SessionId}");
+            StaticClass.Log(logFileName, $"Handle                      : {ModelerProcess.Handle}");
+            StaticClass.Log(logFileName, $"SafeHandle                  : {ModelerProcess.SafeHandle}");
+            StaticClass.Log(logFileName, $"GetType                     : {ModelerProcess.GetType()}");
+            StaticClass.Log(logFileName, $"PriorityClass               : {ModelerProcess.PriorityClass}");
+            StaticClass.Log(logFileName, $"Basepriority                : {ModelerProcess.BasePriority}");
+            StaticClass.Log(logFileName, $"Process Number of Modules   : {ModelerProcess.Modules}");
+            StaticClass.Log(logFileName, $"Threads                     : {ModelerProcess.Threads}");
+            StaticClass.Log(logFileName, $"HandleCount                 : {ModelerProcess.HandleCount}");
+            StaticClass.Log(logFileName, $"MaxWorkingSet               : {ModelerProcess.MaxWorkingSet}");
+            StaticClass.Log(logFileName, $"MinWorkingSet               : {ModelerProcess.MinWorkingSet}");
+            StaticClass.Log(logFileName, $"MainWindowHandle            : {ModelerProcess.MainWindowHandle}");
+            StaticClass.Log(logFileName, $"MainModule                  : {ModelerProcess.MainModule}");
+            StaticClass.Log(logFileName, $"MainWindowTitle             : {ModelerProcess.MainWindowTitle}");
+            StaticClass.Log(logFileName, $"NonpagedSystemMemorySize64  : {ModelerProcess.NonpagedSystemMemorySize64}");
+            StaticClass.Log(logFileName, $"PeakVirtualMemorySize64     : {ModelerProcess.PeakVirtualMemorySize64}");
+            StaticClass.Log(logFileName, $"PagedSystemMemorySize64     : {ModelerProcess.PagedSystemMemorySize64}");
+            StaticClass.Log(logFileName, $"PrivateMemorySize64         : {ModelerProcess.PrivateMemorySize64}");
+            StaticClass.Log(logFileName, $"VirtualMemorySize64         : {ModelerProcess.VirtualMemorySize64}");
+            StaticClass.Log(logFileName, $"NonpagedSystemMemorySize64  : {ModelerProcess.PagedMemorySize64}");
+            StaticClass.Log(logFileName, $"WorkingSet64                : {ModelerProcess.WorkingSet64}");
+            StaticClass.Log(logFileName, $"PeakWorkingSet64            : {ModelerProcess.PeakWorkingSet64}");
+            StaticClass.Log(logFileName, $"PriorityBoostEnabled        : {ModelerProcess.PriorityBoostEnabled}");
+            StaticClass.Log(logFileName, $"Responding                  : {ModelerProcess.Responding}");
+            StaticClass.Log(logFileName, $"ProcessorAffinity           : {ModelerProcess.ProcessorAffinity}");
+            StaticClass.Log(logFileName, $"StartTime                   : {ModelerProcess.StartTime}");
+            StaticClass.Log(logFileName, $"PrivilegedProcessorTime     : {ModelerProcess.PrivilegedProcessorTime}");
+            StaticClass.Log(logFileName, $"TotalProcessorTime          : {ModelerProcess.TotalProcessorTime}");
+            StaticClass.Log(logFileName, $"UserProcessorTime           : {ModelerProcess.UserProcessorTime}");
+
+            return ModelerProcess;
         }
     }
 }

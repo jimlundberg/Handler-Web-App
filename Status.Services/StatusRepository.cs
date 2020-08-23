@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using StatusModels;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 /// <summary>
@@ -99,15 +100,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Method to stop the Monitor process
-        /// </summary>
-        public void StopMonitor()
-        {
-            // Exit threads by setting shutdown flag
-            StaticClass.ShutdownFlag = true;
-        }
-
-        /// <summary>
         /// Get the Monitor Status Entry point
         /// </summary>
         public void StartMonitorProcess()
@@ -121,6 +113,21 @@ namespace Status.Services
                 Logger.LogError("StartMonitorProcess newJobsScanThread failed to instantiate");
             }
             newJobsScanThread.ThreadProc();
+        }
+
+        /// <summary>
+        /// Method to stop the Monitor process
+        /// </summary>
+        public void StopMonitor()
+        {
+            // Exit Handler threads by setting shutdown flag
+            StaticClass.ShutdownFlag = true;
+
+            // Kill Modeler executables
+            foreach (KeyValuePair<string, Process> process in StaticClass.ProcessHandles)
+            {
+                process.Value.Kill();
+            }
         }
 
         /// <summary>
@@ -139,12 +146,19 @@ namespace Status.Services
         public IEnumerable<StatusData> GetHistoryData()
         {
             List<StatusData> StatusDataList = new List<StatusData>();
-            StatusEntry status = new StatusEntry();
-            StatusDataList = status.ReadFromCsvFile(IniData.StatusLogFile, IniData, Logger);
             if (StatusDataList == null)
             {
-                Logger.LogError("GetHistoryData StatusDataList failed to instantiate");
+                Logger.LogError("StatusRepository StatusList failed to instantiate");
             }
+
+            StatusEntry status = new StatusEntry();
+            if (status == null)
+            {
+                Logger.LogError("StatusRepository status failed to instantiate");
+            }
+
+            StatusDataList = status.ReadFromCsvFile(IniData.StatusLogFile, IniData, Logger);
+            
             return StatusDataList;
         }
     }

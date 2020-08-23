@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
 
 namespace Status.Services
 {
@@ -28,6 +30,8 @@ namespace Status.Services
 		public static Dictionary<string, int> NumberOfProcessingFilesFound = new Dictionary<string, int>();
 		public static Dictionary<string, int> NumberOfProcessingFilesNeeded = new Dictionary<string, int>();
 
+		public static Dictionary<string, Process> ProcessHandles = new Dictionary<string, Process>();
+
 		/// <summary>
 		/// Global log to file method
 		/// </summary>
@@ -36,8 +40,10 @@ namespace Status.Services
 		public static void Log(string logFile, string msg)
 		{
 			Console.WriteLine(msg);
+			Thread.Sleep(10);
 			LoggingToFile log = new LoggingToFile(logFile);
 			log.WriteToLogFile(msg);
+			Thread.Sleep(10);
 		}
 	}
 }

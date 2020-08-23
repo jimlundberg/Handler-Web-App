@@ -268,13 +268,12 @@ namespace Status.Services
             }
 
             // Load and execute Modeler using command line generator
-            CommandLineGenerator cl = new CommandLineGenerator();
-            cl.SetExecutableFile(iniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
-            cl.SetRepositoryDir(ProcessingBufferJobDir);
-            cl.SetStartPort(monitorData.JobPortNumber);
-            cl.SetCpuCores(iniData.CPUCores);
-            cl.SetLogger(logger);
-            CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cl, logger);
+            CommandLineGenerator cmdLine = new CommandLineGenerator();
+            cmdLine.SetExecutableFile(iniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
+            cmdLine.SetRepositoryDir(ProcessingBufferJobDir);
+            cmdLine.SetStartPort(monitorData.JobPortNumber);
+            cmdLine.SetCpuCores(iniData.CPUCores);
+            CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cmdLine, monitorData, iniData, logger);
             Thread thread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
             thread.Start();
 
