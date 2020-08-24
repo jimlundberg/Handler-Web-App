@@ -138,7 +138,7 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    Console.WriteLine(String.Format("Shutdown IniFileHandler GetJobXmlData for Job {0} at {1:HH:mm:ss.fff}",
+                    Console.WriteLine(String.Format("\nShutdown IniFileHandler GetJobXmlData for Job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
                     return null;
                 }

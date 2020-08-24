@@ -196,7 +196,7 @@ namespace Status.Services
                     if (StaticClass.ShutdownFlag == true)
                     {
                         StaticClass.Log(IniData.ProcessLogFile,
-                            String.Format("Shutdown InputFileWatcherThread WatchFiles watching {0} at {1:HH:mm:ss.fff}",
+                            String.Format("\nShutdown InputFileWatcherThread WatchFiles watching {0} at {1:HH:mm:ss.fff}",
                             directory, DateTime.Now));
                         return;
                     }

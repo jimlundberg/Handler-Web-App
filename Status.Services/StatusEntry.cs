@@ -253,7 +253,7 @@ namespace Status.Services
                             if (StaticClass.ShutdownFlag == true)
                             {
                                 StaticClass.Log(iniData.ProcessLogFile,
-                                    String.Format("Shutdown ReadFromCsvFile job {0} row {1}", rowStatusData.Job, rowStatusData));
+                                    String.Format("\nShutdown ReadFromCsvFile job {0} row {1}", rowStatusData.Job, rowStatusData));
                                 return null;
                             }
                         }
@@ -394,7 +394,7 @@ namespace Status.Services
                             if (StaticClass.ShutdownFlag == true)
                             {
                                 StaticClass.Log(iniData.ProcessLogFile,
-                                    String.Format("Shutdown CheckLogFileHistory job {0} at {1:HH:mm:ss.fff}",
+                                    String.Format("\nShutdown CheckLogFileHistory job {0} at {1:HH:mm:ss.fff}",
                                     job, DateTime.Now));
                                 return;
                             }

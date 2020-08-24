@@ -227,7 +227,8 @@ namespace Status.Services
 
                         if (StaticClass.ShutdownFlag == true)
                         {
-                            StaticClass.Log(iniData.ProcessLogFile, String.Format("Shutdown RunJob Input Scan for job {0} at {1:HH:mm:ss.fff}",
+                            StaticClass.Log(iniData.ProcessLogFile,
+                                String.Format("\nShutdown RunJob Input Scan for job {0} at {1:HH:mm:ss.fff}",
                                 Job, DateTime.Now));
                             return;
                         }
@@ -257,7 +258,8 @@ namespace Status.Services
             // If the shutdown flag is set, exit method
             if (StaticClass.ShutdownFlag == true)
             {
-                StaticClass.Log(iniData.ProcessLogFile, String.Format("Shutdown RunJob pre executinon of Job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(iniData.ProcessLogFile,
+                    String.Format("\nShutdown RunJob pre executinon of Job {0} at {1:HH:mm:ss.fff}",
                     Job, DateTime.Now));
                 return;
             }
@@ -326,7 +328,8 @@ namespace Status.Services
 
             if (StaticClass.ShutdownFlag == true)
             {
-                StaticClass.Log(iniData.ProcessLogFile, String.Format("Shutdown JobRunThread RunJob before xml read for job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(iniData.ProcessLogFile,
+                    String.Format("\nShutdown JobRunThread RunJob before xml read for job {0} at {1:HH:mm:ss.fff}",
                     Job, DateTime.Now));
                 return;
             }
@@ -394,7 +397,8 @@ namespace Status.Services
 
             if (StaticClass.ShutdownFlag == true)
             {
-                StaticClass.Log(iniData.ProcessLogFile, String.Format("Shutdown RunJob thread for job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(iniData.ProcessLogFile,
+                    String.Format("\nShutdown RunJob thread for job {0} at {1:HH:mm:ss.fff}",
                     Job, DateTime.Now));
 
                 return;

@@ -187,7 +187,7 @@ namespace Status.Services
                 if (StaticClass.ShutdownFlag == true)
                 {
                     StaticClass.Log(IniData.ProcessLogFile,
-                        String.Format("Shutdown CurrentProcessingJobsScanThread StartProcessingJob at {0:HH:mm:ss.fff}", DateTime.Now));
+                        String.Format("\nShutdown CurrentProcessingJobsScanThread StartProcessingJob at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
             }
