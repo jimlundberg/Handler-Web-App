@@ -129,24 +129,24 @@ namespace Status.Services
             // Increment number of jobs executing at beginning of job
             StaticClass.NumberOfJobsExecuting++;
 
-            // Add initial entry to status list
-            StatusDataEntry(statusData, monitorData.Job, iniData, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.StatusLogFile, logger);
-
-            // Set the Start time of the Job
-            monitorData.StartTime = DateTime.Now;
-
             // Wait until Xml file is copied to the directory being scanned
             string Job = monitorData.Job;
             string xmlFileName = jobDirectory + @"\" + Job + @"\" + monitorData.XmlFileName;
             int NumFilesToTransfer = 0;
-            string TopNode;
-            XmlDocument XmlDoc;
+
+            // Add initial entry to status list
+            StatusDataEntry(statusData, Job, iniData, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.StatusLogFile, logger);
+
+            // Set the Start time of the Job
+            monitorData.StartTime = DateTime.Now;
 
             // Wait for the data.xml file to be ready
             var jobXmltask = StaticClass.IsFileReady(xmlFileName);
             jobXmltask.Wait();
 
             // Read Job xml file and get the top node
+            XmlDocument XmlDoc;
+            string TopNode;
             XmlDoc = new XmlDocument();
             XmlDoc.Load(xmlFileName);
             XmlElement root = XmlDoc.DocumentElement;
@@ -227,9 +227,8 @@ namespace Status.Services
 
                         if (StaticClass.ShutdownFlag == true)
                         {
-                            StaticClass.Log(iniData.ProcessLogFile, String.Format("Job {0} Shutdown at {1:HH:mm:ss.fff}",
-                                monitorData.Job, DateTime.Now));
-                            
+                            StaticClass.Log(iniData.ProcessLogFile, String.Format("Shutdown RunJob Input Scan for job {0} at {1:HH:mm:ss.fff}",
+                                Job, DateTime.Now));
                             return;
                         }
                     }
@@ -258,7 +257,8 @@ namespace Status.Services
             // If the shutdown flag is set, exit method
             if (StaticClass.ShutdownFlag == true)
             {
-                StaticClass.Log(iniData.ProcessLogFile, String.Format("Shutdown RunJob before Modeler Job {0}", Job));
+                StaticClass.Log(iniData.ProcessLogFile, String.Format("Shutdown RunJob pre executinon of Job {0} at {1:HH:mm:ss.fff}",
+                    Job, DateTime.Now));
                 return;
             }
 
@@ -274,7 +274,7 @@ namespace Status.Services
 
             StaticClass.Log(iniData.ProcessLogFile, 
                 String.Format("Starting Job {0} with Modeler {1} on port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
-                monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores, DateTime.Now));
+                    Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores, DateTime.Now));
 
             // Add entry to status list
             StatusDataEntry(statusData, Job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.StatusLogFile, logger);
@@ -282,7 +282,7 @@ namespace Status.Services
             // Monitor for complete set of files in the Processing Buffer
             StaticClass.Log(iniData.ProcessLogFile, 
                 String.Format("Starting monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}", 
-                Job, DateTime.Now));
+                    Job, DateTime.Now));
 
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
 
@@ -305,9 +305,8 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == false)
                 {
-                    StaticClass.Log(iniData.ProcessLogFile, String.Format("Job {0} Shutdown at {1:HH:mm:ss.fff}",
-                        monitorData.Job, DateTime.Now));
-
+                    StaticClass.Log(iniData.ProcessLogFile, String.Format("JobRunThread RunJob job complete scan for job {0} Shutdown at {1:HH:mm:ss.fff}",
+                       Job, DateTime.Now));
                     return;
                 }
             }
@@ -327,8 +326,8 @@ namespace Status.Services
 
             if (StaticClass.ShutdownFlag == true)
             {
-                StaticClass.Log(iniData.ProcessLogFile, String.Format("Job {0} Shutdown at {1:HH:mm:ss.fff}",
-                    monitorData.Job, DateTime.Now));
+                StaticClass.Log(iniData.ProcessLogFile, String.Format("Shutdown JobRunThread RunJob before xml read for job {0} at {1:HH:mm:ss.fff}",
+                    Job, DateTime.Now));
                 return;
             }
 
@@ -353,7 +352,7 @@ namespace Status.Services
                     }
 
                     // Move Processing Buffer Files to the Repository directory when passed
-                    FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
+                    FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + Job, logger, true, true);
                 }
                 else
                 {
@@ -371,7 +370,7 @@ namespace Status.Services
                     }
 
                     // Move Processing Buffer Files to the Repository directory when failed
-                    FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
+                    FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + Job, logger, true, true);
                 }
             }
             else
@@ -390,13 +389,13 @@ namespace Status.Services
                 }
 
                 // Move Processing Buffer Files to the Repository directory when failed
-                FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
+                FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + Job, logger, true, true);
             }
 
             if (StaticClass.ShutdownFlag == true)
             {
-                StaticClass.Log(iniData.ProcessLogFile, String.Format("Job {0} Shutdown at {1:HH:mm:ss.fff}",
-                    monitorData.Job, DateTime.Now));
+                StaticClass.Log(iniData.ProcessLogFile, String.Format("Shutdown RunJob thread for job {0} at {1:HH:mm:ss.fff}",
+                    Job, DateTime.Now));
 
                 return;
             }
@@ -406,7 +405,7 @@ namespace Status.Services
                 StaticClass.NumberOfJobsExecuting--;
 
                 StaticClass.Log(iniData.ProcessLogFile, String.Format("Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
-                    monitorData.Job, StaticClass.NumberOfJobsExecuting, DateTime.Now));
+                    Job, StaticClass.NumberOfJobsExecuting, DateTime.Now));
 
                 // Add entry to status list
                 StatusDataEntry(statusData, Job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);

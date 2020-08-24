@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using StatusModels;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
 
 /// <summary>
 /// Status data repository services
@@ -98,7 +96,7 @@ namespace Status.Services
             {
                 Logger.LogError("Log File History status failed to instantiate");
             }
-            status.CheckLogFileHistory(IniData.StatusLogFile, IniData.LogFileHistory, Logger);
+            status.CheckLogFileHistory(IniData, Logger);
         }
 
         /// <summary>
@@ -173,7 +171,7 @@ namespace Status.Services
                 Logger.LogError("StatusRepository status failed to instantiate");
             }
 
-            StatusDataList = status.ReadFromCsvFile(IniData.StatusLogFile, IniData, Logger);
+            StatusDataList = status.ReadFromCsvFile(IniData, Logger);
             
             return StatusDataList;
         }

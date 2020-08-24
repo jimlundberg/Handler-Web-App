@@ -199,6 +199,9 @@ namespace Status.Services
                 {
                     if (StaticClass.ShutdownFlag == true)
                     {
+                        StaticClass.Log(iniData.ProcessLogFile,
+                            String.Format("Shutdown TcpIpListenThread prewrite for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                            job, port, DateTime.Now));
                         return;
                     }
 
@@ -226,6 +229,9 @@ namespace Status.Services
                             {
                                 if (StaticClass.ShutdownFlag == true)
                                 {
+                                    StaticClass.Log(iniData.ProcessLogFile,
+                                        String.Format("Shutdown TcpIpListenThread preread for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                                        job, port, DateTime.Now));
                                     return;
                                 }
 
@@ -314,7 +320,9 @@ namespace Status.Services
                         // Check if the shutdown flag is set, then exit method
                         if (StaticClass.ShutdownFlag == true)
                         {
-                            logger.LogInformation("Shutdown Connect job {0}", monitorData.Job);
+                            StaticClass.Log(iniData.ProcessLogFile,
+                                String.Format("Shutdown TcpIpListenThread Connect for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                                job, port, DateTime.Now));
                             jobComplete = true;
                         }
 

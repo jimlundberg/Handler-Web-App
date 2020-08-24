@@ -144,12 +144,13 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        public List<StatusData> ReadFromCsvFile(string logFileName, IniFileData iniData, ILogger<StatusRepository> logger)
+        public List<StatusData> ReadFromCsvFile(IniFileData iniData, ILogger<StatusRepository> logger)
         {
             List<StatusData> statusDataTable = new List<StatusData>();
             DateTime timeReceived = DateTime.MinValue;
             DateTime timeStarted = DateTime.MinValue;
             DateTime timeCompleted = DateTime.MinValue;
+            string logFileName = iniData.StatusLogFile;
 
             if (File.Exists(logFileName) == true)
             {
@@ -251,9 +252,9 @@ namespace Status.Services
                             // If the shutdown flag is set, exit method
                             if (StaticClass.ShutdownFlag == true)
                             {
-                                StaticClass.Log(iniData.ProcessLogFile, 
+                                StaticClass.Log(iniData.ProcessLogFile,
                                     String.Format("Shutdown ReadFromCsvFile job {0} row {1}", rowStatusData.Job, rowStatusData));
-                                return statusDataTable;
+                                return null;
                             }
                         }
                     }
@@ -273,9 +274,11 @@ namespace Status.Services
         /// <param name="logFileHistory"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        public void CheckLogFileHistory(string logFileName, int logFileHistory, ILogger<StatusRepository> logger)
+        public void CheckLogFileHistory(IniFileData iniData, ILogger<StatusRepository> logger)
         {
             List<StatusData> statusDataTable = new List<StatusData>();
+            string logFileName = iniData.StatusLogFile;
+            int logFileHistory = iniData.LogFileHistory;
 
             if (File.Exists(logFileName) == true)
             {
@@ -306,7 +309,7 @@ namespace Status.Services
                             }
 
                             bool oldRecord = false;
-                            rowStatusData.Job = rowData[0];
+                            string job = rowStatusData.Job = rowData[0];
 
                             string jobType = rowData[1];
                             switch (jobType)
@@ -390,7 +393,9 @@ namespace Status.Services
                             // If the shutdown flag is set, exit method
                             if (StaticClass.ShutdownFlag == true)
                             {
-                                logger.LogInformation("Shutdown CheckLogFileHistory job {0} row {1}", rowStatusData.Job, rowStatusData);
+                                StaticClass.Log(iniData.ProcessLogFile,
+                                    String.Format("Shutdown CheckLogFileHistory job {0} at {1:HH:mm:ss.fff}",
+                                    job, DateTime.Now));
                                 return;
                             }
                         }

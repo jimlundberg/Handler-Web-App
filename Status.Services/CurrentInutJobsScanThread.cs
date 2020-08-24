@@ -110,6 +110,8 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == true)
                 {
+                    StaticClass.Log(iniData.ProcessLogFile,
+                        String.Format("Shutdown CurrentInputJobsScanThread CheckForCurrentInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
             }
@@ -261,7 +263,8 @@ namespace Status.Services
                 // Cieck if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    logger.LogInformation("CurrentInputJobsScanThread Shutdown of job {0}", job);
+                    Console.WriteLine(String.Format("Shutdown CurrentInputJobsScanThread StartInputJob of job {0} at {0:HH:mm:ss.fff}",
+                        job, DateTime.Now));
                     return;
                 }
             }

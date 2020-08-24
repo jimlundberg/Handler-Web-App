@@ -186,7 +186,8 @@ namespace Status.Services
                 // Check if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    logger.LogInformation("CurrentProcessingJobsScanThread Shutdown of job {0}", xmlData.Job);
+                    StaticClass.Log(IniData.ProcessLogFile,
+                        String.Format("Shutdown CurrentProcessingJobsScanThread StartProcessingJob at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
             }
