@@ -72,9 +72,12 @@ namespace Status.Services
         /// Is file ready to access
         /// </summary>
         /// <param name="fileName"></param>
-        /// <returns>async Task to wait for</returns>
+        /// <returns>Returns if file is ready to access</returns>
         public static async Task IsFileReady(string fileName)
         {
+            Console.Write(String.Format("IsFileReady waiting for {0} to be ready for access at {1:HH:mm:ss.fff}",
+                fileName, DateTime.Now));
+
             await Task.Run(() =>
             {
                 // Check if file even exists
@@ -83,15 +86,19 @@ namespace Status.Services
                     return;
                 }
 
-                var isReady = false;
+                bool isReady = false;
                 while (!isReady)
                 {
-                    // If file can be opened for exclusive access it means it is no longre locked by other process
+                    // If file can be opened for exclusive access it means it is no longer locked by other process
                     try
                     {
                         using (FileStream inputStream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.None))
                         {
-                            isReady = inputStream.Length > 0;
+                            if (inputStream.Length > 0)
+                            {
+                                Console.WriteLine(String.Format(" {0} available at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
+                                isReady = true;
+                            }
                         }
                     }
                     catch (Exception e)
@@ -99,11 +106,15 @@ namespace Status.Services
                         // Check if the exception is related to an IO error.
                         if (e.GetType() == typeof(IOException))
                         {
+                            Console.Write(".");
                             isReady = false;
+                            Thread.Sleep(100);
                         }
                         else
                         {
                             // Rethrow the exception as it's not an exclusively-opened-exception.
+                            Console.WriteLine(String.Format("IsFileReady exception {0} rethrown for file {1} at {2:HH:mm:ss.fff}",
+                                e.ToString(), fileName, DateTime.Now));
                             throw;
                         }
                     }
