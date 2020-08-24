@@ -73,7 +73,7 @@ namespace Status.Services
             startInfo.Arguments = String.Format("{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
             startInfo.UseShellExecute = true;
             startInfo.WorkingDirectory = ProcessingDir;
-            startInfo.WindowStyle = ProcessWindowStyle.Normal;
+            startInfo.WindowStyle = ProcessWindowStyle.Minimized;
 
             Process ModelerProcess = Process.Start(startInfo);
             if (ModelerProcess == null)
