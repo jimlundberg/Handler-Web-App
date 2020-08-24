@@ -108,7 +108,7 @@ namespace Status.Services
                         {
                             Console.Write(".");
                             isReady = false;
-                            Thread.Sleep(100);
+                            Thread.Sleep(500);
                         }
                         else
                         {
