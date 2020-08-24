@@ -29,10 +29,10 @@ namespace Status.Services
             // If the destination directory does not exist, create it
             if (!destinationDI.Exists)
             {
-                lock (fileLock)
-                {
-                    destinationDI.Create();
-                }
+                // Wait for the data.xml file to be ready
+                var task = StaticClass.IsFileReady(destinationDI.FullName);
+                task.Wait();
+                destinationDI.Create();
             }
 
             // Copy files one by one
@@ -45,10 +45,10 @@ namespace Status.Services
                 // Delete the destination file if overwrite is true
                 if (destFile.Exists && overwrite)
                 {
-                    lock (fileLock)
-                    {
-                        destFile.Delete();
-                    }
+                    // Wait for the data.xml file to be ready
+                    var task = StaticClass.IsFileReady(destFile.FullName);
+                    task.Wait();
+                    destFile.Delete();
                 }
 
                 sourceFile.CopyTo(Path.Combine(destinationDI.FullName, sourceFile.Name));
@@ -56,20 +56,20 @@ namespace Status.Services
                 // Delete the source file if removeSource is true
                 if (removeSource)
                 {
-                    lock (fileLock)
-                    {
-                        sourceFile.Delete();
-                    }
+                    // Wait for the data.xml file to be ready
+                    var task = StaticClass.IsFileReady(sourceFile.Name);
+                    task.Wait();
+                    sourceFile.Delete();
                 }
             }
 
             // Delete the source directory if removeSource is true
             if (removeSource)
             {
-                lock (fileLock)
-                {
-                    sourceDI.Delete();
-                }
+                // Wait for the data.xml file to be ready
+                var task = StaticClass.IsFileReady(sourceDI.Name);
+                task.Wait();
+                sourceDI.Delete();
             }
         }
 
@@ -83,18 +83,19 @@ namespace Status.Services
         {
             FileInfo Source = new FileInfo(sourceFile);
             FileInfo Target = new FileInfo(targetFile);
+
             if (Target.Exists)
             {
-                lock (fileLock)
-                {
-                    Target.Delete();
-                }
+                // Delete the Target file first
+                var taskDelete = StaticClass.IsFileReady(Target.Name);
+                taskDelete.Wait();
+                Target.Delete();
             }
 
-            lock (fileLock)
-            {
-                Source.CopyTo(targetFile);
-            }
+            // Copy to target file
+            var taskCopy = StaticClass.IsFileReady(targetFile.ToString());
+            taskCopy.Wait();
+            Source.CopyTo(targetFile);
 
             Console.WriteLine("Copied {0} -> {1}", sourceFile, targetFile);
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -45,5 +46,48 @@ namespace Status.Services
 			log.WriteToLogFile(msg);
 			Thread.Sleep(10);
 		}
-	}
+
+        /// <summary>
+        /// Is file ready to access
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns>async Task to wait for</returns>
+        public static async Task IsFileReady(string fileName)
+        {
+            await Task.Run(() =>
+            {
+                // Check if file even exists
+                if (!File.Exists(fileName))
+                {
+                    return;
+                }
+
+                var isReady = false;
+                while (!isReady)
+                {
+                    // If file can be opened for exclusive access it means it is no longre locked by other process
+                    try
+                    {
+                        using (FileStream inputStream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.None))
+                        {
+                            isReady = inputStream.Length > 0;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        // Check if the exception is related to an IO error.
+                        if (e.GetType() == typeof(IOException))
+                        {
+                            isReady = false;
+                        }
+                        else
+                        {
+                            // Rethrow the exception as it's not an exclusively-opened-exception.
+                            throw;
+                        }
+                    }
+                }
+            });
+        }
+    }
 }
