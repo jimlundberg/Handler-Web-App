@@ -205,7 +205,7 @@ namespace Status.Services
                     // Wait for Input file scan to complete
                     do
                     {
-                        Thread.Sleep(250);
+                        Thread.Sleep(StaticClass.ThreadWaitTime);
 
                         if (StaticClass.ShutdownFlag == true)
                         {
@@ -285,7 +285,7 @@ namespace Status.Services
             // Wait for both job Processing and TCP/IP to complete
             do
             {
-                Thread.Sleep(250);
+                Thread.Sleep(StaticClass.ThreadWaitTime);
 
                 if (StaticClass.ShutdownFlag == false)
                 {

@@ -72,7 +72,7 @@ namespace Status.Services
                             string directory = iniData.InputDir + @"\" + StaticClass.NewInputJobsToRun[i];
                             CurrentInputJobsScanThread currentInputJobsScan = new CurrentInputJobsScanThread();
                             currentInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
-                            Thread.Sleep(iniData.ScanTime);
+                            Thread.Sleep(StaticClass.ScanWaitTime);
                         }
 
                         StaticClass.CurrentInputJobsScanComplete = true;
@@ -191,7 +191,7 @@ namespace Status.Services
                 // Wait for Input file Scan to Complete with enough files to start job
                 do
                 {
-                    Thread.Sleep(250);
+                    Thread.Sleep(StaticClass.ThreadWaitTime);
 
                     if (StaticClass.ShutdownFlag == true)
                     {

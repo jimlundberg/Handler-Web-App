@@ -134,7 +134,7 @@ namespace Status.Services
                     }
                 }
 
-                Thread.Sleep(250);
+                Thread.Sleep(StaticClass.ThreadWaitTime);
 
                 if (StaticClass.ShutdownFlag == true)
                 {

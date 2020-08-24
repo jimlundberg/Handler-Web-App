@@ -113,7 +113,7 @@ namespace Status.Services
                 // Scan Input directory forever or at least until shutdown
                 do
                 {
-                    Thread.Sleep(250);
+                    Thread.Sleep(StaticClass.ThreadWaitTime);
                 }
                 while (StaticClass.ShutdownFlag == false);
             }

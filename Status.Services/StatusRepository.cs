@@ -55,16 +55,20 @@ namespace Status.Services
             IniData.StartPort = int.Parse(IniParser.Read("Process", "StartPort"));
             IniData.StatusLogFile = IniParser.Read("Process", "StatusLogFile");
             IniData.ProcessLogFile = IniParser.Read("Process", "ProcessLogFile");
-            string scanTime = IniParser.Read("Process", "ScanTime");
-            IniData.ScanTime = int.Parse(scanTime.Substring(0, scanTime.IndexOf("#")));
+            string scanWaitTime = IniParser.Read("Process", "ScanWaitTime");
+            IniData.ScanWaitTime = int.Parse(scanWaitTime.Substring(0, scanWaitTime.IndexOf("#")));
             string timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
+            string threadWaitTime = IniParser.Read("Process", "ThreadWaitTime");
+            IniData.ThreadWaitTime = int.Parse(threadWaitTime.Substring(0, threadWaitTime.IndexOf("#")));
             IniData.MaxTimeLimit = int.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             string logFileHistory = IniParser.Read("Process", "LogFileHistory");
             IniData.LogFileHistory = int.Parse(logFileHistory.Substring(0, logFileHistory.IndexOf("#")));
             string logFileMaxSize = IniParser.Read("Process", "logFileMaxSize");
             IniData.LogFileMaxSize = int.Parse(logFileMaxSize.Substring(0, logFileMaxSize.IndexOf("#")));
 
-            // Set the log file max size
+            // Set the static class data needed
+            StaticClass.ScanWaitTime = IniData.ScanWaitTime;
+            StaticClass.ThreadWaitTime = IniData.ThreadWaitTime;
             StaticClass.logFileSizeLimit = IniData.LogFileMaxSize;
 
             string logFile = IniData.ProcessLogFile;
@@ -80,7 +84,8 @@ namespace Status.Services
             StaticClass.Log(logFile, "CPU Cores                   : " + IniData.CPUCores + " Cores");
             StaticClass.Log(logFile, "Execution Limit             : " + IniData.ExecutionLimit + " Jobs");
             StaticClass.Log(logFile, "Start Port                  : " + IniData.StartPort);
-            StaticClass.Log(logFile, "Scan Time                   : " + IniData.ScanTime + " Miliseconds");
+            StaticClass.Log(logFile, "Scan Wait Time              : " + IniData.ScanWaitTime + " Miliseconds");
+            StaticClass.Log(logFile, "Thread Wait Time            : " + IniData.ThreadWaitTime + " Miliseconds");
             StaticClass.Log(logFile, "Max Time Limit              : " + IniData.MaxTimeLimit + " Seconds");
             StaticClass.Log(logFile, "Log File History            : " + IniData.LogFileHistory + " Days");
             StaticClass.Log(logFile, "Log File Max Size           : " + IniData.LogFileMaxSize + " MegaBytes");

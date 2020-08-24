@@ -110,7 +110,7 @@ namespace Status.Services
             List<StatusData> statusData, string message, ILogger<StatusRepository> logger)
         {
             // Wait about a minute for the Modeler to start execution
-            Thread.Sleep(iniData.ScanTime * 12);
+            Thread.Sleep(StaticClass.ScanWaitTime * 12);
 
             StaticClass.Log(IniData.ProcessLogFile, String.Format("\nStarting Tcp/Ip Scan for job {0} on port {1} at {2:HH:mm:ss.fff}",
                 monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
@@ -143,7 +143,7 @@ namespace Status.Services
                 }
 
                 bool jobComplete = false;
-                int adjustableSleepTime = iniData.ScanTime * 3;
+                int adjustableSleepTime = StaticClass.ScanWaitTime * 3;
                 do
                 {
                     if (StaticClass.ShutdownFlag == true)
@@ -201,7 +201,7 @@ namespace Status.Services
                                 }
                             }
 
-                            Thread.Sleep(IniData.ScanTime);
+                            Thread.Sleep(StaticClass.ThreadWaitTime * 40);
                         }
 
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);

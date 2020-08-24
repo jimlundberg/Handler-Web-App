@@ -14,6 +14,8 @@ namespace Status.Services
     /// </summary>
     public static class StaticClass
 	{
+        public static int ThreadWaitTime = 0;
+        public static int ScanWaitTime = 0;
 		public static int NumberOfJobsExecuting = 0;
 		public static int RunningJobsIndex = 0;
 		public static int logFileSizeLimit = 0;
@@ -44,10 +46,8 @@ namespace Status.Services
 		public static void Log(string logFile, string msg)
 		{
 			Console.WriteLine(msg);
-			Thread.Sleep(10);
 			LoggingToFile log = new LoggingToFile(logFile);
 			log.WriteToLogFile(msg);
-			Thread.Sleep(10);
 		}
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Status.Services
                         {
                             if (inputStream.Length > 0)
                             {
-                                Console.WriteLine(String.Format("\nIsFileReady sees {0} as available at {1:HH:mm:ss.fff}",
+                                Console.WriteLine(String.Format("IsFileReady sees {0} as available at {1:HH:mm:ss.fff}",
                                     fileName, DateTime.Now));
                                 isReady = true;
                             }
@@ -105,7 +105,7 @@ namespace Status.Services
                         if (e.GetType() == typeof(IOException))
                         {
                             isReady = false;
-                            Thread.Sleep(500);
+                            Thread.Sleep(StaticClass.ThreadWaitTime);
                         }
                         else
                         {

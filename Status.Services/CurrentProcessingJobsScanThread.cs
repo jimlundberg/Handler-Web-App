@@ -196,8 +196,6 @@ namespace Status.Services
                 // Add jobs over execution limit to the Processing Job list
                 StaticClass.NewProcessingJobsToRun.Add(job);
             }
-
-            Thread.Sleep(iniFileData.ScanTime);
         }
     }
 }

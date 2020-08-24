@@ -88,7 +88,7 @@ namespace Status.Services
             StaticClass.ProcessHandles.Add(job, ModelerProcess);
 
             // Give the Modeler time to start so you can read the main window title
-            Thread.Sleep(250);
+            Thread.Sleep(StaticClass.ThreadWaitTime);
 
             StaticClass.Log(logFileName, String.Format("{0} {1}", ModelerProcess.MainWindowTitle, ModelerProcess.StartInfo.Arguments));
 
@@ -99,17 +99,21 @@ namespace Status.Services
             StaticClass.Log(logFileName, $"\nJob {monitorData.Job} Modeler execution process data:");
             StaticClass.Log(logFileName, $"ProcessName                 : {ModelerProcess.ProcessName}");
             StaticClass.Log(logFileName, $"StartInfo                   : {ModelerProcess.StartInfo}");
+            StaticClass.Log(logFileName, $"StartTime                   : {ModelerProcess.StartTime}");
+            StaticClass.Log(logFileName, $"MainWindowTitle             : {ModelerProcess.MainWindowTitle}");
+            StaticClass.Log(logFileName, $"MainWindowHandle            : {ModelerProcess.MainWindowHandle}");
+            StaticClass.Log(logFileName, $"MainModule                  : {ModelerProcess.MainModule}");
             StaticClass.Log(logFileName, $"Id                          : {ModelerProcess.Id}");
             StaticClass.Log(logFileName, $"Handle                      : {ModelerProcess.Handle}");
             StaticClass.Log(logFileName, $"GetType                     : {ModelerProcess.GetType()}");
             StaticClass.Log(logFileName, $"PriorityClass               : {ModelerProcess.PriorityClass}");
             StaticClass.Log(logFileName, $"Basepriority                : {ModelerProcess.BasePriority}");
+            StaticClass.Log(logFileName, $"PriorityBoostEnabled        : {ModelerProcess.PriorityBoostEnabled}");
+            StaticClass.Log(logFileName, $"Responding                  : {ModelerProcess.Responding}");
+            StaticClass.Log(logFileName, $"ProcessorAffinity           : {ModelerProcess.ProcessorAffinity}");
             StaticClass.Log(logFileName, $"HandleCount                 : {ModelerProcess.HandleCount}");
             StaticClass.Log(logFileName, $"MaxWorkingSet               : {ModelerProcess.MaxWorkingSet}");
             StaticClass.Log(logFileName, $"MinWorkingSet               : {ModelerProcess.MinWorkingSet}");
-            StaticClass.Log(logFileName, $"MainWindowHandle            : {ModelerProcess.MainWindowHandle}");
-            StaticClass.Log(logFileName, $"MainModule                  : {ModelerProcess.MainModule}");
-            StaticClass.Log(logFileName, $"MainWindowTitle             : {ModelerProcess.MainWindowTitle}");
             StaticClass.Log(logFileName, $"NonpagedSystemMemorySize64  : {ModelerProcess.NonpagedSystemMemorySize64}");
             StaticClass.Log(logFileName, $"PeakVirtualMemorySize64     : {ModelerProcess.PeakVirtualMemorySize64}");
             StaticClass.Log(logFileName, $"PagedSystemMemorySize64     : {ModelerProcess.PagedSystemMemorySize64}");
@@ -118,10 +122,6 @@ namespace Status.Services
             StaticClass.Log(logFileName, $"NonpagedSystemMemorySize64  : {ModelerProcess.PagedMemorySize64}");
             StaticClass.Log(logFileName, $"WorkingSet64                : {ModelerProcess.WorkingSet64}");
             StaticClass.Log(logFileName, $"PeakWorkingSet64            : {ModelerProcess.PeakWorkingSet64}");
-            StaticClass.Log(logFileName, $"PriorityBoostEnabled        : {ModelerProcess.PriorityBoostEnabled}");
-            StaticClass.Log(logFileName, $"Responding                  : {ModelerProcess.Responding}");
-            StaticClass.Log(logFileName, $"ProcessorAffinity           : {ModelerProcess.ProcessorAffinity}");
-            StaticClass.Log(logFileName, $"StartTime                   : {ModelerProcess.StartTime}");
             StaticClass.Log(logFileName, $"PrivilegedProcessorTime     : {ModelerProcess.PrivilegedProcessorTime}");
             StaticClass.Log(logFileName, $"TotalProcessorTime          : {ModelerProcess.TotalProcessorTime}");
             StaticClass.Log(logFileName, $"UserProcessorTime           : {ModelerProcess.UserProcessorTime}");

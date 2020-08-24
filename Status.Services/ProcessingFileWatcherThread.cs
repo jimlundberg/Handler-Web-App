@@ -75,7 +75,7 @@ namespace Status.Services
                             string directory = iniData.InputDir + @"\" + StaticClass.NewProcessingJobsToRun[i];
                             CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
                             currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
-                            Thread.Sleep(iniData.ScanTime);
+                           Thread.Sleep(StaticClass.ScanWaitTime);
                         }
 
                         StaticClass.ProcessingFileScanComplete[job] = true;
@@ -174,7 +174,7 @@ namespace Status.Services
                     return false;
                 }
 
-                Thread.Sleep(250);
+                Thread.Sleep(StaticClass.ThreadWaitTime);
             }
             while (OverallResultEntryFound == false);
 
@@ -243,7 +243,7 @@ namespace Status.Services
                 // Wait for Processing file scan to Complete with a full set of job output files
                 do
                 {
-                    Thread.Sleep(250);
+                    Thread.Sleep(StaticClass.ThreadWaitTime);
 
                     if (StaticClass.ShutdownFlag == true)
                     {

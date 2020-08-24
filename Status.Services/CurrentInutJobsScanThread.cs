@@ -106,7 +106,7 @@ namespace Status.Services
             // Wait while scanning for unfinished Processing jobs
             do
             {
-                Thread.Sleep(250);
+                Thread.Sleep(StaticClass.ThreadWaitTime);
 
                 if (StaticClass.ShutdownFlag == true)
                 {
@@ -153,7 +153,7 @@ namespace Status.Services
                     // Create new Input job Scan thread and run
                     CurrentInputJobsScanThread newInputJobsScanThread = new CurrentInputJobsScanThread();
                     newInputJobsScanThread.StartInputJob(directory, IniData, StatusData, Logger);
-                    Thread.Sleep(iniData.ScanTime);
+                    Thread.Sleep(StaticClass.ScanWaitTime);
                 }
                 else
                 {
@@ -191,12 +191,12 @@ namespace Status.Services
                             string directory = iniData.InputDir + @"\" + job;
                             CurrentInputJobsScanThread newInputJobsScan = new CurrentInputJobsScanThread();
                             newInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
-                            Thread.Sleep(iniData.ScanTime);
+                            Thread.Sleep(StaticClass.ScanWaitTime);
                         }
                     }
                 }
 
-                Thread.Sleep(250);
+                Thread.Sleep(StaticClass.ThreadWaitTime);
             }
             while (StaticClass.ShutdownFlag == false);
         }
@@ -273,8 +273,6 @@ namespace Status.Services
                 // Add jobs over execution limit to the Input Job list
                 StaticClass.NewInputJobsToRun.Add(job);
             }
-
-            Thread.Sleep(iniFileData.ScanTime);
         }
     }
 }

@@ -19,7 +19,8 @@ namespace StatusModels
         public int CPUCores { get; set; }
         public int ExecutionLimit { get; set; }
         public int MaxTimeLimit { get; set; }
-        public int ScanTime { get; set; }
+        public int ScanWaitTime { get; set; }
+        public int ThreadWaitTime { get; set; }
         public int StartPort { get; set; }
         public int LogFileHistory { get; set; }
         public int LogFileMaxSize { get; set; }
