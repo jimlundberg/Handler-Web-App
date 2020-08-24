@@ -201,7 +201,7 @@ namespace Status.Services
                                 }
                             }
 
-                            Thread.Sleep(StaticClass.ThreadWaitTime * 40);
+                            Thread.Sleep(StaticClass.ScanWaitTime * 2);
                         }
 
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
