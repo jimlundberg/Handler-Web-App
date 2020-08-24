@@ -97,24 +97,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Status Data Entry
-        /// </summary>
-        /// <param name="statusList"></param>
-        /// <param name="job"></param>
-        /// <param name="iniData"></param>
-        /// <param name="status"></param>
-        /// <param name="timeSlot"></param>
-        /// <param name="logFileName"></param>
-        /// <param name="logger"></param>
-        public static void StatusDataEntry(List<StatusData> statusList, string job, IniFileData iniData,
-            JobStatus status, JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
-        {
-            StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, logFileName, logger);
-            statusData.ListStatus(iniData, statusList, job, status, timeSlot);
-            statusData.WriteToCsvFile(job, iniData, status, timeSlot, logFileName, logger);
-        }
-
-        /// <summary>
         /// Process of running a job 
         /// </summary>
         /// <param name="jobDirectory"></param>
@@ -135,7 +117,7 @@ namespace Status.Services
             int NumFilesToTransfer = 0;
 
             // Add initial entry to status list
-            StatusDataEntry(statusData, Job, iniData, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.StatusLogFile, logger);
+            StaticClass.StatusDataEntry(statusData, Job, iniData, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, iniData.StatusLogFile, logger);
 
             // Set the Start time of the Job
             monitorData.StartTime = DateTime.Now;
@@ -182,7 +164,7 @@ namespace Status.Services
             StaticClass.Log(iniData.ProcessLogFile, String.Format("Job Port Number             : " + monitorData.JobPortNumber));
 
             // Add initial entry to status list
-            StatusDataEntry(statusData, Job, iniData, JobStatus.MONITORING_INPUT, JobType.TIME_START, iniData.StatusLogFile, logger);
+            StaticClass.StatusDataEntry(statusData, Job, iniData, JobStatus.MONITORING_INPUT, JobType.TIME_START, iniData.StatusLogFile, logger);
 
             // Create the Transfered file list from the Xml file entries
             monitorData.TransferedFileList = new List<string>(NumFilesToTransfer);
@@ -240,7 +222,7 @@ namespace Status.Services
                         InputBufferJobDir, DateTime.Now));
 
                     // Add copying entry to status list
-                    StatusDataEntry(statusData, Job, iniData, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, iniData.StatusLogFile, logger);
+                    StaticClass.StatusDataEntry(statusData, Job, iniData, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, iniData.StatusLogFile, logger);
 
                     // Move files from Input directory to the Processing directory, creating it first if needed
                     FileHandling.CopyFolderContents(InputBufferJobDir, ProcessingBufferJobDir, logger, true, true);
@@ -253,7 +235,7 @@ namespace Status.Services
             }
 
             // Add entry to status list
-            StatusDataEntry(statusData, Job, iniData, JobStatus.EXECUTING, JobType.TIME_START, iniData.StatusLogFile, logger);
+            StaticClass.StatusDataEntry(statusData, Job, iniData, JobStatus.EXECUTING, JobType.TIME_START, iniData.StatusLogFile, logger);
 
             // If the shutdown flag is set, exit method
             if (StaticClass.ShutdownFlag == true)
@@ -279,7 +261,7 @@ namespace Status.Services
                     Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores, DateTime.Now));
 
             // Add entry to status list
-            StatusDataEntry(statusData, Job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.StatusLogFile, logger);
+            StaticClass.StatusDataEntry(statusData, Job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.StatusLogFile, logger);
 
             // Monitor for complete set of files in the Processing Buffer
             StaticClass.Log(iniData.ProcessLogFile, 
@@ -324,7 +306,7 @@ namespace Status.Services
             XmlDoc.Load(xmlFileName);
 
             // Add copy to archieve entry to status list
-            StatusDataEntry(statusData, Job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.StatusLogFile, logger);
+            StaticClass.StatusDataEntry(statusData, Job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.StatusLogFile, logger);
 
             if (StaticClass.ShutdownFlag == true)
             {
@@ -412,7 +394,7 @@ namespace Status.Services
                     Job, StaticClass.NumberOfJobsExecuting, DateTime.Now));
 
                 // Add entry to status list
-                StatusDataEntry(statusData, Job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
+                StaticClass.StatusDataEntry(statusData, Job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
             }
         }
     }

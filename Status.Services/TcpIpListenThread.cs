@@ -68,57 +68,6 @@ namespace Status.Services
             thread.Start();
         }
 
-        // Status Data Entry
-        /// <summary>
-        /// Status Data Entry Method
-        /// </summary>
-        /// <param name="statusList"></param>
-        /// <param name="job"></param>
-        /// <param name="iniData"></param>
-        /// <param name="status"></param>
-        /// <param name="timeSlot"></param>
-        /// <param name="logFileName"></param>
-        /// <param name="logger"></param>
-        public static void StatusDataEntry(List<StatusData> statusList, string job, IniFileData iniData, JobStatus status,
-            JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
-        {
-            StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, logFileName, logger);
-            statusData.ListStatus(iniData, statusList, job, status, timeSlot);
-            statusData.WriteToCsvFile(job, iniData, status, timeSlot, logFileName, logger);
-        }
-
-        /// <summary>
-        /// Status data entry
-        /// </summary>
-        /// <param name="statusList"></param>
-        /// <param name="job"></param>
-        /// <param name="status"></param>
-        /// <param name="timeSlot"></param>
-        public static void StatusEntry(List<StatusData> statusList, string job, JobStatus status, JobType timeSlot)
-        {
-            StatusData entry = new StatusData();
-            entry.Job = job;
-            entry.JobStatus = status;
-            switch (timeSlot)
-            {
-                case JobType.TIME_START:
-                    entry.TimeStarted = DateTime.Now;
-                    break;
-
-                case JobType.TIME_RECEIVED:
-                    entry.TimeReceived = DateTime.Now;
-                    break;
-
-                case JobType.TIME_COMPLETE:
-                    entry.TimeCompleted = DateTime.Now;
-                    break;
-            }
-
-            statusList.Add(entry);
-            StaticClass.Log(IniData.ProcessLogFile,
-                String.Format("Status: Job:{0} Job Status:{1}", job, status));
-        }
-
         /// <summary>
         /// Job timeout handler
         /// </summary>
@@ -171,7 +120,7 @@ namespace Status.Services
                 string job = monitorData.Job;
 
                 // Log Tcp/Ip monitoring entry
-                StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_TCPIP, JobType.TIME_START, iniData.StatusLogFile, logger);
+                StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_TCPIP, JobType.TIME_START, iniData.StatusLogFile, logger);
 
                 // Create a TcpClient.
                 // Note, for this client to work you need to have a TcpServer
@@ -313,7 +262,7 @@ namespace Status.Services
                             TimeoutHandler(job, iniData, logger);
 
                             // Create job Timeout status
-                            StatusDataEntry(statusData, monitorData.Job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
+                            StaticClass.StatusDataEntry(statusData, monitorData.Job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
                             jobComplete = true;
                         }
 

@@ -149,20 +149,34 @@ namespace Status.Services
             string xmlFileName = directory + @"\" + "Data.xml";
             XmlDocument XmlDoc;
 
-            // Wait for the data.xml file to be ready
-            var task = StaticClass.IsFileReady(xmlFileName);
-            task.Wait();
-
-            // Read output Xml file data
-            XmlDoc = new XmlDocument();
-            XmlDoc.Load(xmlFileName);
-
-            // Check if the OverallResult node exists
-            XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
-            if (OverallResult != null)
+            do
             {
-                OverallResultEntryFound = true;
+                // Wait for the data.xml file to be ready
+                var task = StaticClass.IsFileReady(xmlFileName);
+                task.Wait();
+
+                // Read output Xml file data
+                XmlDoc = new XmlDocument();
+                XmlDoc.Load(xmlFileName);
+
+                // Check if the OverallResult node exists
+                XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
+                if (OverallResult != null)
+                {
+                    OverallResultEntryFound = true;
+                }
+
+                if (StaticClass.ShutdownFlag == true)
+                {
+                    StaticClass.Log(IniData.ProcessLogFile,
+                        String.Format("\nShutdown ProcessingFileWatcher Thread OverallResultEntryCheck for file {0} at {1:HH:mm:ss.fff}",
+                        directory,DateTime.Now));
+                    return false;
+                }
+
+                Thread.Sleep(250);
             }
+            while (OverallResultEntryFound == false);
 
             return OverallResultEntryFound;
         }

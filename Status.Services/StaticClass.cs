@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using StatusModels;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -47,6 +49,24 @@ namespace Status.Services
 			log.WriteToLogFile(msg);
 			Thread.Sleep(10);
 		}
+
+        /// <summary>
+        /// Status Data Entry Method
+        /// </summary>
+        /// <param name="statusList"></param>
+        /// <param name="job"></param>
+        /// <param name="iniData"></param>
+        /// <param name="status"></param>
+        /// <param name="timeSlot"></param>
+        /// <param name="logFileName"></param>
+        /// <param name="logger"></param>
+        public static void StatusDataEntry(List<StatusData> statusList, string job, IniFileData iniData, JobStatus status,
+            JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
+        {
+            StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, logFileName, logger);
+            statusData.ListStatus(iniData, statusList, job, status, timeSlot);
+            statusData.WriteToCsvFile(job, iniData, status, timeSlot, logFileName, logger);
+        }
 
         /// <summary>
         /// Is file ready to access
