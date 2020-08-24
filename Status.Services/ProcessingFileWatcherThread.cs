@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Permissions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Status.Services
@@ -139,34 +140,66 @@ namespace Status.Services
         }
 
         /// <summary>
+        /// Is file ready to access
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns>async Task to wait for</returns>
+        public static async Task IsFileReady(string fileName)
+        {
+            await Task.Run(() =>
+            {
+                // Check if file even exists
+                if (!File.Exists(fileName))
+                {
+                    return;
+                }
+
+                var isReady = false;
+                while (!isReady)
+                {
+                    // If file can be opened for exclusive access it means it is no longre locked by other process
+                    try
+                    {
+                        using (FileStream inputStream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.None))
+                        {
+                            isReady = inputStream.Length > 0;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        // Check if the exception is related to an IO error.
+                        if (e.GetType() == typeof(IOException))
+                        {
+                            isReady = false;
+                        }
+                        else
+                        {
+                            // Rethrow the exception as it's not an exclusively-opened-exception.
+                            throw;
+                        }
+                    }
+                }
+            });
+        }
+
+        /// <summary>
         /// Check if the Modeler has deposited the OverallResult entry in the job data.xml file
         /// </summary>
         /// <param name="directory"></param>
         /// <returns></returns>
         public bool OverallResultEntryCheck(string directory)
         {
-            bool xmlFileFound = false;
             bool OverallResultEntryFound = false;
             string xmlFileName = directory + @"\" + "Data.xml";
             XmlDocument XmlDoc;
-            do
-            {
-                xmlFileFound = File.Exists(xmlFileName);
-                Thread.Sleep(250);
 
-                if (StaticClass.ShutdownFlag == true)
-                {
-                    return false;
-                }
-            }
-            while (xmlFileFound == false);
+            // Wait for the data.xml file to be ready
+            var task = IsFileReady(xmlFileName);
+            task.Wait();
 
-            lock (xmlLock)
-            {
-                // Read output Xml file data
-                XmlDoc = new XmlDocument();
-                XmlDoc.Load(xmlFileName);
-            }
+            // Read output Xml file data
+            XmlDoc = new XmlDocument();
+            XmlDoc.Load(xmlFileName);
 
             // Check if the OverallResult node exists
             XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
@@ -249,19 +282,8 @@ namespace Status.Services
                 }
                 while (StaticClass.ProcessingFileScanComplete[job] == false);
 
-                // Wait for the TCP/IP Scan to Complete when the Modeler deposits the results in data.xml
-                bool foundOverallResultEntry = false;
-                do
-                {
-                    foundOverallResultEntry = OverallResultEntryCheck(directory);
-                    Thread.Sleep(250);
-
-                    if (StaticClass.ShutdownFlag == true)
-                    {
-                        return;
-                    }
-                }
-                while (foundOverallResultEntry == false);
+                // Wait for the data.xml file to contain a result
+                OverallResultEntryCheck(directory);
 
                 // Remove job started from the Processing job list
                 StaticClass.NewProcessingJobsToRun.Remove(job);
