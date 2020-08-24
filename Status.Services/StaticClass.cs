@@ -75,9 +75,6 @@ namespace Status.Services
         /// <returns>Returns if file is ready to access</returns>
         public static async Task IsFileReady(string fileName)
         {
-            Console.Write(String.Format("IsFileReady waiting for {0} to be ready for access at {1:HH:mm:ss.fff}",
-                fileName, DateTime.Now));
-
             await Task.Run(() =>
             {
                 // Check if file even exists
@@ -96,7 +93,8 @@ namespace Status.Services
                         {
                             if (inputStream.Length > 0)
                             {
-                                Console.WriteLine(String.Format(" {0} available at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
+                                Console.WriteLine(String.Format("\nIsFileReady sees {0} as available at {1:HH:mm:ss.fff}",
+                                    fileName, DateTime.Now));
                                 isReady = true;
                             }
                         }
@@ -106,7 +104,6 @@ namespace Status.Services
                         // Check if the exception is related to an IO error.
                         if (e.GetType() == typeof(IOException))
                         {
-                            Console.Write(".");
                             isReady = false;
                             Thread.Sleep(500);
                         }

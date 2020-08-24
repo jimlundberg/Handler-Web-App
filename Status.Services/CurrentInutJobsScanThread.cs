@@ -64,7 +64,7 @@ namespace Status.Services
             string directory = e.ToString();
 
             StaticClass.Log(IniData.ProcessLogFile,
-                String.Format("\nnewJob_DirectoryFound Received new directory {0} at {0:HH:mm:ss.fff}",
+                String.Format("\nnewJob_DirectoryFound Received new directory {0} at {1:HH:mm:ss.fff}",
                 directory, DateTime.Now));
 
             // Set Flag for ending directory scan loop
@@ -263,7 +263,7 @@ namespace Status.Services
                 // Cieck if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    Console.WriteLine(String.Format("\nShutdown CurrentInputJobsScanThread StartInputJob of job {0} at {0:HH:mm:ss.fff}",
+                    Console.WriteLine(String.Format("\nShutdown CurrentInputJobsScanThread StartInputJob of job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
                     return;
                 }

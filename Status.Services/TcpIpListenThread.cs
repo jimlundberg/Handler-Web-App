@@ -210,11 +210,11 @@ namespace Status.Services
                         {
                             StaticClass.Log(iniData.ProcessLogFile,
                                 String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                                responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
+                                responseData, job, port, DateTime.Now));
 
                             StaticClass.Log(iniData.ProcessLogFile,
-                                String.Format("TCP/IP for Job {1} on port {2} received Process Done at {3:HH:mm:ss.fff}",
-                                responseData, monitorData.Job, monitorData.JobPortNumber, DateTime.Now));
+                                String.Format("TCP/IP for Job {0} on port {1} received Process Done at {2:HH:mm:ss.fff}",
+                                job, port, DateTime.Now));
 
                             StaticClass.TcpIpScanComplete[job] = true;
                             jobComplete = true;
@@ -256,7 +256,8 @@ namespace Status.Services
                         // Check for job timeout
                         if ((DateTime.Now - monitorData.StartTime).TotalSeconds > iniData.MaxTimeLimit)
                         {
-                            StaticClass.Log(iniData.ProcessLogFile, String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}", job, DateTime.Now));
+                            StaticClass.Log(iniData.ProcessLogFile, String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}",
+                                job, DateTime.Now));
 
                             // Handle job timeout
                             TimeoutHandler(job, iniData, logger);
