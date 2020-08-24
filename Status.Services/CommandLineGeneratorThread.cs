@@ -98,11 +98,11 @@ namespace Status.Services
             // Display Modeler Executable information
             StaticClass.Log(logFileName, $"\nJob {monitorData.Job} Modeler execution process data:");
             StaticClass.Log(logFileName, $"ProcessName                 : {ModelerProcess.ProcessName}");
-            StaticClass.Log(logFileName, $"StartInfo                   : {ModelerProcess.StartInfo}");
-            StaticClass.Log(logFileName, $"StartTime                   : {ModelerProcess.StartTime}");
             StaticClass.Log(logFileName, $"MainWindowTitle             : {ModelerProcess.MainWindowTitle}");
-            StaticClass.Log(logFileName, $"MainWindowHandle            : {ModelerProcess.MainWindowHandle}");
+            StaticClass.Log(logFileName, $"StartTime                   : {ModelerProcess.StartTime}");
             StaticClass.Log(logFileName, $"MainModule                  : {ModelerProcess.MainModule}");
+            StaticClass.Log(logFileName, $"MainWindowHandle            : {ModelerProcess.MainWindowHandle}");
+            StaticClass.Log(logFileName, $"StartInfo                   : {ModelerProcess.StartInfo}");
             StaticClass.Log(logFileName, $"Id                          : {ModelerProcess.Id}");
             StaticClass.Log(logFileName, $"Handle                      : {ModelerProcess.Handle}");
             StaticClass.Log(logFileName, $"GetType                     : {ModelerProcess.GetType()}");
