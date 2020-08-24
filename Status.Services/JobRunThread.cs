@@ -141,44 +141,37 @@ namespace Status.Services
             int NumFilesToTransfer = 0;
             string TopNode;
             XmlDocument XmlDoc;
-            lock (xmlLock)
+
+            // Wait for the data.xml file to be ready
+            var jobXmltask = StaticClass.IsFileReady(xmlFileName);
+            jobXmltask.Wait();
+
+            // Read Job xml file and get the top node
+            XmlDoc = new XmlDocument();
+            XmlDoc.Load(xmlFileName);
+            XmlElement root = XmlDoc.DocumentElement;
+            TopNode = root.LocalName;
+
+            // Get nodes for the number of files and names of files to transfer from Job .xml file
+            XmlNode UnitNumberdNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/listitem/value");
+            XmlNode ConsumedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Consumed");
+            XmlNode ProducedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Produced");
+            XmlNode TransferedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Transfered");
+            XmlNode ModelerNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
+
+            // Assign port number for this Job
+            monitorData.JobPortNumber = iniData.StartPort + monitorData.JobIndex;
+
+            // Get the modeler and number of files to transfer
+            monitorData.UnitNumber = UnitNumberdNode.InnerText;
+            monitorData.Modeler = ModelerNode.InnerText;
+            monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
+            monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
+            if (TransferedNode != null)
             {
-                XmlDoc = new XmlDocument();
-                try
-                {
-                    // Read Job Xml file
-                    XmlDoc.Load(xmlFileName);
-                }
-                catch
-                {
-                    throw new System.InvalidOperationException("Missing Xml File data");
-                }
-
-                // Get the top node of the Xml file
-                XmlElement root = XmlDoc.DocumentElement;
-                TopNode = root.LocalName;
-
-                // Get nodes for the number of files and names of files to transfer from Job .xml file
-                XmlNode UnitNumberdNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/listitem/value");
-                XmlNode ConsumedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Consumed");
-                XmlNode ProducedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Produced");
-                XmlNode TransferedNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Transfered");
-                XmlNode ModelerNode = XmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
-
-                // Assign port number for this Job
-                monitorData.JobPortNumber = iniData.StartPort + monitorData.JobIndex;
-
-                // Get the modeler and number of files to transfer
-                monitorData.UnitNumber = UnitNumberdNode.InnerText;
-                monitorData.Modeler = ModelerNode.InnerText;
-                monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
-                monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
-                if (TransferedNode != null)
-                {
-                    NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
-                }
-                monitorData.NumFilesToTransfer = NumFilesToTransfer;
+                NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
             }
+            monitorData.NumFilesToTransfer = NumFilesToTransfer;
 
             // Get the modeler and number of files to transfer
             StaticClass.Log(iniData.ProcessLogFile, String.Format("Unit Number                 : " + monitorData.UnitNumber));
@@ -234,6 +227,9 @@ namespace Status.Services
 
                         if (StaticClass.ShutdownFlag == true)
                         {
+                            StaticClass.Log(iniData.ProcessLogFile, String.Format("Job {0} Shutdown at {1:HH:mm:ss.fff}",
+                                monitorData.Job, DateTime.Now));
+                            
                             return;
                         }
                     }
@@ -309,15 +305,18 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == false)
                 {
-                    break;
+                    StaticClass.Log(iniData.ProcessLogFile, String.Format("Job {0} Shutdown at {1:HH:mm:ss.fff}",
+                        monitorData.Job, DateTime.Now));
+
+                    return;
                 }
             }
             while ((StaticClass.ProcessingFileScanComplete[Job] == false) ||
                    (StaticClass.TcpIpScanComplete[Job] == false));
 
             // Wait for the data.xml file to be ready
-            var task = StaticClass.IsFileReady(xmlFileName);
-            task.Wait();
+            var dataXmltask = StaticClass.IsFileReady(xmlFileName);
+            dataXmltask.Wait();
 
             // Load the data.xml file
             XmlDocument XmlOutputDoc = new XmlDocument();
@@ -328,6 +327,8 @@ namespace Status.Services
 
             if (StaticClass.ShutdownFlag == true)
             {
+                StaticClass.Log(iniData.ProcessLogFile, String.Format("Job {0} Shutdown at {1:HH:mm:ss.fff}",
+                    monitorData.Job, DateTime.Now));
                 return;
             }
 
