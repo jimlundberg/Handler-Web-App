@@ -94,7 +94,7 @@ namespace Status.Services
             StaticClass.Log(logFileName, String.Format("{0} {1}", ModelerProcess.MainWindowTitle, ModelerProcess.StartInfo.Arguments));
 
             // Wait for Modeler to startup before reading data
-            Thread.Sleep(4000);
+            Thread.Sleep(30000);
 
             // Display Modeler Executable information
             StaticClass.Log(logFileName, $"\nJob {monitorData.Job} Modeler execution process data:");

@@ -280,12 +280,6 @@ namespace Status.Services
                 String.Format("Starting Job {0} with Modeler {1} on port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
                 monitorData.Job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores, DateTime.Now));
 
-            // If the shutdown flag is set, exit method
-            if (StaticClass.ShutdownFlag == true)
-            {
-                return;
-            }
-
             // Add entry to status list
             StatusDataEntry(statusData, Job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, iniData.StatusLogFile, logger);
 
@@ -295,11 +289,6 @@ namespace Status.Services
                 Job, DateTime.Now));
 
             int NumOfFilesThatNeedToBeGenerated = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
-
-            if (StaticClass.ShutdownFlag == true)
-            {
-                return;
-            }
 
             // Register with the File Watcher class with an event and start its thread
             string processingBufferJobDir = iniData.ProcessingDir + @"\" + MonitorData.Job;
@@ -320,38 +309,19 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == false)
                 {
-                    return;
+                    break;
                 }
             }
             while ((StaticClass.ProcessingFileScanComplete[Job] == false) ||
-                    (StaticClass.TcpIpScanComplete[Job] == false));
+                   (StaticClass.TcpIpScanComplete[Job] == false));
 
-            // Check for Data.xml in the Processing Directory
-            bool XmlFileFound = false;
-            do
-            {
-                String[] files = Directory.GetFiles(ProcessingBufferJobDir, "Data.xml");
-                if (files.Length > 0)
-                {
-                    xmlFileName = files[0];
-                    XmlFileFound = true;
-                }
+            // Wait for the data.xml file to be ready
+            var task = StaticClass.IsFileReady(xmlFileName);
+            task.Wait();
 
-                Thread.Sleep(250);
-
-                if (StaticClass.ShutdownFlag == true)
-                {
-                    return;
-                }
-            }
-            while (XmlFileFound == false);
-
-            lock (xmlLock)
-            {
-                // Read output Xml file data
-                XmlDocument XmlOutputDoc = new XmlDocument();
-                XmlDoc.Load(xmlFileName);
-            }
+            // Load the data.xml file
+            XmlDocument XmlOutputDoc = new XmlDocument();
+            XmlDoc.Load(xmlFileName);
 
             // Add copy to archieve entry to status list
             StatusDataEntry(statusData, Job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, iniData.StatusLogFile, logger);
@@ -422,14 +392,24 @@ namespace Status.Services
                 FileHandling.CopyFolderContents(ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + monitorData.Job, logger, true, true);
             }
 
-            // Decrement the number of jobs executing after one completes
-            StaticClass.NumberOfJobsExecuting--;
+            if (StaticClass.ShutdownFlag == true)
+            {
+                StaticClass.Log(iniData.ProcessLogFile, String.Format("Job {0} Shutdown at {1:HH:mm:ss.fff}",
+                    monitorData.Job, DateTime.Now));
 
-            StaticClass.Log(iniData.ProcessLogFile, String.Format("Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
-                monitorData.Job, StaticClass.NumberOfJobsExecuting, DateTime.Now));
+                return;
+            }
+            else
+            {
+                // Decrement the number of jobs executing after one completes
+                StaticClass.NumberOfJobsExecuting--;
 
-            // Add entry to status list
-            StatusDataEntry(statusData, Job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
+                StaticClass.Log(iniData.ProcessLogFile, String.Format("Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
+                    monitorData.Job, StaticClass.NumberOfJobsExecuting, DateTime.Now));
+
+                // Add entry to status list
+                StatusDataEntry(statusData, Job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
+            }
         }
     }
 }
