@@ -142,41 +142,39 @@ namespace Status.Services
                     }
                 }
 
-                // Start scan for job files in the Output Buffer
+                // Start scan directory for job files in the Processing Buffer
                 ScanDirectory scanDir = new ScanDirectory();
                 if (scanDir == null)
                 {
                     Logger.LogError("CurrentProcessingJobsScanThread scanDir failed to instantiate");
                 }
-                JobXmlData jobXmlData = scanDir.GetJobXmlData(job, directory, logger);
 
                 // Get data found in Xml file into Monitor Data
-                JobXmlData xmlData = new JobXmlData();
-                if (xmlData == null)
+                JobXmlData jobXmlData = scanDir.GetJobXmlData(job, directory, logger);
+                if (jobXmlData == null)
                 {
-                    Logger.LogError("CurrentProcessingJobsScanThread xmlData failed to instantiate");
+                    Logger.LogError("CurrentProcessingJobsScanThread scanDir GetJobXmlData failed");
                 }
 
-                xmlData.Job = job;
-                xmlData.JobDirectory = jobXmlData.JobDirectory;
-                xmlData.JobSerialNumber = jobXmlData.JobSerialNumber;
-                xmlData.TimeStamp = jobXmlData.TimeStamp;
-                xmlData.XmlFileName = jobXmlData.XmlFileName;
+                jobXmlData.Job = job;
+                jobXmlData.JobDirectory = jobXmlData.JobDirectory;
+                jobXmlData.JobSerialNumber = jobXmlData.JobSerialNumber;
+                jobXmlData.TimeStamp = jobXmlData.TimeStamp;
+                jobXmlData.XmlFileName = jobXmlData.XmlFileName;
 
                 // Display Monitor Data found
                 StaticClass.Log(logFile, "");
-                StaticClass.Log(logFile, "Found Processing Job        : " + xmlData.Job);
-                StaticClass.Log(logFile, "Old Job Directory           : " + xmlData.JobDirectory);
-                StaticClass.Log(logFile, "Old Serial Number           : " + xmlData.JobSerialNumber);
-                StaticClass.Log(logFile, "Old Time Stamp              : " + xmlData.TimeStamp);
-                StaticClass.Log(logFile, "Old Job Xml File            : " + xmlData.XmlFileName);
+                StaticClass.Log(logFile, "Found Processing Job        : " + jobXmlData.Job);
+                StaticClass.Log(logFile, "Old Job Directory           : " + jobXmlData.JobDirectory);
+                StaticClass.Log(logFile, "Old Serial Number           : " + jobXmlData.JobSerialNumber);
+                StaticClass.Log(logFile, "Old Time Stamp              : " + jobXmlData.TimeStamp);
+                StaticClass.Log(logFile, "Old Job Xml File            : " + jobXmlData.XmlFileName);
 
                 StaticClass.Log(logFile, String.Format("Starting Processing directory Job {0} Executing slot {1} at {2:HH:mm:ss.fff}",
-                    xmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
+                    jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
                 // Create a thread to run the job, and then start the thread
-                JobRunThread thread = new JobRunThread(DirectoryScanType.PROCESSING_BUFFER,
-                    iniFileData, xmlData, statusData, logger);
+                JobRunThread thread = new JobRunThread(DirectoryScanType.PROCESSING_BUFFER, jobXmlData, iniFileData, statusData, logger);
                 if (thread == null)
                 {
                     Logger.LogError("CurrentProcessingJobsScanThread thread failed to instantiate");

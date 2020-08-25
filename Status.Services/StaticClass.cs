@@ -93,8 +93,6 @@ namespace Status.Services
                         {
                             if (inputStream.Length > 0)
                             {
-                                Console.WriteLine(String.Format("IsFileReady sees {0} as available at {1:HH:mm:ss.fff}",
-                                    fileName, DateTime.Now));
                                 isReady = true;
                             }
                         }
@@ -117,6 +115,8 @@ namespace Status.Services
                     }
                 }
             });
+
+            Console.WriteLine(String.Format("IsFileReady sees file {0} available at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
         }
     }
 }

@@ -33,9 +33,8 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public ProcessingFileWatcherThread(string directory, int numberOfFilesNeeded,
-            IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData,
-            ILogger<StatusRepository> logger)
+        public ProcessingFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData,
+            StatusMonitorData monitorData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             DirectoryName = directory;
             IniData = iniData;

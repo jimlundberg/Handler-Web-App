@@ -222,35 +222,33 @@ namespace Status.Services
                 {
                     Logger.LogError("CurrentInputJobsScanThread scanDir failed to instantiate");
                 }
-                JobXmlData jobXmlData = scanDir.GetJobXmlData(job, directory, logger);
 
                 // Get data found in Job xml file
-                JobXmlData xmlData = new JobXmlData();
-                if (xmlData == null)
+                JobXmlData jobXmlData = scanDir.GetJobXmlData(job, directory, logger);
+                if (jobXmlData == null)
                 {
-                    Logger.LogError("CurrentInputJobsScanThread data failed to instantiate");
+                    Logger.LogError("CurrentInputJobsScanThread scanDir GetJobXmlData failed");
                 }
 
-                xmlData.Job = job;
-                xmlData.JobDirectory = jobXmlData.JobDirectory;
-                xmlData.JobSerialNumber = jobXmlData.JobSerialNumber;
-                xmlData.TimeStamp = jobXmlData.TimeStamp;
-                xmlData.XmlFileName = jobXmlData.XmlFileName;
+                jobXmlData.Job = job;
+                jobXmlData.JobDirectory = jobXmlData.JobDirectory;
+                jobXmlData.JobSerialNumber = jobXmlData.JobSerialNumber;
+                jobXmlData.TimeStamp = jobXmlData.TimeStamp;
+                jobXmlData.XmlFileName = jobXmlData.XmlFileName;
 
                 // Display xmlData found
                 StaticClass.Log(logFile, "");
-                StaticClass.Log(logFile, "Found Input Job             : " + xmlData.Job);
-                StaticClass.Log(logFile, "New Job directory           : " + xmlData.JobDirectory);
-                StaticClass.Log(logFile, "New Serial Number           : " + xmlData.JobSerialNumber);
-                StaticClass.Log(logFile, "New Time Stamp              : " + xmlData.TimeStamp);
-                StaticClass.Log(logFile, "New Job Xml File            : " + xmlData.XmlFileName);
+                StaticClass.Log(logFile, "Found Input Job             : " + jobXmlData.Job);
+                StaticClass.Log(logFile, "New Job directory           : " + jobXmlData.JobDirectory);
+                StaticClass.Log(logFile, "New Serial Number           : " + jobXmlData.JobSerialNumber);
+                StaticClass.Log(logFile, "New Time Stamp              : " + jobXmlData.TimeStamp);
+                StaticClass.Log(logFile, "New Job Xml File            : " + jobXmlData.XmlFileName);
 
                 StaticClass.Log(logFile, String.Format("Started Input Job {0} executing slot {1} at {2:HH:mm:ss.fff}",
-                    xmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
+                    jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
                 // Create a thread to run the job, and then start the thread
-                JobRunThread thread = new JobRunThread(DirectoryScanType.INPUT_BUFFER,
-                    iniFileData, xmlData, statusData, logger);
+                JobRunThread thread = new JobRunThread(DirectoryScanType.INPUT_BUFFER, jobXmlData, iniFileData, statusData, logger);
                 if (thread == null)
                 {
                     Logger.LogError("CurrentInputJobsScanThread thread failed to instantiate");
