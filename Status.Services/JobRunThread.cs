@@ -80,7 +80,7 @@ namespace Status.Services
                 job, DateTime.Now));
 
             // Set Flag for ending file scan loop
-            StaticClass.ProcessingFileScanComplete[job] = true;
+            StaticClass.ProcessingJobScanComplete[job] = true;
         }
 
         /// <summary>
@@ -284,11 +284,7 @@ namespace Status.Services
                     return;
                 }
             }
-            while ((StaticClass.ProcessingFileScanComplete[job] == false) ||
-                   (StaticClass.TcpIpScanComplete[job] == false));
-
-            // Add copy to archieve entry to status list
-            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, logger);
+            while (StaticClass.ProcessingJobScanComplete[job] == false);
 
             if (StaticClass.ShutdownFlag == true)
             {
@@ -297,18 +293,20 @@ namespace Status.Services
                 return;
             }
 
+            // Add copy to archieve entry to status list
+            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, logger);
+
             // Wait for the data.xml file to be ready
             string dataXmlFileName = iniData.ProcessingDir + @"\" + job + @"\" + "data.xml";
             var dataXmltask = StaticClass.IsFileReady(dataXmlFileName);
             dataXmltask.Wait();
 
-            // Load the data.xml file
+            // Get the pass or fail data from the data.xml OverallResult result node
             XmlDocument dataXmlDoc = new XmlDocument();
             dataXmlDoc.Load(dataXmlFileName);
-
-            // Get the pass or fail data from the OverallResult node
-            XmlNode OverallResult = jobXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
+            XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
             string passFail = OverallResult.InnerText;
+
             if ((OverallResult != null) && (passFail == "Pass"))
             {
                 // If the Finished directory does not exist, create it

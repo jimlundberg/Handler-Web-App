@@ -140,6 +140,7 @@ namespace Status.Services
             StaticClass.ProcessHandles.Clear();
             StaticClass.InputFileScanComplete.Clear();
             StaticClass.ProcessingFileScanComplete.Clear();
+            StaticClass.ProcessingJobScanComplete.Clear();
             StaticClass.TcpIpScanComplete.Clear();
             StaticClass.NumberOfInputFilesFound.Clear();
             StaticClass.NumberOfInputFilesNeeded.Clear();
