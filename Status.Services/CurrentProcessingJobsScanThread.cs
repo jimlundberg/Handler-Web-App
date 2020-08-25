@@ -182,7 +182,6 @@ namespace Status.Services
 
                 // Remove Processing job after start thread complete
                 StaticClass.NewProcessingJobsToRun.Remove(job);
-                StaticClass.ProcessingFileScanComplete[job] = true;
 
                 // Check if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)

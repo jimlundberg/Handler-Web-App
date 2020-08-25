@@ -18,13 +18,12 @@ namespace Status.Services
         /// <param name="destinationPath"></param>
         /// <param name="removeSource"></param>
         /// <param name="overwrite"></param>
-        /// <param name="logger"></param>
-        public static void CopyFolderContents(string sourcePath, string destinationPath, ILogger<StatusRepository> logger, bool removeSource = false, bool overwrite = false)
+        public static void CopyFolderContents(string sourcePath, string destinationPath, bool removeSource = false, bool overwrite = false)
         {
             DirectoryInfo sourceDI = new DirectoryInfo(sourcePath);
             DirectoryInfo destinationDI = new DirectoryInfo(destinationPath);
 
-            Console.WriteLine(String.Format("CopyFolderContents from {0} to {1}", sourcePath, destinationPath));
+            Console.WriteLine("CopyFolderContents from {0} to {1}", sourcePath, destinationPath);
 
             // If the destination directory does not exist, create it
             if (!destinationDI.Exists)
@@ -42,10 +41,10 @@ namespace Status.Services
                 // Delete the destination file if overwrite is true
                 if (destFile.Exists && overwrite)
                 {
-                    // Wait for the data.xml file to be ready
-                    var destFileReadytask = StaticClass.IsFileReady(destFile.FullName);
-                    destFileReadytask.Wait();
-                    destFile.Delete();
+                    lock (fileLock)
+                    {
+                        destFile.Delete();
+                    }
                 }
 
                 sourceFile.CopyTo(Path.Combine(destinationDI.FullName, sourceFile.Name));
@@ -53,20 +52,20 @@ namespace Status.Services
                 // Delete the source file if removeSource is true
                 if (removeSource)
                 {
-                    // Wait for the data.xml file to be ready
-                    var removeSoureFileTask = StaticClass.IsFileReady(sourceFile.Name);
-                    removeSoureFileTask.Wait();
-                    sourceFile.Delete();
+                    lock (fileLock)
+                    {
+                        sourceFile.Delete();
+                    }
                 }
             }
 
             // Delete the source directory if removeSource is true
             if (removeSource)
             {
-                // Wait for the data.xml file to be ready
-                var removeSoureDirTask = StaticClass.IsFileReady(sourceDI.Name);
-                removeSoureDirTask.Wait();
-                sourceDI.Delete();
+                lock (fileLock)
+                {
+                    sourceDI.Delete();
+                }
             }
         }
 
@@ -84,15 +83,17 @@ namespace Status.Services
             if (Target.Exists)
             {
                 // Delete the Target file first
-                var deleteFileTask = StaticClass.IsFileReady(Target.Name);
-                deleteFileTask.Wait();
-                Target.Delete();
+                lock (fileLock)
+                {
+                    Target.Delete();
+                }
             }
 
             // Copy to target file
-            var copyFiletask = StaticClass.IsFileReady(targetFile.ToString());
-            copyFiletask.Wait();
-            Source.CopyTo(targetFile);
+            lock (fileLock)
+            {
+                Source.CopyTo(targetFile);
+            }
 
             Console.WriteLine("Copied {0} -> {1}", sourceFile, targetFile);
         }

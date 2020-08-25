@@ -115,8 +115,6 @@ namespace Status.Services
                     }
                 }
             });
-
-            Console.WriteLine(String.Format("IsFileReady sees file {0} available at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
         }
     }
 }

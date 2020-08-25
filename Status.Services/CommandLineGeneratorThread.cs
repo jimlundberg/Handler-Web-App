@@ -82,7 +82,7 @@ namespace Status.Services
             }
 
             // Set Process Priority to high
-            ModelerProcess.PriorityClass = ProcessPriorityClass.High;
+            ModelerProcess.PriorityClass = ProcessPriorityClass.AboveNormal;
 
             // Store process handle to use for stopping
             StaticClass.ProcessHandles.Add(job, ModelerProcess);

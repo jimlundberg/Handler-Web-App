@@ -142,17 +142,16 @@ namespace Status.Services
         public bool OverallResultEntryCheck(string directory)
         {
             bool OverallResultEntryFound = false;
-            string xmlFileName = directory + @"\" + "Data.xml";
-            XmlDocument XmlDoc;
 
             do
             {
                 // Wait for the data.xml file to be ready
+                string xmlFileName = directory + @"\" + "Data.xml";
                 var task = StaticClass.IsFileReady(xmlFileName);
                 task.Wait();
 
                 // Read output Xml file data
-                XmlDoc = new XmlDocument();
+                XmlDocument XmlDoc = new XmlDocument();
                 XmlDoc.Load(xmlFileName);
 
                 // Check if the OverallResult node exists
