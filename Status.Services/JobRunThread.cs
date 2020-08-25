@@ -305,7 +305,12 @@ namespace Status.Services
             XmlDocument dataXmlDoc = new XmlDocument();
             dataXmlDoc.Load(dataXmlFileName);
             XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
-            string passFail = OverallResult.InnerText;
+
+            string passFail = "Fail";
+            if (OverallResult != null)
+            {
+                passFail = OverallResult.InnerText;
+            }
 
             if ((OverallResult != null) && (passFail == "Pass"))
             {
