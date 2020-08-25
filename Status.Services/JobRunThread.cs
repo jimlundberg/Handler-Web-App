@@ -250,6 +250,9 @@ namespace Status.Services
             Thread thread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
             thread.Start();
 
+            // Sleep to allow the Modeler to start before starting Process Buffer job file monitoring
+            Thread.Sleep(StaticClass.ThreadWaitTime * 2);
+
             // Register with the File Watcher class with an event and start its thread
             string processingBufferJobDir = iniData.ProcessingDir + @"\" + job;
             int numFilesNeeded = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
@@ -295,7 +298,7 @@ namespace Status.Services
             }
 
             // Wait for the data.xml file to be ready
-            string dataXmlFileName = iniData.ProcessingDir + @"\" + "data.xml";
+            string dataXmlFileName = iniData.ProcessingDir + @"\" + job + @"\" + "data.xml";
             var dataXmltask = StaticClass.IsFileReady(dataXmlFileName);
             dataXmltask.Wait();
 
