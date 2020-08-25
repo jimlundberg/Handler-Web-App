@@ -62,24 +62,21 @@ namespace Status.Services
         public void ProcessingsJobsReadyCheck(string job, IniFileData iniData,
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            if (StaticClass.ProcessingFileScanComplete[job] == true)
+            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
             {
-                if (StaticClass.NewProcessingJobsToRun.Count > 0)
+                // Start Processing jobs currently waiting
+                for (int i = 0; i < StaticClass.NewProcessingJobsToRun.Count; i++)
                 {
-                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
-                    {
-                        // Start Processing jobs currently waiting
-                        for (int i = 0; i < StaticClass.NewProcessingJobsToRun.Count; i++)
-                        {
-                            string directory = iniData.InputDir + @"\" + StaticClass.NewProcessingJobsToRun[i];
-                            CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
-                            currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
-                           Thread.Sleep(StaticClass.ScanWaitTime);
-                        }
-
-                        StaticClass.ProcessingFileScanComplete[job] = true;
-                    }
+                    string directory = iniData.InputDir + @"\" + StaticClass.NewProcessingJobsToRun[i];
+                    CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
+                    currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
+                    Thread.Sleep(StaticClass.ScanWaitTime);
                 }
+            }
+            else
+            {
+                // Add currently unfinished job to Processing Jobs run list
+                StaticClass.NewProcessingJobsToRun.Add(job);
             }
         }
 
@@ -190,7 +187,7 @@ namespace Status.Services
             string job = e.ToString();
 
             StaticClass.Log(IniData.ProcessLogFile,
-                String.Format("*****ProcessingFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
+                String.Format("ProcessingFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -204,7 +201,15 @@ namespace Status.Services
             // Get job name from directory name
             string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
 
-            // Start the Tcp/Ip Communications thread before checking files
+            // Quick check to see if the directory is already full
+            if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
+            {
+                // Signal the Run thread that the Processing files were found
+                StaticClass.ProcessingFileScanComplete[job] = true;
+                return;
+            }
+
+            // Start the Tcp/Ip Communications thread before checking for Processing job files
             TcpIpListenThread tcpIp = new TcpIpListenThread(IniData, monitorData, StatusData, Logger);
             if (tcpIp == null)
             {
@@ -212,12 +217,6 @@ namespace Status.Services
             }
             tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
             tcpIp.StartTcpIpScanProcess(IniData, monitorData, StatusData);
-
-            if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
-            {
-                // Signal the Run thread that the Processing files were found
-                StaticClass.ProcessingFileScanComplete[job] = true;
-            }
 
             // Create a new FileSystemWatcher and set its properties.
             using (FileSystemWatcher watcher = new FileSystemWatcher())
@@ -232,7 +231,7 @@ namespace Status.Services
                 // Add event handlers
                 watcher.Created += OnCreated;
 
-                // Begin watching for changes to input directory
+                // Begin watching for changes to Processing directory
                 watcher.EnableRaisingEvents = true;
 
                 StaticClass.Log(IniData.ProcessLogFile,

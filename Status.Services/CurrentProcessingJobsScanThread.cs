@@ -36,7 +36,7 @@ namespace Status.Services
             IniData = iniData;
             StatusData = statusData;
             Logger = logger;
-            StaticClass.CurrentProcessingJobScanComplete = false;
+            StaticClass.CurrentProcessingJobsScanComplete = false;
         }
 
         /// <summary>
@@ -98,15 +98,14 @@ namespace Status.Services
             // Start the jobs in the directory list found on initial scan of the Processing Buffer
             foreach (DirectoryInfo dir in ProcessingDirectoryInfoList)
             {
-                // Get job name by clearing the Processing Directory string
                 string job = dir.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
                 string directory = dir.ToString();
 
                 if (StaticClass.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
                 {
-                    // Create new Processing job Scan thread and run
                     CurrentProcessingJobsScanThread newProcessingJobsScanThread = new CurrentProcessingJobsScanThread();
                     newProcessingJobsScanThread.StartProcessingJob(directory, IniData, StatusData, Logger);
+                    Thread.Sleep(StaticClass.ScanWaitTime);
                 }
                 else
                 {
@@ -115,7 +114,7 @@ namespace Status.Services
                 }
             }
 
-            StaticClass.CurrentProcessingJobScanComplete = true;
+            StaticClass.CurrentProcessingJobsScanComplete = true;
         }
 
         /// <summary>
@@ -181,6 +180,10 @@ namespace Status.Services
                 }
                 thread.ThreadProc();
 
+                // Remove Processing job after start thread complete
+                StaticClass.NewProcessingJobsToRun.Remove(job);
+                StaticClass.ProcessingFileScanComplete[job] = true;
+
                 // Check if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)
                 {
@@ -188,11 +191,6 @@ namespace Status.Services
                         String.Format("\nShutdown CurrentProcessingJobsScanThread StartProcessingJob at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
-            }
-            else
-            {
-                // Add jobs over execution limit to the Processing Job list
-                StaticClass.NewProcessingJobsToRun.Add(job);
             }
         }
     }

@@ -120,7 +120,7 @@ namespace Status.Services
                 string job = monitorData.Job;
 
                 // Log Tcp/Ip monitoring entry
-                StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_TCPIP, JobType.TIME_START, iniData.StatusLogFile, logger);
+                StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_TCPIP, JobType.TIME_START, logger);
 
                 // Create a TcpClient.
                 // Note, for this client to work you need to have a TcpServer
@@ -263,7 +263,7 @@ namespace Status.Services
                             TimeoutHandler(job, iniData, logger);
 
                             // Create job Timeout status
-                            StaticClass.StatusDataEntry(statusData, monitorData.Job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, iniData.StatusLogFile, logger);
+                            StaticClass.StatusDataEntry(statusData, monitorData.Job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, logger);
                             jobComplete = true;
                         }
 

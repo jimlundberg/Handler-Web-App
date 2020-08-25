@@ -34,7 +34,6 @@ namespace Status.Services
             IniData = iniData;
             StatusData = statusData;
             Logger = logger;
-            StaticClass.CurrentInputJobsScanComplete = false;
         }
 
         /// <summary>
@@ -49,9 +48,6 @@ namespace Status.Services
             StaticClass.Log(IniData.ProcessLogFile,
                 String.Format("\nCurrent Input Job Scan Received new job {0} at {0:HH:mm:ss.fff}",
                 job, DateTime.Now));
-
-            // Set Flag for ending file scan loop
-            StaticClass.CurrentInputJobsScanComplete = true;
         }
 
         /// <summary>
@@ -68,7 +64,7 @@ namespace Status.Services
                 directory, DateTime.Now));
 
             // Set Flag for ending directory scan loop
-            StaticClass.NewProcessingJobsToRun.Add(directory);
+            StaticClass.NewInputJobsToRun.Add(directory);
         }
 
         /// <summary>
@@ -115,7 +111,7 @@ namespace Status.Services
                     return;
                 }
             }
-            while (StaticClass.CurrentProcessingJobScanComplete == false);
+            while (StaticClass.CurrentProcessingJobsScanComplete == false);
 
             StaticClass.Log(logFile, "\nChecking for unfinished Input Jobs...");
 
@@ -150,7 +146,7 @@ namespace Status.Services
 
                 if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
-                    // Create new Input job Scan thread and run
+                    // Create new Input job start thread and run
                     CurrentInputJobsScanThread newInputJobsScanThread = new CurrentInputJobsScanThread();
                     newInputJobsScanThread.StartInputJob(directory, IniData, StatusData, Logger);
                     Thread.Sleep(StaticClass.ScanWaitTime);
@@ -161,9 +157,6 @@ namespace Status.Services
                     StaticClass.NewInputJobsToRun.Add(job);
                 }
             }
-
-            // Flag that the Current Input job(s) scan is complete
-            StaticClass.CurrentInputJobsScanComplete = true;
 
             StaticClass.Log(logFile, "\nWatching for new Input Jobs...");
 
@@ -255,8 +248,9 @@ namespace Status.Services
                 }
                 thread.ThreadProc();
 
-                // Remove job after run thread launched
+                // Remove Input job after start thread complete
                 StaticClass.NewInputJobsToRun.Remove(job);
+                StaticClass.InputFileScanComplete[job] = true;
 
                 // Cieck if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)
@@ -265,11 +259,6 @@ namespace Status.Services
                         job, DateTime.Now));
                     return;
                 }
-            }
-            else
-            {
-                // Add jobs over execution limit to the Input Job list
-                StaticClass.NewInputJobsToRun.Add(job);
             }
         }
     }

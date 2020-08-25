@@ -16,7 +16,7 @@ namespace Status.Services
         public static IniFileData IniData;
         public static StatusMonitorData MonitorData;
         public static List<StatusData> StatusData;
-        public static string DirectoryPath;
+        public static string DirectoryName;
         private static Thread thread;
         private static string Job;
         public event EventHandler ProcessCompleted;
@@ -31,17 +31,16 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public InputFileWatcherThread(string directory, int numberOfFilesNeeded,
-            IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, 
-            ILogger<StatusRepository> logger)
+        public InputFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData, StatusMonitorData monitorData, 
+            List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            DirectoryPath = directory;
+            DirectoryName = directory;
             IniData = iniData;
             MonitorData = monitorData;
             StatusData = statusData;
             Logger = logger;
             Job = monitorData.Job;
-            DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
+            DirectoryInfo InputJobInfo = new DirectoryInfo(DirectoryName);
             StaticClass.NumberOfInputFilesFound[Job] = InputJobInfo.GetFiles().Length;
             StaticClass.NumberOfInputFilesNeeded[Job] = numberOfFilesNeeded;
             StaticClass.InputFileScanComplete[Job] = false;
@@ -57,26 +56,26 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public void InputJobsReadyCheck(string job, IniFileData iniData,
+        public void InputJobsReadyCheck(string job, IniFileData iniData, 
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            if (StaticClass.CurrentInputJobsScanComplete == true)
+            if (StaticClass.InputFileScanComplete[job] == true)
             {
-                if (StaticClass.NewInputJobsToRun.Count > 0)
+                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
-                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                    // Strt Input jobs currently waiting
+                    for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
                     {
-                        // Strt Input jobs currently waiting
-                        for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
-                        {
-                            string directory = iniData.InputDir + @"\" + StaticClass.NewInputJobsToRun[i];
-                            CurrentInputJobsScanThread currentInputJobsScan = new CurrentInputJobsScanThread();
-                            currentInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
-                            Thread.Sleep(StaticClass.ScanWaitTime);
-                        }
-
-                        StaticClass.CurrentInputJobsScanComplete = true;
+                        string directory = iniData.InputDir + @"\" + StaticClass.NewInputJobsToRun[i];
+                        CurrentInputJobsScanThread currentInputJobsScan = new CurrentInputJobsScanThread();
+                        currentInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
+                        Thread.Sleep(StaticClass.ScanWaitTime);
                     }
+                }
+                else
+                {
+                    // Add currently unfinished job to Input Jobs run list
+                    StaticClass.NewInputJobsToRun.Add(job);
                 }
             }
         }
@@ -96,7 +95,7 @@ namespace Status.Services
         // The thread procedure performs the task
         public void ThreadProc()
         {
-            thread = new Thread(() => WatchFiles(DirectoryPath));
+            thread = new Thread(() => WatchFiles(DirectoryName));
             if (thread == null)
             {
                 Logger.LogError("InputFileWatcherThread thread failed to instantiate");
@@ -180,7 +179,7 @@ namespace Status.Services
                 // Add event handlers
                 watcher.Created += OnCreated;
 
-                // Begin watching for changes to input directory
+                // Begin watching for changes to Input directory
                 watcher.EnableRaisingEvents = true;
 
                 // Exiting thread message

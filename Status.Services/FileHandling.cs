@@ -29,9 +29,6 @@ namespace Status.Services
             // If the destination directory does not exist, create it
             if (!destinationDI.Exists)
             {
-                // Wait for the data.xml file to be ready
-                var task = StaticClass.IsFileReady(destinationDI.FullName);
-                task.Wait();
                 destinationDI.Create();
             }
 
@@ -46,8 +43,8 @@ namespace Status.Services
                 if (destFile.Exists && overwrite)
                 {
                     // Wait for the data.xml file to be ready
-                    var task = StaticClass.IsFileReady(destFile.FullName);
-                    task.Wait();
+                    var destFileReadytask = StaticClass.IsFileReady(destFile.FullName);
+                    destFileReadytask.Wait();
                     destFile.Delete();
                 }
 
@@ -57,8 +54,8 @@ namespace Status.Services
                 if (removeSource)
                 {
                     // Wait for the data.xml file to be ready
-                    var task = StaticClass.IsFileReady(sourceFile.Name);
-                    task.Wait();
+                    var removeSoureFileTask = StaticClass.IsFileReady(sourceFile.Name);
+                    removeSoureFileTask.Wait();
                     sourceFile.Delete();
                 }
             }
@@ -67,8 +64,8 @@ namespace Status.Services
             if (removeSource)
             {
                 // Wait for the data.xml file to be ready
-                var task = StaticClass.IsFileReady(sourceDI.Name);
-                task.Wait();
+                var removeSoureDirTask = StaticClass.IsFileReady(sourceDI.Name);
+                removeSoureDirTask.Wait();
                 sourceDI.Delete();
             }
         }
@@ -87,14 +84,14 @@ namespace Status.Services
             if (Target.Exists)
             {
                 // Delete the Target file first
-                var taskDelete = StaticClass.IsFileReady(Target.Name);
-                taskDelete.Wait();
+                var deleteFileTask = StaticClass.IsFileReady(Target.Name);
+                deleteFileTask.Wait();
                 Target.Delete();
             }
 
             // Copy to target file
-            var taskCopy = StaticClass.IsFileReady(targetFile.ToString());
-            taskCopy.Wait();
+            var copyFiletask = StaticClass.IsFileReady(targetFile.ToString());
+            copyFiletask.Wait();
             Source.CopyTo(targetFile);
 
             Console.WriteLine("Copied {0} -> {1}", sourceFile, targetFile);
