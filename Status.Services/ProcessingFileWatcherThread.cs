@@ -77,6 +77,10 @@ namespace Status.Services
             {
                 // Add currently unfinished job to Processing Jobs run list
                 StaticClass.NewProcessingJobsToRun.Add(job);
+
+                StaticClass.Log(IniData.ProcessLogFile,
+                    String.Format("\nProcessing file watcher added new job {0} to Processing Job to run list at {0:HH:mm:ss.fff}",
+                    job, DateTime.Now));
             }
         }
 
@@ -196,7 +200,7 @@ namespace Status.Services
             string job = e.ToString();
 
             StaticClass.Log(IniData.ProcessLogFile,
-                String.Format("ProcessingFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
+                String.Format("Processing File Watcher received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -245,7 +249,7 @@ namespace Status.Services
                 watcher.EnableRaisingEvents = true;
 
                 StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
+                    String.Format("Processing File Watcher watching {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
 
                 // Wait for Processing file scan to Complete with a full set of job output files
@@ -276,12 +280,12 @@ namespace Status.Services
                 // Wait for the data.xml file to contain a result
                 if (OverallResultEntryCheck(directory))
                 {
+                    StaticClass.ProcessingJobScanComplete[job] = true;
+
                     // Exiting thread message
                     StaticClass.Log(IniData.ProcessLogFile,
-                        String.Format("ProcessingFileWatcherThread scan of job {0} Complete at {1:HH:mm:ss.fff}",
+                        String.Format("Processing File Watcher scan for job {0} Complete at {1:HH:mm:ss.fff}",
                         directory, DateTime.Now));
-
-                    StaticClass.ProcessingJobScanComplete[job] = true;
                 }
             }
         }

@@ -143,6 +143,7 @@ namespace Status.Services
             StaticClass.NewProcessingJobsToRun.Clear();
             StaticClass.ProcessHandles.Clear();
             StaticClass.InputFileScanComplete.Clear();
+            StaticClass.InputJobScanComplete.Clear();
             StaticClass.ProcessingFileScanComplete.Clear();
             StaticClass.ProcessingJobScanComplete.Clear();
             StaticClass.TcpIpScanComplete.Clear();

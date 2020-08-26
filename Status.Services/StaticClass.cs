@@ -36,7 +36,8 @@ namespace Status.Services
 		public static List<string> NewProcessingJobsToRun = new List<String>();
 
 		public static Dictionary<string, bool> InputFileScanComplete = new Dictionary<string, bool>();
-		public static Dictionary<string, bool> ProcessingFileScanComplete = new Dictionary<string, bool>();
+        public static Dictionary<string, bool> InputJobScanComplete = new Dictionary<string, bool>();
+        public static Dictionary<string, bool> ProcessingFileScanComplete = new Dictionary<string, bool>();
         public static Dictionary<string, bool> ProcessingJobScanComplete = new Dictionary<string, bool>();
         public static Dictionary<string, bool> TcpIpScanComplete = new Dictionary<string, bool>();
 
@@ -136,10 +137,10 @@ namespace Status.Services
             foreach (string dir in directories)
             {
                 // Get the current directory list and delete the ones beyond the time limit
-                DirectoryInfo di = new DirectoryInfo(dir);
-                if (di.LastAccessTime < DateTime.Now.AddDays(-iniData.InputBufferTimeLimit))
+                DirectoryInfo dirInfo = new DirectoryInfo(dir);
+                if (dirInfo.LastAccessTime < DateTime.Now.AddDays(-iniData.InputBufferTimeLimit))
                 {
-                    di.Delete();
+                    dirInfo.Delete();
                 }
             }
         }

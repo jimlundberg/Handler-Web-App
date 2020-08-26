@@ -43,6 +43,7 @@ namespace Status.Services
             StaticClass.NumberOfInputFilesFound[Job] = InputJobInfo.GetFiles().Length;
             StaticClass.NumberOfInputFilesNeeded[Job] = numberOfFilesNeeded;
             StaticClass.InputFileScanComplete[Job] = false;
+            StaticClass.InputJobScanComplete[Job] = false;
 
             // Check for current unfinished job(s) in the Input Buffer
             InputJobsReadyCheck(Job, iniData, statusData, logger);
@@ -75,6 +76,10 @@ namespace Status.Services
                 {
                     // Add currently unfinished job to Input Jobs run list
                     StaticClass.NewInputJobsToRun.Add(job);
+
+                    StaticClass.Log(IniData.ProcessLogFile,
+                        String.Format("\nInput file watcher added job {0} to Input Job List at {0:HH:mm:ss.fff}",
+                        job, DateTime.Now));
                 }
             }
         }
@@ -181,7 +186,7 @@ namespace Status.Services
 
                 // Exiting thread message
                 StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("InputFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
+                    String.Format("Input File Watcher watching {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
 
                 // Wait for Input file Scan to Complete with enough files to start job
@@ -210,11 +215,11 @@ namespace Status.Services
                 while (StaticClass.InputFileScanComplete[job] == false);
 
                 // Remove job started from the Input job list
-                StaticClass.NewInputJobsToRun.Remove(job);
+                StaticClass.InputJobScanComplete[job] = true;
 
                 // Exiting thread message
                 StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("InputFileWatcherThread exit of scan of {0} with InputFileScanComplete={1} and ShutdownFlag={2} at at {3:HH:mm:ss.fff}",
+                    String.Format("Input File Watcher exit of scan of {0} with InputFileScanComplete={1} and ShutdownFlag={2} at at {3:HH:mm:ss.fff}",
                     directory, StaticClass.InputFileScanComplete[job], StaticClass.ShutdownFlag, DateTime.Now));
             }
         }

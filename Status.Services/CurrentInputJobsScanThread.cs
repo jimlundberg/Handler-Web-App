@@ -105,7 +105,7 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(iniData.ProcessLogFile,
+                    StaticClass.Log(logFile,
                         String.Format("\nShutdown CurrentInputJobsScanThread CheckForCurrentInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
@@ -167,6 +167,10 @@ namespace Status.Services
                 {
                     // Add currently unfinished job to Input Jobs run list
                     StaticClass.NewInputJobsToRun.Add(job);
+
+                    StaticClass.Log(logFile,
+                        String.Format("\nCurrent Input Job Scan Received new job {0} at {0:HH:mm:ss.fff}",
+                        job, DateTime.Now));
                 }
             }
 
