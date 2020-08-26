@@ -100,13 +100,17 @@ namespace Status.Services
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             string job = jobXmlData.Job;
-            string jobDirectory = jobXmlData.JobDirectory;
             string logFile = iniData.ProcessLogFile;
+            string xmlJobDirectory = jobXmlData.JobDirectory;
+            string processingBufferDirectory = iniData.ProcessingDir;
+            string repositoryDirectory = iniData.RepositoryDir;
+            string finishedDirectory = iniData.FinishedDir;
+            string errorDirectory = iniData.ErrorDir;
 
             // Create new status monitor data and fill in the job xml data found
             StatusMonitorData monitorData = new StatusMonitorData();
             monitorData.Job = job;
-            monitorData.JobDirectory = jobDirectory;
+            monitorData.JobDirectory = xmlJobDirectory;
             monitorData.StartTime = DateTime.Now;
             monitorData.JobIndex = StaticClass.RunningJobsIndex++;
             monitorData.JobSerialNumber = jobXmlData.JobSerialNumber;
@@ -120,7 +124,7 @@ namespace Status.Services
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, logger);
 
             // Wait for the job xml file to be ready
-            string jobXmlFileName = jobDirectory + @"\" + jobXmlData.XmlFileName;
+            string jobXmlFileName = xmlJobDirectory + @"\" + jobXmlData.XmlFileName;
             var jobXmltask = StaticClass.IsFileReady(jobXmlFileName);
             jobXmltask.Wait();
 
@@ -173,7 +177,7 @@ namespace Status.Services
             }
 
             // Create the Processing Buffer job directory
-            string ProcessingBufferJobDir = iniData.ProcessingDir + @"\" + job;
+            string ProcessingBufferJobDir = processingBufferDirectory + @"\" + job;
 
             // If this job comes from the Input directory, run the Input job check and start job if found
             if (dirScanType == DirectoryScanType.INPUT_BUFFER)
@@ -280,7 +284,7 @@ namespace Status.Services
             Thread.Sleep(StaticClass.ThreadWaitTime * 2);
 
             // Register with the File Watcher class with an event and start its thread
-            string processingBufferJobDir = iniData.ProcessingDir + @"\" + job;
+            string processingBufferJobDir = processingBufferDirectory + @"\" + job;
             int numFilesNeeded = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             ProcessingFileWatcherThread ProcessingFileWatch = new ProcessingFileWatcherThread(
                 processingBufferJobDir, numFilesNeeded, iniData, monitorData, statusData, logger);
@@ -343,7 +347,7 @@ namespace Status.Services
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, logger);
 
             // Wait for the data.xml file to be ready
-            string dataXmlFileName = iniData.ProcessingDir + @"\" + job + @"\" + "data.xml";
+            string dataXmlFileName = processingBufferDirectory + "data.xml";
             var dataXmltask = StaticClass.IsFileReady(dataXmlFileName);
             dataXmltask.Wait();
 
@@ -361,38 +365,38 @@ namespace Status.Services
             if ((OverallResult != null) && (passFail == "Pass"))
             {
                 // If the Finished directory does not exist, create it
-                if (!Directory.Exists(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber))
+                if (!Directory.Exists(finishedDirectory + @"\" + monitorData.JobSerialNumber))
                 {
-                    Directory.CreateDirectory(iniData.FinishedDir + @"\" + monitorData.JobSerialNumber);
+                    Directory.CreateDirectory(finishedDirectory + @"\" + monitorData.JobSerialNumber);
                 }
 
                 // Copy the Transfered files to the Finished directory 
                 foreach (string file in monitorData.TransferedFileList)
                 {
-                    FileHandling.CopyFile(logFile, iniData.ProcessingDir + @"\" + job + @"\" + file,
-                        iniData.FinishedDir + @"\" + monitorData.JobSerialNumber + @"\" + file);
+                    FileHandling.CopyFile(logFile, processingBufferDirectory + file,
+                        finishedDirectory + @"\" + monitorData.JobSerialNumber + @"\" + file);
                 }
 
                 // Move Processing Buffer Files to the Repository directory when passed
-                FileHandling.CopyFolderContents(logFile, ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + job, true, true);
+                FileHandling.CopyFolderContents(logFile, ProcessingBufferJobDir, repositoryDirectory + @"\" + job, true, true);
             }
             else
             {
                 // If the Error directory does not exist, create it
-                if (!Directory.Exists(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber))
+                if (!Directory.Exists(errorDirectory + @"\" + monitorData.JobSerialNumber))
                 {
-                    Directory.CreateDirectory(iniData.ErrorDir + @"\" + monitorData.JobSerialNumber);
+                    Directory.CreateDirectory(errorDirectory + @"\" + monitorData.JobSerialNumber);
                 }
 
                 // Copy the Transfered files to the Error directory 
                 foreach (string file in monitorData.TransferedFileList)
                 {
-                    FileHandling.CopyFile(logFile, iniData.ProcessingDir + @"\" + job + @"\" + file,
-                    iniData.ErrorDir + @"\" + monitorData.JobSerialNumber + @"\" + file);
+                    FileHandling.CopyFile(logFile, processingBufferDirectory + @"\" + job + @"\" + file,
+                    errorDirectory + @"\" + monitorData.JobSerialNumber + @"\" + file);
                 }
 
                 // Move Processing Buffer Files to the Repository directory when failed
-                FileHandling.CopyFolderContents(logFile, ProcessingBufferJobDir, iniData.RepositoryDir + @"\" + job, true, true);
+                FileHandling.CopyFolderContents(logFile, ProcessingBufferJobDir, repositoryDirectory, true, true);
             }
 
             // Decrement the number of jobs executing after one completes

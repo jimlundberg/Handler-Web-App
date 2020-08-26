@@ -88,6 +88,7 @@ namespace Status.Services
             // Get job name from directory name
             string processingBufferDirectory = iniData.ProcessingDir + @"\" + job;
             string repositoryDirectory = iniData.RepositoryDir + @"\" + job;
+            string errorDirectory = iniData.ErrorDir + @"\" + job;
 
             // If the repository directory does not exist, create it
             if (!Directory.Exists(repositoryDirectory))
@@ -96,7 +97,10 @@ namespace Status.Services
             }
 
             // Move Processing Buffer Files to the Repository directory when failed
-            FileHandling.CopyFolderContents(logFile, processingBufferDirectory, repositoryDirectory, true, true);
+            FileHandling.CopyFolderContents(logFile, processingBufferDirectory, repositoryDirectory, false, true);
+
+            // Move Processing Buffer Files to the Repository directory when failed
+            FileHandling.CopyFolderContents(logFile, processingBufferDirectory, errorDirectory, true, true);
 
             // Shut down the Modeler
             StaticClass.ProcessHandles[job].Kill();
