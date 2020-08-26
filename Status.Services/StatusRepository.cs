@@ -58,19 +58,22 @@ namespace Status.Services
             string scanWaitTime = IniParser.Read("Process", "ScanWaitTime");
             IniData.ScanWaitTime = int.Parse(scanWaitTime.Substring(0, scanWaitTime.IndexOf("#")));
             string timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
+            IniData.MaxTimeLimit = int.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             string threadWaitTime = IniParser.Read("Process", "ThreadWaitTime");
             IniData.ThreadWaitTime = int.Parse(threadWaitTime.Substring(0, threadWaitTime.IndexOf("#")));
-            IniData.MaxTimeLimit = int.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             string logFileHistory = IniParser.Read("Process", "LogFileHistory");
             IniData.LogFileHistory = int.Parse(logFileHistory.Substring(0, logFileHistory.IndexOf("#")));
+            string inputBufferTimeLimit = IniParser.Read("Process", "InputbufferTimeLimit");
+            IniData.InputBufferTimeLimit = int.Parse(inputBufferTimeLimit.Substring(0, inputBufferTimeLimit.IndexOf("#")));
             string logFileMaxSize = IniParser.Read("Process", "logFileMaxSize");
             IniData.LogFileMaxSize = int.Parse(logFileMaxSize.Substring(0, logFileMaxSize.IndexOf("#")));
 
-            // Set the static class data needed
+            // Set the static class data needed for global use
             StaticClass.ScanWaitTime = IniData.ScanWaitTime;
             StaticClass.ThreadWaitTime = IniData.ThreadWaitTime;
-            StaticClass.logFileSizeLimit = IniData.LogFileMaxSize;
+            StaticClass.LogFileSizeLimit = IniData.LogFileMaxSize;
 
+            // Output the Data.ini informatino found
             string logFile = IniData.ProcessLogFile;
             StaticClass.Log(logFile, "\nConfig.ini data found:\n");
             StaticClass.Log(logFile, "Input Dir                   : " + IniData.InputDir);

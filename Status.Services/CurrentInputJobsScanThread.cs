@@ -124,6 +124,9 @@ namespace Status.Services
 
             StaticClass.Log(logFile, "\nChecking for unfinished Input Jobs...");
 
+            // Check and delete expired Input Buffer job directories first
+            StaticClass.CheckForInputBufferTimeLimits(iniData);
+
             DirectoryInfo InputDirectoryInfo = new DirectoryInfo(iniData.InputDir);
             if (InputDirectoryInfo == null)
             {
@@ -197,6 +200,8 @@ namespace Status.Services
                         }
                     }
                 }
+
+                StaticClass.CheckForInputBufferTimeLimits(iniData);
 
                 Thread.Sleep(StaticClass.ThreadWaitTime);
             }

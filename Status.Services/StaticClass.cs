@@ -18,7 +18,7 @@ namespace Status.Services
         public static int ScanWaitTime = 0;
 		public static int NumberOfJobsExecuting = 0;
 		public static int RunningJobsIndex = 0;
-		public static int logFileSizeLimit = 0;
+		public static int LogFileSizeLimit = 0;
 
         public static Thread CurrentInputJobsScanThreadHandle;
         public static Thread ProcessingFileWatcherThreadHandle;
@@ -124,6 +124,24 @@ namespace Status.Services
                     }
                 }
             });
+        }
+
+        /// <summary>
+        /// Check the Input Buffer for directories that are older than the time limit
+        /// </summary>
+        /// <param name="iniData"></param>
+        public static void CheckForInputBufferTimeLimits(IniFileData iniData)
+        {
+            string[] directories = Directory.GetDirectories(iniData.InputDir);
+            foreach (string dir in directories)
+            {
+                // Get the current directory list and delete the ones beyond the time limit
+                DirectoryInfo di = new DirectoryInfo(dir);
+                if (di.LastAccessTime < DateTime.Now.AddDays(-iniData.InputBufferTimeLimit))
+                {
+                    di.Delete();
+                }
+            }
         }
     }
 }

@@ -80,33 +80,33 @@ namespace Status.Services
         /// <param name="job"></param>
         /// <param name="iniData"></param>
         /// <param name="logFile"></param>
-        public static void TimeoutHandler(string job, IniFileData iniData, string logFile)
+        public static void TimeoutHandler(string job, IniFileData iniData, StatusMonitorData monitorData, string logFile)
         {
             // Log job timeout
             StaticClass.Log(iniData.ProcessLogFile, String.Format("Timeout Handler for job {0}", job));
 
             // Get job name from directory name
             string processingBufferDirectory = iniData.ProcessingDir + @"\" + job;
-            string repositoryDirectory = iniData.RepositoryDir + @"\" + job;
-            string errorDirectory = iniData.ErrorDir + @"\" + job;
+            string errorDirectory = iniData.ErrorDir + @"\" + job + @"\" + monitorData.JobSerialNumber;
 
-            // If the repository directory does not exist, create it
-            if (!Directory.Exists(repositoryDirectory))
+            // If the Error directory does not exist, create it
+            if (!Directory.Exists(errorDirectory))
             {
-                Directory.CreateDirectory(repositoryDirectory);
+                Directory.CreateDirectory(errorDirectory);
             }
 
-            // Move Processing Buffer Files to the Repository directory when failed
-            FileHandling.CopyFolderContents(logFile, processingBufferDirectory, repositoryDirectory, false, true);
-
-            // Move Processing Buffer Files to the Repository directory when failed
+            // Move Processing Buffer Files to the Error directory for timeouts
             FileHandling.CopyFolderContents(logFile, processingBufferDirectory, errorDirectory, true, true);
 
             // Shut down the Modeler
             StaticClass.ProcessHandles[job].Kill();
 
-            // Remove job from Input jobs to run list and decrement execution count
+            // Remove job from Input jobs list, flag it's TCP/IP complete,  and decrement number of jobs executing
             StaticClass.NewInputJobsToRun.Remove(job);
+            StaticClass.TcpIpScanComplete[job] = true;
+            StaticClass.NumberOfJobsExecuting--;
+
+            return;
         }
 
         /// <summary>
@@ -292,11 +292,13 @@ namespace Status.Services
                                 job, DateTime.Now));
 
                             // Handle job timeout
-                            TimeoutHandler(job, iniData, logFile);
+                            TimeoutHandler(job, iniData, monitorData, logFile);
 
                             // Create job Timeout status
                             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, logger);
-                            jobComplete = true;
+
+                            StaticClass.TcpIpScanComplete[job] = true;
+                            jobComplete = true; jobComplete = true;
                         }
 
                         // Check if the shutdown flag is set, then exit method
@@ -305,7 +307,9 @@ namespace Status.Services
                             StaticClass.Log(logFile,
                                 String.Format("\nShutdown TcpIpListenThread Connect for Job {0} on port {1} at {2:HH:mm:ss.fff}",
                                 job, port, DateTime.Now));
-                            jobComplete = true;
+
+                            StaticClass.TcpIpScanComplete[job] = true;
+                            jobComplete = true; jobComplete = true;
                         }
 
                         // Check if the pause flag is set, then wait for reset

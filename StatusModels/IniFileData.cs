@@ -23,6 +23,7 @@ namespace StatusModels
         public int ThreadWaitTime { get; set; }
         public int StartPort { get; set; }
         public int LogFileHistory { get; set; }
+        public int InputBufferTimeLimit { get; set; }
         public int LogFileMaxSize { get; set; }
     }
 }
