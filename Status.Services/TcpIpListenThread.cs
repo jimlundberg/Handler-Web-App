@@ -98,6 +98,9 @@ namespace Status.Services
             // Move Processing Buffer Files to the Repository directory when failed
             FileHandling.CopyFolderContents(logFile, processingBufferDirectory, repositoryDirectory, true, true);
 
+            // Shut down the Modeler
+            StaticClass.ProcessHandles[job].Kill();
+
             // Remove job from Input jobs to run list and decrement execution count
             StaticClass.NewInputJobsToRun.Remove(job);
         }
@@ -286,9 +289,6 @@ namespace Status.Services
 
                             // Handle job timeout
                             TimeoutHandler(job, iniData, logFile);
-
-                            // Shut down the Modeler
-                            StaticClass.ProcessHandles[job].Kill();
 
                             // Create job Timeout status
                             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, logger);
