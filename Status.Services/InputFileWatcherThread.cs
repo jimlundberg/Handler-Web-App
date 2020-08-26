@@ -17,7 +17,6 @@ namespace Status.Services
         public static StatusMonitorData MonitorData;
         public static List<StatusData> StatusData;
         public static string DirectoryName;
-        private static Thread thread;
         private static string Job;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
@@ -31,8 +30,8 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public InputFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData, StatusMonitorData monitorData, 
-            List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public InputFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData,
+            StatusMonitorData monitorData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             DirectoryName = directory;
             IniData = iniData;
@@ -92,18 +91,16 @@ namespace Status.Services
         /// <summary>
         /// Thread procedure to run Input job files watcher
         /// </summary>
-        // The thread procedure performs the task
         public void ThreadProc()
         {
-            thread = new Thread(() => WatchFiles(DirectoryName));
-            if (thread == null)
+            StaticClass.InputFileWatcherThreadHandle = new Thread(() => WatchFiles(DirectoryName));
+            if (StaticClass.InputFileWatcherThreadHandle == null)
             {
                 Logger.LogError("InputFileWatcherThread thread failed to instantiate");
             }
-            thread.Start();
+            StaticClass.InputFileWatcherThreadHandle.Start();
         }
 
-        // Define the event handlers.
         /// <summary>
         /// The Add or Change of files callback
         /// </summary>

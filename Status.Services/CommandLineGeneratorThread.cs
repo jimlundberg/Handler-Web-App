@@ -21,13 +21,16 @@ namespace Status.Services
         public static ILogger<StatusRepository> Logger;
 
         /// <summary>
-        /// The constructor obtains the object information 
+        /// The constructor obtains the object information  
         /// </summary>
-        /// <param name="_commandLineGenerator"></param>
+        /// <param name="commandLineGenerator"></param>
+        /// <param name="monitorData"></param>
+        /// <param name="iniData"></param>
         /// <param name="logger"></param>
-        public CommandLineGeneratorThread(CommandLineGenerator _commandLineGenerator, StatusMonitorData monitorData, IniFileData iniData, ILogger<StatusRepository> logger)
+        public CommandLineGeneratorThread(CommandLineGenerator commandLineGenerator,
+            StatusMonitorData monitorData, IniFileData iniData, ILogger<StatusRepository> logger)
         {
-            CommandLineGenerator = _commandLineGenerator;
+            CommandLineGenerator = commandLineGenerator;
             MonitorData = monitorData;
             IniData = iniData;
             Logger = logger;

@@ -14,16 +14,18 @@ namespace Status.Services
         /// <summary>
         /// CopyFolderContents - Copy files and folders from source to destination and optionally remove source files/folders
         /// </summary>
+        /// <param name="logFile"></param>
         /// <param name="sourcePath"></param>
         /// <param name="destinationPath"></param>
         /// <param name="removeSource"></param>
         /// <param name="overwrite"></param>
-        public static void CopyFolderContents(string sourcePath, string destinationPath, bool removeSource = false, bool overwrite = false)
+        public static void CopyFolderContents(string logFile, string sourcePath, string destinationPath,
+            bool removeSource = false, bool overwrite = false)
         {
             DirectoryInfo sourceDI = new DirectoryInfo(sourcePath);
             DirectoryInfo destinationDI = new DirectoryInfo(destinationPath);
 
-            Console.WriteLine("CopyFolderContents from {0} to {1}", sourcePath, destinationPath);
+            StaticClass.Log(logFile, String.Format("CopyFolderContents from {0} to {1}", sourcePath, destinationPath));
 
             // If the destination directory does not exist, create it
             if (!destinationDI.Exists)
@@ -72,10 +74,10 @@ namespace Status.Services
         /// <summary>
         /// Copy file from source to target
         /// </summary>
+        /// <param name="logFile"></param>
         /// <param name="sourceFile"></param>
         /// <param name="targetFile"></param>
-        /// <param name="logger"></param>
-        public static void CopyFile(string sourceFile, string targetFile, ILogger<StatusRepository> logger)
+        public static void CopyFile(string logFile, string sourceFile, string targetFile)
         {
             FileInfo Source = new FileInfo(sourceFile);
             FileInfo Target = new FileInfo(targetFile);
@@ -95,7 +97,7 @@ namespace Status.Services
                 Source.CopyTo(targetFile);
             }
 
-            Console.WriteLine("Copied {0} -> {1}", sourceFile, targetFile);
+            StaticClass.Log(logFile, String.Format("Copied {0} -> {1}", sourceFile, targetFile));
         }
     }
 }

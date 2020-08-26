@@ -18,7 +18,6 @@ namespace Status.Services
         private StatusMonitorData MonitorData;
         private List<StatusData> StatusData;
         private static string DirectoryName;
-        private static Thread thread;
         private static string Job;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
@@ -96,12 +95,12 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            thread = new Thread(() => WatchFiles(DirectoryName, MonitorData));
-            if (thread == null)
+            StaticClass.ProcessingFileWatcherThreadHandle = new Thread(() => WatchFiles(DirectoryName, MonitorData));
+            if (StaticClass.ProcessingFileWatcherThreadHandle == null)
             {
                 Logger.LogError("ProcessingFileWatcherThread thread failed to instantiate");
             }
-            thread.Start();
+            StaticClass.ProcessingFileWatcherThreadHandle.Start();
         }
 
         /// <summary>
@@ -195,6 +194,7 @@ namespace Status.Services
         /// Monitor a directory for a complete set of Input files for a job with a timeout
         /// </summary>
         /// <param name="directory"></param>
+        /// <param name="monitorData"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public void WatchFiles(string directory, StatusMonitorData monitorData)
         {

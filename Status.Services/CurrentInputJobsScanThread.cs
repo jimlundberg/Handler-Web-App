@@ -13,7 +13,6 @@ namespace Status.Services
     /// </summary>
     public class CurrentInputJobsScanThread
     {
-        private static Thread thread;
         public static IniFileData IniData;
         public static List<StatusData> StatusData;
         public static ILogger<StatusRepository> Logger;
@@ -72,12 +71,12 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            thread = new Thread(() => CheckForCurrentInputJobs(IniData, StatusData, Logger));
-            if (thread == null)
+            StaticClass.CurrentInputJobsScanThreadHandle = new Thread(() => CheckForCurrentInputJobs(IniData, StatusData, Logger));
+            if (StaticClass.CurrentInputJobsScanThreadHandle == null)
             {
                 Logger.LogError("CurrentInputJobsScanThread thread failed to instantiate");
             }
-            thread.Start();
+            StaticClass.CurrentInputJobsScanThreadHandle.Start();
         }
 
         /// <summary>
@@ -217,7 +216,7 @@ namespace Status.Services
                 }
 
                 // Get data found in Job xml file
-                JobXmlData jobXmlData = scanDir.GetJobXmlData(job, directory, logger);
+                JobXmlData jobXmlData = scanDir.GetJobXmlData(job, directory);
                 if (jobXmlData == null)
                 {
                     Logger.LogError("CurrentInputJobsScanThread scanDir GetJobXmlData failed");

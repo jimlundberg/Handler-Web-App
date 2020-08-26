@@ -101,11 +101,11 @@ namespace Status.Services
             {
                 Logger.LogError("Log File History status failed to instantiate");
             }
-            status.CheckLogFileHistory(IniData, Logger);
+            status.CheckLogFileHistory(IniData);
         }
 
         /// <summary>
-        /// Get the Monitor Status Entry point
+        /// Start the Monitor process by strting the new jobs scan thread
         /// </summary>
         public void StartMonitorProcess()
         {
@@ -121,7 +121,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Method to stop the Monitor process
+        /// Stop the Monitor process
         /// </summary>
         public void StopMonitor()
         {
@@ -151,7 +151,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Method to return the status data to the requestor
+        /// Return the status data to the requestor
         /// </summary>
         /// <returns>Status Data List</returns>
         public IEnumerable<StatusData> GetJobStatus()
@@ -177,7 +177,7 @@ namespace Status.Services
                 Logger.LogError("StatusRepository status failed to instantiate");
             }
 
-            StatusDataList = status.ReadFromCsvFile(IniData, Logger);
+            StatusDataList = status.ReadFromCsvFile(IniData);
             
             return StatusDataList;
         }

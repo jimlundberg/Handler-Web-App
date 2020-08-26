@@ -109,9 +109,8 @@ namespace Status.Services
         /// </summary>
         /// <param name="job"></param>
         /// <param name="jobDirectory"></param>
-        /// <param name="logger"></param>
         /// <returns>JobXmlData</returns>
-        public StatusModels.JobXmlData GetJobXmlData(string job, string jobDirectory, ILogger<StatusRepository> logger)
+        public StatusModels.JobXmlData GetJobXmlData(string job, string jobDirectory)
         {
             StatusModels.JobXmlData jobScanXmlData = new StatusModels.JobXmlData();
             jobScanXmlData.JobDirectory = jobDirectory;

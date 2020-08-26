@@ -31,7 +31,8 @@ namespace Status.Services
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
         /// <param name="logger"></param>
-        public StatusEntry(List<StatusData> statusList, string job, JobStatus status, JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
+        public StatusEntry(List<StatusData> statusList, string job, JobStatus status,
+            JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
         {
             StatusList = statusList;
             Job = job;
@@ -49,7 +50,8 @@ namespace Status.Services
         /// <param name="job"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
-        public void ListStatus(IniFileData iniData, List<StatusData> statusList, string job, JobStatus status, JobType timeSlot)
+        public void ListStatus(IniFileData iniData, List<StatusData> statusList,
+            string job, JobStatus status, JobType timeSlot)
         {
             StatusData entry = new StatusData();
             if (entry == null)
@@ -90,9 +92,7 @@ namespace Status.Services
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
-        /// <param name="logger"></param>
-        public void WriteToCsvFile(string job, IniFileData iniData, JobStatus status,
-            JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
+        public void WriteToCsvFile(string job, JobStatus status, JobType timeSlot, string logFileName)
         {
             lock (csvLock)
             {
@@ -131,7 +131,8 @@ namespace Status.Services
                             break;
                     }
 
-                    string line = String.Format("{0},{1},{2},{3},{4}", job, status.ToString(), timeReceived, timeStarted, timeCompleted);
+                    string line = String.Format("{0},{1},{2},{3},{4}",
+                        job, status.ToString(), timeReceived, timeStarted, timeCompleted);
                     writer.WriteLineAsync(line);
                 }
             }
@@ -142,9 +143,8 @@ namespace Status.Services
         /// </summary>
         /// <param name="logFileName"></param>
         /// <param name="iniData"></param>
-        /// <param name="logger"></param>
         /// <returns></returns>
-        public List<StatusData> ReadFromCsvFile(IniFileData iniData, ILogger<StatusRepository> logger)
+        public List<StatusData> ReadFromCsvFile(IniFileData iniData)
         {
             List<StatusData> statusDataTable = new List<StatusData>();
             DateTime timeReceived = DateTime.MinValue;
@@ -270,11 +270,8 @@ namespace Status.Services
         /// <summary>
         /// Read, reject old data and rewrite Log File
         /// </summary>
-        /// <param name="logFileName"></param>
-        /// <param name="logFileHistory"></param>
-        /// <param name="logger"></param>
-        /// <returns></returns>
-        public void CheckLogFileHistory(IniFileData iniData, ILogger<StatusRepository> logger)
+        /// <param name="iniData"></param>
+        public void CheckLogFileHistory(IniFileData iniData)
         {
             List<StatusData> statusDataTable = new List<StatusData>();
             string logFileName = iniData.StatusLogFile;

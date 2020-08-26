@@ -15,7 +15,6 @@ namespace Status.Services
     {
         private IniFileData IniData;
         private List<StatusData> StatusData;
-        private static Thread thread;
         public event EventHandler ProcessCompleted;
         private static readonly Object delLock = new Object();
         ILogger<StatusRepository> Logger;
@@ -53,21 +52,19 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            thread = new Thread(() => CheckForCurrentProcessingJobs(IniData, StatusData, Logger));
-            if (thread == null)
+            StaticClass.CurrentProcessingJobsScanThreadHandle = new Thread(() => CheckForCurrentProcessingJobs(IniData));
+            if (StaticClass.CurrentProcessingJobsScanThreadHandle == null)
             {
                 Logger.LogError("CurrentProcessingJobsScanThread thread failed to instantiate");
             }
-            thread.Start();
+            StaticClass.CurrentProcessingJobsScanThreadHandle.Start();
         }
 
         /// <summary>
         /// Method to scan for old jobs in the Processing Buffer
         /// </summary>
         /// <param name="iniFileData"></param>
-        /// <param name="statusData"></param>
-        /// <param name="logger"></param>
-        public void CheckForCurrentProcessingJobs(IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public void CheckForCurrentProcessingJobs(IniFileData iniFileData)
         {
             string logFile = iniFileData.ProcessLogFile;
 
@@ -124,7 +121,8 @@ namespace Status.Services
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public void StartProcessingJob(string directory, IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public void StartProcessingJob(string directory, IniFileData iniFileData, 
+            List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             string logFile = iniFileData.ProcessLogFile;
             string job = directory.Replace(iniFileData.ProcessingDir, "").Remove(0, 1);
@@ -149,7 +147,7 @@ namespace Status.Services
                 }
 
                 // Get data found in Xml file into Monitor Data
-                JobXmlData jobXmlData = scanDir.GetJobXmlData(job, directory, logger);
+                JobXmlData jobXmlData = scanDir.GetJobXmlData(job, directory);
                 if (jobXmlData == null)
                 {
                     Logger.LogError("CurrentProcessingJobsScanThread scanDir GetJobXmlData failed");
@@ -187,7 +185,8 @@ namespace Status.Services
                 if (StaticClass.ShutdownFlag == true)
                 {
                     StaticClass.Log(IniData.ProcessLogFile,
-                        String.Format("\nShutdown CurrentProcessingJobsScanThread StartProcessingJob at {0:HH:mm:ss.fff}", DateTime.Now));
+                        String.Format("\nShutdown CurrentProcessingJobsScanThread StartProcessingJob at {0:HH:mm:ss.fff}",
+                        DateTime.Now));
                     return;
                 }
             }

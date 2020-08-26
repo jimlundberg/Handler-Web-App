@@ -16,12 +16,11 @@ namespace Status.Services
         public static string DirectoryName;
         public static IniFileData IniData;
         public static List<StatusData> StatusData;
-        private static Thread thread;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
 
         /// <summary>
-        /// New Jobs Directory Scan Thread constructor receiving data buffers
+        /// New Jobs directory Scan Thread constructor receiving data buffers
         /// </summary>
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
@@ -45,21 +44,21 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// A Thread procedure that scans for new directories added to Directory
+        /// A Thread procedure that scans for directories created in selected directory
         /// </summary>
         public void ThreadProc()
         {
-            thread = new Thread(() => WatchDirectory(DirectoryName));
-            if (thread == null)
+            StaticClass.DirectoryWatcherThreadHandle = new Thread(() => WatchDirectory(DirectoryName));
+            if (StaticClass.DirectoryWatcherThreadHandle == null)
             {
                 Logger.LogError("DirectoryWatcherThread thread failed to instantiate");
             }
-            thread.Start();
+            StaticClass.DirectoryWatcherThreadHandle.Start();
         }
 
         // Define the event handlers.
         /// <summary>
-        /// The Add or Change of directory callback
+        /// The directory created callback
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
@@ -79,14 +78,14 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Scan directory for added and deleted directories
+        /// Scan selected directory for created directories
         /// </summary>
         /// <param name="directory"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-        public void WatchDirectory(string Directory)
+        public void WatchDirectory(string directory)
         {
             // Get job name from directory name
-            string job = Directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+            string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
 
             // Create a new FileSystemWatcher and set its properties
             using (FileSystemWatcher watcher = new FileSystemWatcher())
@@ -98,7 +97,7 @@ namespace Status.Services
 
                 // Watch for changes in the directory list
                 watcher.NotifyFilter = NotifyFilters.DirectoryName;
-                watcher.Path = Directory;
+                watcher.Path = directory;
 
                 // Watch for any directories names added
                 watcher.Filter = "*.*";

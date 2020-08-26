@@ -72,7 +72,7 @@ namespace ReadWriteCsvFile
         /// Reads a row of data from a CSV file
         /// </summary>
         /// <param name="row"></param>
-        /// <returns></returns>
+        /// <returns>pass or fail</returns>
         public bool ReadRow(CsvRow row)
         {
             row.LineText = ReadLine();

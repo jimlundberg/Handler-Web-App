@@ -20,7 +20,15 @@ namespace Status.Services
 		public static int RunningJobsIndex = 0;
 		public static int logFileSizeLimit = 0;
 
-		public static volatile bool ShutdownFlag = false;
+        public static Thread CurrentInputJobsScanThreadHandle;
+        public static Thread ProcessingFileWatcherThreadHandle;
+        public static Thread CurrentProcessingJobsScanThreadHandle;
+        public static Thread DirectoryWatcherThreadHandle;
+        public static Thread InputFileWatcherThreadHandle;
+        public static Thread JobRunThreadHandle;
+        public static Thread TcpIpListenThreadHandle;
+
+        public static volatile bool ShutdownFlag = false;
 		public static volatile bool CurrentProcessingJobsScanComplete = false;
 
 		public static List<string> NewInputJobsToRun = new List<String>();
@@ -58,7 +66,6 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
-        /// <param name="logFileName"></param>
         /// <param name="logger"></param>
         public static void StatusDataEntry(List<StatusData> statusList, string job, IniFileData iniData,
             JobStatus status, JobType timeSlot, ILogger<StatusRepository> logger)
@@ -66,7 +73,7 @@ namespace Status.Services
             string statusLogFile = iniData.StatusLogFile;
             StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, statusLogFile, logger);
             statusData.ListStatus(iniData, statusList, job, status, timeSlot);
-            statusData.WriteToCsvFile(job, iniData, status, timeSlot, statusLogFile, logger);
+            statusData.WriteToCsvFile(job, status, timeSlot, statusLogFile);
         }
 
         /// <summary>
