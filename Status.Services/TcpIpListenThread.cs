@@ -263,6 +263,19 @@ namespace Status.Services
                                     responseData, job, port, DateTime.Now));
                                 break;
 
+                            case "Whole process done, socket closed.":
+                                StaticClass.Log(logFile,
+                                    String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                                    responseData, job, port, DateTime.Now));
+
+                                StaticClass.Log(logFile,
+                                    String.Format("TCP/IP for Job {0} on port {1} received Process Done at {2:HH:mm:ss.fff}",
+                                    job, port, DateTime.Now));
+
+                                StaticClass.TcpIpScanComplete[job] = true;
+                                jobComplete = true;
+                                return;
+
                             default:
                                 logger.LogWarning("Received Weird Response: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, job, port, DateTime.Now);

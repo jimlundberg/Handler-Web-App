@@ -138,7 +138,7 @@ namespace Status.Services
             {
                 // Get the current directory list and delete the ones beyond the time limit
                 DirectoryInfo dirInfo = new DirectoryInfo(dir);
-                if (dirInfo.LastAccessTime < DateTime.Now.AddDays(-iniData.InputBufferTimeLimit))
+                if (dirInfo.LastWriteTime < DateTime.Now.AddDays(-iniData.InputBufferTimeLimit))
                 {
                     dirInfo.Delete();
                 }
