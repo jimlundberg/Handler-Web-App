@@ -29,7 +29,8 @@ namespace Status.Services
         public static Thread TcpIpListenThreadHandle;
 
         public static volatile bool ShutdownFlag = false;
-		public static volatile bool CurrentProcessingJobsScanComplete = false;
+        public static volatile bool PauseFlag = false;
+        public static volatile bool CurrentProcessingJobsScanComplete = false;
 
 		public static List<string> NewInputJobsToRun = new List<String>();
 		public static List<string> NewProcessingJobsToRun = new List<String>();

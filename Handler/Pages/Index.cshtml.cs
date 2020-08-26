@@ -186,7 +186,7 @@ namespace Handler.Pages
         public void OnPostPauseButton()
         {
             SetButtonState(ButtonPress.Pause);
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+            MonitorDataRepository.PauseMonitor();
         }
 
         /// <summary>

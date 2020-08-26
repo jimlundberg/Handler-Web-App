@@ -212,6 +212,16 @@ namespace Status.Services
                                 job, DateTime.Now));
                             return;
                         }
+
+                        // Check if the pause flag is set, then wait for reset
+                        if (StaticClass.PauseFlag == true)
+                        {
+                            do
+                            {
+                                Thread.Yield();
+                            }
+                            while (StaticClass.PauseFlag == true);
+                        }
                     }
                     while (StaticClass.InputFileScanComplete[job] == false);
 
@@ -238,6 +248,16 @@ namespace Status.Services
                 StaticClass.Log(logFile, String.Format("\nShutdown RunJob pre executinon of Job {0} at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
                 return;
+            }
+
+            // Check if the pause flag is set, then wait for reset
+            if (StaticClass.PauseFlag == true)
+            {
+                do
+                {
+                    Thread.Yield();
+                }
+                while (StaticClass.PauseFlag == true);
             }
 
             // Add entry to status list
@@ -289,6 +309,16 @@ namespace Status.Services
                         job, DateTime.Now));
                     return;
                 }
+
+                // Check if the pause flag is set, then wait for reset
+                if (StaticClass.PauseFlag == true)
+                {
+                    do
+                    {
+                        Thread.Yield();
+                    }
+                    while (StaticClass.PauseFlag == true);
+                }
             }
             while (StaticClass.ProcessingJobScanComplete[job] == false);
 
@@ -297,6 +327,16 @@ namespace Status.Services
                 StaticClass.Log(logFile, String.Format("\nShutdown JobRunThread RunJob before xml read for job {0} at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
                 return;
+            }
+
+            // Check if the pause flag is set, then wait for reset
+            if (StaticClass.PauseFlag == true)
+            {
+                do
+                {
+                    Thread.Yield();
+                }
+                while (StaticClass.PauseFlag == true);
             }
 
             // Add copy to archieve entry to status list

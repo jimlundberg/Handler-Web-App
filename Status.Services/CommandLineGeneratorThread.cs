@@ -99,7 +99,7 @@ namespace Status.Services
             Thread.Sleep(StaticClass.ScanWaitTime * 6);
 
             // Display Modeler Executable information
-            StaticClass.Log(logFileName, $"\nJob {monitorData.Job} Modeler execution process data:");
+            StaticClass.Log(logFileName, $"\nJob {job} Modeler execution process data:");
             StaticClass.Log(logFileName, $"ProcessName                 : {ModelerProcess.ProcessName}");
             StaticClass.Log(logFileName, $"MainWindowTitle             : {ModelerProcess.MainWindowTitle}");
             StaticClass.Log(logFileName, $"StartTime                   : {ModelerProcess.StartTime}");

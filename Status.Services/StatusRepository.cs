@@ -110,6 +110,7 @@ namespace Status.Services
         public void StartMonitorProcess()
         {
             StaticClass.ShutdownFlag = false;
+            StaticClass.PauseFlag = false;
 
             // Start thread to scan for old then new jobs
             newJobsScanThread = new CurrentInputJobsScanThread(IniData, StatusDataList, Logger);
@@ -157,6 +158,14 @@ namespace Status.Services
         public IEnumerable<StatusData> GetJobStatus()
         {
             return StatusDataList;
+        }
+
+        /// <summary>
+        /// Pause the Monitor System
+        /// </summary>
+        public void PauseMonitor()
+        {
+            StaticClass.PauseFlag = true;
         }
 
         /// <summary>

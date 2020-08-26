@@ -109,6 +109,16 @@ namespace Status.Services
                         String.Format("\nShutdown CurrentInputJobsScanThread CheckForCurrentInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
+
+                // Check if the pause flag is set, then wait for reset
+                if (StaticClass.PauseFlag == true)
+                {
+                    do
+                    {
+                        Thread.Yield();
+                    }
+                    while (StaticClass.PauseFlag == true);
+                }
             }
             while (StaticClass.CurrentProcessingJobsScanComplete == false);
 
@@ -257,6 +267,16 @@ namespace Status.Services
                     Console.WriteLine(String.Format("\nShutdown CurrentInputJobsScanThread StartInputJob of job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
                     return;
+                }
+
+                // Check if the pause flag is set, then wait for reset
+                if (StaticClass.PauseFlag == true)
+                {
+                    do
+                    {
+                        Thread.Yield();
+                    }
+                    while (StaticClass.PauseFlag == true);
                 }
             }
         }

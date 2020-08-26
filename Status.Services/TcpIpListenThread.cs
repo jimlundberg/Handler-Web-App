@@ -149,7 +149,6 @@ namespace Status.Services
                 }
 
                 bool jobComplete = false;
-                int adjustableSleepTime = StaticClass.ScanWaitTime * 3;
                 do
                 {
                     if (StaticClass.ShutdownFlag == true)
@@ -158,6 +157,16 @@ namespace Status.Services
                             String.Format("\nShutdown TcpIpListenThread prewrite for Job {0} on port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));
                         return;
+                    }
+
+                    // Check if the pause flag is set, then wait for reset
+                    if (StaticClass.PauseFlag == true)
+                    {
+                        do
+                        {
+                            Thread.Yield();
+                        }
+                        while (StaticClass.PauseFlag == true);
                     }
 
                     // Send the message to the Modeler
@@ -182,12 +191,23 @@ namespace Status.Services
                         {
                             try
                             {
+                                // Check if the shutdown flag is set
                                 if (StaticClass.ShutdownFlag == true)
                                 {
                                     StaticClass.Log(logFile,
                                         String.Format("\nShutdown TcpIpListenThread preread for Job {0} on port {1} at {2:HH:mm:ss.fff}",
                                         job, port, DateTime.Now));
                                     return;
+                                }
+
+                                // Check if the pause flag is set, then wait for reset
+                                if (StaticClass.PauseFlag == true)
+                                {
+                                    do
+                                    {
+                                        Thread.Yield();
+                                    }
+                                    while (StaticClass.PauseFlag == true);
                                 }
 
                                 bytes = stream.Read(data, 0, data.Length);
@@ -207,25 +227,10 @@ namespace Status.Services
                                 }
                             }
 
-                            Thread.Sleep(StaticClass.ScanWaitTime * 2);
+                            Thread.Sleep(StaticClass.ScanWaitTime * 3);
                         }
 
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
-
-                        if (responseData.Contains("Whole process done, socket closed."))
-                        {
-                            StaticClass.Log(logFile,
-                                String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                                responseData, job, port, DateTime.Now));
-
-                            StaticClass.Log(logFile,
-                                String.Format("TCP/IP for Job {0} on port {1} received Process Done at {2:HH:mm:ss.fff}",
-                                job, port, DateTime.Now));
-
-                            StaticClass.TcpIpScanComplete[job] = true;
-                            jobComplete = true;
-                            return;
-                        }
 
                         // Send status for response received
                         switch (responseData)
@@ -243,20 +248,34 @@ namespace Status.Services
                                 StaticClass.Log(logFile,
                                     String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, job, port, DateTime.Now));
-                                adjustableSleepTime = 1000;
                                 break;
 
                             case "Step 6 in process.":
                                 StaticClass.Log(logFile,
                                     String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, job, port, DateTime.Now));
-                                adjustableSleepTime = 100;
                                 break;
 
                             default:
                                 logger.LogWarning("Received Weird Response: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, job, port, DateTime.Now);
                                 break;
+                        }
+
+                        // Check for the process complete string, even if it is concatenated with another string
+                        if (responseData.Contains("Whole process done, socket closed."))
+                        {
+                            StaticClass.Log(logFile,
+                                String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                                responseData, job, port, DateTime.Now));
+
+                            StaticClass.Log(logFile,
+                                String.Format("TCP/IP for Job {0} on port {1} received Process Done at {2:HH:mm:ss.fff}",
+                                job, port, DateTime.Now));
+
+                            StaticClass.TcpIpScanComplete[job] = true;
+                            jobComplete = true;
+                            return;
                         }
 
                         // Check for job timeout
@@ -282,7 +301,17 @@ namespace Status.Services
                             jobComplete = true;
                         }
 
-                        Thread.Sleep(adjustableSleepTime);
+                        // Check if the pause flag is set, then wait for reset
+                        if (StaticClass.PauseFlag == true)
+                        {
+                            do
+                            {
+                                Thread.Yield();
+                            }
+                            while (StaticClass.PauseFlag == true);
+                        }
+
+                        Thread.Sleep(StaticClass.ScanWaitTime * 3);
                     }
                     else
                     {

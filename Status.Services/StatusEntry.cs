@@ -4,6 +4,7 @@ using StatusModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 namespace Status.Services
 {
@@ -256,6 +257,16 @@ namespace Status.Services
                                     String.Format("\nShutdown ReadFromCsvFile job {0} row {1}", rowStatusData.Job, rowStatusData));
                                 return null;
                             }
+
+                            // Check if the pause flag is set, then wait for reset
+                            if (StaticClass.PauseFlag == true)
+                            {
+                                do
+                                {
+                                    Thread.Yield();
+                                }
+                                while (StaticClass.PauseFlag == true);
+                            }
                         }
                     }
                 }
@@ -394,6 +405,16 @@ namespace Status.Services
                                     String.Format("\nShutdown CheckLogFileHistory job {0} at {1:HH:mm:ss.fff}",
                                     job, DateTime.Now));
                                 return;
+                            }
+
+                            // Check if the pause flag is set, then wait for reset
+                            if (StaticClass.PauseFlag == true)
+                            {
+                                do
+                                {
+                                    Thread.Yield();
+                                }
+                                while (StaticClass.PauseFlag == true);
                             }
                         }
                     }
