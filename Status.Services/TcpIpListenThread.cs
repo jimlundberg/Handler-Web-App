@@ -287,6 +287,9 @@ namespace Status.Services
                             // Handle job timeout
                             TimeoutHandler(job, iniData, logFile);
 
+                            // Shut down the Modeler
+                            StaticClass.ProcessHandles[job].Kill();
+
                             // Create job Timeout status
                             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, logger);
                             jobComplete = true;
