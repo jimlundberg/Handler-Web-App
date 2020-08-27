@@ -58,7 +58,7 @@ namespace Status.Services
             string scanWaitTime = IniParser.Read("Process", "ScanWaitTime");
             IniData.ScanWaitTime = int.Parse(scanWaitTime.Substring(0, scanWaitTime.IndexOf("#")));
             string timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
-            IniData.MaxTimeLimit = int.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
+            IniData.MaxTimeLimit = int.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#"))) * 60 * 60;
             string threadWaitTime = IniParser.Read("Process", "ThreadWaitTime");
             IniData.ThreadWaitTime = int.Parse(threadWaitTime.Substring(0, threadWaitTime.IndexOf("#")));
             string logFileHistory = IniParser.Read("Process", "LogFileHistory");
@@ -89,7 +89,7 @@ namespace Status.Services
             StaticClass.Log(logFile, "Start Port                  : " + IniData.StartPort);
             StaticClass.Log(logFile, "Scan Wait Time              : " + IniData.ScanWaitTime + " Miliseconds");
             StaticClass.Log(logFile, "Thread Wait Time            : " + IniData.ThreadWaitTime + " Miliseconds");
-            StaticClass.Log(logFile, "Max Time Limit              : " + IniData.MaxTimeLimit + " Seconds");
+            StaticClass.Log(logFile, "Max Time Limit              : " + IniData.MaxTimeLimit + " Hours");
             StaticClass.Log(logFile, "Log File History            : " + IniData.LogFileHistory + " Days");
             StaticClass.Log(logFile, "Log File Max Size           : " + IniData.LogFileMaxSize + " MegaBytes");
         }
