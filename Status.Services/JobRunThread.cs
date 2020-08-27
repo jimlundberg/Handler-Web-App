@@ -326,28 +326,11 @@ namespace Status.Services
             }
             while (StaticClass.ProcessingJobScanComplete[job] == false);
 
-            if (StaticClass.ShutdownFlag == true)
-            {
-                StaticClass.Log(logFile, String.Format("\nShutdown JobRunThread RunJob before xml read for job {0} at {1:HH:mm:ss.fff}",
-                    job, DateTime.Now));
-                return;
-            }
-
-            // Check if the pause flag is set, then wait for reset
-            if (StaticClass.PauseFlag == true)
-            {
-                do
-                {
-                    Thread.Yield();
-                }
-                while (StaticClass.PauseFlag == true);
-            }
-
             // Add copy to archieve entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, logger);
 
-            // Wait for the data.xml file to be ready
-            string dataXmlFileName = processingBufferDirectory + "data.xml";
+            // Make sure the data.xml file is ready
+            string dataXmlFileName = processingBufferDirectory + @"\" + job + @"\" + "data.xml";
             var dataXmltask = StaticClass.IsFileReady(dataXmlFileName, logger);
             dataXmltask.Wait();
 
