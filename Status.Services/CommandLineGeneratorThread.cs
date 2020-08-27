@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -91,12 +92,22 @@ namespace Status.Services
             StaticClass.ProcessHandles.Add(job, ModelerProcess);
 
             // Give the Modeler time to start so you can read the main window title
-            Thread.Sleep(500);
+            var windowWaitTask = Task.Run(async delegate
+            {
+                await Task.Delay(500);
+                return;
+            });
+            windowWaitTask.Wait();
 
             StaticClass.Log(logFileName, String.Format("{0} {1}", ModelerProcess.MainWindowTitle, ModelerProcess.StartInfo.Arguments));
 
-            // Wait for Modeler to startup before reading data
-            Thread.Sleep(StaticClass.ScanWaitTime * 6);
+            // Wait for Modeler to get going before reading it's information
+            var modelerWaitTask = Task.Run(async delegate
+            {
+                await Task.Delay(StaticClass.ScanWaitTime * 6);
+                return;
+            });
+            modelerWaitTask.Wait();
 
             // Display Modeler Executable information
             StaticClass.Log(logFileName, $"\nJob {job} Modeler execution process data:");

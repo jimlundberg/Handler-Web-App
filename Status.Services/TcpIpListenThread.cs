@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -122,7 +123,12 @@ namespace Status.Services
             List<StatusData> statusData, string message, ILogger<StatusRepository> logger)
         {
             // Wait about a minute for the Modeler to start execution
-            Thread.Sleep(StaticClass.ScanWaitTime * 12);
+            var tcpIpStartWaitTask = Task.Run(async delegate
+            {
+                await Task.Delay(StaticClass.ScanWaitTime * 12);
+                return;
+            });
+            tcpIpStartWaitTask.Wait();
 
             try
             {
@@ -235,7 +241,13 @@ namespace Status.Services
                                 }
                             }
 
-                            Thread.Sleep(StaticClass.ScanWaitTime * 3);
+                            // Wait between TCP/IP Connec tries
+                            var TcpIpConnectTask = Task.Run(async delegate
+                            {
+                                await Task.Delay(StaticClass.ScanWaitTime * 3);
+                                return;
+                            });
+                            TcpIpConnectTask.Wait();
                         }
 
                         // Get the Modeler response and display it
@@ -342,8 +354,13 @@ namespace Status.Services
                             while (StaticClass.PauseFlag == true);
                         }
 
-                        // Do adjustable sleep according to the Step number
-                        Thread.Sleep(adjustableSleepTime);
+                        // Wait for an adjustable time between TCP/IP status requests
+                        var TcpIpWaitTask = Task.Run(async delegate
+                        {
+                            await Task.Delay(adjustableSleepTime);
+                            return;
+                        });
+                        TcpIpWaitTask.Wait();
                     }
                     else
                     {

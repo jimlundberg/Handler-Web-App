@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -102,7 +103,14 @@ namespace Status.Services
                 {
                     CurrentProcessingJobsScanThread newProcessingJobsScanThread = new CurrentProcessingJobsScanThread();
                     newProcessingJobsScanThread.StartProcessingJob(directory, IniData, StatusData, Logger);
-                    Thread.Sleep(StaticClass.ScanWaitTime);
+
+                    // Throttle the Job startups
+                    var jobWaitTask = Task.Run(async delegate
+                    {
+                        await Task.Delay(StaticClass.ScanWaitTime);
+                        return;
+                    });
+                    jobWaitTask.Wait();
                 }
                 else
                 {

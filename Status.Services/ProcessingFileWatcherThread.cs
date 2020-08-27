@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Permissions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Status.Services
@@ -70,7 +71,14 @@ namespace Status.Services
                     string directory = iniData.InputDir + @"\" + StaticClass.NewProcessingJobsToRun[i];
                     CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
                     currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
-                    Thread.Sleep(StaticClass.ScanWaitTime);
+
+                    // Throttle the Job startups
+                    var jobWaitTask = Task.Run(async delegate
+                    {
+                        await Task.Delay(StaticClass.ScanWaitTime);
+                        return;
+                    });
+                    jobWaitTask.Wait();
                 }
             }
             else

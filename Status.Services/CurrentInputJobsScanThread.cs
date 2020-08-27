@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -162,7 +163,14 @@ namespace Status.Services
                     // Create new Input job start thread and run
                     CurrentInputJobsScanThread newInputJobsScanThread = new CurrentInputJobsScanThread();
                     newInputJobsScanThread.StartInputJob(directory, IniData, StatusData, Logger);
-                    Thread.Sleep(StaticClass.ScanWaitTime);
+
+                    // Throttle the Job startups
+                    var jobWaitTask = Task.Run(async delegate
+                    {
+                        await Task.Delay(StaticClass.ScanWaitTime);
+                        return;
+                    });
+                    jobWaitTask.Wait();
                 }
                 else
                 {
@@ -201,7 +209,14 @@ namespace Status.Services
                             string directory = iniData.InputDir + @"\" + job;
                             CurrentInputJobsScanThread newInputJobsScan = new CurrentInputJobsScanThread();
                             newInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
-                            Thread.Sleep(StaticClass.ScanWaitTime);
+
+                            // Throttle the Job startups
+                            var jobWaitTask = Task.Run(async delegate
+                            {
+                                await Task.Delay(StaticClass.ScanWaitTime);
+                                return;
+                            });
+                            jobWaitTask.Wait();
                         }
                     }
                 }
