@@ -57,13 +57,14 @@ namespace Status.Services
         public static void newJob_DirectoryFound(object sender, EventArgs e)
         {
             string job = e.ToString();
-
-            StaticClass.Log(IniData.ProcessLogFile,
-                String.Format("\nnewJob_DirectoryFound Received new directory {0} at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
+            string logFile = IniData.ProcessLogFile;
 
             // Set Flag for ending directory scan loop
             StaticClass.NewInputJobsToRun.Add(job);
+
+            StaticClass.Log(logFile,
+                String.Format("Input Job Scan detected and added job {0} to Input job list at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
         }
 
         /// <summary>
@@ -169,7 +170,7 @@ namespace Status.Services
                     StaticClass.NewInputJobsToRun.Add(job);
 
                     StaticClass.Log(logFile,
-                        String.Format("Input Job Scan added waiting job {0} to list at {0:HH:mm:ss.fff}",
+                        String.Format("Input Job Scan added waiting job {0} to Input job list at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
                 }
             }

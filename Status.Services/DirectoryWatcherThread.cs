@@ -65,16 +65,21 @@ namespace Status.Services
         public static void OnCreated(object source, FileSystemEventArgs e)
         {
             // Store job to run now or later
-            string newJobDirectory = e.FullPath;
-            string newJobName = newJobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
+            string directory = e.FullPath;
+            string logFile = IniData.ProcessLogFile;
+            string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
 
             // Directory Add detected
-            StaticClass.Log(IniData.ProcessLogFile,
+            StaticClass.Log(logFile,
                 (String.Format("\nInput Directory Watcher detected new directory {0} at {1:HH:mm:ss.fff}",
-                newJobDirectory, DateTime.Now)));
+                directory, DateTime.Now)));
 
             // Add new job found to the Input job list
-            StaticClass.NewInputJobsToRun.Add(newJobName);
+            StaticClass.NewInputJobsToRun.Add(job);
+
+            StaticClass.Log(logFile,
+                String.Format("Input Job Scan detected and added job {0} to Input job list at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
         }
 
         /// <summary>

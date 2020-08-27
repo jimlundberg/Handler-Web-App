@@ -79,7 +79,7 @@ namespace Status.Services
                 StaticClass.NewProcessingJobsToRun.Add(job);
 
                 StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("\nProcessing file watcher added new job {0} to Processing Job to run list at {0:HH:mm:ss.fff}",
+                    String.Format("\nProcessing file watcher added new job {0} to Processing Job run list at {0:HH:mm:ss.fff}",
                     job, DateTime.Now));
             }
         }
