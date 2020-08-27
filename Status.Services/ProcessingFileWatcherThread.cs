@@ -151,7 +151,7 @@ namespace Status.Services
             {
                 // Wait for the data.xml file to be ready
                 string xmlFileName = directory + @"\" + "Data.xml";
-                var task = StaticClass.IsFileReady(xmlFileName);
+                var task = StaticClass.IsFileReady(xmlFileName, Logger);
                 task.Wait();
 
                 // Read output Xml file data

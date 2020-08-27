@@ -96,7 +96,7 @@ namespace Status.Services
             }
 
             // Move Processing Buffer Files to the Error directory for timeouts
-            FileHandling.CopyFolderContents(logFile, processingBufferDirectory, errorDirectory, true, true);
+            FileHandling.CopyFolderContents(processingBufferDirectory, errorDirectory, logFile, true, true);
 
             // Shut down the Modeler
             StaticClass.ProcessHandles[job].Kill();

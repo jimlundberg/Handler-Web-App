@@ -125,7 +125,7 @@ namespace Status.Services
 
             // Wait for the job xml file to be ready
             string jobXmlFileName = xmlJobDirectory + @"\" + jobXmlData.XmlFileName;
-            var jobXmltask = StaticClass.IsFileReady(jobXmlFileName);
+            var jobXmltask = StaticClass.IsFileReady(jobXmlFileName, logger);
             jobXmltask.Wait();
 
             // Read Job xml file and get the top node
@@ -196,8 +196,8 @@ namespace Status.Services
                         job, DateTime.Now));
 
                     // Register with the File Watcher class event and start its thread
-                    InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(inputJobFileDir, numberOfFilesNeeded, iniData,
-                        monitorData, statusData, logger);
+                    InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(inputJobFileDir, numberOfFilesNeeded,
+                        iniData, monitorData, statusData, logger);
                     if (inputFileWatch == null)
                     {
                         logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
@@ -237,7 +237,7 @@ namespace Status.Services
                     StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, logger);
 
                     // Move files from Input directory to the Processing directory, creating it first if needed
-                    FileHandling.CopyFolderContents(logFile, inputJobFileDir, ProcessingBufferJobDir, true, true);
+                    FileHandling.CopyFolderContents(inputJobFileDir, ProcessingBufferJobDir, logFile, true, true);
                 }
                 else
                 {
@@ -348,7 +348,7 @@ namespace Status.Services
 
             // Wait for the data.xml file to be ready
             string dataXmlFileName = processingBufferDirectory + "data.xml";
-            var dataXmltask = StaticClass.IsFileReady(dataXmlFileName);
+            var dataXmltask = StaticClass.IsFileReady(dataXmlFileName, logger);
             dataXmltask.Wait();
 
             // Get the pass or fail data from the data.xml OverallResult result node
@@ -373,12 +373,13 @@ namespace Status.Services
                 // Copy the Transfered files to the Finished directory 
                 foreach (string file in monitorData.TransferedFileList)
                 {
-                    FileHandling.CopyFile(logFile, processingBufferDirectory + file,
-                        finishedDirectory + @"\" + monitorData.JobSerialNumber + @"\" + file);
+                    FileHandling.CopyFile(processingBufferDirectory + file,
+                        finishedDirectory + @"\" + monitorData.JobSerialNumber + @"\" + file, logFile);
                 }
 
                 // Move Processing Buffer Files to the Repository directory when passed
-                FileHandling.CopyFolderContents(logFile, ProcessingBufferJobDir, repositoryDirectory + @"\" + job, true, true);
+                FileHandling.CopyFolderContents(ProcessingBufferJobDir, repositoryDirectory + @"\" + job,
+                    logFile, true, true);
             }
             else
             {
@@ -391,12 +392,12 @@ namespace Status.Services
                 // Copy the Transfered files to the Error directory 
                 foreach (string file in monitorData.TransferedFileList)
                 {
-                    FileHandling.CopyFile(logFile, processingBufferDirectory + @"\" + job + @"\" + file,
-                    errorDirectory + @"\" + monitorData.JobSerialNumber + @"\" + file);
+                    FileHandling.CopyFile(processingBufferDirectory + @"\" + job + @"\" + file,
+                    errorDirectory + @"\" + monitorData.JobSerialNumber + @"\" + file, logFile);
                 }
 
                 // Move Processing Buffer Files to the Repository directory when failed
-                FileHandling.CopyFolderContents(logFile, ProcessingBufferJobDir, repositoryDirectory, true, true);
+                FileHandling.CopyFolderContents(ProcessingBufferJobDir, repositoryDirectory, logFile, true, true);
             }
 
             // Decrement the number of jobs executing after one completes

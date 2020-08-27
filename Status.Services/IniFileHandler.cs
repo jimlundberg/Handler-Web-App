@@ -134,23 +134,6 @@ namespace Status.Services
                 }
 
                 Thread.Sleep(StaticClass.ThreadWaitTime);
-
-                if (StaticClass.ShutdownFlag == true)
-                {
-                    Console.WriteLine(String.Format("\nShutdown IniFileHandler GetJobXmlData for Job {0} at {1:HH:mm:ss.fff}",
-                        job, DateTime.Now));
-                    return null;
-                }
-
-                // Check if the pause flag is set, then wait for reset
-                if (StaticClass.PauseFlag == true)
-                {
-                    do
-                    {
-                        Thread.Yield();
-                    }
-                    while (StaticClass.PauseFlag == true);
-                }
             }
             while (XmlFileFound == false);
 

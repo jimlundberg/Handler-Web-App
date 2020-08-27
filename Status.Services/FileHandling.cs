@@ -19,7 +19,7 @@ namespace Status.Services
         /// <param name="destinationPath"></param>
         /// <param name="removeSource"></param>
         /// <param name="overwrite"></param>
-        public static void CopyFolderContents(string logFile, string sourcePath, string destinationPath,
+        public static void CopyFolderContents(string sourcePath, string destinationPath, string logFile,
             bool removeSource = false, bool overwrite = false)
         {
             DirectoryInfo sourceDI = new DirectoryInfo(sourcePath);
@@ -77,7 +77,7 @@ namespace Status.Services
         /// <param name="logFile"></param>
         /// <param name="sourceFile"></param>
         /// <param name="targetFile"></param>
-        public static void CopyFile(string logFile, string sourceFile, string targetFile)
+        public static void CopyFile(string sourceFile, string targetFile, string logFile)
         {
             FileInfo Source = new FileInfo(sourceFile);
             FileInfo Target = new FileInfo(targetFile);
@@ -98,6 +98,22 @@ namespace Status.Services
             }
 
             StaticClass.Log(logFile, String.Format("Copied {0} -> {1}", sourceFile, targetFile));
+        }
+
+        public static void DeleteDirectory(string targetDirectory, string logFile)
+        {
+            // First delete all files in target directory
+            string[] files = Directory.GetFiles(targetDirectory);
+            foreach (string file in files)
+            {
+                File.SetAttributes(file, FileAttributes.Normal);
+                File.Delete(file);
+            }
+
+            // Then delete directory
+            Directory.Delete(targetDirectory, false);
+
+            StaticClass.Log(logFile, String.Format("Deleted Directory {0}", targetDirectory));
         }
     }
 }

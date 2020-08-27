@@ -83,7 +83,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns>Returns if file is ready to access</returns>
-        public static async Task IsFileReady(string fileName)
+        public static async Task IsFileReady(string fileName, ILogger<StatusRepository> logger)
         {
             await Task.Run(() =>
             {
@@ -118,7 +118,7 @@ namespace Status.Services
                         else
                         {
                             // Rethrow the exception as it's not an exclusively-opened-exception.
-                            Console.WriteLine(String.Format("IsFileReady exception {0} rethrown for file {1} at {2:HH:mm:ss.fff}",
+                            logger.LogError(String.Format("IsFileReady exception {0} rethrown for file {1} at {2:HH:mm:ss.fff}",
                                 e.ToString(), fileName, DateTime.Now));
                             throw;
                         }
@@ -133,6 +133,7 @@ namespace Status.Services
         /// <param name="iniData"></param>
         public static void CheckForInputBufferTimeLimits(IniFileData iniData)
         {
+            string logFile = iniData.ProcessLogFile;
             string[] directories = Directory.GetDirectories(iniData.InputDir);
             foreach (string dir in directories)
             {
@@ -140,7 +141,7 @@ namespace Status.Services
                 DirectoryInfo dirInfo = new DirectoryInfo(dir);
                 if (dirInfo.LastWriteTime < DateTime.Now.AddDays(-iniData.InputBufferTimeLimit))
                 {
-                    dirInfo.Delete();
+                    FileHandling.DeleteDirectory(dir, logFile);
                 }
             }
         }
