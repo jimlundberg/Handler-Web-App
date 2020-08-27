@@ -102,7 +102,7 @@ namespace Status.Services
             // Wait while scanning for unfinished Processing jobs
             do
             {
-                Thread.Sleep(StaticClass.ThreadWaitTime);
+                Thread.Yield();
 
                 if (StaticClass.ShutdownFlag == true)
                 {
@@ -208,7 +208,7 @@ namespace Status.Services
 
                 StaticClass.CheckForInputBufferTimeLimits(iniData);
 
-                Thread.Sleep(StaticClass.ThreadWaitTime);
+                Thread.Yield();
             }
             while (StaticClass.ShutdownFlag == false);
         }

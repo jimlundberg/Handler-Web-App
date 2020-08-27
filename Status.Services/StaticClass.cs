@@ -15,7 +15,6 @@ namespace Status.Services
     public static class StaticClass
 	{
         public static int MaxJobTimeLimitSeconds = 0;
-        public static int ThreadWaitTime = 0;
         public static int ScanWaitTime = 0;
 		public static int NumberOfJobsExecuting = 0;
 		public static int RunningJobsIndex = 0;
@@ -114,7 +113,7 @@ namespace Status.Services
                         if (e.GetType() == typeof(IOException))
                         {
                             isReady = false;
-                            Thread.Sleep(StaticClass.ThreadWaitTime);
+                            Thread.Yield();
                         }
                         else
                         {

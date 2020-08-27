@@ -208,7 +208,7 @@ namespace Status.Services
                     // Wait for Input file scan to complete
                     do
                     {
-                        Thread.Sleep(StaticClass.ThreadWaitTime);
+                        Thread.Yield();
 
                         if (StaticClass.ShutdownFlag == true)
                         {
@@ -281,7 +281,7 @@ namespace Status.Services
             thread.Start();
 
             // Sleep to allow the Modeler to start before starting Process Buffer job file monitoring
-            Thread.Sleep(StaticClass.ThreadWaitTime * 2);
+            Thread.Sleep(500);
 
             // Register with the File Watcher class with an event and start its thread
             string processingBufferJobDir = processingBufferDirectory + @"\" + job;
@@ -305,7 +305,7 @@ namespace Status.Services
             // Wait for both job Processing and TCP/IP to complete
             do
             {
-                Thread.Sleep(StaticClass.ThreadWaitTime);
+                Thread.Yield();
 
                 if (StaticClass.ShutdownFlag == true)
                 {

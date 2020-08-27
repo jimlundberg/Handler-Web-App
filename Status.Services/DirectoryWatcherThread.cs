@@ -117,7 +117,7 @@ namespace Status.Services
                 // Scan Input directory forever or at least until shutdown
                 do
                 {
-                    Thread.Sleep(StaticClass.ThreadWaitTime);
+                    Thread.Yield();
                 }
                 while (StaticClass.ShutdownFlag == false);
             }

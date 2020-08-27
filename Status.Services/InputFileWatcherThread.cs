@@ -147,8 +147,8 @@ namespace Status.Services
             string job = e.ToString();
 
             StaticClass.Log(IniData.ProcessLogFile,
-                String.Format(String.Format("InputFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
-                job, DateTime.Now)));
+                String.Format("InputFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace Status.Services
                 // Wait for Input file Scan to Complete with enough files to start job
                 do
                 {
-                    Thread.Sleep(StaticClass.ThreadWaitTime);
+                    Thread.Yield();
 
                     if (StaticClass.ShutdownFlag == true)
                     {

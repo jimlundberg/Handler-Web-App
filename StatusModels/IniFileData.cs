@@ -20,7 +20,6 @@ namespace StatusModels
         public int ExecutionLimit { get; set; }
         public int MaxJobTimeLimit { get; set; }
         public int ScanWaitTime { get; set; }
-        public int ThreadWaitTime { get; set; }
         public int StartPort { get; set; }
         public int LogFileHistoryLimit { get; set; }
         public int InputBufferTimeLimit { get; set; }

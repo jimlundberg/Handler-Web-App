@@ -133,7 +133,7 @@ namespace Status.Services
                     }
                 }
 
-                Thread.Sleep(StaticClass.ThreadWaitTime);
+                Thread.Yield();
             }
             while (XmlFileFound == false);
 

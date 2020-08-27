@@ -91,7 +91,7 @@ namespace Status.Services
             StaticClass.ProcessHandles.Add(job, ModelerProcess);
 
             // Give the Modeler time to start so you can read the main window title
-            Thread.Sleep(StaticClass.ThreadWaitTime);
+            Thread.Sleep(500);
 
             StaticClass.Log(logFileName, String.Format("{0} {1}", ModelerProcess.MainWindowTitle, ModelerProcess.StartInfo.Arguments));
 

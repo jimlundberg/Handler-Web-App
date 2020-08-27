@@ -183,7 +183,7 @@ namespace Status.Services
                     while (StaticClass.PauseFlag == true);
                 }
 
-                Thread.Sleep(StaticClass.ThreadWaitTime);
+                Thread.Yield();
             }
             while (OverallResultEntryFound == false);
 
@@ -255,7 +255,7 @@ namespace Status.Services
                 // Wait for Processing file scan to Complete with a full set of job output files
                 do
                 {
-                    Thread.Sleep(StaticClass.ThreadWaitTime);
+                    Thread.Yield();
 
                     if (StaticClass.ShutdownFlag == true)
                     {
