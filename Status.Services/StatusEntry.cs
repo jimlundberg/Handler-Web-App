@@ -286,7 +286,7 @@ namespace Status.Services
         {
             List<StatusData> statusDataTable = new List<StatusData>();
             string logFileName = iniData.StatusLogFile;
-            int logFileHistory = iniData.LogFileHistory;
+            int logFileHistoryLimit = iniData.LogFileHistoryLimit;
 
             if (File.Exists(logFileName) == true)
             {
@@ -361,7 +361,8 @@ namespace Status.Services
 
                             // Check Time Received if older than history limit
                             DateTime timeReceived = Convert.ToDateTime(rowData[2]);
-                            if (((DateTime.Now - timeReceived).TotalDays > logFileHistory) && (timeReceived != DateTime.MinValue))
+                            double timeReceivedExperationTime = (DateTime.Now - timeReceived).TotalSeconds;
+                            if ((timeReceivedExperationTime > logFileHistoryLimit) && (timeReceived != DateTime.MinValue))
                             {
                                 oldRecord = true;
                             }
@@ -372,7 +373,8 @@ namespace Status.Services
 
                             // Check Time Started if older than history limit
                             DateTime timeStarted = Convert.ToDateTime(rowData[3]);
-                            if (((DateTime.Now - timeStarted).TotalDays > logFileHistory) && (timeStarted != DateTime.MinValue))
+                            double timeStartedExperationTime = (DateTime.Now - timeStarted).TotalSeconds;
+                            if ((timeStartedExperationTime > logFileHistoryLimit) && (timeStarted != DateTime.MinValue))
                             {
                                 oldRecord = true;
                             }
@@ -383,7 +385,8 @@ namespace Status.Services
 
                             // Check Time Complete if older than history limit
                             DateTime timeCompleted = Convert.ToDateTime(rowData[4]);
-                            if (((DateTime.Now - timeCompleted).TotalDays > logFileHistory) && (timeCompleted != DateTime.MinValue))
+                            double timeCompleteExperationTime = (DateTime.Now - timeCompleted).TotalSeconds;
+                            if ((timeCompleteExperationTime > logFileHistoryLimit) && (timeCompleted != DateTime.MinValue))
                             {
                                 oldRecord = true;
                             }

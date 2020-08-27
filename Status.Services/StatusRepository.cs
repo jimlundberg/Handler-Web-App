@@ -57,12 +57,12 @@ namespace Status.Services
             IniData.ProcessLogFile = IniParser.Read("Process", "ProcessLogFile");
             string scanWaitTime = IniParser.Read("Process", "ScanWaitTime");
             IniData.ScanWaitTime = int.Parse(scanWaitTime.Substring(0, scanWaitTime.IndexOf("#")));
-            string timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
-            IniData.MaxTimeLimit = int.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
+            string timeLimitString = IniParser.Read("Process", "MaxJobTimeLimit");
+            IniData.MaxJobTimeLimit = int.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             string threadWaitTime = IniParser.Read("Process", "ThreadWaitTime");
             IniData.ThreadWaitTime = int.Parse(threadWaitTime.Substring(0, threadWaitTime.IndexOf("#")));
-            string logFileHistory = IniParser.Read("Process", "LogFileHistory");
-            IniData.LogFileHistory = int.Parse(logFileHistory.Substring(0, logFileHistory.IndexOf("#")));
+            string logFileHistoryLimit = IniParser.Read("Process", "LogFileHistoryLimit");
+            IniData.LogFileHistoryLimit = int.Parse(logFileHistoryLimit.Substring(0, logFileHistoryLimit.IndexOf("#")));
             string inputBufferTimeLimit = IniParser.Read("Process", "InputbufferTimeLimit");
             IniData.InputBufferTimeLimit = int.Parse(inputBufferTimeLimit.Substring(0, inputBufferTimeLimit.IndexOf("#")));
             string logFileMaxSize = IniParser.Read("Process", "logFileMaxSize");
@@ -72,7 +72,7 @@ namespace Status.Services
             StaticClass.ScanWaitTime = IniData.ScanWaitTime;
             StaticClass.ThreadWaitTime = IniData.ThreadWaitTime;
             StaticClass.LogFileSizeLimit = IniData.LogFileMaxSize;
-            StaticClass.MaxTimeLimitSeconds = IniData.MaxTimeLimit * 60 * 60;
+            StaticClass.MaxJobTimeLimitSeconds = IniData.MaxJobTimeLimit * 60 * 60;
             
             // Output the Data.ini informatino found
             string logFile = IniData.ProcessLogFile;
@@ -90,8 +90,8 @@ namespace Status.Services
             StaticClass.Log(logFile, "Start Port                  : " + IniData.StartPort);
             StaticClass.Log(logFile, "Scan Wait Time              : " + IniData.ScanWaitTime + " Miliseconds");
             StaticClass.Log(logFile, "Thread Wait Time            : " + IniData.ThreadWaitTime + " Miliseconds");
-            StaticClass.Log(logFile, "Max Time Limit              : " + IniData.MaxTimeLimit + " Hours");
-            StaticClass.Log(logFile, "Log File History            : " + IniData.LogFileHistory + " Days");
+            StaticClass.Log(logFile, "Max Job Time Limit          : " + IniData.MaxJobTimeLimit + " Hours");
+            StaticClass.Log(logFile, "Log File History Limit      : " + IniData.LogFileHistoryLimit + " Days");
             StaticClass.Log(logFile, "Log File Max Size           : " + IniData.LogFileMaxSize + " Megabytes");
         }
 

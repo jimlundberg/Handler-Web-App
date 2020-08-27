@@ -18,11 +18,11 @@ namespace StatusModels
         public string ProcessLogFile { get; set; }
         public int CPUCores { get; set; }
         public int ExecutionLimit { get; set; }
-        public int MaxTimeLimit { get; set; }
+        public int MaxJobTimeLimit { get; set; }
         public int ScanWaitTime { get; set; }
         public int ThreadWaitTime { get; set; }
         public int StartPort { get; set; }
-        public int LogFileHistory { get; set; }
+        public int LogFileHistoryLimit { get; set; }
         public int InputBufferTimeLimit { get; set; }
         public int LogFileMaxSize { get; set; }
     }
