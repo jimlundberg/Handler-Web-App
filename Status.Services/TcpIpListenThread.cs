@@ -189,7 +189,7 @@ namespace Status.Services
 
                     // String to store the response ASCII representation.
                     string responseData = String.Empty;
-                    int adjustableSleepTime = 15000;
+                    int adjustableSleepTime = 5000;
 
                     // Try to read the Modeler response at least 5 times
                     if (stream.CanRead)
@@ -247,19 +247,19 @@ namespace Status.Services
                         switch (responseData)
                         {
                             case "Step 1 in process.":
-                                adjustableSleepTime = 60000;
+                                adjustableSleepTime = 15000;
                                 break;
 
                             case "Step 2 in process.":
-                                adjustableSleepTime = 30000;
+                                adjustableSleepTime = 15000;
                                 break;
 
                             case "Step 3 in process.":
-                                adjustableSleepTime = 20000;
+                                adjustableSleepTime = 15000;
                                 break;
 
                             case "Step 4 in process.":
-                                adjustableSleepTime = 15000;
+                                adjustableSleepTime = 10000;
                                 break;
 
                             case "Step 5 in process.":

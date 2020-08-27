@@ -356,7 +356,7 @@ namespace Status.Services
                 // Copy the Transfered files to the Finished directory 
                 foreach (string file in monitorData.TransferedFileList)
                 {
-                    FileHandling.CopyFile(processingBufferDirectory + file,
+                    FileHandling.CopyFile(processingBufferDirectory + @"\" + job + @"\" + file,
                         finishedDirectory + @"\" + monitorData.JobSerialNumber + @"\" + file, logFile);
                 }
 
