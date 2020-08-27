@@ -169,7 +169,7 @@ namespace Status.Services
                     StaticClass.NewInputJobsToRun.Add(job);
 
                     StaticClass.Log(logFile,
-                        String.Format("\nCurrent Input Job Scan Received new job {0} at {0:HH:mm:ss.fff}",
+                        String.Format("Input Job Scan added waiting job {0} to list at {0:HH:mm:ss.fff}",
                         job, DateTime.Now));
                 }
             }
