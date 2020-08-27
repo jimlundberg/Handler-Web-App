@@ -189,6 +189,7 @@ namespace Status.Services
 
                     // String to store the response ASCII representation.
                     string responseData = String.Empty;
+                    int adjustableSleepTime = 15000;
 
                     // Try to read the Modeler response at least 5 times
                     if (stream.CanRead)
@@ -237,30 +238,36 @@ namespace Status.Services
                             Thread.Sleep(StaticClass.ScanWaitTime * 3);
                         }
 
+                        // Get the Modeler response and display it
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
+                        StaticClass.Log(logFile, String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                            responseData, job, port, DateTime.Now));
 
                         // Send status for response received
                         switch (responseData)
                         {
                             case "Step 1 in process.":
+                                adjustableSleepTime = 60000;
+                                break;
+
                             case "Step 2 in process.":
+                                adjustableSleepTime = 30000;
+                                break;
+
                             case "Step 3 in process.":
+                                adjustableSleepTime = 20000;
+                                break;
+
                             case "Step 4 in process.":
-                                StaticClass.Log(logFile,
-                                    String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                                     responseData, job, port, DateTime.Now));
+                                adjustableSleepTime = 15000;
                                 break;
 
                             case "Step 5 in process.":
-                                StaticClass.Log(logFile,
-                                    String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                                    responseData, job, port, DateTime.Now));
+                                adjustableSleepTime = 5000;
                                 break;
 
                             case "Step 6 in process.":
-                                StaticClass.Log(logFile,
-                                    String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                                    responseData, job, port, DateTime.Now));
+                                adjustableSleepTime = 1000;
                                 break;
 
                             case "Whole process done, socket closed.":
@@ -282,7 +289,7 @@ namespace Status.Services
                                 break;
                         }
 
-                        // Check for the process complete string, even if it is concatenated with another string
+                        // Backup check of the process complete string, even if it is concatenated with another string
                         if (responseData.Contains("Whole process done, socket closed."))
                         {
                             StaticClass.Log(logFile,
@@ -335,7 +342,8 @@ namespace Status.Services
                             while (StaticClass.PauseFlag == true);
                         }
 
-                        Thread.Sleep(StaticClass.ScanWaitTime * 3);
+                        // Do adjustable sleep according to the Step number
+                        Thread.Sleep(adjustableSleepTime);
                     }
                     else
                     {
