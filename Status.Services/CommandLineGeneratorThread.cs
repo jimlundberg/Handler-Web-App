@@ -107,8 +107,8 @@ namespace Status.Services
             StaticClass.Log(logFileName, $"StartInfo                   : {ModelerProcess.StartInfo}");
             StaticClass.Log(logFileName, $"GetType                     : {ModelerProcess.GetType()}");
             StaticClass.Log(logFileName, $"MainWindowHandle            : {ModelerProcess.MainWindowHandle}");
-            StaticClass.Log(logFileName, $"Id                          : {ModelerProcess.Id}");
             StaticClass.Log(logFileName, $"Handle                      : {ModelerProcess.Handle}");
+            StaticClass.Log(logFileName, $"Id                          : {ModelerProcess.Id}");
             StaticClass.Log(logFileName, $"PriorityClass               : {ModelerProcess.PriorityClass}");
             StaticClass.Log(logFileName, $"Basepriority                : {ModelerProcess.BasePriority}");
             StaticClass.Log(logFileName, $"PriorityBoostEnabled        : {ModelerProcess.PriorityBoostEnabled}");
