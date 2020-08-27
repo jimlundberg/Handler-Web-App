@@ -14,6 +14,7 @@ namespace Status.Services
     /// </summary>
     public static class StaticClass
 	{
+        public static int MaxTimeLimitSeconds = 0;
         public static int ThreadWaitTime = 0;
         public static int ScanWaitTime = 0;
 		public static int NumberOfJobsExecuting = 0;

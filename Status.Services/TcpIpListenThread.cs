@@ -299,7 +299,7 @@ namespace Status.Services
                         }
 
                         // Check for job timeout
-                        if ((DateTime.Now - monitorData.StartTime).TotalSeconds > iniData.MaxTimeLimit)
+                        if ((DateTime.Now - monitorData.StartTime).TotalSeconds > StaticClass.MaxTimeLimitSeconds)
                         {
                             StaticClass.Log(logFile, String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}",
                                 job, DateTime.Now));

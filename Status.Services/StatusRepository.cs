@@ -58,7 +58,7 @@ namespace Status.Services
             string scanWaitTime = IniParser.Read("Process", "ScanWaitTime");
             IniData.ScanWaitTime = int.Parse(scanWaitTime.Substring(0, scanWaitTime.IndexOf("#")));
             string timeLimitString = IniParser.Read("Process", "MaxTimeLimit");
-            IniData.MaxTimeLimit = int.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#"))) * 60 * 60;
+            IniData.MaxTimeLimit = int.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             string threadWaitTime = IniParser.Read("Process", "ThreadWaitTime");
             IniData.ThreadWaitTime = int.Parse(threadWaitTime.Substring(0, threadWaitTime.IndexOf("#")));
             string logFileHistory = IniParser.Read("Process", "LogFileHistory");
@@ -72,7 +72,8 @@ namespace Status.Services
             StaticClass.ScanWaitTime = IniData.ScanWaitTime;
             StaticClass.ThreadWaitTime = IniData.ThreadWaitTime;
             StaticClass.LogFileSizeLimit = IniData.LogFileMaxSize;
-
+            StaticClass.MaxTimeLimitSeconds = IniData.MaxTimeLimit * 60 * 60;
+            
             // Output the Data.ini informatino found
             string logFile = IniData.ProcessLogFile;
             StaticClass.Log(logFile, "\nConfig.ini data found:\n");
@@ -91,7 +92,7 @@ namespace Status.Services
             StaticClass.Log(logFile, "Thread Wait Time            : " + IniData.ThreadWaitTime + " Miliseconds");
             StaticClass.Log(logFile, "Max Time Limit              : " + IniData.MaxTimeLimit + " Hours");
             StaticClass.Log(logFile, "Log File History            : " + IniData.LogFileHistory + " Days");
-            StaticClass.Log(logFile, "Log File Max Size           : " + IniData.LogFileMaxSize + " MegaBytes");
+            StaticClass.Log(logFile, "Log File Max Size           : " + IniData.LogFileMaxSize + " Megabytes");
         }
 
         /// <summary>
