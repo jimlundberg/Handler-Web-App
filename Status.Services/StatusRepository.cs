@@ -110,15 +110,22 @@ namespace Status.Services
         public void StartMonitorProcess()
         {
             StaticClass.ShutdownFlag = false;
-            StaticClass.PauseFlag = false;
 
-            // Start thread to scan for old then new jobs
-            newJobsScanThread = new CurrentInputJobsScanThread(IniData, StatusDataList, Logger);
-            if (newJobsScanThread == null)
+            // Check for pause state and continue if set
+            if (StaticClass.PauseFlag == true)
             {
-                Logger.LogError("StartMonitorProcess newJobsScanThread failed to instantiate");
+                StaticClass.PauseFlag = false;
             }
-            newJobsScanThread.ThreadProc();
+            else
+            {
+                // Start monitor scan process
+                newJobsScanThread = new CurrentInputJobsScanThread(IniData, StatusDataList, Logger);
+                if (newJobsScanThread == null)
+                {
+                    Logger.LogError("StartMonitorProcess newJobsScanThread failed to instantiate");
+                }
+                newJobsScanThread.ThreadProc();
+            }
         }
 
         /// <summary>
