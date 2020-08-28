@@ -34,8 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Status.Services\Status.Services.csproj" />
-    <ProjectReference Include="..\StatusModels\StatusModels.csproj" />
+    <ProjectReference Include="..\Status.Services\Handler.Services.csproj" />
+    <ProjectReference Include="..\StatusModels\Handler.Models.csproj" />
   </ItemGroup>
 
 </Project>

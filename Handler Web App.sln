@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Handler", "Handler\Handler.csproj", "{DBB5DAE1-BBD2-4612-8BDF-00334AF341B7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StatusModels", "StatusModels\StatusModels.csproj", "{77D6C17A-7CB8-41B4-B684-DDBAA893512F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Handler.Models", "StatusModels\Handler.Models.csproj", "{77D6C17A-7CB8-41B4-B684-DDBAA893512F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Status.Services", "Status.Services\Status.Services.csproj", "{7206D4D3-5944-483B-8474-263FBF915E05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Handler.Services", "Status.Services\Handler.Services.csproj", "{7206D4D3-5944-483B-8474-263FBF915E05}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
