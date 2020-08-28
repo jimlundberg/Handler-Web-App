@@ -84,9 +84,6 @@ namespace Status.Services
             StaticClass.Log(IniData.ProcessLogFile, 
                 String.Format("Processing_fileScan_FilesFound Received required number of files for {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
-
-            // Set Flag for ending file scan loop
-            StaticClass.ProcessingJobScanComplete[job] = true;
         }
 
         /// <summary>
@@ -308,7 +305,7 @@ namespace Status.Services
             StaticClass.Log(logFile, String.Format("Starting monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
 
-            // Wait for both job Processing and TCP/IP to complete
+            // Wait for the Processing job scan complete which includes TCP/IP
             do
             {
                 Thread.Yield();
