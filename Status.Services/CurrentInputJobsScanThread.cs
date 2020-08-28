@@ -46,7 +46,7 @@ namespace Status.Services
             string job = e.ToString();
 
             StaticClass.Log(IniData.ProcessLogFile,
-                String.Format("\nCurrent Input Job Scan Received new job {0} at {0:HH:mm:ss.fff}",
+                String.Format("\nCurrent Input Job Scan Received new job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 

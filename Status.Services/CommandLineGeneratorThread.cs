@@ -82,7 +82,7 @@ namespace Status.Services
             Process ModelerProcess = Process.Start(startInfo);
             if (ModelerProcess == null)
             {
-                logger.LogError(String.Format("CommandLineGeneratorThread ModelerProcess failes to instantiate"));
+                logger.LogError("CommandLineGeneratorThread ModelerProcess failes to instantiate");
             }
 
             // Set Process Priority to high

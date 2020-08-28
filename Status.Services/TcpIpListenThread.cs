@@ -84,7 +84,8 @@ namespace Status.Services
         public static void TimeoutHandler(string job, IniFileData iniData, StatusMonitorData monitorData, string logFile)
         {
             // Log job timeout
-            StaticClass.Log(iniData.ProcessLogFile, String.Format("Timeout Handler for job {0}", job));
+            StaticClass.Log(iniData.ProcessLogFile, String.Format("Timeout Handler for job {0} at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
 
             // Get job name from directory name
             string processingBufferDirectory = iniData.ProcessingDir + @"\" + job;

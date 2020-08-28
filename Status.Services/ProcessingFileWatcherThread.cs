@@ -87,7 +87,7 @@ namespace Status.Services
                 StaticClass.NewProcessingJobsToRun.Add(job);
 
                 StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("Processing file watcher added new job {0} to Processing Job run list at {0:HH:mm:ss.fff}",
+                    String.Format("Processing file watcher added new job {0} to Processing Job run list at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
             }
         }
@@ -177,7 +177,7 @@ namespace Status.Services
                 {
                     StaticClass.Log(IniData.ProcessLogFile,
                         String.Format("\nShutdown ProcessingFileWatcher Thread OverallResultEntryCheck for file {0} at {1:HH:mm:ss.fff}",
-                        directory,DateTime.Now));
+                        directory, DateTime.Now));
                     return false;
                 }
 
