@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Status.Models
+namespace StatusModels
 {
     /// <summary>
     /// Status Monitor Data

@@ -1,4 +1,4 @@
-﻿using StatusModels;
+﻿using Status.Models;
 using System.Collections.Generic;
 
 namespace Status.Services

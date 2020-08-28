@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Status.Services;
-using StatusModels;
+using Status.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

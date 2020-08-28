@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Status.Models
+namespace StatusModels
 {
     /// <summary>
     /// Ini File Data

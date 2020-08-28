@@ -1,4 +1,4 @@
-﻿namespace Status.Models
+﻿namespace StatusModels
 {
     /// <summary>
     /// Job Status types

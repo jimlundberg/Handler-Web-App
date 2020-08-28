@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using StatusModels;
+using Status.Models;
 using System;
 using System.IO;
 using System.Reflection;
@@ -109,9 +109,9 @@ namespace Status.Services
         /// <param name="job"></param>
         /// <param name="jobDirectory"></param>
         /// <returns>JobXmlData</returns>
-        public StatusModels.JobXmlData GetJobXmlData(string job, string jobDirectory)
+        public Status.Models.JobXmlData GetJobXmlData(string job, string jobDirectory)
         {
-            StatusModels.JobXmlData jobScanXmlData = new StatusModels.JobXmlData();
+            Status.Models.JobXmlData jobScanXmlData = new Status.Models.JobXmlData();
             jobScanXmlData.JobDirectory = jobDirectory;
             jobScanXmlData.JobSerialNumber = job.Substring(0, job.IndexOf("_"));
             int start = job.IndexOf("_") + 1;
