@@ -97,7 +97,6 @@ namespace Status.Services
         public string Job;
         public string TimeStamp;
         public string XmlFileName;
-        private static readonly Object xmlLock = new Object();
 
         /// <summary>
         /// ScanDirectory default constructor
@@ -122,15 +121,12 @@ namespace Status.Services
             bool XmlFileFound = false;
             do
             {
-                lock (xmlLock)
+                string[] files = Directory.GetFiles(jobDirectory, "*.xml");
+                if (files.Length > 0)
                 {
-                    string[] files = Directory.GetFiles(jobDirectory, "*.xml");
-                    if (files.Length > 0)
-                    {
-                        jobScanXmlData.XmlFileName = Path.GetFileName(files[0]);
-                        XmlFileFound = true;
-                        return jobScanXmlData;
-                    }
+                    jobScanXmlData.XmlFileName = Path.GetFileName(files[0]);
+                    XmlFileFound = true;
+                    return jobScanXmlData;
                 }
 
                 Thread.Yield();

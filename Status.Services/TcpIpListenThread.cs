@@ -284,10 +284,6 @@ namespace Status.Services
 
                             case "Whole process done, socket closed.":
                                 StaticClass.Log(logFile,
-                                    String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                                    responseData, job, port, DateTime.Now));
-
-                                StaticClass.Log(logFile,
                                     String.Format("TCP/IP for Job {0} on port {1} received Process Done at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
@@ -304,10 +300,6 @@ namespace Status.Services
                         // Backup check of the process complete string, even if it is concatenated with another string
                         if (responseData.Contains("Whole process done, socket closed."))
                         {
-                            StaticClass.Log(logFile,
-                                String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                                responseData, job, port, DateTime.Now));
-
                             StaticClass.Log(logFile,
                                 String.Format("TCP/IP for Job {0} on port {1} received Process Done at {2:HH:mm:ss.fff}",
                                 job, port, DateTime.Now));
