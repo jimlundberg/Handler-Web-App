@@ -210,6 +210,8 @@ namespace Status.Services
             StaticClass.Log(IniData.ProcessLogFile,
                 String.Format("Processing File Watcher received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
+
+            StaticClass.TcpIpScanComplete[job] = true;
         }
 
         /// <summary>
