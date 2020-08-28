@@ -71,7 +71,7 @@ namespace Status.Services
 
             // Directory Add detected
             StaticClass.Log(logFile,
-                (String.Format("\nInput Directory Watcher detected new directory {0} at {1:HH:mm:ss.fff}",
+                (String.Format("Input Directory Watcher detected new directory {0} at {1:HH:mm:ss.fff}",
                 directory, DateTime.Now)));
 
             // Add new job found to the Input job list

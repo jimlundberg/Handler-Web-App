@@ -131,14 +131,14 @@ namespace Status.Services
 
             // Processing job file added
             StaticClass.Log(IniData.ProcessLogFile,
-                String.Format("\nProcessing File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
+                String.Format("Processing File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
                 jobDirectory, StaticClass.NumberOfProcessingFilesFound[job],
                 StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
 
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
                 StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("\nProcessing File Watcher detected the complete {0} of {1} Processing job {2} files at {3:HH:mm:ss.fff}",
+                    String.Format("Processing File Watcher detected the complete set {0} of {1} Processing job {2} files at {3:HH:mm:ss.fff}",
                     StaticClass.NumberOfProcessingFilesFound[job], StaticClass.NumberOfProcessingFilesNeeded[job], job, DateTime.Now));
 
                 // Signal the Processing job Scan thread that all the Processing files were found for a job
