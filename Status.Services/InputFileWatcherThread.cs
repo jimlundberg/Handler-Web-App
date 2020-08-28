@@ -31,8 +31,9 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public InputFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData,
-            StatusMonitorData monitorData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public InputFileWatcherThread(string directory, int numberOfFilesNeeded,
+            IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData,
+            ILogger<StatusRepository> logger)
         {
             DirectoryName = directory;
             IniData = iniData;
@@ -157,6 +158,9 @@ namespace Status.Services
             StaticClass.Log(IniData.ProcessLogFile,
                 String.Format("InputFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
+
+            // Signal that the TCP/IP scan for a job is complete
+            StaticClass.TcpIpScanComplete[job] = true;
         }
 
         /// <summary>
@@ -197,7 +201,7 @@ namespace Status.Services
                     String.Format("Input File Watcher watching {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
 
-                // Wait for Input file Scan to Complete with enough files to start job
+                // Wait for Input file scan to Complete with a full set of job output files
                 do
                 {
                     Thread.Yield();
@@ -222,13 +226,13 @@ namespace Status.Services
                 }
                 while (StaticClass.InputFileScanComplete[job] == false);
 
-                // Remove job started from the Input job list
-                StaticClass.InputJobScanComplete[job] = true;
-
                 // Exiting thread message
                 StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("Input File Watcher exit of scan of {0} with InputFileScanComplete={1} and ShutdownFlag={2} at at {3:HH:mm:ss.fff}",
-                    directory, StaticClass.InputFileScanComplete[job], StaticClass.ShutdownFlag, DateTime.Now));
+                    String.Format("Input File Watcher completion of scan of {0} with InputFileScanComplete={1} at {2:HH:mm:ss.fff}",
+                    directory, StaticClass.InputFileScanComplete[job], DateTime.Now));
+
+                // Remove job after startup complete from the Input job list
+                StaticClass.InputJobScanComplete[job] = true;
             }
         }
     }

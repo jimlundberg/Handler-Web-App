@@ -290,12 +290,12 @@ namespace Status.Services
                 // Wait for the data.xml file to contain a result
                 if (OverallResultEntryCheck(directory))
                 {
-                    StaticClass.ProcessingJobScanComplete[job] = true;
-
                     // Exiting thread message
                     StaticClass.Log(IniData.ProcessLogFile,
-                        String.Format("Processing File Watcher scan for job {0} Complete at {1:HH:mm:ss.fff}",
-                        directory, DateTime.Now));
+                    String.Format("Processing File Watcher completion of scan of {0} with ProcessingFileScanComplete={1} and TcpIpScanComplete={2} at at {3:HH:mm:ss.fff}",
+                        directory, StaticClass.ProcessingFileScanComplete[job], StaticClass.TcpIpScanComplete[job], DateTime.Now));
+
+                    StaticClass.ProcessingJobScanComplete[job] = true;
                 }
             }
         }

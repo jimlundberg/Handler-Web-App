@@ -118,20 +118,20 @@ namespace Status.Services
             jobScanXmlData.TimeStamp = job.Substring(start, job.Length - start);
 
             // Wait until the Xml file shows up
-            bool XmlFileFound = false;
+            bool xmlFileFound = false;
             do
             {
                 string[] files = Directory.GetFiles(jobDirectory, "*.xml");
                 if (files.Length > 0)
                 {
                     jobScanXmlData.XmlFileName = Path.GetFileName(files[0]);
-                    XmlFileFound = true;
+                    xmlFileFound = true;
                     return jobScanXmlData;
                 }
 
                 Thread.Yield();
             }
-            while (XmlFileFound == false);
+            while (xmlFileFound == false);
 
             return jobScanXmlData;
         }
