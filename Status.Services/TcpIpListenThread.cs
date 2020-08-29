@@ -121,6 +121,9 @@ namespace Status.Services
                     return;
                 }
 
+                StaticClass.Log(logFile, String.Format("Opening TCP/IP socket for Job {0} on port {1} client {2} stream {3} at {4:HH:mm:ss.fff}",
+                    job, port, client.ToString(), stream.ToString(), DateTime.Now));
+
                 bool jobComplete = false;
                 do
                 {
@@ -337,9 +340,8 @@ namespace Status.Services
                 stream.Close();
                 client.Close();
 
-                StaticClass.Log(logFile,
-                    String.Format("Completed TCP/IP Scan of Job {0} and closed it's sockets at {1:HH:mm:ss.fff}",
-                    job, DateTime.Now));
+                StaticClass.Log(logFile, String.Format("Closing TCP/IP socket for Job {0} on port {1} client {2} stream {3} at {4:HH:mm:ss.fff}",
+                     job, port, client.ToString(), stream.ToString(), DateTime.Now));
             }
             catch (ArgumentNullException e)
             {
