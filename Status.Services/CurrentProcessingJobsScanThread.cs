@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -14,11 +13,11 @@ namespace Status.Services
     /// </summary>
     public class CurrentProcessingJobsScanThread
     {
-        private IniFileData IniData;
-        private List<StatusData> StatusData;
+        private readonly IniFileData IniData;
+        private readonly List<StatusData> StatusDataList;
         public event EventHandler ProcessCompleted;
         private static readonly Object delLock = new Object();
-        ILogger<StatusRepository> Logger;
+        public static ILogger<StatusRepository> Logger;
 
         /// <summary>
         /// Current Processing Jobs Scan thread default constructor
@@ -34,7 +33,7 @@ namespace Status.Services
         public CurrentProcessingJobsScanThread(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
-            StatusData = statusData;
+            StatusDataList = statusData;
             Logger = logger;
             StaticClass.CurrentProcessingJobsScanComplete = false;
         }
@@ -53,7 +52,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.CurrentProcessingJobsScanThreadHandle = new Thread(() => CheckForCurrentProcessingJobs(IniData));
+            StaticClass.CurrentProcessingJobsScanThreadHandle = new Thread(() => CheckForCurrentProcessingJobs(IniData, StatusDataList));
             if (StaticClass.CurrentProcessingJobsScanThreadHandle == null)
             {
                 Logger.LogError("CurrentProcessingJobsScanThread thread failed to instantiate");
@@ -64,27 +63,28 @@ namespace Status.Services
         /// <summary>
         /// Method to scan for old jobs in the Processing Buffer
         /// </summary>
-        /// <param name="iniFileData"></param>
-        public void CheckForCurrentProcessingJobs(IniFileData iniFileData)
+        /// <param name="iniData"></param>
+        /// <param name="statusData"></param>
+        public void CheckForCurrentProcessingJobs(IniFileData iniData, List<StatusData> statusData)
         {
-            string logFile = iniFileData.ProcessLogFile;
+            string logFile = iniData.ProcessLogFile;
 
             StaticClass.Log(logFile, "\nChecking for unfinished Processing Jobs...");
 
-            DirectoryInfo ProcessingDirectoryInfo = new DirectoryInfo(iniFileData.ProcessingDir);
-            if (ProcessingDirectoryInfo == null)
+            DirectoryInfo processingDirectoryInfo = new DirectoryInfo(iniData.ProcessingDir);
+            if (processingDirectoryInfo == null)
             {
                 Logger.LogError("CurrentProcessingJobsScanThread ProcessingDirectoryInfo failed to instantiate");
             }
 
             // Get the current list of directories from the Processing Buffer
-            List<DirectoryInfo> ProcessingDirectoryInfoList = ProcessingDirectoryInfo.EnumerateDirectories().ToList();
-            if (ProcessingDirectoryInfoList == null)
+            List<DirectoryInfo> processingDirectoryInfoList = processingDirectoryInfo.EnumerateDirectories().ToList();
+            if (processingDirectoryInfoList == null)
             {
                 Logger.LogError("CurrentProcessingJobsScanThread ProcessingDirectoryInfoList failed to instantiate");
             }
 
-            if (ProcessingDirectoryInfoList.Count > 0)
+            if (processingDirectoryInfoList.Count > 0)
             {
                 StaticClass.Log(logFile, "\nStarting unfinished Processing jobs...");
             }
@@ -94,15 +94,15 @@ namespace Status.Services
             }
 
             // Start the jobs in the directory list found on initial scan of the Processing Buffer
-            foreach (DirectoryInfo dir in ProcessingDirectoryInfoList)
+            foreach (DirectoryInfo dir in processingDirectoryInfoList)
             {
                 string job = dir.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
                 string directory = dir.ToString();
 
-                if (StaticClass.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
+                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
                     CurrentProcessingJobsScanThread newProcessingJobsScanThread = new CurrentProcessingJobsScanThread();
-                    newProcessingJobsScanThread.StartProcessingJob(directory, IniData, StatusData, Logger);
+                    newProcessingJobsScanThread.StartProcessingJob(directory, iniData, statusData, Logger);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);

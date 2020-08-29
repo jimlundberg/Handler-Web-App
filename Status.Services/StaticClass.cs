@@ -73,13 +73,13 @@ namespace Status.Services
             JobStatus status, JobType timeSlot, ILogger<StatusRepository> logger)
         {
             string statusLogFile = iniData.StatusLogFile;
-            StatusEntry statusData = new StatusEntry(statusList, job, status, timeSlot, statusLogFile, logger);
+            StatusEntry statusData = new StatusEntry(logger);
             statusData.ListStatus(iniData, statusList, job, status, timeSlot);
             statusData.WriteToCsvFile(job, status, timeSlot, statusLogFile);
         }
 
         /// <summary>
-        /// Is file ready to access
+        /// Returns when file is ready to access
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns>Returns if file is ready to access</returns>

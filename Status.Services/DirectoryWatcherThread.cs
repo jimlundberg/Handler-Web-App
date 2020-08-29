@@ -13,9 +13,9 @@ namespace Status.Services
     /// </summary>
     public class DirectoryWatcherThread
     {
-        public static string DirectoryName;
-        public static IniFileData IniData;
-        public static List<StatusData> StatusData;
+        private static string DirectoryName;
+        private static IniFileData IniData;
+        private static List<StatusData> StatusDataList;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
 
@@ -29,7 +29,7 @@ namespace Status.Services
             ILogger<StatusRepository> logger)
         {
             IniData = iniData;
-            StatusData = statusData;
+            StatusDataList = statusData;
             DirectoryName = iniData.InputDir;
             Logger = logger;
         }
@@ -48,7 +48,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.DirectoryWatcherThreadHandle = new Thread(() => WatchDirectory(DirectoryName));
+            StaticClass.DirectoryWatcherThreadHandle = new Thread(() => WatchDirectory(DirectoryName, IniData));
             if (StaticClass.DirectoryWatcherThreadHandle == null)
             {
                 Logger.LogError("DirectoryWatcherThread thread failed to instantiate");
@@ -86,11 +86,12 @@ namespace Status.Services
         /// Scan selected directory for created directories
         /// </summary>
         /// <param name="directory"></param>
+        /// <param name="iniData"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-        public void WatchDirectory(string directory)
+        public void WatchDirectory(string directory, IniFileData iniData)
         {
             // Get job name from directory name
-            string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+            string job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
 
             // Create a new FileSystemWatcher and set its properties
             using (FileSystemWatcher watcher = new FileSystemWatcher())

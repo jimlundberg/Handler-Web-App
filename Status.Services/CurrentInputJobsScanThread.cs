@@ -1,11 +1,10 @@
-﻿using Status.Models;
+﻿using Microsoft.Extensions.Logging;
+using Status.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -14,8 +13,8 @@ namespace Status.Services
     /// </summary>
     public class CurrentInputJobsScanThread
     {
-        public static IniFileData IniData;
-        public static List<StatusData> StatusData;
+        private static IniFileData IniData;
+        private static List<StatusData> StatusDataList;
         public static ILogger<StatusRepository> Logger;
 
         /// <summary>
@@ -32,7 +31,7 @@ namespace Status.Services
         public CurrentInputJobsScanThread(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
-            StatusData = statusData;
+            StatusDataList = statusData;
             Logger = logger;
         }
 
@@ -73,7 +72,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.CurrentInputJobsScanThreadHandle = new Thread(() => CheckForCurrentInputJobs(IniData, StatusData, Logger));
+            StaticClass.CurrentInputJobsScanThreadHandle = new Thread(() => CheckForCurrentInputJobs(IniData, StatusDataList, Logger));
             if (StaticClass.CurrentInputJobsScanThreadHandle == null)
             {
                 Logger.LogError("CurrentInputJobsScanThread thread failed to instantiate");
@@ -162,7 +161,7 @@ namespace Status.Services
                 {
                     // Create new Input job start thread and run
                     CurrentInputJobsScanThread newInputJobsScanThread = new CurrentInputJobsScanThread();
-                    newInputJobsScanThread.StartInputJob(directory, IniData, StatusData, Logger);
+                    newInputJobsScanThread.StartInputJob(directory, IniData, StatusDataList, Logger);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
@@ -181,7 +180,7 @@ namespace Status.Services
             StaticClass.Log(logFile, "\nWatching for new Input Jobs...");
 
             // Start the Directory Watcher class to scan for new jobs
-            DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(IniData, StatusData, Logger);
+            DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(IniData, StatusDataList, Logger);
             if (dirWatch == null)
             {
                 Logger.LogError("CurrentInputJobsScanThread dirWatch failed to instantiate");

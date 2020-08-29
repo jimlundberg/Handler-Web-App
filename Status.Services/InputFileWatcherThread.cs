@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Permissions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -14,10 +13,9 @@ namespace Status.Services
     /// </summary>
     public class InputFileWatcherThread
     {
-        public static IniFileData IniData;
-        public static StatusMonitorData MonitorData;
-        public static List<StatusData> StatusData;
-        public static string DirectoryName;
+        private static IniFileData IniData;
+        private static StatusMonitorData MonitorData;
+        private static string DirectoryName;
         private static string Job;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
@@ -38,7 +36,6 @@ namespace Status.Services
             DirectoryName = directory;
             IniData = iniData;
             MonitorData = monitorData;
-            StatusData = statusData;
             Logger = logger;
             Job = monitorData.Job;
             DirectoryInfo InputJobInfo = new DirectoryInfo(DirectoryName);
@@ -102,7 +99,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.InputFileWatcherThreadHandle = new Thread(() => WatchFiles(DirectoryName));
+            StaticClass.InputFileWatcherThreadHandle = new Thread(() => WatchFiles(DirectoryName, IniData));
             if (StaticClass.InputFileWatcherThreadHandle == null)
             {
                 Logger.LogError("InputFileWatcherThread thread failed to instantiate");
@@ -117,7 +114,7 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void OnCreated(object source, FileSystemEventArgs e)
         {
-            // Get job name from directory name
+            string logFile = IniData.ProcessLogFile;
             string jobDirectory = e.FullPath;
             string jobFile = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
             string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
@@ -125,14 +122,14 @@ namespace Status.Services
             StaticClass.NumberOfInputFilesFound[job]++;
 
             // Input job file added
-            StaticClass.Log(IniData.ProcessLogFile,
+            StaticClass.Log(logFile,
                 String.Format("\nInput File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
                 jobDirectory, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
 
             if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
                 // All files needed dected
-                StaticClass.Log(IniData.ProcessLogFile,
+                StaticClass.Log(logFile,
                     String.Format("\nInput File Watcher detected the complete {0} of {1} Input job {2} files at {3:HH:mm:ss.fff}",
                     StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], job, DateTime.Now));
 
@@ -162,11 +159,13 @@ namespace Status.Services
         /// Monitor a Directory for a selected number of files with a timeout
         /// </summary>
         /// <param name="directory"></param>
+        /// <param name="iniData"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-        public void WatchFiles(string directory)
+        public void WatchFiles(string directory, IniFileData iniData)
         {
             // Get job name from directory name
-            string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
+            string job = directory.Replace(iniData.InputDir, "").Remove(0, 1);
+            string logFile = iniData.ProcessLogFile;
 
             if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
@@ -191,8 +190,7 @@ namespace Status.Services
                 // Begin watching for changes to Input directory
                 watcher.EnableRaisingEvents = true;
 
-                // Exiting thread message
-                StaticClass.Log(IniData.ProcessLogFile,
+                StaticClass.Log(logFile,
                     String.Format("Input File Watcher watching {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
 
@@ -203,7 +201,7 @@ namespace Status.Services
 
                     if (StaticClass.ShutdownFlag == true)
                     {
-                        StaticClass.Log(IniData.ProcessLogFile,
+                        StaticClass.Log(logFile,
                             String.Format("\nShutdown InputFileWatcherThread WatchFiles watching {0} at {1:HH:mm:ss.fff}",
                             directory, DateTime.Now));
                         return;
@@ -221,13 +219,13 @@ namespace Status.Services
                 }
                 while (StaticClass.InputFileScanComplete[job] == false);
 
-                // Exiting thread message
-                StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("Input File Watcher completion of scan of {0} with InputFileScanComplete={1} at {2:HH:mm:ss.fff}",
-                    directory, StaticClass.InputFileScanComplete[job], DateTime.Now));
-
                 // Remove job after startup complete from the Input job list
                 StaticClass.InputJobScanComplete[job] = true;
+
+                // Exiting thread message
+                StaticClass.Log(logFile,
+                    String.Format("Input File Watcher thread completed the scan for job {0} at {1:HH:mm:ss.fff}",
+                    directory, DateTime.Now));
             }
         }
     }

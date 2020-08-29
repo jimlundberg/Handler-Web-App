@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Status.Models;
-using System;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -92,12 +89,6 @@ namespace Status.Services
     /// </summary>
     public class ScanDirectory
     {
-        public string JobDirectory;
-        public string JobSerialNumber;
-        public string Job;
-        public string TimeStamp;
-        public string XmlFileName;
-
         /// <summary>
         /// ScanDirectory default constructor
         /// </summary>
@@ -109,9 +100,9 @@ namespace Status.Services
         /// <param name="job"></param>
         /// <param name="jobDirectory"></param>
         /// <returns>JobXmlData</returns>
-        public Status.Models.JobXmlData GetJobXmlData(string job, string jobDirectory)
+        public Models.JobXmlData GetJobXmlData(string job, string jobDirectory)
         {
-            Status.Models.JobXmlData jobScanXmlData = new Status.Models.JobXmlData();
+            Models.JobXmlData jobScanXmlData = new Models.JobXmlData();
             jobScanXmlData.JobDirectory = jobDirectory;
             jobScanXmlData.JobSerialNumber = job.Substring(0, job.IndexOf("_"));
             int start = job.IndexOf("_") + 1;

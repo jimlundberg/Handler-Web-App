@@ -2,10 +2,8 @@
 using Status.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -14,13 +12,13 @@ namespace Status.Services
     /// </summary>
     public class TcpIpListenThread
     {
-        public static IniFileData IniData;
-        public static StatusMonitorData MonitorData;
-        public static List<StatusData> StatusData;
+        private static IniFileData IniData;
+        private static StatusMonitorData MonitorData;
+        private static List<StatusData> StatusData;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
         public const string Host = "127.0.0.1";
-        public int Port = 3000;
+        private readonly int Port = 0;
 
         /// <summary>
         /// Job Tcp/IP thread 
@@ -32,11 +30,11 @@ namespace Status.Services
         public TcpIpListenThread(IniFileData iniData, StatusMonitorData monitorData,
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
+            Port = monitorData.JobPortNumber;
             IniData = iniData;
             MonitorData = monitorData;
             StatusData = statusData;
             Logger = logger;
-            Port = monitorData.JobPortNumber;
         }
 
         /// <summary>
@@ -45,8 +43,7 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
-        public void StartTcpIpScanProcess(IniFileData iniData,
-            StatusMonitorData monitorData, List<StatusData> statusData)
+        public void StartTcpIpScanProcess(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
         {
             // Start Tcp/Ip thread
             TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData, Logger);
@@ -73,42 +70,6 @@ namespace Status.Services
                 Logger.LogError("TcpIpListenThread thread failed to instantiate");
             }
             StaticClass.TcpIpListenThreadHandle.Start();
-        }
-
-        /// <summary>
-        /// Job timeout handler
-        /// </summary>
-        /// <param name="job"></param>
-        /// <param name="iniData"></param>
-        /// <param name="logFile"></param>
-        public static void TimeoutHandler(string job, IniFileData iniData, StatusMonitorData monitorData, string logFile)
-        {
-            // Log job timeout
-            StaticClass.Log(iniData.ProcessLogFile, String.Format("Timeout Handler for job {0} at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
-
-            // Get job name from directory name
-            string processingBufferDirectory = iniData.ProcessingDir + @"\" + job;
-            string errorDirectory = iniData.ErrorDir + @"\" + job + @"\" + monitorData.JobSerialNumber;
-
-            // If the Error directory does not exist, create it
-            if (!Directory.Exists(errorDirectory))
-            {
-                Directory.CreateDirectory(errorDirectory);
-            }
-
-            // Move Processing Buffer Files to the Error directory for timeouts
-            FileHandling.CopyFolderContents(processingBufferDirectory, errorDirectory, logFile, true, true);
-
-            // Shut down the Modeler
-            StaticClass.ProcessHandles[job].Kill();
-
-            // Remove job from Input jobs list, flag it's TCP/IP complete,  and decrement number of jobs executing
-            StaticClass.NewInputJobsToRun.Remove(job);
-            StaticClass.TcpIpScanComplete[job] = true;
-            StaticClass.NumberOfJobsExecuting--;
-
-            return;
         }
 
         /// <summary>
@@ -154,7 +115,10 @@ namespace Status.Services
                 NetworkStream stream = client.GetStream();
                 if (stream == null)
                 {
-                    logger.LogError("TcpIp Connectinon stream handle was not gotten from client");
+                    logger.LogError("TcpIp Connection stream handle was not gotten from client");
+                    stream.Close();
+                    StaticClass.TcpIpScanComplete[job] = true;
+                    return;
                 }
 
                 bool jobComplete = false;
@@ -165,7 +129,11 @@ namespace Status.Services
                         StaticClass.Log(logFile,
                             String.Format("\nShutdown TcpIpListenThread prewrite for Job {0} on port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));
-                        return;
+
+                        StaticClass.TcpIpScanComplete[job] = true;
+
+                        // Make sure to close TCP/IP socket
+                        jobComplete = true;
                     }
 
                     // Check if the pause flag is set, then wait for reset
@@ -207,7 +175,11 @@ namespace Status.Services
                                     StaticClass.Log(logFile,
                                         String.Format("\nShutdown TcpIpListenThread preread for Job {0} on port {1} at {2:HH:mm:ss.fff}",
                                         job, port, DateTime.Now));
-                                    return;
+
+                                    StaticClass.TcpIpScanComplete[job] = true;
+
+                                    // Make sure to close TCP/IP socket
+                                    jobComplete = true;
                                 }
 
                                 // Check if the pause flag is set, then wait for reset
@@ -233,7 +205,11 @@ namespace Status.Services
                                 if (i == 4)
                                 {
                                     logger.LogError(String.Format("Tcp/Ip Connection Timeout after 5 tries {0}", e));
-                                    return;
+
+                                    StaticClass.TcpIpScanComplete[job] = true;
+
+                                    // Make sure to close TCP/IP socket
+                                    jobComplete = true;
                                 }
                             }
 
@@ -297,7 +273,6 @@ namespace Status.Services
 
                             StaticClass.TcpIpScanComplete[job] = true;
                             jobComplete = true;
-                            return;
                         }
 
                         // Check for job timeout
@@ -306,14 +281,19 @@ namespace Status.Services
                             StaticClass.Log(logFile, String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}",
                                 job, DateTime.Now));
 
-                            // Handle job timeout
-                            TimeoutHandler(job, iniData, monitorData, logFile);
-
                             // Create job Timeout status
                             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, logger);
 
+                            // Set all flags to complete job Process
+                            StaticClass.ProcessingJobScanComplete[job] = true;
                             StaticClass.TcpIpScanComplete[job] = true;
-                            jobComplete = true; jobComplete = true;
+                            StaticClass.ProcessingFileScanComplete[job] = true;
+
+                            // Shut down the Modeler after shutting down the job
+                            StaticClass.ProcessHandles[job].Kill();
+
+                            // Make sure to close TCP/IP socket
+                            jobComplete = true;
                         }
 
                         // Check if the shutdown flag is set, then exit method
@@ -324,7 +304,9 @@ namespace Status.Services
                                 job, port, DateTime.Now));
 
                             StaticClass.TcpIpScanComplete[job] = true;
-                            jobComplete = true; jobComplete = true;
+
+                            // Make sure to close TCP/IP socket
+                            jobComplete = true;
                         }
 
                         // Check if the pause flag is set, then wait for reset
@@ -342,7 +324,11 @@ namespace Status.Services
                     }
                     else
                     {
-                        return;
+                        logger.LogError(String.Format("Can not read TCP/IP Stream for job {0} at {1:HH:mm:ss.fff}",
+                            job, DateTime.Now));
+
+                        // Make sure to close TCP/IP socket
+                        jobComplete = true;
                     }
                 }
                 while (jobComplete == false);
@@ -352,7 +338,7 @@ namespace Status.Services
                 client.Close();
 
                 StaticClass.Log(logFile,
-                    String.Format("Completed TCP/IP Scan of Job {0} at {1:HH:mm:ss.fff}",
+                    String.Format("Completed TCP/IP Scan of Job {0} and closed it's sockets at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
             }
             catch (ArgumentNullException e)

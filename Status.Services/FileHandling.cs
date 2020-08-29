@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.IO;
 
 namespace Status.Services
@@ -14,9 +13,9 @@ namespace Status.Services
         /// <summary>
         /// CopyFolderContents - Copy files and folders from source to destination and optionally remove source files/folders
         /// </summary>
-        /// <param name="logFile"></param>
         /// <param name="sourcePath"></param>
         /// <param name="destinationPath"></param>
+        /// <param name="logFile"></param>
         /// <param name="removeSource"></param>
         /// <param name="overwrite"></param>
         public static void CopyFolderContents(string sourcePath, string destinationPath, string logFile,
@@ -100,6 +99,11 @@ namespace Status.Services
             StaticClass.Log(logFile, String.Format("Copied {0} -> {1}", sourceFile, targetFile));
         }
 
+        /// <summary>
+        /// Deletes a directory after deleting files inside
+        /// </summary>
+        /// <param name="targetDirectory"></param>
+        /// <param name="logFile"></param>
         public static void DeleteDirectory(string targetDirectory, string logFile)
         {
             // First delete all files in target directory

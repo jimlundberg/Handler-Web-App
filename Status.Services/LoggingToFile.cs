@@ -8,8 +8,8 @@ namespace Status.Services
     /// </summary>
     class LoggingToFile
     {
-        public static string LogFileName;
-        private static readonly Object fileLock = new Object();
+        private static string LogFileName;
+        private static readonly Object FileLock = new Object();
 
         /// <summary>
         /// Logging to File Constructor
@@ -29,7 +29,7 @@ namespace Status.Services
             bool tooBig = false;
             int MaxFileSize = StaticClass.LogFileSizeLimit * 1024 * 1024;
 
-            lock (fileLock)
+            lock (FileLock)
             {
                 using (var stream = new FileStream(LogFileName, FileMode.Append))
                 {
@@ -51,7 +51,7 @@ namespace Status.Services
             if (tooBig)
             {
                 Console.WriteLine("Process log file too big. Reducing 10%");
-                lock (fileLock)
+                lock (FileLock)
                 {
                     // Remove old data from log file
                     using (MemoryStream memoryStream = new MemoryStream(StaticClass.LogFileSizeLimit))
@@ -85,7 +85,7 @@ namespace Status.Services
         /// <returns>string read from log file</returns>
         public string ReadFromLogFile()
         {
-            lock (fileLock)
+            lock (FileLock)
             {
                 using (StreamReader reader = File.OpenText(LogFileName))
                 {
@@ -101,7 +101,7 @@ namespace Status.Services
         /// <param name="writer"></param>
         public static void Log(string logMessage, TextWriter writer)
         {
-            lock (fileLock)
+            lock (FileLock)
             {
                 writer.WriteLine(logMessage);
             }

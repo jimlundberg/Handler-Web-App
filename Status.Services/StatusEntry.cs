@@ -13,33 +13,17 @@ namespace Status.Services
     /// </summary>
     public class StatusEntry
     {
-        List<StatusData> StatusList;
-        readonly string Job;
-        readonly JobStatus Status;
-        readonly JobType TimeSlot;
-        readonly string LogFileName;
-        private static readonly Object csvLock = new Object();
-        ILogger<StatusRepository> Logger;
+        private static readonly Object CsvLock = new Object();
+        public readonly ILogger<StatusRepository> Logger;
 
         public StatusEntry() { }
 
         /// <summary>
         /// Status Entry logging method
         /// </summary>
-        /// <param name="statusList"></param>
-        /// <param name="job"></param>
-        /// <param name="status"></param>
-        /// <param name="timeSlot"></param>
-        /// <param name="logFileName"></param>
         /// <param name="logger"></param>
-        public StatusEntry(List<StatusData> statusList, string job, JobStatus status,
-            JobType timeSlot, string logFileName, ILogger<StatusRepository> logger)
+        public StatusEntry(ILogger<StatusRepository> logger)
         {
-            StatusList = statusList;
-            Job = job;
-            Status = status;
-            TimeSlot = timeSlot;
-            LogFileName = logFileName;
             Logger = logger;
         }
 
@@ -89,13 +73,12 @@ namespace Status.Services
         /// Write Status data to the designated log file
         /// </summary>
         /// <param name="job"></param>
-        /// <param name="iniData"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
         public void WriteToCsvFile(string job, JobStatus status, JobType timeSlot, string logFileName)
         {
-            lock (csvLock)
+            lock (CsvLock)
             {
                 using (StreamWriter writer = File.AppendText(logFileName))
                 {
@@ -142,20 +125,16 @@ namespace Status.Services
         /// <summary>
         /// Read Status Data from CSV File 
         /// </summary>
-        /// <param name="logFileName"></param>
         /// <param name="iniData"></param>
-        /// <returns></returns>
+        /// <returns>Status List from CSV</returns>
         public List<StatusData> ReadFromCsvFile(IniFileData iniData)
         {
             List<StatusData> statusDataTable = new List<StatusData>();
-            DateTime timeReceived = DateTime.MinValue;
-            DateTime timeStarted = DateTime.MinValue;
-            DateTime timeCompleted = DateTime.MinValue;
             string logFileName = iniData.StatusLogFile;
 
             if (File.Exists(logFileName) == true)
             {
-                lock (csvLock)
+                lock (CsvLock)
                 {
                     using (CsvFileReader reader = new CsvFileReader(logFileName))
                     {
@@ -279,7 +258,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Read, reject old data and rewrite Log File
+        /// Read, delete old data and rewrite Log File
         /// </summary>
         /// <param name="iniData"></param>
         public void CheckLogFileHistory(IniFileData iniData)
@@ -290,7 +269,7 @@ namespace Status.Services
 
             if (File.Exists(logFileName) == true)
             {
-                lock (csvLock)
+                lock (CsvLock)
                 {
                     using (CsvFileReader reader = new CsvFileReader(logFileName))
                     {
@@ -427,7 +406,7 @@ namespace Status.Services
                     {
                         for (int i = 0; i < statusDataTable.Count; i++)
                         {
-                            lock (csvLock)
+                            lock (CsvLock)
                             {
                                 writer.WriteLine("{0},{1},{2},{3},{4}",
                                     statusDataTable[i].Job, statusDataTable[i].JobStatus.ToString(),

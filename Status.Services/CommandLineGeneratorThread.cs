@@ -4,7 +4,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -16,9 +15,9 @@ namespace Status.Services
         /// <summary>
         /// Object used in the task
         /// </summary>
-        private CommandLineGenerator CommandLineGenerator;
-        private static IniFileData IniData;
-        private static StatusMonitorData MonitorData;
+        private readonly CommandLineGenerator CommandLineGenerator;
+        private readonly IniFileData IniData;
+        private readonly StatusMonitorData MonitorData;
         public static ILogger<StatusRepository> Logger;
 
         /// <summary>
@@ -64,10 +63,12 @@ namespace Status.Services
         public void SetCpuCores(int cpuCores) { CpuCores = "-p " + cpuCores.ToString(); }
 
         /// <summary>
-        /// Execute the Modeler command line
+        /// Execute the Modeler command line 
         /// </summary>
+        /// <param name="monitorData"></param>
+        /// <param name="iniData"></param>
         /// <param name="logger"></param>
-        /// <returns>Process handle</returns>
+        /// <returns></returns>
         public Process ExecuteCommand(StatusMonitorData monitorData, IniFileData iniData, ILogger<StatusRepository> logger)
         {
             string job = monitorData.Job;

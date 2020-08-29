@@ -15,8 +15,8 @@ namespace Status.Services
     public class StatusRepository : IStatusRepository
     {
         private CurrentInputJobsScanThread newJobsScanThread;
-        public IniFileData IniData = new IniFileData();
-        public List<StatusData> StatusDataList = new List<StatusData>();
+        private IniFileData IniData = new IniFileData();
+        private List<StatusData> StatusDataList = new List<StatusData>();
         public readonly ILogger<StatusRepository> Logger;
 
         /// <summary>
