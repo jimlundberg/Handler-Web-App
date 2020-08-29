@@ -124,12 +124,7 @@ namespace Status.Services
             List<StatusData> statusData, string message, ILogger<StatusRepository> logger)
         {
             // Wait about a minute for the Modeler to start execution
-            var tcpIpStartWaitTask = Task.Run(async delegate
-            {
-                await Task.Delay(StaticClass.ScanWaitTime * 12);
-                return;
-            });
-            tcpIpStartWaitTask.Wait();
+            Thread.Sleep(StaticClass.ScanWaitTime * 12);
 
             try
             {
@@ -242,13 +237,8 @@ namespace Status.Services
                                 }
                             }
 
-                            // Wait between TCP/IP Connec tries
-                            var TcpIpConnectTask = Task.Run(async delegate
-                            {
-                                await Task.Delay(StaticClass.ScanWaitTime * 3);
-                                return;
-                            });
-                            TcpIpConnectTask.Wait();
+                            // Wait between TCP/IP Connection tries
+                            Thread.Sleep(StaticClass.ScanWaitTime * 3);
                         }
 
                         // Get the Modeler response and display it
@@ -348,12 +338,7 @@ namespace Status.Services
                         }
 
                         // Wait for an adjustable time between TCP/IP status requests
-                        var TcpIpWaitTask = Task.Run(async delegate
-                        {
-                            await Task.Delay(adjustableSleepTime);
-                            return;
-                        });
-                        TcpIpWaitTask.Wait();
+                        Thread.Sleep(adjustableSleepTime);
                     }
                     else
                     {

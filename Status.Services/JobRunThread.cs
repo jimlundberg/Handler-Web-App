@@ -279,12 +279,7 @@ namespace Status.Services
             thread.Start();
 
             // Sleep to allow the Modeler to start before starting Process Buffer job file monitoring
-            var modelerStartupWaitTask = Task.Run(async delegate
-            {
-                await Task.Delay(500);
-                return;
-            });
-            modelerStartupWaitTask.Wait();
+            Thread.Sleep(500);
 
             // Register with the File Watcher class with an event and start its thread
             string processingBufferJobDir = processingBufferDirectory + @"\" + job;

@@ -73,12 +73,7 @@ namespace Status.Services
                         currentInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
 
                         // Throttle the Job startups
-                        var jobWaitTask = Task.Run(async delegate
-                        {
-                            await Task.Delay(StaticClass.ScanWaitTime);
-                            return;
-                        });
-                        jobWaitTask.Wait();
+                        Thread.Sleep(StaticClass.ScanWaitTime);
                     }
                 }
                 else

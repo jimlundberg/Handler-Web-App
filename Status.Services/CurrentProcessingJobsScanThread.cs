@@ -105,12 +105,7 @@ namespace Status.Services
                     newProcessingJobsScanThread.StartProcessingJob(directory, IniData, StatusData, Logger);
 
                     // Throttle the Job startups
-                    var jobWaitTask = Task.Run(async delegate
-                    {
-                        await Task.Delay(StaticClass.ScanWaitTime);
-                        return;
-                    });
-                    jobWaitTask.Wait();
+                    Thread.Sleep(StaticClass.ScanWaitTime);
                 }
                 else
                 {
