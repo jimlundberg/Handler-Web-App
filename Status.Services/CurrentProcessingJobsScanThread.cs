@@ -113,8 +113,7 @@ namespace Status.Services
                     StaticClass.NewProcessingJobsToRun.Add(job);
 
                     StaticClass.Log(logFile,
-                        String.Format("Current Processing job check added waiting job {0} to Processing Job List at {1:HH:mm:ss.fff}",
-                        job, DateTime.Now));
+                        String.Format("Unfinished Processing jobs check added job {0} to waiting for Processing Job list", job));
                 }
             }
 

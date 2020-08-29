@@ -79,8 +79,7 @@ namespace Status.Services
                     StaticClass.NewInputJobsToRun.Add(job);
 
                     StaticClass.Log(IniData.ProcessLogFile,
-                        String.Format("Input file watcher added waiting job {0} to Input Job List at {1:HH:mm:ss.fff}",
-                        job, DateTime.Now));
+                        String.Format("Unfinished Input jobs check added job {0} to Input jobs waiting list", job));
                 }
             }
         }
