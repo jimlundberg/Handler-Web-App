@@ -194,10 +194,10 @@ namespace Status.Services
             {
                 if (StaticClass.NewInputJobsToRun.Count > 0)
                 {
-                    // Check if there are jobs waiting to run
-                    for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
+                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                     {
-                        if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                        // Check if there are jobs waiting to run
+                        for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
                         {
                             string job = StaticClass.NewInputJobsToRun[i];
                             string directory = iniData.InputDir + @"\" + job;

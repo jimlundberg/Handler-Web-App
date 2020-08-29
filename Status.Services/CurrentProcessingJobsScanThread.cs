@@ -52,7 +52,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.CurrentProcessingJobsScanThreadHandle = new Thread(() => CheckForCurrentProcessingJobs(IniData, StatusDataList));
+            StaticClass.CurrentProcessingJobsScanThreadHandle = new Thread(() => CheckForCurrentProcessingJobs(IniData, StatusDataList, Logger));
             if (StaticClass.CurrentProcessingJobsScanThreadHandle == null)
             {
                 Logger.LogError("CurrentProcessingJobsScanThread thread failed to instantiate");
@@ -65,7 +65,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
-        public void CheckForCurrentProcessingJobs(IniFileData iniData, List<StatusData> statusData)
+        public void CheckForCurrentProcessingJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             string logFile = iniData.ProcessLogFile;
 
@@ -102,7 +102,7 @@ namespace Status.Services
                 if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
                     CurrentProcessingJobsScanThread newProcessingJobsScanThread = new CurrentProcessingJobsScanThread();
-                    newProcessingJobsScanThread.StartProcessingJob(directory, iniData, statusData, Logger);
+                    newProcessingJobsScanThread.StartProcessingJob(directory, iniData, statusData, logger);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
@@ -118,6 +118,31 @@ namespace Status.Services
             }
 
             StaticClass.CurrentProcessingJobsScanComplete = true;
+
+            // Wait forever while scanning for unfinished Processing jobs
+            do
+            {
+                if (StaticClass.NewProcessingJobsToRun.Count > 0)
+                {
+                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                    {
+                        // Check if there are jobs waiting to run
+                        for (int i = 0; i < StaticClass.NewProcessingJobsToRun.Count; i++)
+                        {
+                            string job = StaticClass.NewProcessingJobsToRun[i];
+                            string directory = iniData.ProcessingDir + @"\" + job;
+                            CurrentProcessingJobsScanThread newProcessingJobsScan = new CurrentProcessingJobsScanThread();
+                            newProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, Logger);
+
+                            // Throttle the Job startups
+                            Thread.Sleep(StaticClass.ScanWaitTime);
+                        }
+                    }
+                }
+
+                Thread.Yield();
+            }
+            while (StaticClass.ShutdownFlag == false);
         }
 
         /// <summary>
