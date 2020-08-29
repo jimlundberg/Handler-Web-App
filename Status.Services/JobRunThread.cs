@@ -345,39 +345,43 @@ namespace Status.Services
 
             if ((OverallResult != null) && (passFail == "Pass"))
             {
+                string finishedJobDirectoryName = finishedDirectory + @"\" + monitorData.JobSerialNumber;
+
                 // If the Finished directory does not exist, create it
-                if (!Directory.Exists(finishedDirectory + @"\" + monitorData.JobSerialNumber))
+                if (!Directory.Exists(finishedJobDirectoryName))
                 {
-                    Directory.CreateDirectory(finishedDirectory + @"\" + monitorData.JobSerialNumber);
+                    Directory.CreateDirectory(finishedJobDirectoryName);
                 }
 
                 // Copy the Transfered files to the Finished directory 
                 foreach (string file in monitorData.TransferedFileList)
                 {
                     FileHandling.CopyFile(processingBufferDirectory + @"\" + job + @"\" + file,
-                        finishedDirectory + @"\" + monitorData.JobSerialNumber + @"\" + file, logFile);
+                        finishedJobDirectoryName + @"\" + file, logFile);
                 }
 
                 // Move Processing Buffer Files to the Repository directory when passed
-                FileHandling.CopyFolderContents(ProcessingBufferJobDir, repositoryDirectory, logFile, true, true);
+                FileHandling.CopyFolderContents(ProcessingBufferJobDir, repositoryDirectory + @"\" + job, logFile, true, true);
             }
             else
             {
+                string errorJobDirectoryName = errorDirectory + @"\" + monitorData.JobSerialNumber;
+
                 // If the Error directory does not exist, create it
-                if (!Directory.Exists(errorDirectory + @"\" + monitorData.JobSerialNumber))
+                if (!Directory.Exists(errorJobDirectoryName))
                 {
-                    Directory.CreateDirectory(errorDirectory + @"\" + monitorData.JobSerialNumber);
+                    Directory.CreateDirectory(errorJobDirectoryName);
                 }
 
                 // Copy the Transfered files to the Error directory 
                 foreach (string file in monitorData.TransferedFileList)
                 {
                     FileHandling.CopyFile(processingBufferDirectory + @"\" + job + @"\" + file,
-                        errorDirectory + @"\" + monitorData.JobSerialNumber + @"\" + file, logFile);
+                        errorJobDirectoryName + @"\" + file, logFile);
                 }
 
                 // Move Processing Buffer Files to the Repository directory when failed
-                FileHandling.CopyFolderContents(ProcessingBufferJobDir, repositoryDirectory, logFile, true, true);
+                FileHandling.CopyFolderContents(ProcessingBufferJobDir, repositoryDirectory + @"\" + job, logFile, true, true);
             }
 
             // Decrement the number of jobs executing after one completes

@@ -144,7 +144,7 @@ namespace Status.Services
 
             if (InputDirectoryInfoList.Count > 0)
             {
-                StaticClass.Log(logFile, "\nUnfinished Input Jobs waiting...");
+                StaticClass.Log(logFile, "\nUnfinished Input Jobs waiting...\n");
             }
             else
             {

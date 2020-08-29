@@ -1,0 +1,33 @@
+
+Job 1178350_202006030856 Modeler execution process data:
+ProcessName                 : 780200XXC00
+StartTime                   : 8/28/2020 10:38:02 PM
+MainWindowTitle             : C:\SSMCharacterizationHandler\Application\Modelers\780200XXC00\780200XXC00.exe
+MainModule                  : System.Diagnostics.ProcessModule (780200XXC00.exe)
+StartInfo                   : System.Diagnostics.ProcessStartInfo
+GetType                     : System.Diagnostics.Process
+MainWindowHandle            : 2362272
+Handle                      : 3140
+Id                          : 20336
+PriorityClass               : Normal
+Basepriority                : 8
+PriorityBoostEnabled        : True
+Responding                  : True
+ProcessorAffinity           : 4095
+HandleCount                 : 1095
+MaxWorkingSet               : 1413120
+MinWorkingSet               : 204800
+NonpagedSystemMemorySize64  : 67288
+PeakVirtualMemorySize64     : 7845863424
+PagedSystemMemorySize64     : 810104
+PrivateMemorySize64         : 340234240
+VirtualMemorySize64         : 7634927616
+NonpagedSystemMemorySize64  : 340234240
+WorkingSet64                : 243773440
+PeakWorkingSet64            : 245833728
+PrivilegedProcessorTime     : 00:00:06.2656250
+TotalProcessorTime          : 00:00:19.2187500
+UserProcessorTime           : 00:00:12.9531250
+
+Sending status msg to Modeler for Job 1307106_202002181307 on port 3001 at 22:38:42.621
+Received: Step 1 in process. from Job 1307106_202002181307 on port 3001 at 22:38:42.754
