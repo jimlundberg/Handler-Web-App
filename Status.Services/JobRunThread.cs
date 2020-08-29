@@ -359,8 +359,7 @@ namespace Status.Services
                 }
 
                 // Move Processing Buffer Files to the Repository directory when passed
-                FileHandling.CopyFolderContents(ProcessingBufferJobDir, repositoryDirectory + @"\" + job,
-                    logFile, true, true);
+                FileHandling.CopyFolderContents(ProcessingBufferJobDir, repositoryDirectory, logFile, true, true);
             }
             else
             {
@@ -374,7 +373,7 @@ namespace Status.Services
                 foreach (string file in monitorData.TransferedFileList)
                 {
                     FileHandling.CopyFile(processingBufferDirectory + @"\" + job + @"\" + file,
-                    errorDirectory + @"\" + monitorData.JobSerialNumber + @"\" + file, logFile);
+                        errorDirectory + @"\" + monitorData.JobSerialNumber + @"\" + file, logFile);
                 }
 
                 // Move Processing Buffer Files to the Repository directory when failed
