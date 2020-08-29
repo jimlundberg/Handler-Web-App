@@ -275,7 +275,7 @@ namespace Status.Services
 
                             case "Whole process done, socket closed.":
                                 StaticClass.Log(logFile,
-                                    String.Format("TCP/IP for Job {0} on port {1} received Process Done at {2:HH:mm:ss.fff}",
+                                    String.Format("TCP/IP for Job {0} on port {1} received Modeler process complete at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
                                 StaticClass.TcpIpScanComplete[job] = true;
@@ -292,7 +292,7 @@ namespace Status.Services
                         if (responseData.Contains("Whole process done, socket closed."))
                         {
                             StaticClass.Log(logFile,
-                                String.Format("TCP/IP for Job {0} on port {1} received Process Done at {2:HH:mm:ss.fff}",
+                                String.Format("TCP/IP for Job {0} on port {1} received Modeler socket complete at {2:HH:mm:ss.fff}",
                                 job, port, DateTime.Now));
 
                             StaticClass.TcpIpScanComplete[job] = true;
