@@ -17,3 +17,5 @@ XCOPY /S /Q /H /R /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\bin\R
 copy C:\SSMCharacterizationHandler\Handler\Handler\Handler\Config.ini C:\SSMCharacterizationHandler\Handler
 rmdir /Q /S C:\SSMCharacterizationHandler\Handler\Handler\Handler\bin
 cd ..
+
+systeminfo
