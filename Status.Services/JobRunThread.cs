@@ -353,7 +353,7 @@ namespace Status.Services
                 foreach (string file in monitorData.TransferedFileList)
                 {
                     FileHandling.CopyFile(processingBufferJobDir + @"\" + file,
-                        finishedJobDirectoryName + @"\" + file, logFile);
+                                          finishedJobDirectoryName + @"\" + file, logFile);
                 }
 
                 // Move Processing Buffer Files to the Repository directory when passed
@@ -372,8 +372,11 @@ namespace Status.Services
                 // Copy the Transfered files to the Error directory 
                 foreach (string file in monitorData.TransferedFileList)
                 {
-                    FileHandling.CopyFile(processingBufferJobDir + @"\" + file,
-                        errorJobDirectoryName + @"\" + file, logFile);
+                    if (File.Exists(file))
+                    {
+                        FileHandling.CopyFile(processingBufferJobDir + @"\" + file,
+                                              errorJobDirectoryName + @"\" + file, logFile);
+                    }
                 }
 
                 // Move Processing Buffer Files to the Repository directory when failed
