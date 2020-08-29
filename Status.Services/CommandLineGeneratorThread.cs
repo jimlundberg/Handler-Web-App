@@ -90,7 +90,7 @@ namespace Status.Services
             ModelerProcess.PriorityClass = ProcessPriorityClass.Normal;
 
             // Store process handle to use for stopping
-            StaticClass.ProcessHandles.Add(job, ModelerProcess);
+            StaticClass.ProcessHandles[job] = ModelerProcess;
 
             // Give the Modeler time to start so you can read the main window title
             Thread.Sleep(1000);

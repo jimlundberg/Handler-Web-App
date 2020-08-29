@@ -111,6 +111,10 @@ namespace Status.Services
                 {
                     // Add currently unfinished job to Processing Jobs run list
                     StaticClass.NewProcessingJobsToRun.Add(job);
+
+                    StaticClass.Log(logFile,
+                        String.Format("Current Processing job check added waiting job {0} to Processing Job List at {1:HH:mm:ss.fff}",
+                        job, DateTime.Now));
                 }
             }
 
