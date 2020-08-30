@@ -289,7 +289,7 @@ namespace Status.Services
                             StaticClass.Log(String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}", job, DateTime.Now));
 
                             // Create job Timeout status
-                            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, logger);
+                            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_RECEIVED, logger);
 
                             // Make sure to close TCP/IP socket
                             stream.Close();
