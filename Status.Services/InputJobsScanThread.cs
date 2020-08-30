@@ -219,11 +219,14 @@ namespace Status.Services
                             {
                                 string job = StaticClass.InputJobsToRun[i];
                                 string directory = iniData.InputDir + @"\" + job;
+
+                                StaticClass.InputFileScanComplete[job] = false;
                                 InputJobsScanThread newInputJobsScan = new InputJobsScanThread();
                                 newInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
+                                StaticClass.InputJobsToRun.RemoveAt(i);
+
                                 StaticClass.Log(String.Format("Removing job {0} from the Input Job list at {1:HH:mm:ss.fff}",
                                     job, DateTime.Now));
-                                StaticClass.InputJobsToRun.Remove(directory);
 
                                 // Throttle the Job startups
                                 Thread.Sleep(StaticClass.ScanWaitTime);
