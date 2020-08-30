@@ -66,21 +66,23 @@ namespace Status.Services
                 // Strt Processing jobs currently waiting
                 for (int i = 0; i < StaticClass.ProcessingJobsToRun.Count; i++)
                 {
-                    job = StaticClass.ProcessingJobsToRun[i];
-                    string directory = iniData.ProcessingDir + @"\" + job;
-                    CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
-                    currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
-                    StaticClass.ProcessingJobsToRun.Remove(job);
+                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                    {
+                        job = StaticClass.ProcessingJobsToRun[i];
+                        string directory = iniData.ProcessingDir + @"\" + job;
+                        CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
+                        currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
+                        StaticClass.ProcessingJobsToRun.Remove(job);
 
-                    // Throttle the Job startups
-                    Thread.Sleep(StaticClass.ScanWaitTime);
+                        // Throttle the Job startups
+                        Thread.Sleep(StaticClass.ScanWaitTime);
+                    }
                 }
             }
             else
             {
                 // Add currently unfinished job to Processing Jobs run list
                 StaticClass.ProcessingJobsToRun.Add(job);
-
                 StaticClass.Log(String.Format("Unfinished Processing jobs check added job {0} to Processing jobs list", job));
             }
         }
