@@ -139,40 +139,58 @@ namespace Status.Services
 
             if (InputDirectoryInfoList.Count > 0)
             {
-                StaticClass.Log("\nUnfinished Input Jobs waiting...\n");
+                StaticClass.Log("\nUnfinished Input Jobs waiting...");
             }
             else
             {
                 StaticClass.Log("\nNo unfinished Input Jobs Found...");
             }
 
-            // Start the jobs in the directory list found on initial scan of the Input Buffer
-            foreach (DirectoryInfo dir in InputDirectoryInfoList)
+            // Start the jobs in the directory list found for the Input Buffer
+            bool foundUnfinishedJobs = false;
+            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
             {
-                // Get job name by clearing the Input Directory string
-                string job = dir.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
-                string directory = dir.ToString();
-
-                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                for (int i = 0; i < InputDirectoryInfoList.Count; i++)
                 {
-                    // Create new Input job start thread and run
-                    InputJobsScanThread newInputJobsScanThread = new InputJobsScanThread();
-                    newInputJobsScanThread.StartInputJob(directory, IniData, StatusDataList, Logger);
+                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                    {
+                        if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                        {
+                            DirectoryInfo dirInfo = InputDirectoryInfoList[i];
+                            string directory = dirInfo.ToString();
+                            string job = directory.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
+                            InputJobsScanThread newInputJobsScanThread = new InputJobsScanThread();
+                            StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                            newInputJobsScanThread.StartInputJob(directory, iniData, statusData, logger);
+                            InputDirectoryInfoList.Remove(dirInfo);
 
-                    // Throttle the Job startups
-                    Thread.Sleep(StaticClass.ScanWaitTime);
+                            // Throttle the Job startups
+                            Thread.Sleep(StaticClass.ScanWaitTime);
+                        }
+                        else
+                        {
+                            foundUnfinishedJobs = true;
+                        }
+                    }
                 }
-                else
-                {
-                    // Add currently unfinished job to Input Jobs run list
-                    StaticClass.InputJobsToRun.Add(job);
 
-                    StaticClass.Log(String.Format("Input Job Scan added waiting job {0} to Input job list at {1:HH:mm:ss.fff}",
-                        job, DateTime.Now));
+                if (foundUnfinishedJobs == true)
+                {
+                    StaticClass.Log("\nMore unfinished Input jobs then execution slots found...\n");
+                }
+
+                // Start the jobs in the directory list found on initial scan of the Input Buffer
+                foreach (DirectoryInfo dirInfo in InputDirectoryInfoList)
+                {
+                    string directory = dirInfo.ToString();
+                    string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+                    StaticClass.InputJobsToRun.Add(job);
+                    StaticClass.Log(String.Format("Unfinished Input jobs check added job {0} to Input Job waiting list", job));
                 }
             }
 
-            StaticClass.Log("\nWatching for new Input Jobs...");
+            // Clear the Directory Info List after done with it
+            InputDirectoryInfoList.Clear();
 
             // Start the Directory Watcher class to scan for new jobs
             DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(IniData, StatusDataList, Logger);
