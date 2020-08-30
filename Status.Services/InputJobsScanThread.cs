@@ -183,7 +183,7 @@ namespace Status.Services
                 foreach (DirectoryInfo dirInfo in InputDirectoryInfoList)
                 {
                     string directory = dirInfo.ToString();
-                    string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+                    string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
                     StaticClass.InputJobsToRun.Add(job);
                     StaticClass.Log(String.Format("Unfinished Input jobs check added job {0} to Input Job waiting list", job));
                 }

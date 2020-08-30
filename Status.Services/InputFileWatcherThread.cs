@@ -77,7 +77,6 @@ namespace Status.Services
                 {
                     // Add currently unfinished job to Input Jobs run list
                     StaticClass.InputJobsToRun.Add(job);
-
                     StaticClass.Log(String.Format("Unfinished Input jobs check added job {0} to Input jobs list", job));
                 }
             }
