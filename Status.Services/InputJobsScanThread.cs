@@ -223,7 +223,9 @@ namespace Status.Services
                                 StaticClass.InputFileScanComplete[job] = false;
                                 InputJobsScanThread newInputJobsScan = new InputJobsScanThread();
                                 newInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
-                                StaticClass.InputJobsToRun.RemoveAt(i)                                // Throttle the Job startups
+                                StaticClass.InputJobsToRun.RemoveAt(i);
+                                
+                                // Throttle the Job startups
                                 Thread.Sleep(StaticClass.ScanWaitTime);
                             }
                         }
