@@ -252,7 +252,7 @@ namespace Status.Services
                                 break;
 
                             case "Whole process done, socket closed.":
-                                StaticClass.Log(String.Format("TCP/IP for Job {0} on port {1} received Modeler process complete at {2:HH:mm:ss.fff}",
+                                StaticClass.Log(String.Format("TCP/IP for Job {0} on port {1} received Modeler process done at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
                                 // Make sure to close TCP/IP socket
@@ -272,7 +272,7 @@ namespace Status.Services
                         // Backup check of the process complete string, even if it is concatenated with another string
                         if (responseData.Contains("Whole process done, socket closed."))
                         {
-                            StaticClass.Log(String.Format("TCP/IP for Job {0} on port {1} received Modeler socket complete at {2:HH:mm:ss.fff}",
+                            StaticClass.Log(String.Format("TCP/IP for Job {0} on port {1} received Modeler process done at {2:HH:mm:ss.fff}",
                                 job, port, DateTime.Now));
 
                             // Make sure to close TCP/IP socket

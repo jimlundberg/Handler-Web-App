@@ -20,8 +20,6 @@ namespace Status.Services
 		public static int RunningJobsIndex = 0;
 		public static int LogFileSizeLimit = 0;
 
-        public static string LogFileName;
-
         public static Thread CurrentInputJobsScanThreadHandle;
         public static Thread ProcessingFileWatcherThreadHandle;
         public static Thread CurrentProcessingJobsScanThreadHandle;
@@ -50,17 +48,18 @@ namespace Status.Services
 
 		public static Dictionary<string, Process> ProcessHandles = new Dictionary<string, Process>();
 
-		/// <summary>
-		/// Global log to file method
-		/// </summary>
-		/// <param name="logFile"></param>
-		/// <param name="msg"></param>
-		public static void Log(string msg)
+        internal static LoggingToFile FileLoggerObject;
+
+        /// <summary>
+        /// Global log to file method
+        /// </summary>
+        /// <param name="logFile"></param>
+        /// <param name="msg"></param>
+        public static void Log(string msg)
 		{
-			Console.WriteLine(msg);
-			LoggingToFile log = new LoggingToFile(StaticClass.LogFileName);
-			log.WriteToLogFile(msg);
-		}
+            FileLoggerObject.WriteToLogFile(msg);
+            Console.WriteLine(msg);
+        }
 
         /// <summary>
         /// Status Data Entry Method

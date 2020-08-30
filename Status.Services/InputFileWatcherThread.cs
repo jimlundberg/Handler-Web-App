@@ -185,8 +185,7 @@ namespace Status.Services
                 // Begin watching for changes to Input directory
                 watcher.EnableRaisingEvents = true;
 
-                StaticClass.Log(String.Format("Input File Watcher watching {0} at {1:HH:mm:ss.fff}",
-                    directory, DateTime.Now));
+                StaticClass.Log(String.Format("Input File Watcher watching {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                 // Wait for Input file scan to Complete with a full set of job output files
                 do

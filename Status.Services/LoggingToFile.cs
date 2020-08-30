@@ -12,10 +12,24 @@ namespace Status.Services
         private static readonly Object FileLock = new Object();
 
         /// <summary>
-        /// Logging to File Constructor
+        /// Default logging To file constructor
+        /// </summary>
+        public LoggingToFile() { }
+
+        /// <summary>
+        /// Logging to file constructor with file name 
         /// </summary>
         /// <param name="logFileName"></param>
         public LoggingToFile(string logFileName)
+        {
+            LogFileName = logFileName;
+        }
+
+        /// <summary>
+        /// Set the log file name
+        /// </summary>
+        /// <param name="logFileName"></param>
+        public void SetLogFileName(string logFileName)
         {
             LogFileName = logFileName;
         }
@@ -50,7 +64,7 @@ namespace Status.Services
 
             if (tooBig)
             {
-                Console.WriteLine("Process log file too big. Reducing 10%");
+                StaticClass.Log("Process log file too big. Reducing 10%");
                 lock (FileLock)
                 {
                     // Remove old data from log file
@@ -76,34 +90,6 @@ namespace Status.Services
                         }
                     }
                 }
-            }
-        }
-
-        /// <summary>
-        /// Read From Log File
-        /// </summary>
-        /// <returns>string read from log file</returns>
-        public string ReadFromLogFile()
-        {
-            lock (FileLock)
-            {
-                using (StreamReader reader = File.OpenText(LogFileName))
-                {
-                    return (reader.ToString());
-                }
-            }
-        }
-
-        /// <summary>
-        /// Log string to Console
-        /// </summary>
-        /// <param name="logMessage"></param>
-        /// <param name="writer"></param>
-        public static void Log(string logMessage, TextWriter writer)
-        {
-            lock (FileLock)
-            {
-                writer.WriteLine(logMessage);
             }
         }
     }

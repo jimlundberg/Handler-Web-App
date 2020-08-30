@@ -66,11 +66,14 @@ namespace Status.Services
             IniData.LogFileMaxSize = int.Parse(logFileMaxSize.Substring(0, logFileMaxSize.IndexOf("#")));
 
             // Set the static class data needed for global use
-            StaticClass.LogFileName = IniData.ProcessLogFile;
             StaticClass.ScanWaitTime = IniData.ScanWaitTime;
             StaticClass.LogFileSizeLimit = IniData.LogFileMaxSize;
             StaticClass.MaxJobTimeLimitSeconds = IniData.MaxJobTimeLimit * 60 * 60;
-            
+
+            // Set the file logging object handle only once here
+            LoggingToFile loggingToFile = new LoggingToFile(IniData.ProcessLogFile);
+            StaticClass.FileLoggerObject = loggingToFile;
+
             // Output the Data.ini informatino found
             StaticClass.Log("\nConfig.ini data found:\n");
             StaticClass.Log("Input Dir                      : " + IniData.InputDir);

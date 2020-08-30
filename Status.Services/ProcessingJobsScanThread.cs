@@ -174,7 +174,7 @@ namespace Status.Services
                     string directory = iniData.ProcessingDir + @"\" + StaticClass.ProcessingJobsToRun[i];
                     string job = directory.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
                     ProcessingJobsScanThread currentProcessingJobsScan = new ProcessingJobsScanThread();
-                    StaticClass.Log(String.Format("Starting Processing Job {0} in directory {1} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(String.Format("Starting Processing Job {0} in directory {1} at {2:HH:mm:ss.fff}",
                         job, directory, DateTime.Now));
                     currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
                     StaticClass.ProcessingJobsToRun.Remove(job);
