@@ -169,7 +169,7 @@ namespace Status.Services
                 string transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
                 XmlNode TransferedFileXml = jobXmlDoc.DocumentElement.SelectSingleNode(transferFileNodeName);
                 monitorData.TransferedFileList.Add(TransferedFileXml.InnerText);
-                StaticClass.Log(String.Format("Transfer File{0}               : {1}", i, TransferedFileXml.InnerText));
+                StaticClass.Log(String.Format("Transfer File{0}                 : {1}", i, TransferedFileXml.InnerText));
             }
 
             // If this job comes from the Input directory, run the Input job check and start job if found
