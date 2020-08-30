@@ -66,7 +66,7 @@ namespace Status.Services
                 // Start Processing jobs currently waiting
                 for (int i = 0; i < StaticClass.NewProcessingJobsToRun.Count; i++)
                 {
-                    string directory = iniData.InputDir + @"\" + StaticClass.NewProcessingJobsToRun[i];
+                    string directory = iniData.ProcessingDir + @"\" + StaticClass.NewProcessingJobsToRun[i];
                     CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
                     currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
                     StaticClass.NewProcessingJobsToRun.Remove(job);

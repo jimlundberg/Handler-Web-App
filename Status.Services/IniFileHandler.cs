@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using Status.Models;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -81,50 +82,6 @@ namespace Status.Services
         public bool KeyExists(string Key, string Section = null)
         {
             return Read(Key, Section).Length > 0;
-        }
-    }
-
-    /// <summary>
-    /// Class to Scan a directory for new directories
-    /// </summary>
-    public class ScanDirectory
-    {
-        /// <summary>
-        /// ScanDirectory default constructor
-        /// </summary>
-        public ScanDirectory() {}
-
-        /// <summary>
-        /// Get the Job XML data
-        /// </summary>
-        /// <param name="job"></param>
-        /// <param name="jobDirectory"></param>
-        /// <returns>JobXmlData</returns>
-        public Models.JobXmlData GetJobXmlData(string job, string jobDirectory)
-        {
-            Models.JobXmlData jobScanXmlData = new Models.JobXmlData();
-            jobScanXmlData.JobDirectory = jobDirectory;
-            jobScanXmlData.JobSerialNumber = job.Substring(0, job.IndexOf("_"));
-            int start = job.IndexOf("_") + 1;
-            jobScanXmlData.TimeStamp = job.Substring(start, job.Length - start);
-
-            // Wait until the Xml file shows up
-            bool xmlFileFound = false;
-            do
-            {
-                string[] files = Directory.GetFiles(jobDirectory, "*.xml");
-                if (files.Length > 0)
-                {
-                    jobScanXmlData.XmlFileName = Path.GetFileName(files[0]);
-                    xmlFileFound = true;
-                    return jobScanXmlData;
-                }
-
-                Thread.Yield();
-            }
-            while (xmlFileFound == false);
-
-            return jobScanXmlData;
         }
     }
 }

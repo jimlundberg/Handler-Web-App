@@ -214,28 +214,21 @@ namespace Status.Services
         /// Method to start new jobs from the Input Buffer 
         /// </summary>
         /// <param name="directory"></param>
-        /// <param name="iniFileData"></param>
+        /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public void StartInputJob(string directory, IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public void StartInputJob(string directory, IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Get job name from directory name
-            string job = directory.Replace(iniFileData.InputDir, "").Remove(0, 1);
+            string job = directory.Replace(iniData.InputDir, "").Remove(0, 1);
 
-            if (StaticClass.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
+            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
             {
-                // Start scan for new directory in the Input Buffer
-                ScanDirectory scanDir = new ScanDirectory();
-                if (scanDir == null)
-                {
-                    Logger.LogError("CurrentInputJobsScanThread scanDir failed to instantiate");
-                }
-
                 // Get data found in Job xml file
-                JobXmlData jobXmlData = scanDir.GetJobXmlData(job, directory);
+                JobXmlData jobXmlData = StaticClass.GetJobXmlData(directory, iniData);
                 if (jobXmlData == null)
                 {
-                    Logger.LogError("CurrentInputJobsScanThread scanDir GetJobXmlData failed");
+                    Logger.LogError("CurrentInputJobsScanThread GetJobXmlData failed");
                 }
 
                 jobXmlData.Job = job;
@@ -256,7 +249,7 @@ namespace Status.Services
                     jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
                 // Create a thread to run the job, and then start the thread
-                JobRunThread thread = new JobRunThread(DirectoryScanType.INPUT_BUFFER, jobXmlData, iniFileData, statusData, logger);
+                JobRunThread thread = new JobRunThread(DirectoryScanType.INPUT_BUFFER, jobXmlData, iniData, statusData, logger);
                 if (thread == null)
                 {
                     Logger.LogError("CurrentInputJobsScanThread thread failed to instantiate");

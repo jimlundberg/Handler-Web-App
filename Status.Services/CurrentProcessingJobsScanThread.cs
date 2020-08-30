@@ -92,16 +92,17 @@ namespace Status.Services
             }
 
             // Start the jobs in the directory list found on initial scan of the Processing Buffer
-            foreach (DirectoryInfo dir in processingDirectoryInfoList)
+            for (int i = 0; i < processingDirectoryInfoList.Count; i++)
             {
-                string job = dir.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
+                DirectoryInfo dir = processingDirectoryInfoList[i];
                 string directory = dir.ToString();
+                string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
 
                 if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
                     CurrentProcessingJobsScanThread newProcessingJobsScanThread = new CurrentProcessingJobsScanThread();
                     newProcessingJobsScanThread.StartProcessingJob(directory, iniData, statusData, logger);
-                    StaticClass.NewProcessingJobsToRun.Remove(job);
+                    processingDirectoryInfoList.Remove(dir);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
@@ -110,7 +111,7 @@ namespace Status.Services
 
             StaticClass.Log("\nMore unfinished Processing jobs then execution slots found...\n");
 
-            // Start the jobs in the directory list found on initial scan of the Processing Buffer
+            // Put the extra jobs found into the Processing Buffer directory into the NewProcessingJobsToRun list
             foreach (DirectoryInfo dir in processingDirectoryInfoList)
             {
                 // Add currently unfinished job to Processing Jobs run list
@@ -166,6 +167,9 @@ namespace Status.Services
                     CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
                     currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
                     StaticClass.NewProcessingJobsToRun.Remove(job);
+
+                    // Throttle the Job startups
+                    Thread.Sleep(iniData.ScanWaitTime);
                 }
             }
         }
@@ -174,15 +178,15 @@ namespace Status.Services
         /// Start a processing directory job
         /// </summary>
         /// <param name="directory"></param>
-        /// <param name="iniFileData"></param>
+        /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public void StartProcessingJob(string directory, IniFileData iniFileData, 
+        public void StartProcessingJob(string directory, IniFileData iniData, 
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            string job = directory.Replace(iniFileData.ProcessingDir, "").Remove(0, 1);
+            string job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
 
-            if (StaticClass.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
+            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
             {
                 // Delete the data.xml file in the Processing directory if found
                 string deleteXmlFile = directory + @"\" + "data.xml";
@@ -194,18 +198,11 @@ namespace Status.Services
                     }
                 }
 
-                // Start scan directory for job files in the Processing Buffer
-                ScanDirectory scanDir = new ScanDirectory();
-                if (scanDir == null)
-                {
-                    Logger.LogError("CurrentProcessingJobsScanThread scanDir failed to instantiate");
-                }
-
                 // Get data found in Xml file into Monitor Data
-                JobXmlData jobXmlData = scanDir.GetJobXmlData(job, directory);
+                JobXmlData jobXmlData = StaticClass.GetJobXmlData(directory, iniData);
                 if (jobXmlData == null)
                 {
-                    Logger.LogError("CurrentProcessingJobsScanThread scanDir GetJobXmlData failed");
+                    Logger.LogError("CurrentProcessingJobsScanThread GetJobXmlData failed");
                 }
 
                 jobXmlData.Job = job;
@@ -226,7 +223,7 @@ namespace Status.Services
                     jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
                 // Create a thread to run the job, and then start the thread
-                JobRunThread thread = new JobRunThread(DirectoryScanType.PROCESSING_BUFFER, jobXmlData, iniFileData, statusData, logger);
+                JobRunThread thread = new JobRunThread(DirectoryScanType.PROCESSING_BUFFER, jobXmlData, iniData, statusData, logger);
                 if (thread == null)
                 {
                     Logger.LogError("CurrentProcessingJobsScanThread thread failed to instantiate");

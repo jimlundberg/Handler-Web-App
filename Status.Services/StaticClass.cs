@@ -81,6 +81,39 @@ namespace Status.Services
         }
 
         /// <summary>
+        /// Get the Job XML data 
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <param name="iniData"></param>
+        /// <returns></returns>
+        public static JobXmlData GetJobXmlData(string directory, IniFileData iniData)
+        {
+            JobXmlData jobScanXmlData = new JobXmlData();
+            string job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
+            jobScanXmlData.JobSerialNumber = job.Substring(0, job.IndexOf("_"));
+            int start = job.IndexOf("_") + 1;
+            jobScanXmlData.TimeStamp = job.Substring(start, job.Length - start);
+
+            // Wait until the Xml file shows up
+            bool xmlFileFound = false;
+            do
+            {
+                string[] files = Directory.GetFiles(directory, "*.xml");
+                if (files.Length > 0)
+                {
+                    jobScanXmlData.XmlFileName = Path.GetFileName(files[0]);
+                    xmlFileFound = true;
+                    return jobScanXmlData;
+                }
+
+                Thread.Yield();
+            }
+            while (xmlFileFound == false);
+
+            return jobScanXmlData;
+        }
+
+        /// <summary>
         /// Returns when file is ready to access
         /// </summary>
         /// <param name="fileName"></param>
