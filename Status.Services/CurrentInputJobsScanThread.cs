@@ -225,7 +225,7 @@ namespace Status.Services
             if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
             {
                 // Get data found in Job xml file
-                JobXmlData jobXmlData = StaticClass.GetJobXmlData(directory, iniData);
+                JobXmlData jobXmlData = StaticClass.GetJobXmlData(DirectoryScanType.INPUT_BUFFER, directory, iniData);
                 if (jobXmlData == null)
                 {
                     Logger.LogError("CurrentInputJobsScanThread GetJobXmlData failed");

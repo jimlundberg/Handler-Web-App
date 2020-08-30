@@ -199,7 +199,7 @@ namespace Status.Services
                 }
 
                 // Get data found in Xml file into Monitor Data
-                JobXmlData jobXmlData = StaticClass.GetJobXmlData(directory, iniData);
+                JobXmlData jobXmlData = StaticClass.GetJobXmlData(DirectoryScanType.PROCESSING_BUFFER, directory, iniData);
                 if (jobXmlData == null)
                 {
                     Logger.LogError("CurrentProcessingJobsScanThread GetJobXmlData failed");

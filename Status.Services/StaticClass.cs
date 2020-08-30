@@ -83,13 +83,17 @@ namespace Status.Services
         /// <summary>
         /// Get the Job XML data 
         /// </summary>
+        /// <param name="scanType"></param>
         /// <param name="directory"></param>
         /// <param name="iniData"></param>
         /// <returns></returns>
-        public static JobXmlData GetJobXmlData(string directory, IniFileData iniData)
+        public static JobXmlData GetJobXmlData(DirectoryScanType scanType, string directory, IniFileData iniData)
         {
             JobXmlData jobScanXmlData = new JobXmlData();
-            string job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
+            string baseDirectory = (scanType == DirectoryScanType.INPUT_BUFFER) ? iniData.InputDir : iniData.ProcessingDir;
+            string job = directory.Replace(baseDirectory, "").Remove(0, 1);
+            jobScanXmlData.Job = job;
+            jobScanXmlData.JobDirectory = directory;
             jobScanXmlData.JobSerialNumber = job.Substring(0, job.IndexOf("_"));
             int start = job.IndexOf("_") + 1;
             jobScanXmlData.TimeStamp = job.Substring(start, job.Length - start);
@@ -103,7 +107,6 @@ namespace Status.Services
                 {
                     jobScanXmlData.XmlFileName = Path.GetFileName(files[0]);
                     xmlFileFound = true;
-                    return jobScanXmlData;
                 }
 
                 Thread.Yield();
