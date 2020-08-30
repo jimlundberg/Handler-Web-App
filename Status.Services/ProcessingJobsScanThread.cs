@@ -11,7 +11,7 @@ namespace Status.Services
     /// <summary>
     /// Class to run the whole monitoring process as a thread
     /// </summary>
-    public class CurrentProcessingJobsScanThread
+    public class ProcessingJobsScanThread
     {
         private static IniFileData IniData;
         private static List<StatusData> StatusDataList;
@@ -22,7 +22,7 @@ namespace Status.Services
         /// <summary>
         /// Current Processing Jobs Scan thread default constructor
         /// </summary>
-        public CurrentProcessingJobsScanThread() { }
+        public ProcessingJobsScanThread() { }
 
         /// <summary>
         /// Old Jobs Scan Thread constructor receiving data buffers
@@ -30,7 +30,7 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public CurrentProcessingJobsScanThread(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public ProcessingJobsScanThread(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
             StatusDataList = statusData;
@@ -103,7 +103,7 @@ namespace Status.Services
                         DirectoryInfo dirInfo = processingDirectoryInfoList[i];
                         string directory = dirInfo.ToString();
                         string job = directory.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
-                        CurrentProcessingJobsScanThread newProcessingJobsScanThread = new CurrentProcessingJobsScanThread();
+                        ProcessingJobsScanThread newProcessingJobsScanThread = new ProcessingJobsScanThread();
                         StaticClass.Log(String.Format("\nStarting Processing Job {0} in directory {1} at {2:HH:mm:ss.fff}",
                             job, directory, DateTime.Now));
                         newProcessingJobsScanThread.StartProcessingJob(directory, iniData, statusData, logger);
@@ -173,7 +173,7 @@ namespace Status.Services
                 {
                     string directory = iniData.ProcessingDir + @"\" + StaticClass.ProcessingJobsToRun[i];
                     string job = directory.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
-                    CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
+                    ProcessingJobsScanThread currentProcessingJobsScan = new ProcessingJobsScanThread();
                     StaticClass.Log(String.Format("Starting Processing Job {0} in directory {1} at {1:HH:mm:ss.fff}",
                         job, directory, DateTime.Now));
                     currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);

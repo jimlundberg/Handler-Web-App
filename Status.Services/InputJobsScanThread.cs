@@ -11,7 +11,7 @@ namespace Status.Services
     /// <summary>
     /// Class to run the whole monitoring process as a thread
     /// </summary>
-    public class CurrentInputJobsScanThread
+    public class InputJobsScanThread
     {
         private static IniFileData IniData;
         private static List<StatusData> StatusDataList;
@@ -20,7 +20,7 @@ namespace Status.Services
         /// <summary>
         /// Current Input Jobs Scan thread default constructor
         /// </summary>
-        public CurrentInputJobsScanThread() { }
+        public InputJobsScanThread() { }
 
         /// <summary>
         /// New jobs Scan thread
@@ -28,7 +28,7 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public CurrentInputJobsScanThread(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public InputJobsScanThread(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
             StatusDataList = statusData;
@@ -74,7 +74,7 @@ namespace Status.Services
             
             if (StaticClass.CurrentInputJobsScanThreadHandle == null)
             {
-                Logger.LogError("CurrentInputJobsScanThread thread failed to instantiate");
+                Logger.LogError("InputJobsScanThread thread failed to instantiate");
             }
             StaticClass.CurrentInputJobsScanThreadHandle.Start();
         }
@@ -88,10 +88,10 @@ namespace Status.Services
         public static void CheckForCurrentInputJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Register with the Old Jobs Processing class event and start its thread
-            CurrentProcessingJobsScanThread currentProcessingJobs = new CurrentProcessingJobsScanThread(iniData, statusData, logger);
+            ProcessingJobsScanThread currentProcessingJobs = new ProcessingJobsScanThread(iniData, statusData, logger);
             if (currentProcessingJobs == null)
             {
-                Logger.LogError("CurrentInputJobsScanThread oldJobs failed to instantiate");
+                Logger.LogError("InputJobsScanThread oldJobs failed to instantiate");
             }
             currentProcessingJobs.ProcessCompleted += currentInputJob_ProcessCompleted;
             currentProcessingJobs.ThreadProc();
@@ -103,7 +103,7 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(String.Format("\nShutdown CurrentInputJobsScanThread CheckForCurrentInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
+                    StaticClass.Log(String.Format("\nShutdown InputJobsScanThread CheckForCurrentInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
 
@@ -127,14 +127,14 @@ namespace Status.Services
             DirectoryInfo InputDirectoryInfo = new DirectoryInfo(iniData.InputDir);
             if (InputDirectoryInfo == null)
             {
-                Logger.LogError("CurrentInputJobsScanThread InputDirectoryInfo failed to instantiate");
+                Logger.LogError("InputJobsScanThread InputDirectoryInfo failed to instantiate");
             }
 
             // Get the current list of directories from the Input Buffer
             List<DirectoryInfo> InputDirectoryInfoList = InputDirectoryInfo.EnumerateDirectories().ToList();
             if (InputDirectoryInfoList == null)
             {
-                Logger.LogError("CurrentInputJobsScanThread InputDirectoryInfoList failed to instantiate");
+                Logger.LogError("InputJobsScanThread InputDirectoryInfoList failed to instantiate");
             }
 
             if (InputDirectoryInfoList.Count > 0)
@@ -156,7 +156,7 @@ namespace Status.Services
                 if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
                     // Create new Input job start thread and run
-                    CurrentInputJobsScanThread newInputJobsScanThread = new CurrentInputJobsScanThread();
+                    InputJobsScanThread newInputJobsScanThread = new InputJobsScanThread();
                     newInputJobsScanThread.StartInputJob(directory, IniData, StatusDataList, Logger);
 
                     // Throttle the Job startups
@@ -178,7 +178,7 @@ namespace Status.Services
             DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(IniData, StatusDataList, Logger);
             if (dirWatch == null)
             {
-                Logger.LogError("CurrentInputJobsScanThread dirWatch failed to instantiate");
+                Logger.LogError("InputJobsScanThread dirWatch failed to instantiate");
             }
 
             dirWatch.ProcessCompleted += newJob_DirectoryFound;
@@ -196,7 +196,7 @@ namespace Status.Services
                         {
                             string job = StaticClass.InputJobsToRun[i];
                             string directory = iniData.InputDir + @"\" + job;
-                            CurrentInputJobsScanThread newInputJobsScan = new CurrentInputJobsScanThread();
+                            InputJobsScanThread newInputJobsScan = new InputJobsScanThread();
                             newInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
 
                             // Throttle the Job startups
@@ -230,7 +230,7 @@ namespace Status.Services
                 JobXmlData jobXmlData = StaticClass.GetJobXmlData(directory, iniData, DirectoryScanType.INPUT_BUFFER);
                 if (jobXmlData == null)
                 {
-                    Logger.LogError("CurrentInputJobsScanThread GetJobXmlData failed");
+                    Logger.LogError("InputJobsScanThread GetJobXmlData failed");
                 }
 
                 jobXmlData.Job = job;
@@ -253,7 +253,7 @@ namespace Status.Services
                 JobRunThread thread = new JobRunThread(DirectoryScanType.INPUT_BUFFER, jobXmlData, iniData, statusData, logger);
                 if (thread == null)
                 {
-                    Logger.LogError("CurrentInputJobsScanThread thread failed to instantiate");
+                    Logger.LogError("InputJobsScanThread thread failed to instantiate");
                 }
                 thread.ThreadProc();
 
@@ -264,7 +264,7 @@ namespace Status.Services
                 // Cieck if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(String.Format("\nShutdown CurrentInputJobsScanThread StartInputJob of job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(String.Format("\nShutdown InputJobsScanThread StartInputJob of job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
                     return;
                 }

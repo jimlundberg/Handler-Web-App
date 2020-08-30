@@ -66,7 +66,7 @@ namespace Status.Services
                     for (int i = 0; i < StaticClass.InputJobsToRun.Count; i++)
                     {
                         string directory = iniData.InputDir + @"\" + StaticClass.InputJobsToRun[i];
-                        CurrentInputJobsScanThread currentInputJobsScan = new CurrentInputJobsScanThread();
+                        InputJobsScanThread currentInputJobsScan = new InputJobsScanThread();
                         currentInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
 
                         // Throttle the Job startups

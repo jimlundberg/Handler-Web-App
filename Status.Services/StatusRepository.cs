@@ -118,7 +118,7 @@ namespace Status.Services
             else
             {
                 // Start monitor scan process
-                CurrentInputJobsScanThread newJobsScanThread = new CurrentInputJobsScanThread(IniData, StatusDataList, Logger);
+                InputJobsScanThread newJobsScanThread = new InputJobsScanThread(IniData, StatusDataList, Logger);
                 if (newJobsScanThread == null)
                 {
                     Logger.LogError("StartMonitorProcess newJobsScanThread failed to instantiate");
