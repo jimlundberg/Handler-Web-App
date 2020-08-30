@@ -386,10 +386,10 @@ namespace Status.Services
             // Add entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE, logger);
 
-            StaticClass.NumberOfJobsExecuting--;
-
             StaticClass.Log(String.Format("Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
-                job, StaticClass.NumberOfJobsExecuting, DateTime.Now));
+                job, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now));
+
+            StaticClass.NumberOfJobsExecuting--;
         }
     }
 }

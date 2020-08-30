@@ -94,32 +94,40 @@ namespace Status.Services
             }
 
             // Start the jobs in the directory list found on initial scan of the Processing Buffer
-            for (int i = 0; i < processingDirectoryInfoList.Count; i++)
+            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
             {
-                DirectoryInfo dir = processingDirectoryInfoList[i];
-                string directory = dir.ToString();
-
-                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                for (int i = 0; i < processingDirectoryInfoList.Count; i++)
                 {
-                    CurrentProcessingJobsScanThread newProcessingJobsScanThread = new CurrentProcessingJobsScanThread();
-                    newProcessingJobsScanThread.StartProcessingJob(directory, iniData, statusData, logger);
-                    processingDirectoryInfoList.Remove(dir);
+                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                    {
+                        DirectoryInfo dirInfo = processingDirectoryInfoList[i];
+                        string directory = dirInfo.ToString();
+                        string job = directory.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
+                        CurrentProcessingJobsScanThread newProcessingJobsScanThread = new CurrentProcessingJobsScanThread();
+                        StaticClass.Log(String.Format("\nStarting Processing Job {0} in directory {1} at {2:HH:mm:ss.fff}",
+                            job, directory, DateTime.Now));
+                        newProcessingJobsScanThread.StartProcessingJob(directory, iniData, statusData, logger);
+                        processingDirectoryInfoList.Remove(dirInfo);
 
-                    // Throttle the Job startups
-                    Thread.Sleep(StaticClass.ScanWaitTime);
+                        // Throttle the Job startups
+                        Thread.Sleep(StaticClass.ScanWaitTime);
+                    }
                 }
             }
 
             StaticClass.Log("\nMore unfinished Processing jobs then execution slots found...\n");
 
             // Put the extra jobs found into the Processing Buffer directory into the NewProcessingJobsToRun list
-            foreach (DirectoryInfo dir in processingDirectoryInfoList)
+            foreach (DirectoryInfo dirInfo in processingDirectoryInfoList)
             {
-                // Add currently unfinished job to Processing Jobs run list
-                string job = dir.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
+                string directory = dirInfo.ToString();
+                string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
                 StaticClass.ProcessingJobsToRun.Add(job);
                 StaticClass.Log(String.Format("Unfinished Processing jobs check added job {0} to waiting for Processing Job list", job));
             }
+
+            // Clear the Directory Info List
+            processingDirectoryInfoList.Clear();
 
             // Run check loop until all unfinished Processing jobs are complete
             do
@@ -166,6 +174,8 @@ namespace Status.Services
                     string directory = iniData.ProcessingDir + @"\" + StaticClass.ProcessingJobsToRun[i];
                     string job = directory.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
                     CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
+                    StaticClass.Log(String.Format("Starting Processing Job {0} in directory {1} at {1:HH:mm:ss.fff}",
+                        job, directory, DateTime.Now));
                     currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
                     StaticClass.ProcessingJobsToRun.Remove(job);
 
