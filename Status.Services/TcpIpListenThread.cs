@@ -38,14 +38,14 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Start Tcp/IP scan process
+        /// Start TCP/IP scan process
         /// </summary>
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         public void StartTcpIpScanProcess(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
         {
-            // Start Tcp/Ip thread
+            // Start TCP/IP thread
             TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData, Logger);
             tcpIp.ThreadProc();
         }
@@ -64,7 +64,9 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.TcpIpListenThreadHandle = new Thread(() => Connect(Port, IniData, MonitorData, StatusData, "status", Logger));
+            StaticClass.TcpIpListenThreadHandle = new Thread(() =>
+                Connect(Port, IniData, MonitorData, StatusData, "status", Logger));
+
             if (StaticClass.TcpIpListenThreadHandle == null)
             {
                 Logger.LogError("TcpIpListenThread thread failed to instantiate");
@@ -91,10 +93,10 @@ namespace Status.Services
             {
                 string job = monitorData.Job;
 
-                StaticClass.Log(String.Format("\nStarting Tcp/Ip Scan for job {0} on port {1} at {2:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("\nStarting TCP/IP Scan for job {0} on port {1} at {2:HH:mm:ss.fff}",
                     job, port, DateTime.Now));
 
-                // Log Tcp/Ip monitoring entry
+                // Log starting TCP/IP monitoring entry
                 StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_TCPIP, JobType.TIME_START, logger);
 
                 // Create a TcpClient.
@@ -198,12 +200,12 @@ namespace Status.Services
                             }
                             catch (Exception e)
                             {
-                                logger.LogWarning(String.Format("Tcp/Ip Read for job {0} port {1} failed with error {2}",
+                                logger.LogWarning(String.Format("TCP/IP Read for job {0} port {1} failed with error {2}",
                                     job, port, e));
 
                                 if (i == 4)
                                 {
-                                    logger.LogError(String.Format("Tcp/Ip Connection Timeout for job {0} port {1} after 5 tries with error {2}",
+                                    logger.LogError(String.Format("TCP/IP Connection Timeout for job {0} port {1} after 5 tries with error {2}",
                                         job, port, e));
 
                                     StaticClass.TcpIpScanComplete[job] = true;

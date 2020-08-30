@@ -58,7 +58,7 @@ namespace Status.Services
             string job = e.ToString();
 
             // Set Flag for ending directory scan loop
-            StaticClass.NewInputJobsToRun.Add(job);
+            StaticClass.InputJobsToRun.Add(job);
 
             StaticClass.Log(String.Format("Input Job Scan detected and added job {0} to Input job list at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
@@ -69,7 +69,9 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.CurrentInputJobsScanThreadHandle = new Thread(() => CheckForCurrentInputJobs(IniData, StatusDataList, Logger));
+            StaticClass.CurrentInputJobsScanThreadHandle = new Thread(() =>
+                CheckForCurrentInputJobs(IniData, StatusDataList, Logger));
+            
             if (StaticClass.CurrentInputJobsScanThreadHandle == null)
             {
                 Logger.LogError("CurrentInputJobsScanThread thread failed to instantiate");
@@ -163,7 +165,7 @@ namespace Status.Services
                 else
                 {
                     // Add currently unfinished job to Input Jobs run list
-                    StaticClass.NewInputJobsToRun.Add(job);
+                    StaticClass.InputJobsToRun.Add(job);
 
                     StaticClass.Log(String.Format("Input Job Scan added waiting job {0} to Input job list at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
@@ -185,14 +187,14 @@ namespace Status.Services
             // Wait forever while scanning for new jobs
             do
             {
-                if (StaticClass.NewInputJobsToRun.Count > 0)
+                if (StaticClass.InputJobsToRun.Count > 0)
                 {
                     if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                     {
                         // Check if there are jobs waiting to run
-                        for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
+                        for (int i = 0; i < StaticClass.InputJobsToRun.Count; i++)
                         {
-                            string job = StaticClass.NewInputJobsToRun[i];
+                            string job = StaticClass.InputJobsToRun[i];
                             string directory = iniData.InputDir + @"\" + job;
                             CurrentInputJobsScanThread newInputJobsScan = new CurrentInputJobsScanThread();
                             newInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
@@ -225,7 +227,7 @@ namespace Status.Services
             if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
             {
                 // Get data found in Job xml file
-                JobXmlData jobXmlData = StaticClass.GetJobXmlData(DirectoryScanType.INPUT_BUFFER, directory, iniData);
+                JobXmlData jobXmlData = StaticClass.GetJobXmlData(directory, iniData, DirectoryScanType.INPUT_BUFFER);
                 if (jobXmlData == null)
                 {
                     Logger.LogError("CurrentInputJobsScanThread GetJobXmlData failed");
@@ -257,7 +259,7 @@ namespace Status.Services
                 thread.ThreadProc();
 
                 // Remove Input job after start thread complete
-                StaticClass.NewInputJobsToRun.Remove(job);
+                StaticClass.InputJobsToRun.Remove(job);
                 StaticClass.InputFileScanComplete[job] = true;
 
                 // Cieck if the shutdown flag is set, exit method

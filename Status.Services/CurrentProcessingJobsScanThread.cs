@@ -52,7 +52,9 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.CurrentProcessingJobsScanThreadHandle = new Thread(() => CheckForCurrentProcessingJobs(IniData, StatusDataList, Logger));
+            StaticClass.CurrentProcessingJobsScanThreadHandle = new Thread(() =>
+                CheckForCurrentProcessingJobs(IniData, StatusDataList, Logger));
+
             if (StaticClass.CurrentProcessingJobsScanThreadHandle == null)
             {
                 Logger.LogError("CurrentProcessingJobsScanThread thread failed to instantiate");
@@ -96,7 +98,6 @@ namespace Status.Services
             {
                 DirectoryInfo dir = processingDirectoryInfoList[i];
                 string directory = dir.ToString();
-                string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
 
                 if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
@@ -116,7 +117,7 @@ namespace Status.Services
             {
                 // Add currently unfinished job to Processing Jobs run list
                 string job = dir.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
-                StaticClass.NewProcessingJobsToRun.Add(job);
+                StaticClass.ProcessingJobsToRun.Add(job);
                 StaticClass.Log(String.Format("Unfinished Processing jobs check added job {0} to waiting for Processing Job list", job));
             }
 
@@ -143,7 +144,7 @@ namespace Status.Services
                 // Check if there are any more unfinished Processing jobs
                 RunAnyUnfinishedProcessingsJobs(IniData, StatusDataList, Logger);
             }
-            while (StaticClass.NewProcessingJobsToRun.Count > 0);
+            while (StaticClass.ProcessingJobsToRun.Count > 0);
 
             // Scan of the Processing Buffer jobs is complete
             StaticClass.UnfinishedProcessingJobsScanComplete = true;
@@ -158,15 +159,15 @@ namespace Status.Services
         public static void RunAnyUnfinishedProcessingsJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Start Processing jobs currently waiting
-            for (int i = 0; i < StaticClass.NewProcessingJobsToRun.Count; i++)
+            for (int i = 0; i < StaticClass.ProcessingJobsToRun.Count; i++)
             {
                 if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
-                    string directory = iniData.ProcessingDir + @"\" + StaticClass.NewProcessingJobsToRun[i];
+                    string directory = iniData.ProcessingDir + @"\" + StaticClass.ProcessingJobsToRun[i];
                     string job = directory.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
                     CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
                     currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
-                    StaticClass.NewProcessingJobsToRun.Remove(job);
+                    StaticClass.ProcessingJobsToRun.Remove(job);
 
                     // Throttle the Job startups
                     Thread.Sleep(iniData.ScanWaitTime);
@@ -184,69 +185,61 @@ namespace Status.Services
         public void StartProcessingJob(string directory, IniFileData iniData, 
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
+            // Get the job from the directory string
             string job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
 
-            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+            // Delete the data.xml file in the Processing directory if found
+            string dataXmlFile = directory + @"\" + "data.xml";
+            if (File.Exists(dataXmlFile))
             {
-                // Delete the data.xml file in the Processing directory if found
-                string deleteXmlFile = directory + @"\" + "data.xml";
-                if (File.Exists(deleteXmlFile))
+                lock (delLock)
                 {
-                    lock (delLock)
-                    {
-                        File.Delete(deleteXmlFile);
-                    }
+                    File.Delete(dataXmlFile);
                 }
+            }
 
-                // Get data found in Xml file into Monitor Data
-                JobXmlData jobXmlData = StaticClass.GetJobXmlData(DirectoryScanType.PROCESSING_BUFFER, directory, iniData);
-                if (jobXmlData == null)
+            // Get data found in job Xml file
+            JobXmlData jobXmlData = StaticClass.GetJobXmlData(directory, iniData, DirectoryScanType.PROCESSING_BUFFER);
+            if (jobXmlData == null)
+            {
+                Logger.LogError("CurrentProcessingJobsScanThread GetJobXmlData failed");
+            }
+
+            // Display Monitor Data found
+            StaticClass.Log("");
+            StaticClass.Log("Found Processing Job        : " + jobXmlData.Job);
+            StaticClass.Log("Old Job Directory           : " + jobXmlData.JobDirectory);
+            StaticClass.Log("Old Serial Number           : " + jobXmlData.JobSerialNumber);
+            StaticClass.Log("Old Time Stamp              : " + jobXmlData.TimeStamp);
+            StaticClass.Log("Old Job Xml File            : " + jobXmlData.XmlFileName);
+
+            StaticClass.Log(String.Format("Starting Processing directory Job {0} Executing slot {1} at {2:HH:mm:ss.fff}",
+                jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
+
+            // Create a thread to run the job, and then start the thread
+            JobRunThread thread = new JobRunThread(DirectoryScanType.PROCESSING_BUFFER, jobXmlData, iniData, statusData, logger);
+            if (thread == null)
+            {
+                Logger.LogError("CurrentProcessingJobsScanThread thread failed to instantiate");
+            }
+            thread.ThreadProc();
+
+            // Check if the shutdown flag is set, exit method
+            if (StaticClass.ShutdownFlag == true)
+            {
+                StaticClass.Log(String.Format("\nShutdown CurrentProcessingJobsScanThread StartProcessingJob at {0:HH:mm:ss.fff}",
+                    DateTime.Now));
+                return;
+            }
+
+            // Check if the pause flag is set, then wait for reset
+            if (StaticClass.PauseFlag == true)
+            {
+                do
                 {
-                    Logger.LogError("CurrentProcessingJobsScanThread GetJobXmlData failed");
+                    Thread.Yield();
                 }
-
-                jobXmlData.Job = job;
-                jobXmlData.JobDirectory = jobXmlData.JobDirectory;
-                jobXmlData.JobSerialNumber = jobXmlData.JobSerialNumber;
-                jobXmlData.TimeStamp = jobXmlData.TimeStamp;
-                jobXmlData.XmlFileName = jobXmlData.XmlFileName;
-
-                // Display Monitor Data found
-                StaticClass.Log("");
-                StaticClass.Log("Found Processing Job        : " + jobXmlData.Job);
-                StaticClass.Log("Old Job Directory           : " + jobXmlData.JobDirectory);
-                StaticClass.Log("Old Serial Number           : " + jobXmlData.JobSerialNumber);
-                StaticClass.Log("Old Time Stamp              : " + jobXmlData.TimeStamp);
-                StaticClass.Log("Old Job Xml File            : " + jobXmlData.XmlFileName);
-
-                StaticClass.Log(String.Format("Starting Processing directory Job {0} Executing slot {1} at {2:HH:mm:ss.fff}",
-                    jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
-
-                // Create a thread to run the job, and then start the thread
-                JobRunThread thread = new JobRunThread(DirectoryScanType.PROCESSING_BUFFER, jobXmlData, iniData, statusData, logger);
-                if (thread == null)
-                {
-                    Logger.LogError("CurrentProcessingJobsScanThread thread failed to instantiate");
-                }
-                thread.ThreadProc();
-
-                // Check if the shutdown flag is set, exit method
-                if (StaticClass.ShutdownFlag == true)
-                {
-                    StaticClass.Log(String.Format("\nShutdown CurrentProcessingJobsScanThread StartProcessingJob at {0:HH:mm:ss.fff}",
-                        DateTime.Now));
-                    return;
-                }
-
-                // Check if the pause flag is set, then wait for reset
-                if (StaticClass.PauseFlag == true)
-                {
-                    do
-                    {
-                        Thread.Yield();
-                    }
-                    while (StaticClass.PauseFlag == true);
-                }
+                while (StaticClass.PauseFlag == true);
             }
         }
     }

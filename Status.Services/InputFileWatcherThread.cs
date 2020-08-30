@@ -63,9 +63,9 @@ namespace Status.Services
                 if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
                     // Strt Input jobs currently waiting
-                    for (int i = 0; i < StaticClass.NewInputJobsToRun.Count; i++)
+                    for (int i = 0; i < StaticClass.InputJobsToRun.Count; i++)
                     {
-                        string directory = iniData.InputDir + @"\" + StaticClass.NewInputJobsToRun[i];
+                        string directory = iniData.InputDir + @"\" + StaticClass.InputJobsToRun[i];
                         CurrentInputJobsScanThread currentInputJobsScan = new CurrentInputJobsScanThread();
                         currentInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
 
@@ -76,7 +76,7 @@ namespace Status.Services
                 else
                 {
                     // Add currently unfinished job to Input Jobs run list
-                    StaticClass.NewInputJobsToRun.Add(job);
+                    StaticClass.InputJobsToRun.Add(job);
 
                     StaticClass.Log(String.Format("Unfinished Input jobs check added job {0} to Input jobs waiting list", job));
                 }
@@ -144,7 +144,7 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(String.Format("InputFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("InputFileWatcherThread received TCP/IP Scan Completed for job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
 
             // Signal that the TCP/IP scan for a job is complete

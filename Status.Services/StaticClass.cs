@@ -34,8 +34,8 @@ namespace Status.Services
         public static volatile bool PauseFlag = false;
         public static volatile bool UnfinishedProcessingJobsScanComplete = false;
 
-		public static List<string> NewInputJobsToRun = new List<String>();
-		public static List<string> NewProcessingJobsToRun = new List<String>();
+		public static List<string> InputJobsToRun = new List<String>();
+		public static List<string> ProcessingJobsToRun = new List<String>();
 
 		public static Dictionary<string, bool> InputFileScanComplete = new Dictionary<string, bool>();
         public static Dictionary<string, bool> InputJobScanComplete = new Dictionary<string, bool>();
@@ -87,7 +87,7 @@ namespace Status.Services
         /// <param name="directory"></param>
         /// <param name="iniData"></param>
         /// <returns></returns>
-        public static JobXmlData GetJobXmlData(DirectoryScanType scanType, string directory, IniFileData iniData)
+        public static JobXmlData GetJobXmlData(string directory, IniFileData iniData, DirectoryScanType scanType)
         {
             JobXmlData jobScanXmlData = new JobXmlData();
             string baseDirectory = (scanType == DirectoryScanType.INPUT_BUFFER) ? iniData.InputDir : iniData.ProcessingDir;

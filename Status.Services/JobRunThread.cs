@@ -43,7 +43,9 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.JobRunThreadHandle = new Thread(() => RunJob(DirScanType, JobRunXmlData, IniData, StatusDataList, Logger));
+            StaticClass.JobRunThreadHandle = new Thread(() =>
+                RunJob(DirScanType, JobRunXmlData, IniData, StatusDataList, Logger));
+
             if (StaticClass.JobRunThreadHandle == null)
             {
                 Logger.LogError("JobRunThread thread failed to instantiate");
@@ -323,58 +325,62 @@ namespace Status.Services
             var dataXmltask = StaticClass.IsFileReady(dataXmlFileName, logger);
             dataXmltask.Wait();
 
-            // Get the pass or fail data from the data.xml OverallResult result node
-            XmlDocument dataXmlDoc = new XmlDocument();
-            dataXmlDoc.Load(dataXmlFileName);
-            XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
-
-            string passFail = "Fail";
-            if (OverallResult != null)
+            // Data.xml file may not exist for timeout jobs
+            if (File.Exists(dataXmlFileName))
             {
-                passFail = OverallResult.InnerText;
-            }
+                // Get the pass or fail data from the data.xml OverallResult result node
+                XmlDocument dataXmlDoc = new XmlDocument();
+                dataXmlDoc.Load(dataXmlFileName);
+                XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
 
-            string repositoryJobDirectoryName = repositoryDirectory + @"\" + job;
-            if ((OverallResult != null) && (passFail == "Pass"))
-            {
-                string finishedJobDirectoryName = finishedDirectory + @"\" + monitorData.JobSerialNumber;
-
-                // If the Finished directory does not exist, create it
-                if (!Directory.Exists(finishedJobDirectoryName))
+                string passFail = "Fail";
+                if (OverallResult != null)
                 {
-                    Directory.CreateDirectory(finishedJobDirectoryName);
+                    passFail = OverallResult.InnerText;
                 }
 
-                // Copy the Transfered files to the Finished directory 
-                foreach (string file in monitorData.TransferedFileList)
+                string repositoryJobDirectoryName = repositoryDirectory + @"\" + job;
+                if ((OverallResult != null) && (passFail == "Pass"))
                 {
-                    FileHandling.CopyFile(processingBufferJobDir + @"\" + file, finishedJobDirectoryName + @"\" + file);
-                }
+                    string finishedJobDirectoryName = finishedDirectory + @"\" + monitorData.JobSerialNumber;
 
-                // Move Processing Buffer Files to the Repository directory when passed
-                FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
-            }
-            else // Send files to the Error Buffer and repository
-            {
-                string errorJobDirectoryName = errorDirectory + @"\" + monitorData.JobSerialNumber;
-
-                // If the Error directory does not exist, create it
-                if (!Directory.Exists(errorJobDirectoryName))
-                {
-                    Directory.CreateDirectory(errorJobDirectoryName);
-                }
-
-                // Copy the Transfered files to the Error directory 
-                foreach (string file in monitorData.TransferedFileList)
-                {
-                    if (File.Exists(file))
+                    // If the Finished directory does not exist, create it
+                    if (!Directory.Exists(finishedJobDirectoryName))
                     {
-                        FileHandling.CopyFile(processingBufferJobDir + @"\" + file, errorJobDirectoryName + @"\" + file);
+                        Directory.CreateDirectory(finishedJobDirectoryName);
                     }
-                }
 
-                // Move Processing Buffer Files to the Repository directory when failed
-                FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
+                    // Copy the Transfered files to the Finished directory 
+                    foreach (string file in monitorData.TransferedFileList)
+                    {
+                        FileHandling.CopyFile(processingBufferJobDir + @"\" + file, finishedJobDirectoryName + @"\" + file);
+                    }
+
+                    // Move Processing Buffer Files to the Repository directory when passed
+                    FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
+                }
+                else // Send files to the Error Buffer and repository
+                {
+                    string errorJobDirectoryName = errorDirectory + @"\" + monitorData.JobSerialNumber;
+
+                    // If the Error directory does not exist, create it
+                    if (!Directory.Exists(errorJobDirectoryName))
+                    {
+                        Directory.CreateDirectory(errorJobDirectoryName);
+                    }
+
+                    // Copy the Transfered files to the Error directory 
+                    foreach (string file in monitorData.TransferedFileList)
+                    {
+                        if (File.Exists(file))
+                        {
+                            FileHandling.CopyFile(processingBufferJobDir + @"\" + file, errorJobDirectoryName + @"\" + file);
+                        }
+                    }
+
+                    // Move Processing Buffer Files to the Repository directory when failed
+                    FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
+                }
             }
 
             // Add entry to status list

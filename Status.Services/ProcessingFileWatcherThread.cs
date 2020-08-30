@@ -48,7 +48,7 @@ namespace Status.Services
             StaticClass.ProcessingJobScanComplete[Job] = false;
 
             // Check for current unfinished job(s) in the Processing Buffer
-            ProcessingsJobsReadyCheck(Job, iniData, statusData, logger);
+            ProcessingJobsReadyCheck(Job, iniData, statusData, logger);
         }
 
         /// <summary>
@@ -58,27 +58,24 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public void ProcessingsJobsReadyCheck(string job, IniFileData iniData,
+        public void ProcessingJobsReadyCheck(string job, IniFileData iniData,
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
             {
-                // Start Processing jobs currently waiting
-                for (int i = 0; i < StaticClass.NewProcessingJobsToRun.Count; i++)
-                {
-                    string directory = iniData.ProcessingDir + @"\" + StaticClass.NewProcessingJobsToRun[i];
-                    CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
-                    currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
-                    StaticClass.NewProcessingJobsToRun.Remove(job);
+                string directory = iniData.ProcessingDir + @"\" + StaticClass.ProcessingJobsToRun[i];
+                job = directory.Replace(directory, "").Remove(0, 1);
+                CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
+                currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
+                StaticClass.ProcessingJobsToRun.Remove(job);
 
-                    // Throttle the Job startups
-                    Thread.Sleep(StaticClass.ScanWaitTime);
-                }
+                // Throttle the Job startups
+                Thread.Sleep(StaticClass.ScanWaitTime);
             }
             else
             {
                 // Add currently unfinished job to Processing Jobs run list
-                StaticClass.NewProcessingJobsToRun.Add(job);
+                StaticClass.ProcessingJobsToRun.Add(job);
 
                 StaticClass.Log(String.Format("Processing file watcher added new job {0} to Processing Job run list at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
@@ -100,7 +97,9 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.ProcessingFileWatcherThreadHandle = new Thread(() => WatchFiles(DirectoryName, IniData, MonitorData, StatusDataList));
+            StaticClass.ProcessingFileWatcherThreadHandle = new Thread(() =>
+                WatchFiles(DirectoryName, IniData, MonitorData, StatusDataList));
+
             if (StaticClass.ProcessingFileWatcherThreadHandle == null)
             {
                 Logger.LogError("ProcessingFileWatcherThread thread failed to instantiate");
@@ -198,7 +197,7 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(String.Format("Processing File Watcher received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Processing File Watcher received TCP/IP Scan Completed for job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
 
             StaticClass.TcpIpScanComplete[job] = true;
@@ -225,7 +224,7 @@ namespace Status.Services
                 return;
             }
 
-            // Start the Tcp/Ip Communications thread before checking for Processing job files
+            // Start the TCP/IP Communications thread before checking for Processing job files
             TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData, Logger);
             if (tcpIp == null)
             {

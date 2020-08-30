@@ -73,7 +73,7 @@ namespace Status.Services
                 directory, DateTime.Now)));
 
             // Add new job found to the Input job list
-            StaticClass.NewInputJobsToRun.Add(job);
+            StaticClass.InputJobsToRun.Add(job);
 
             StaticClass.Log(String.Format("Input Job Scan detected and added job {0} to Input job list at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
