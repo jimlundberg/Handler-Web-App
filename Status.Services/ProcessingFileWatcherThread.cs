@@ -63,8 +63,7 @@ namespace Status.Services
         {
             if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
             {
-                string directory = iniData.ProcessingDir + @"\" + StaticClass.ProcessingJobsToRun[i];
-                job = directory.Replace(directory, "").Remove(0, 1);
+                string directory = iniData.ProcessingDir + @"\" + job;
                 CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
                 currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
                 StaticClass.ProcessingJobsToRun.Remove(job);
