@@ -122,7 +122,7 @@ namespace Status.Services
                     return;
                 }
 
-                StaticClass.Log(String.Format("Opening TCP/IP socket for Job {0} on port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
+                StaticClass.Log(String.Format("Opening TCP/IP Socket for Job {0} on port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
 
                 bool jobComplete = false;
                 do
@@ -255,8 +255,12 @@ namespace Status.Services
                                 StaticClass.Log(String.Format("TCP/IP for Job {0} on port {1} received Modeler process complete at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
+                                // Make sure to close TCP/IP socket
+                                stream.Close();
+                                client.Close();
+
+                                // Flag TCP/IP scan complete
                                 StaticClass.TcpIpScanComplete[job] = true;
-                                jobComplete = true;
                                 return;
 
                             default:
@@ -271,8 +275,12 @@ namespace Status.Services
                             StaticClass.Log(String.Format("TCP/IP for Job {0} on port {1} received Modeler socket complete at {2:HH:mm:ss.fff}",
                                 job, port, DateTime.Now));
 
+                            // Make sure to close TCP/IP socket
+                            stream.Close();
+                            client.Close();
+
                             StaticClass.TcpIpScanComplete[job] = true;
-                            jobComplete = true;
+                            return;
                         }
 
                         // Check for job timeout
@@ -283,16 +291,19 @@ namespace Status.Services
                             // Create job Timeout status
                             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, logger);
 
+                            // Make sure to close TCP/IP socket
+                            stream.Close();
+                            client.Close();
+
                             // Set all flags to complete job Process
                             StaticClass.ProcessingJobScanComplete[job] = true;
                             StaticClass.TcpIpScanComplete[job] = true;
                             StaticClass.ProcessingFileScanComplete[job] = true;
 
-                            // Shut down the Modeler after shutting down the job
+                            // Wait a bit then shutdown the Modeler after completing job
+                            Thread.Sleep(1000);
                             StaticClass.ProcessHandles[job].Kill();
-
-                            // Make sure to close TCP/IP socket
-                            jobComplete = true;
+                            return;
                         }
 
                         // Check if the shutdown flag is set, then exit method
@@ -335,7 +346,7 @@ namespace Status.Services
                 stream.Close();
                 client.Close();
 
-                StaticClass.Log(String.Format("Closing TCP/IP socket for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on port {1} at {2:HH:mm:ss.fff}",
                     job, port, DateTime.Now));
             }
             catch (ArgumentNullException e)

@@ -63,21 +63,25 @@ namespace Status.Services
         {
             if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
             {
-                string directory = iniData.ProcessingDir + @"\" + job;
-                CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
-                currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
-                StaticClass.ProcessingJobsToRun.Remove(job);
+                // Strt Processing jobs currently waiting
+                for (int i = 0; i < StaticClass.ProcessingJobsToRun.Count; i++)
+                {
+                    job = StaticClass.ProcessingJobsToRun[i];
+                    string directory = iniData.ProcessingDir + @"\" + job;
+                    CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
+                    currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
+                    StaticClass.ProcessingJobsToRun.Remove(job);
 
-                // Throttle the Job startups
-                Thread.Sleep(StaticClass.ScanWaitTime);
+                    // Throttle the Job startups
+                    Thread.Sleep(StaticClass.ScanWaitTime);
+                }
             }
             else
             {
                 // Add currently unfinished job to Processing Jobs run list
                 StaticClass.ProcessingJobsToRun.Add(job);
 
-                StaticClass.Log(String.Format("Processing file watcher added new job {0} to Processing Job run list at {1:HH:mm:ss.fff}",
-                    job, DateTime.Now));
+                StaticClass.Log(String.Format("Unfinished Processing jobs check added job {0} to Processing jobs list", job));
             }
         }
 
@@ -203,7 +207,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Monitor a directory for a complete set of Input files for a job with a timeout 
+        /// Monitor a directory for a complete set of Processing files for a job 
         /// </summary>
         /// <param name="directory"></param>
         /// <param name="iniData"></param>
