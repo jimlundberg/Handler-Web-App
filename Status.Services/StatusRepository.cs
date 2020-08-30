@@ -14,7 +14,6 @@ namespace Status.Services
     /// </summary>
     public class StatusRepository : IStatusRepository
     {
-        private CurrentInputJobsScanThread newJobsScanThread;
         private IniFileData IniData = new IniFileData();
         private List<StatusData> StatusDataList = new List<StatusData>();
         public readonly ILogger<StatusRepository> Logger;
@@ -22,7 +21,7 @@ namespace Status.Services
         /// <summary>
         /// StatusRepository contructor
         /// </summary>
-        /// <param name="_logger"></param>
+        /// <param name="logger"></param>
         public StatusRepository(ILogger<StatusRepository> logger)
         {
             Logger = logger;
@@ -67,28 +66,28 @@ namespace Status.Services
             IniData.LogFileMaxSize = int.Parse(logFileMaxSize.Substring(0, logFileMaxSize.IndexOf("#")));
 
             // Set the static class data needed for global use
+            StaticClass.LogFileName = IniData.ProcessLogFile;
             StaticClass.ScanWaitTime = IniData.ScanWaitTime;
             StaticClass.LogFileSizeLimit = IniData.LogFileMaxSize;
             StaticClass.MaxJobTimeLimitSeconds = IniData.MaxJobTimeLimit * 60 * 60;
             
             // Output the Data.ini informatino found
-            string logFile = IniData.ProcessLogFile;
-            StaticClass.Log(logFile, "\nConfig.ini data found:\n");
-            StaticClass.Log(logFile, "Input Dir                   : " + IniData.InputDir);
-            StaticClass.Log(logFile, "Processing Dir              : " + IniData.ProcessingDir);
-            StaticClass.Log(logFile, "Repository Dir              : " + IniData.RepositoryDir);
-            StaticClass.Log(logFile, "Finished Dir                : " + IniData.FinishedDir);
-            StaticClass.Log(logFile, "Error Dir                   : " + IniData.ErrorDir);
-            StaticClass.Log(logFile, "Modeler Root Dir            : " + IniData.ModelerRootDir);
-            StaticClass.Log(logFile, "Status Log File             : " + IniData.StatusLogFile);
-            StaticClass.Log(logFile, "Process Log File            : " + IniData.ProcessLogFile);
-            StaticClass.Log(logFile, "CPU Cores                   : " + IniData.CPUCores + " Cores");
-            StaticClass.Log(logFile, "Execution Limit             : " + IniData.ExecutionLimit + " Jobs");
-            StaticClass.Log(logFile, "Start Port                  : " + IniData.StartPort);
-            StaticClass.Log(logFile, "Scan Wait Time              : " + IniData.ScanWaitTime + " Miliseconds");
-            StaticClass.Log(logFile, "Max Job Time Limit          : " + IniData.MaxJobTimeLimit + " Hours");
-            StaticClass.Log(logFile, "Log File History Limit      : " + IniData.LogFileHistoryLimit + " Days");
-            StaticClass.Log(logFile, "Log File Max Size           : " + IniData.LogFileMaxSize + " Megabytes");
+            StaticClass.Log("\nConfig.ini data found:\n");
+            StaticClass.Log("Input Dir                   : " + IniData.InputDir);
+            StaticClass.Log("Processing Dir              : " + IniData.ProcessingDir);
+            StaticClass.Log("Repository Dir              : " + IniData.RepositoryDir);
+            StaticClass.Log("Finished Dir                : " + IniData.FinishedDir);
+            StaticClass.Log("Error Dir                   : " + IniData.ErrorDir);
+            StaticClass.Log("Modeler Root Dir            : " + IniData.ModelerRootDir);
+            StaticClass.Log("Status Log File             : " + IniData.StatusLogFile);
+            StaticClass.Log("Process Log File            : " + IniData.ProcessLogFile);
+            StaticClass.Log("CPU Cores                   : " + IniData.CPUCores + " Cores");
+            StaticClass.Log("Execution Limit             : " + IniData.ExecutionLimit + " Jobs");
+            StaticClass.Log("Start Port                  : " + IniData.StartPort);
+            StaticClass.Log("Scan Wait Time              : " + IniData.ScanWaitTime + " Miliseconds");
+            StaticClass.Log("Max Job Time Limit          : " + IniData.MaxJobTimeLimit + " Hours");
+            StaticClass.Log("Log File History Limit      : " + IniData.LogFileHistoryLimit + " Days");
+            StaticClass.Log("Log File Max Size           : " + IniData.LogFileMaxSize + " Megabytes");
         }
 
         /// <summary>
@@ -119,7 +118,7 @@ namespace Status.Services
             else
             {
                 // Start monitor scan process
-                newJobsScanThread = new CurrentInputJobsScanThread(IniData, StatusDataList, Logger);
+                CurrentInputJobsScanThread newJobsScanThread = new CurrentInputJobsScanThread(IniData, StatusDataList, Logger);
                 if (newJobsScanThread == null)
                 {
                     Logger.LogError("StartMonitorProcess newJobsScanThread failed to instantiate");

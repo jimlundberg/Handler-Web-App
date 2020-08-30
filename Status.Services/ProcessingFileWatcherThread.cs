@@ -79,8 +79,7 @@ namespace Status.Services
                 // Add currently unfinished job to Processing Jobs run list
                 StaticClass.NewProcessingJobsToRun.Add(job);
 
-                StaticClass.Log(iniData.ProcessLogFile,
-                    String.Format("Processing file watcher added new job {0} to Processing Job run list at {1:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("Processing file watcher added new job {0} to Processing Job run list at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
             }
         }
@@ -123,15 +122,13 @@ namespace Status.Services
             StaticClass.NumberOfProcessingFilesFound[job]++;
 
             // Processing job file added
-            StaticClass.Log(logFile,
-                String.Format("\nProcessing File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("\nProcessing File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
                 jobDirectory, StaticClass.NumberOfProcessingFilesFound[job],
                 StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
 
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
-                StaticClass.Log(logFile,
-                    String.Format("\nProcessing File Watcher detected the complete set {0} of {1} Processing job {2} files at {3:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("\nProcessing File Watcher detected the complete set {0} of {1} Processing job {2} files at {3:HH:mm:ss.fff}",
                     StaticClass.NumberOfProcessingFilesFound[job], StaticClass.NumberOfProcessingFilesNeeded[job], job, DateTime.Now));
 
                 // Signal the Processing job Scan thread that all the Processing files were found for a job
@@ -150,8 +147,9 @@ namespace Status.Services
             bool OverallResultEntryFound = false;
             do
             {
-                string logFile = iniData.ProcessLogFile;
                 string xmlFileName = directory + @"\" + "Data.xml";
+
+                // Wait for xml file to be ready
                 var task = StaticClass.IsFileReady(xmlFileName, Logger);
                 task.Wait();
 
@@ -168,8 +166,7 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(IniData.ProcessLogFile,
-                        String.Format("\nShutdown ProcessingFileWatcher Thread OverallResultEntryCheck for file {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(String.Format("\nShutdown ProcessingFileWatcher Thread OverallResultEntryCheck for file {0} at {1:HH:mm:ss.fff}",
                         directory, DateTime.Now));
                     return false;
                 }
@@ -200,8 +197,7 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(IniData.ProcessLogFile,
-                String.Format("Processing File Watcher received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Processing File Watcher received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
 
             StaticClass.TcpIpScanComplete[job] = true;
@@ -219,7 +215,6 @@ namespace Status.Services
         {
             // Get job name from directory name
             string job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
-            string logFile = iniData.ProcessLogFile;
 
             // Quick check to see if the directory is already full
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
@@ -254,8 +249,7 @@ namespace Status.Services
                 // Begin watching for changes to Processing directory
                 watcher.EnableRaisingEvents = true;
 
-                StaticClass.Log(logFile,
-                    String.Format("Processing File Watcher watching {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("Processing File Watcher watching {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
 
                 // Wait for Processing file scan to Complete with a full set of job output files
@@ -265,8 +259,7 @@ namespace Status.Services
 
                     if (StaticClass.ShutdownFlag == true)
                     {
-                        StaticClass.Log(logFile,
-                            String.Format("\nShutdown ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
+                        StaticClass.Log(String.Format("\nShutdown ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
                             directory, DateTime.Now));
                         return;
                     }
@@ -294,8 +287,7 @@ namespace Status.Services
                 }
 
                 // Exiting thread message
-                StaticClass.Log(logFile,
-                String.Format("Processing File Watcher thread completed the scan for job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("Processing File Watcher thread completed the scan for job {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
             }
         }

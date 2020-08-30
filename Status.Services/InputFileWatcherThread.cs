@@ -78,8 +78,7 @@ namespace Status.Services
                     // Add currently unfinished job to Input Jobs run list
                     StaticClass.NewInputJobsToRun.Add(job);
 
-                    StaticClass.Log(IniData.ProcessLogFile,
-                        String.Format("Unfinished Input jobs check added job {0} to Input jobs waiting list", job));
+                    StaticClass.Log(String.Format("Unfinished Input jobs check added job {0} to Input jobs waiting list", job));
                 }
             }
         }
@@ -113,7 +112,6 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void OnCreated(object source, FileSystemEventArgs e)
         {
-            string logFile = IniData.ProcessLogFile;
             string jobDirectory = e.FullPath;
             string jobFile = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
             string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
@@ -121,14 +119,14 @@ namespace Status.Services
             StaticClass.NumberOfInputFilesFound[job]++;
 
             // Input job file added
-            StaticClass.Log(logFile,
+            StaticClass.Log(
                 String.Format("\nInput File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
                 jobDirectory, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
 
             if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
                 // All files needed dected
-                StaticClass.Log(logFile,
+                StaticClass.Log(
                     String.Format("\nInput File Watcher detected the complete {0} of {1} Input job {2} files at {3:HH:mm:ss.fff}",
                     StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], job, DateTime.Now));
 
@@ -146,8 +144,7 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(IniData.ProcessLogFile,
-                String.Format("InputFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("InputFileWatcherThread received Tcp/Ip Scan Completed for job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
 
             // Signal that the TCP/IP scan for a job is complete
@@ -164,7 +161,6 @@ namespace Status.Services
         {
             // Get job name from directory name
             string job = directory.Replace(iniData.InputDir, "").Remove(0, 1);
-            string logFile = iniData.ProcessLogFile;
 
             if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
@@ -189,8 +185,7 @@ namespace Status.Services
                 // Begin watching for changes to Input directory
                 watcher.EnableRaisingEvents = true;
 
-                StaticClass.Log(logFile,
-                    String.Format("Input File Watcher watching {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("Input File Watcher watching {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
 
                 // Wait for Input file scan to Complete with a full set of job output files
@@ -200,8 +195,7 @@ namespace Status.Services
 
                     if (StaticClass.ShutdownFlag == true)
                     {
-                        StaticClass.Log(logFile,
-                            String.Format("\nShutdown InputFileWatcherThread WatchFiles watching {0} at {1:HH:mm:ss.fff}",
+                        StaticClass.Log(String.Format("\nShutdown InputFileWatcherThread WatchFiles watching {0} at {1:HH:mm:ss.fff}",
                             directory, DateTime.Now));
                         return;
                     }
@@ -222,8 +216,7 @@ namespace Status.Services
                 StaticClass.InputJobScanComplete[job] = true;
 
                 // Exiting thread message
-                StaticClass.Log(logFile,
-                    String.Format("Input File Watcher thread completed the scan for job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("Input File Watcher thread completed the scan for job {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
             }
         }

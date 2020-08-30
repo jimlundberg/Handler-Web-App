@@ -72,7 +72,6 @@ namespace Status.Services
         public Process ExecuteCommand(StatusMonitorData monitorData, IniFileData iniData, ILogger<StatusRepository> logger)
         {
             string job = monitorData.Job;
-            string logFileName = iniData.ProcessLogFile;
 
             ProcessStartInfo startInfo = new ProcessStartInfo(Executable);
             startInfo.Arguments = String.Format("{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
@@ -95,41 +94,41 @@ namespace Status.Services
             // Give the Modeler time to start so you can read the main window title
             Thread.Sleep(1000);
 
-            StaticClass.Log(logFileName, String.Format("{0} {1}", ModelerProcess.MainWindowTitle, ModelerProcess.StartInfo.Arguments));
+            StaticClass.Log(String.Format("{0} {1}", ModelerProcess.MainWindowTitle, ModelerProcess.StartInfo.Arguments));
 
             // Wait for Modeler to get going before reading it's information
             Thread.Sleep(30000);
 
             // Display Modeler Executable information
-            StaticClass.Log(logFileName, $"\nJob {job} Modeler execution process data:");
-            StaticClass.Log(logFileName, $"ProcessName                 : {ModelerProcess.ProcessName}");
-            StaticClass.Log(logFileName, $"StartTime                   : {ModelerProcess.StartTime}");
-            StaticClass.Log(logFileName, $"MainWindowTitle             : {ModelerProcess.MainWindowTitle}");
-            StaticClass.Log(logFileName, $"MainModule                  : {ModelerProcess.MainModule}");
-            StaticClass.Log(logFileName, $"StartInfo                   : {ModelerProcess.StartInfo}");
-            StaticClass.Log(logFileName, $"GetType                     : {ModelerProcess.GetType()}");
-            StaticClass.Log(logFileName, $"MainWindowHandle            : {ModelerProcess.MainWindowHandle}");
-            StaticClass.Log(logFileName, $"Handle                      : {ModelerProcess.Handle}");
-            StaticClass.Log(logFileName, $"Id                          : {ModelerProcess.Id}");
-            StaticClass.Log(logFileName, $"PriorityClass               : {ModelerProcess.PriorityClass}");
-            StaticClass.Log(logFileName, $"Basepriority                : {ModelerProcess.BasePriority}");
-            StaticClass.Log(logFileName, $"PriorityBoostEnabled        : {ModelerProcess.PriorityBoostEnabled}");
-            StaticClass.Log(logFileName, $"Responding                  : {ModelerProcess.Responding}");
-            StaticClass.Log(logFileName, $"ProcessorAffinity           : {ModelerProcess.ProcessorAffinity}");
-            StaticClass.Log(logFileName, $"HandleCount                 : {ModelerProcess.HandleCount}");
-            StaticClass.Log(logFileName, $"MaxWorkingSet               : {ModelerProcess.MaxWorkingSet}");
-            StaticClass.Log(logFileName, $"MinWorkingSet               : {ModelerProcess.MinWorkingSet}");
-            StaticClass.Log(logFileName, $"NonpagedSystemMemorySize64  : {ModelerProcess.NonpagedSystemMemorySize64}");
-            StaticClass.Log(logFileName, $"PeakVirtualMemorySize64     : {ModelerProcess.PeakVirtualMemorySize64}");
-            StaticClass.Log(logFileName, $"PagedSystemMemorySize64     : {ModelerProcess.PagedSystemMemorySize64}");
-            StaticClass.Log(logFileName, $"PrivateMemorySize64         : {ModelerProcess.PrivateMemorySize64}");
-            StaticClass.Log(logFileName, $"VirtualMemorySize64         : {ModelerProcess.VirtualMemorySize64}");
-            StaticClass.Log(logFileName, $"NonpagedSystemMemorySize64  : {ModelerProcess.PagedMemorySize64}");
-            StaticClass.Log(logFileName, $"WorkingSet64                : {ModelerProcess.WorkingSet64}");
-            StaticClass.Log(logFileName, $"PeakWorkingSet64            : {ModelerProcess.PeakWorkingSet64}");
-            StaticClass.Log(logFileName, $"PrivilegedProcessorTime     : {ModelerProcess.PrivilegedProcessorTime}");
-            StaticClass.Log(logFileName, $"TotalProcessorTime          : {ModelerProcess.TotalProcessorTime}");
-            StaticClass.Log(logFileName, $"UserProcessorTime           : {ModelerProcess.UserProcessorTime}");
+            StaticClass.Log($"\nJob {job} Modeler execution process data:");
+            StaticClass.Log($"ProcessName                 : {ModelerProcess.ProcessName}");
+            StaticClass.Log($"StartTime                   : {ModelerProcess.StartTime}");
+            StaticClass.Log($"MainWindowTitle             : {ModelerProcess.MainWindowTitle}");
+            StaticClass.Log($"MainModule                  : {ModelerProcess.MainModule}");
+            StaticClass.Log($"StartInfo                   : {ModelerProcess.StartInfo}");
+            StaticClass.Log($"GetType                     : {ModelerProcess.GetType()}");
+            StaticClass.Log($"MainWindowHandle            : {ModelerProcess.MainWindowHandle}");
+            StaticClass.Log($"Handle                      : {ModelerProcess.Handle}");
+            StaticClass.Log($"Id                          : {ModelerProcess.Id}");
+            StaticClass.Log($"PriorityClass               : {ModelerProcess.PriorityClass}");
+            StaticClass.Log($"Basepriority                : {ModelerProcess.BasePriority}");
+            StaticClass.Log($"PriorityBoostEnabled        : {ModelerProcess.PriorityBoostEnabled}");
+            StaticClass.Log($"Responding                  : {ModelerProcess.Responding}");
+            StaticClass.Log($"ProcessorAffinity           : {ModelerProcess.ProcessorAffinity}");
+            StaticClass.Log($"HandleCount                 : {ModelerProcess.HandleCount}");
+            StaticClass.Log($"MaxWorkingSet               : {ModelerProcess.MaxWorkingSet}");
+            StaticClass.Log($"MinWorkingSet               : {ModelerProcess.MinWorkingSet}");
+            StaticClass.Log($"NonpagedSystemMemorySize64  : {ModelerProcess.NonpagedSystemMemorySize64}");
+            StaticClass.Log($"PeakVirtualMemorySize64     : {ModelerProcess.PeakVirtualMemorySize64}");
+            StaticClass.Log($"PagedSystemMemorySize64     : {ModelerProcess.PagedSystemMemorySize64}");
+            StaticClass.Log($"PrivateMemorySize64         : {ModelerProcess.PrivateMemorySize64}");
+            StaticClass.Log($"VirtualMemorySize64         : {ModelerProcess.VirtualMemorySize64}");
+            StaticClass.Log($"NonpagedSystemMemorySize64  : {ModelerProcess.PagedMemorySize64}");
+            StaticClass.Log($"WorkingSet64                : {ModelerProcess.WorkingSet64}");
+            StaticClass.Log($"PeakWorkingSet64            : {ModelerProcess.PeakWorkingSet64}");
+            StaticClass.Log($"PrivilegedProcessorTime     : {ModelerProcess.PrivilegedProcessorTime}");
+            StaticClass.Log($"TotalProcessorTime          : {ModelerProcess.TotalProcessorTime}");
+            StaticClass.Log($"UserProcessorTime           : {ModelerProcess.UserProcessorTime}");
 
             return ModelerProcess;
         }

@@ -64,8 +64,7 @@ namespace Status.Services
             // Add entry to status data list
             statusList.Add(entry);
 
-            StaticClass.Log(iniData.ProcessLogFile,
-                String.Format("Status: Job:{0} Job Status:{1} Time Type:{2}",
+            StaticClass.Log(String.Format("Status: Job:{0} Job Status:{1} Time Type:{2}",
                 job, status, timeSlot.ToString()));
         }
 
@@ -232,8 +231,7 @@ namespace Status.Services
                             // If the shutdown flag is set, exit method
                             if (StaticClass.ShutdownFlag == true)
                             {
-                                StaticClass.Log(iniData.ProcessLogFile,
-                                    String.Format("\nShutdown ReadFromCsvFile job {0} row {1}", rowStatusData.Job, rowStatusData));
+                                StaticClass.Log(String.Format("\nShutdown ReadFromCsvFile job {0} row {1}", rowStatusData.Job, rowStatusData));
                                 return null;
                             }
 
@@ -383,8 +381,7 @@ namespace Status.Services
                             // If the shutdown flag is set, exit method
                             if (StaticClass.ShutdownFlag == true)
                             {
-                                StaticClass.Log(iniData.ProcessLogFile,
-                                    String.Format("\nShutdown CheckLogFileHistory job {0} at {1:HH:mm:ss.fff}",
+                                StaticClass.Log(String.Format("\nShutdown CheckLogFileHistory job {0} at {1:HH:mm:ss.fff}",
                                     job, DateTime.Now));
                                 return;
                             }

@@ -20,6 +20,8 @@ namespace Status.Services
 		public static int RunningJobsIndex = 0;
 		public static int LogFileSizeLimit = 0;
 
+        public static string LogFileName;
+
         public static Thread CurrentInputJobsScanThreadHandle;
         public static Thread ProcessingFileWatcherThreadHandle;
         public static Thread CurrentProcessingJobsScanThreadHandle;
@@ -30,7 +32,7 @@ namespace Status.Services
 
         public static volatile bool ShutdownFlag = false;
         public static volatile bool PauseFlag = false;
-        public static volatile bool CurrentProcessingJobsScanComplete = false;
+        public static volatile bool UnfinishedProcessingJobsScanComplete = false;
 
 		public static List<string> NewInputJobsToRun = new List<String>();
 		public static List<string> NewProcessingJobsToRun = new List<String>();
@@ -53,10 +55,10 @@ namespace Status.Services
 		/// </summary>
 		/// <param name="logFile"></param>
 		/// <param name="msg"></param>
-		public static void Log(string logFile, string msg)
+		public static void Log(string msg)
 		{
 			Console.WriteLine(msg);
-			LoggingToFile log = new LoggingToFile(logFile);
+			LoggingToFile log = new LoggingToFile(StaticClass.LogFileName);
 			log.WriteToLogFile(msg);
 		}
 
@@ -141,7 +143,7 @@ namespace Status.Services
                 DirectoryInfo dirInfo = new DirectoryInfo(dir);
                 if (dirInfo.LastWriteTime < DateTime.Now.AddDays(-iniData.InputBufferTimeLimit))
                 {
-                    FileHandling.DeleteDirectory(dir, logFile);
+                    FileHandling.DeleteDirectory(dir);
                 }
             }
         }

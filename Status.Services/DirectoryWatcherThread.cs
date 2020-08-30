@@ -66,19 +66,16 @@ namespace Status.Services
         {
             // Store job to run now or later
             string directory = e.FullPath;
-            string logFile = IniData.ProcessLogFile;
             string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
 
             // Directory Add detected
-            StaticClass.Log(logFile,
-                (String.Format("Input Directory Watcher detected new directory {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log((String.Format("Input Directory Watcher detected new directory {0} at {1:HH:mm:ss.fff}",
                 directory, DateTime.Now)));
 
             // Add new job found to the Input job list
             StaticClass.NewInputJobsToRun.Add(job);
 
-            StaticClass.Log(logFile,
-                String.Format("Input Job Scan detected and added job {0} to Input job list at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Input Job Scan detected and added job {0} to Input job list at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 

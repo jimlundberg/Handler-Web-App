@@ -44,8 +44,7 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(IniData.ProcessLogFile,
-                String.Format("\nCurrent Input Job Scan Received new job {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("\nCurrent Input Job Scan Received new job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -57,13 +56,11 @@ namespace Status.Services
         public static void newJob_DirectoryFound(object sender, EventArgs e)
         {
             string job = e.ToString();
-            string logFile = IniData.ProcessLogFile;
 
             // Set Flag for ending directory scan loop
             StaticClass.NewInputJobsToRun.Add(job);
 
-            StaticClass.Log(logFile,
-                String.Format("Input Job Scan detected and added job {0} to Input job list at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Input Job Scan detected and added job {0} to Input job list at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -88,8 +85,6 @@ namespace Status.Services
         /// <param name="logger"></param>
         public static void CheckForCurrentInputJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            string logFile = iniData.ProcessLogFile;
-
             // Register with the Old Jobs Processing class event and start its thread
             CurrentProcessingJobsScanThread currentProcessingJobs = new CurrentProcessingJobsScanThread(iniData, statusData, logger);
             if (currentProcessingJobs == null)
@@ -106,8 +101,7 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(logFile,
-                        String.Format("\nShutdown CurrentInputJobsScanThread CheckForCurrentInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
+                    StaticClass.Log(String.Format("\nShutdown CurrentInputJobsScanThread CheckForCurrentInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
 
@@ -121,9 +115,9 @@ namespace Status.Services
                     while (StaticClass.PauseFlag == true);
                 }
             }
-            while (StaticClass.CurrentProcessingJobsScanComplete == false);
+            while (StaticClass.UnfinishedProcessingJobsScanComplete == false);
 
-            StaticClass.Log(logFile, "\nChecking for unfinished Input Jobs...");
+            StaticClass.Log("\nChecking for unfinished Input Jobs...");
 
             // Check and delete expired Input Buffer job directories first
             StaticClass.CheckForInputBufferTimeLimits(iniData);
@@ -143,11 +137,11 @@ namespace Status.Services
 
             if (InputDirectoryInfoList.Count > 0)
             {
-                StaticClass.Log(logFile, "\nUnfinished Input Jobs waiting...\n");
+                StaticClass.Log("\nUnfinished Input Jobs waiting...\n");
             }
             else
             {
-                StaticClass.Log(logFile, "\nNo unfinished Input Jobs Found...");
+                StaticClass.Log("\nNo unfinished Input Jobs Found...");
             }
 
             // Start the jobs in the directory list found on initial scan of the Input Buffer
@@ -171,13 +165,12 @@ namespace Status.Services
                     // Add currently unfinished job to Input Jobs run list
                     StaticClass.NewInputJobsToRun.Add(job);
 
-                    StaticClass.Log(logFile,
-                        String.Format("Input Job Scan added waiting job {0} to Input job list at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(String.Format("Input Job Scan added waiting job {0} to Input job list at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
                 }
             }
 
-            StaticClass.Log(logFile, "\nWatching for new Input Jobs...");
+            StaticClass.Log("\nWatching for new Input Jobs...");
 
             // Start the Directory Watcher class to scan for new jobs
             DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(IniData, StatusDataList, Logger);
@@ -227,7 +220,6 @@ namespace Status.Services
         public void StartInputJob(string directory, IniFileData iniFileData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Get job name from directory name
-            string logFile = iniFileData.ProcessLogFile;
             string job = directory.Replace(iniFileData.InputDir, "").Remove(0, 1);
 
             if (StaticClass.NumberOfJobsExecuting < iniFileData.ExecutionLimit)
@@ -253,14 +245,14 @@ namespace Status.Services
                 jobXmlData.XmlFileName = jobXmlData.XmlFileName;
 
                 // Display xmlData found
-                StaticClass.Log(logFile, "");
-                StaticClass.Log(logFile, "Found Input Job             : " + jobXmlData.Job);
-                StaticClass.Log(logFile, "New Job directory           : " + jobXmlData.JobDirectory);
-                StaticClass.Log(logFile, "New Serial Number           : " + jobXmlData.JobSerialNumber);
-                StaticClass.Log(logFile, "New Time Stamp              : " + jobXmlData.TimeStamp);
-                StaticClass.Log(logFile, "New Job Xml File            : " + jobXmlData.XmlFileName);
+                StaticClass.Log("");
+                StaticClass.Log("Found Input Job             : " + jobXmlData.Job);
+                StaticClass.Log("New Job directory           : " + jobXmlData.JobDirectory);
+                StaticClass.Log("New Serial Number           : " + jobXmlData.JobSerialNumber);
+                StaticClass.Log("New Time Stamp              : " + jobXmlData.TimeStamp);
+                StaticClass.Log("New Job Xml File            : " + jobXmlData.XmlFileName);
 
-                StaticClass.Log(logFile, String.Format("Started Input Job {0} executing slot {1} at {2:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("Started Input Job {0} executing slot {1} at {2:HH:mm:ss.fff}",
                     jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
                 // Create a thread to run the job, and then start the thread
@@ -278,7 +270,7 @@ namespace Status.Services
                 // Cieck if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    Console.WriteLine(String.Format("\nShutdown CurrentInputJobsScanThread StartInputJob of job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(String.Format("\nShutdown CurrentInputJobsScanThread StartInputJob of job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
                     return;
                 }

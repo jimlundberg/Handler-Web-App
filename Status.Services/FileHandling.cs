@@ -8,23 +8,21 @@ namespace Status.Services
     /// </summary>
     public class FileHandling
     {
-        private static readonly Object fileLock = new Object();
+        private static readonly Object FileLock = new Object();
 
         /// <summary>
         /// CopyFolderContents - Copy files and folders from source to destination and optionally remove source files/folders
         /// </summary>
         /// <param name="sourcePath"></param>
         /// <param name="destinationPath"></param>
-        /// <param name="logFile"></param>
         /// <param name="removeSource"></param>
         /// <param name="overwrite"></param>
-        public static void CopyFolderContents(string sourcePath, string destinationPath, string logFile,
-            bool removeSource = false, bool overwrite = false)
+        public static void CopyFolderContents(string sourcePath, string destinationPath, bool removeSource = false, bool overwrite = false)
         {
             DirectoryInfo sourceDI = new DirectoryInfo(sourcePath);
             DirectoryInfo destinationDI = new DirectoryInfo(destinationPath);
 
-            StaticClass.Log(logFile, String.Format("CopyFolderContents from {0} to {1}", sourcePath, destinationPath));
+            StaticClass.Log(String.Format("CopyFolderContents from {0} to {1}", sourcePath, destinationPath));
 
             // If the destination directory does not exist, create it
             if (!destinationDI.Exists)
@@ -42,7 +40,7 @@ namespace Status.Services
                 // Delete the destination file if overwrite is true
                 if (destFile.Exists && overwrite)
                 {
-                    lock (fileLock)
+                    lock (FileLock)
                     {
                         destFile.Delete();
                     }
@@ -53,7 +51,7 @@ namespace Status.Services
                 // Delete the source file if removeSource is true
                 if (removeSource)
                 {
-                    lock (fileLock)
+                    lock (FileLock)
                     {
                         sourceFile.Delete();
                     }
@@ -63,7 +61,7 @@ namespace Status.Services
             // Delete the source directory if removeSource is true
             if (removeSource)
             {
-                lock (fileLock)
+                lock (FileLock)
                 {
                     sourceDI.Delete();
                 }
@@ -73,10 +71,9 @@ namespace Status.Services
         /// <summary>
         /// Copy file from source to target
         /// </summary>
-        /// <param name="logFile"></param>
         /// <param name="sourceFile"></param>
         /// <param name="targetFile"></param>
-        public static void CopyFile(string sourceFile, string targetFile, string logFile)
+        public static void CopyFile(string sourceFile, string targetFile)
         {
             FileInfo Source = new FileInfo(sourceFile);
             FileInfo Target = new FileInfo(targetFile);
@@ -84,27 +81,26 @@ namespace Status.Services
             if (Target.Exists)
             {
                 // Delete the Target file first
-                lock (fileLock)
+                lock (FileLock)
                 {
                     Target.Delete();
                 }
             }
 
             // Copy to target file
-            lock (fileLock)
+            lock (FileLock)
             {
                 Source.CopyTo(targetFile);
             }
 
-            StaticClass.Log(logFile, String.Format("Copied {0} -> {1}", sourceFile, targetFile));
+            StaticClass.Log(String.Format("Copied {0} -> {1}", sourceFile, targetFile));
         }
 
         /// <summary>
         /// Deletes a directory after deleting files inside
         /// </summary>
         /// <param name="targetDirectory"></param>
-        /// <param name="logFile"></param>
-        public static void DeleteDirectory(string targetDirectory, string logFile)
+        public static void DeleteDirectory(string targetDirectory)
         {
             // First delete all files in target directory
             string[] files = Directory.GetFiles(targetDirectory);
@@ -117,7 +113,7 @@ namespace Status.Services
             // Then delete directory
             Directory.Delete(targetDirectory, false);
 
-            StaticClass.Log(logFile, String.Format("Deleted Directory {0}", targetDirectory));
+            StaticClass.Log(String.Format("Deleted Directory {0}", targetDirectory));
         }
     }
 }

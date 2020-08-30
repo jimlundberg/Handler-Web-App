@@ -90,9 +90,8 @@ namespace Status.Services
             try
             {
                 string job = monitorData.Job;
-                string logFile = iniData.ProcessLogFile;
 
-                StaticClass.Log(IniData.ProcessLogFile, String.Format("\nStarting Tcp/Ip Scan for job {0} on port {1} at {2:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("\nStarting Tcp/Ip Scan for job {0} on port {1} at {2:HH:mm:ss.fff}",
                     job, port, DateTime.Now));
 
                 // Log Tcp/Ip monitoring entry
@@ -116,21 +115,22 @@ namespace Status.Services
                 if (stream == null)
                 {
                     logger.LogError("TcpIp Connection stream handle was not gotten from client");
-                    stream.Close();
+                    client.Close();
                     StaticClass.TcpIpScanComplete[job] = true;
                     return;
                 }
 
-                StaticClass.Log(logFile, String.Format("Opening TCP/IP socket for Job {0} on port {1} client {2} stream {3} at {4:HH:mm:ss.fff}",
-                    job, port, client.ToString(), stream.ToString(), DateTime.Now));
+                StaticClass.Log(String.Format("Opening TCP/IP socket for Job {0} on port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
+
+                StaticClass.Log(String.Format("TCP/IP job {0} Client Info: SendBufferSize:{1} ReceiveBufferSize:{2} SendTimeout:{3} ReceiveTimeout:{4}",
+                    job, client.SendBufferSize, client.ReceiveBufferSize, client.SendTimeout, client.ReceiveTimeout));
 
                 bool jobComplete = false;
                 do
                 {
                     if (StaticClass.ShutdownFlag == true)
                     {
-                        StaticClass.Log(logFile,
-                            String.Format("\nShutdown TcpIpListenThread prewrite for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                        StaticClass.Log(String.Format("\nShutdown TcpIpListenThread prewrite for Job {0} on port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));
 
                         StaticClass.TcpIpScanComplete[job] = true;
@@ -153,8 +153,7 @@ namespace Status.Services
                     stream.Write(data, 0, data.Length);
 
                     // Receive the TcpServer.response.
-                    StaticClass.Log(logFile,
-                        String.Format("\nSending {0} msg to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                    StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
                         message, job, port, DateTime.Now));
 
                     // Buffer to store the response bytes.
@@ -175,8 +174,7 @@ namespace Status.Services
                                 // Check if the shutdown flag is set
                                 if (StaticClass.ShutdownFlag == true)
                                 {
-                                    StaticClass.Log(logFile,
-                                        String.Format("\nShutdown TcpIpListenThread preread for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                                    StaticClass.Log(String.Format("\nShutdown TcpIpListenThread preread for Job {0} on port {1} at {2:HH:mm:ss.fff}",
                                         job, port, DateTime.Now));
 
                                     StaticClass.TcpIpScanComplete[job] = true;
@@ -203,11 +201,13 @@ namespace Status.Services
                             }
                             catch (Exception e)
                             {
-                                logger.LogWarning(String.Format("Tcp/Ip Read failed with error {0}", e));
+                                logger.LogWarning(String.Format("Tcp/Ip Read for job {0} port {1} failed with error {2}",
+                                    job, port, e));
 
                                 if (i == 4)
                                 {
-                                    logger.LogError(String.Format("Tcp/Ip Connection Timeout after 5 tries {0}", e));
+                                    logger.LogError(String.Format("Tcp/Ip Connection Timeout for job {0} port {1} after 5 tries with error {2}",
+                                        job, port, e));
 
                                     StaticClass.TcpIpScanComplete[job] = true;
 
@@ -222,7 +222,7 @@ namespace Status.Services
 
                         // Get the Modeler response and display it
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
-                        StaticClass.Log(logFile, String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                        StaticClass.Log(String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                             responseData, job, port, DateTime.Now));
 
                         // Send status for response received
@@ -253,8 +253,7 @@ namespace Status.Services
                                 break;
 
                             case "Whole process done, socket closed.":
-                                StaticClass.Log(logFile,
-                                    String.Format("TCP/IP for Job {0} on port {1} received Modeler process complete at {2:HH:mm:ss.fff}",
+                                StaticClass.Log(String.Format("TCP/IP for Job {0} on port {1} received Modeler process complete at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
                                 StaticClass.TcpIpScanComplete[job] = true;
@@ -270,8 +269,7 @@ namespace Status.Services
                         // Backup check of the process complete string, even if it is concatenated with another string
                         if (responseData.Contains("Whole process done, socket closed."))
                         {
-                            StaticClass.Log(logFile,
-                                String.Format("TCP/IP for Job {0} on port {1} received Modeler socket complete at {2:HH:mm:ss.fff}",
+                            StaticClass.Log(String.Format("TCP/IP for Job {0} on port {1} received Modeler socket complete at {2:HH:mm:ss.fff}",
                                 job, port, DateTime.Now));
 
                             StaticClass.TcpIpScanComplete[job] = true;
@@ -281,8 +279,7 @@ namespace Status.Services
                         // Check for job timeout
                         if ((DateTime.Now - monitorData.StartTime).TotalSeconds > StaticClass.MaxJobTimeLimitSeconds)
                         {
-                            StaticClass.Log(logFile, String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}",
-                                job, DateTime.Now));
+                            StaticClass.Log(String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}", job, DateTime.Now));
 
                             // Create job Timeout status
                             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_COMPLETE, logger);
@@ -302,8 +299,7 @@ namespace Status.Services
                         // Check if the shutdown flag is set, then exit method
                         if (StaticClass.ShutdownFlag == true)
                         {
-                            StaticClass.Log(logFile,
-                                String.Format("\nShutdown TcpIpListenThread Connect for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                            StaticClass.Log(String.Format("\nShutdown TcpIpListenThread Connect for Job {0} on port {1} at {2:HH:mm:ss.fff}",
                                 job, port, DateTime.Now));
 
                             StaticClass.TcpIpScanComplete[job] = true;
@@ -340,8 +336,8 @@ namespace Status.Services
                 stream.Close();
                 client.Close();
 
-                StaticClass.Log(logFile, String.Format("Closing TCP/IP socket for Job {0} on port {1} client {2} stream {3} at {4:HH:mm:ss.fff}",
-                     job, port, client.ToString(), stream.ToString(), DateTime.Now));
+                StaticClass.Log(String.Format("Closing TCP/IP socket for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                    job, port, DateTime.Now));
             }
             catch (ArgumentNullException e)
             {

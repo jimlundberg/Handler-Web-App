@@ -60,9 +60,8 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(IniData.ProcessLogFile,
-                    String.Format("Input_fileScan_FilesFound Received required number of files for {0} at {1:HH:mm:ss.fff}", 
-                    job, DateTime.Now));
+            StaticClass.Log(String.Format("Input_fileScan_FilesFound Received required number of files for {0} at {1:HH:mm:ss.fff}",
+               job, DateTime.Now));
 
             // Set Flag for ending file scan loop
             StaticClass.InputFileScanComplete[job] = true;
@@ -77,8 +76,7 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(IniData.ProcessLogFile, 
-                String.Format("Processing_fileScan_FilesFound Received required number of files for {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Processing_fileScan_FilesFound Received required number of files for {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -94,7 +92,6 @@ namespace Status.Services
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             string job = jobXmlData.Job;
-            string logFile = iniData.ProcessLogFile;
             string xmlJobDirectory = jobXmlData.JobDirectory;
             string processingBufferDirectory = iniData.ProcessingDir;
             string processingBufferJobDir = processingBufferDirectory + @"\" + job;
@@ -154,12 +151,12 @@ namespace Status.Services
             monitorData.NumFilesToTransfer = NumFilesToTransfer;
 
             // Get the modeler and number of files to transfer
-            StaticClass.Log(logFile, String.Format("Unit Number                 : {0}", monitorData.UnitNumber));
-            StaticClass.Log(logFile, String.Format("Modeler                     : {0}", monitorData.Modeler));
-            StaticClass.Log(logFile, String.Format("Num Files Consumed          : {0}", monitorData.NumFilesConsumed));
-            StaticClass.Log(logFile, String.Format("Num Files Produced          : {0}", monitorData.NumFilesProduced));
-            StaticClass.Log(logFile, String.Format("Num Files To Transfer       : {0}", monitorData.NumFilesToTransfer));
-            StaticClass.Log(logFile, String.Format("Job Port Number             : {0}", monitorData.JobPortNumber));
+            StaticClass.Log(String.Format("Unit Number                 : {0}", monitorData.UnitNumber));
+            StaticClass.Log(String.Format("Modeler                     : {0}", monitorData.Modeler));
+            StaticClass.Log(String.Format("Num Files Consumed          : {0}", monitorData.NumFilesConsumed));
+            StaticClass.Log(String.Format("Num Files Produced          : {0}", monitorData.NumFilesProduced));
+            StaticClass.Log(String.Format("Num Files To Transfer       : {0}", monitorData.NumFilesToTransfer));
+            StaticClass.Log(String.Format("Job Port Number             : {0}", monitorData.JobPortNumber));
 
             // Create the Transfered file list from the Xml file entries
             monitorData.TransferedFileList = new List<string>(NumFilesToTransfer);
@@ -170,7 +167,7 @@ namespace Status.Services
                 string transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
                 XmlNode TransferedFileXml = jobXmlDoc.DocumentElement.SelectSingleNode(transferFileNodeName);
                 monitorData.TransferedFileList.Add(TransferedFileXml.InnerText);
-                StaticClass.Log(logFile, String.Format("Transfer File{0}              : {1}", i, TransferedFileXml.InnerText));
+                StaticClass.Log(String.Format("Transfer File{0}              : {1}", i, TransferedFileXml.InnerText));
             }
 
             // If this job comes from the Input directory, run the Input job check and start job if found
@@ -186,7 +183,7 @@ namespace Status.Services
                 {
                     string inputJobFileDir = inputBufferJobDir + @"\" + job;
 
-                    StaticClass.Log(logFile, String.Format("Starting File scan of Input for job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(String.Format("Starting File scan of Input for job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
 
                     // Register with the File Watcher class event and start its thread
@@ -206,7 +203,7 @@ namespace Status.Services
 
                         if (StaticClass.ShutdownFlag == true)
                         {
-                            StaticClass.Log(logFile, String.Format("\nShutdown RunJob Input Scan for job {0} at {1:HH:mm:ss.fff}",
+                            StaticClass.Log(String.Format("\nShutdown RunJob Input Scan for job {0} at {1:HH:mm:ss.fff}",
                                 job, DateTime.Now));
                             return;
                         }
@@ -223,15 +220,14 @@ namespace Status.Services
                     }
                     while (StaticClass.InputFileScanComplete[job] == false);
 
-                    StaticClass.Log(logFile,
-                        String.Format("Finished Input Buffer file scan for job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(String.Format("Finished Input Buffer file scan for job {0} at {1:HH:mm:ss.fff}",
                         inputJobFileDir, DateTime.Now));
 
                     // Add copying entry to status list
                     StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, logger);
 
                     // Move files from Input directory to the Processing directory, creating it first if needed
-                    FileHandling.CopyFolderContents(inputJobFileDir, processingBufferJobDir, logFile, true, true);
+                    FileHandling.CopyFolderContents(inputJobFileDir, processingBufferJobDir, true, true);
                 }
                 else
                 {
@@ -243,7 +239,7 @@ namespace Status.Services
             // If the shutdown flag is set, exit method
             if (StaticClass.ShutdownFlag == true)
             {
-                StaticClass.Log(logFile, String.Format("\nShutdown RunJob pre executinon of Job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("\nShutdown RunJob pre executinon of Job {0} at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
                 return;
             }
@@ -261,7 +257,7 @@ namespace Status.Services
             // Add entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.EXECUTING, JobType.TIME_START, logger);
 
-            StaticClass.Log(logFile, String.Format("Starting Job {0} with Modeler {1} on port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Starting Job {0} with Modeler {1} on port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
                 job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores, DateTime.Now));
 
             // Load and execute Modeler using command line generator
@@ -292,7 +288,7 @@ namespace Status.Services
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, logger);
 
             // Monitor for complete set of files in the Processing Buffer
-            StaticClass.Log(logFile, String.Format("Starting monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Starting monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
 
             // Wait for the Processing job scan complete which includes TCP/IP
@@ -302,7 +298,7 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(logFile, String.Format("\nShutdown RunJob job complete scan for job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(String.Format("\nShutdown RunJob job complete scan for job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
                     return;
                 }
@@ -352,12 +348,11 @@ namespace Status.Services
                 // Copy the Transfered files to the Finished directory 
                 foreach (string file in monitorData.TransferedFileList)
                 {
-                    FileHandling.CopyFile(processingBufferJobDir + @"\" + file,
-                                          finishedJobDirectoryName + @"\" + file, logFile);
+                    FileHandling.CopyFile(processingBufferJobDir + @"\" + file, finishedJobDirectoryName + @"\" + file);
                 }
 
                 // Move Processing Buffer Files to the Repository directory when passed
-                FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, logFile, true, true);
+                FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
             }
             else // Send files to the Error Buffer and repository
             {
@@ -374,13 +369,12 @@ namespace Status.Services
                 {
                     if (File.Exists(file))
                     {
-                        FileHandling.CopyFile(processingBufferJobDir + @"\" + file,
-                                              errorJobDirectoryName + @"\" + file, logFile);
+                        FileHandling.CopyFile(processingBufferJobDir + @"\" + file, errorJobDirectoryName + @"\" + file);
                     }
                 }
 
                 // Move Processing Buffer Files to the Repository directory when failed
-                FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, logFile, true, true);
+                FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
             }
 
             // Add entry to status list
@@ -388,7 +382,7 @@ namespace Status.Services
 
             StaticClass.NumberOfJobsExecuting--;
 
-            StaticClass.Log(logFile, String.Format("Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
                 job, StaticClass.NumberOfJobsExecuting, DateTime.Now));
         }
     }
