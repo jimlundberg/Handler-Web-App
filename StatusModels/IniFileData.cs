@@ -18,7 +18,7 @@ namespace Status.Models
         public string ProcessLogFile { get; set; }
         public int CPUCores { get; set; }
         public int ExecutionLimit { get; set; }
-        public int MaxJobTimeLimit { get; set; }
+        public double MaxJobTimeLimit { get; set; }
         public int ScanWaitTime { get; set; }
         public int StartPort { get; set; }
         public int LogFileHistoryLimit { get; set; }

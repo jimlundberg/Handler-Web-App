@@ -164,10 +164,8 @@ namespace Status.Services
                         StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                         StaticClass.InputFileScanComplete[job] = false;
-
                         InputJobsScanThread inputJobsScanThread = new InputJobsScanThread();
                         inputJobsScanThread.StartInputJob(directory, iniData, statusData, logger);
-
                         InputDirectoryInfoList.Remove(dirInfo);
 
                         // Throttle the Job startups
@@ -217,13 +215,17 @@ namespace Status.Services
                         // Check if there are jobs waiting to run
                         for (int i = 0; i < StaticClass.InputJobsToRun.Count; i++)
                         {
-                            string job = StaticClass.InputJobsToRun[i];
-                            string directory = iniData.InputDir + @"\" + job;
-                            InputJobsScanThread newInputJobsScan = new InputJobsScanThread();
-                            newInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
+                            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                            {
+                                string job = StaticClass.InputJobsToRun[i];
+                                string directory = iniData.InputDir + @"\" + job;
+                                InputJobsScanThread newInputJobsScan = new InputJobsScanThread();
+                                newInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
+                                StaticClass.InputJobsToRun.Remove(directory);
 
-                            // Throttle the Job startups
-                            Thread.Sleep(StaticClass.ScanWaitTime);
+                                // Throttle the Job startups
+                                Thread.Sleep(StaticClass.ScanWaitTime);
+                            }
                         }
                     }
                 }

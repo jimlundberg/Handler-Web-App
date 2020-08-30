@@ -108,10 +108,8 @@ namespace Status.Services
                         StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                         StaticClass.ProcessingFileScanComplete[job] = false;
-
                         ProcessingJobsScanThread processingJobsScanThread = new ProcessingJobsScanThread();
                         processingJobsScanThread.StartProcessingJob(directory, iniData, statusData, logger);
-
                         processingDirectoryInfoList.Remove(dirInfo);
 
                         // Throttle the Job startups

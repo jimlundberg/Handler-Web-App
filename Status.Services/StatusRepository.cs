@@ -57,7 +57,7 @@ namespace Status.Services
             string scanWaitTime = IniParser.Read("Process", "ScanWaitTime");
             IniData.ScanWaitTime = int.Parse(scanWaitTime.Substring(0, scanWaitTime.IndexOf("#")));
             string timeLimitString = IniParser.Read("Process", "MaxJobTimeLimit");
-            IniData.MaxJobTimeLimit = int.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
+            IniData.MaxJobTimeLimit = double.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             string logFileHistoryLimit = IniParser.Read("Process", "LogFileHistoryLimit");
             IniData.LogFileHistoryLimit = int.Parse(logFileHistoryLimit.Substring(0, logFileHistoryLimit.IndexOf("#")));
             string inputBufferTimeLimit = IniParser.Read("Process", "InputbufferTimeLimit");
@@ -68,7 +68,7 @@ namespace Status.Services
             // Set the static class data needed for global use
             StaticClass.ScanWaitTime = IniData.ScanWaitTime;
             StaticClass.LogFileSizeLimit = IniData.LogFileMaxSize;
-            StaticClass.MaxJobTimeLimitSeconds = IniData.MaxJobTimeLimit; // * 60 * 60;
+            StaticClass.MaxJobTimeLimitSeconds = IniData.MaxJobTimeLimit * 60.0 * 60.0;
 
             // Set the file logging object handle only once here
             LoggingToFile loggingToFile = new LoggingToFile(IniData.ProcessLogFile);
