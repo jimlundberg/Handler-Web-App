@@ -204,9 +204,6 @@ namespace Status.Services
         public void StartProcessingJob(string directory, IniFileData iniData, 
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            // Get the job from the directory string
-            string job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
-
             // Delete the data.xml file in the Processing directory if found
             string dataXmlFile = directory + @"\" + "data.xml";
             if (File.Exists(dataXmlFile))
@@ -222,6 +219,13 @@ namespace Status.Services
             if (jobXmlData == null)
             {
                 Logger.LogError("CurrentProcessingJobsScanThread GetJobXmlData failed");
+            }
+
+            // Check that the xml job and directory job strings match
+            string job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
+            if (job != jobXmlData.Job)
+            {
+                logger.LogError(String.Format("Processing Jobs don't match {0} {1}", job, jobXmlData.Job));
             }
 
             // Display job xml Data found

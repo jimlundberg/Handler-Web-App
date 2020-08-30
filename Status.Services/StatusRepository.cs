@@ -135,14 +135,14 @@ namespace Status.Services
         /// </summary>
         public void StopMonitor()
         {
+            // Exit Handler threads by setting shutdown flag
+            StaticClass.ShutdownFlag = true;
+
             // Shutdown Modeler executables
             foreach (KeyValuePair<string, Process> process in StaticClass.ProcessHandles)
             {
                 process.Value.Kill();
             }
-
-            // Exit Handler threads by setting shutdown flag
-            StaticClass.ShutdownFlag = true;
 
             // Clear the Dictionaries after Modeler shutdowns complete
             StaticClass.InputJobsToRun.Clear();

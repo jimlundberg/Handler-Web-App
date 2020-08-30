@@ -41,7 +41,6 @@ namespace Status.Services
             DirectoryInfo InputJobInfo = new DirectoryInfo(DirectoryName);
             StaticClass.NumberOfInputFilesFound[Job] = InputJobInfo.GetFiles().Length;
             StaticClass.NumberOfInputFilesNeeded[Job] = numberOfFilesNeeded;
-            StaticClass.InputFileScanComplete[Job] = false;
             StaticClass.InputJobScanComplete[Job] = false;
 
             // Check for current unfinished job(s) in the Input Buffer

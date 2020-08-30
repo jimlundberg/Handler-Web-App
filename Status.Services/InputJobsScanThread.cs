@@ -236,63 +236,58 @@ namespace Status.Services
         /// <param name="logger"></param>
         public void StartInputJob(string directory, IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            // Get job name from directory name
-            string job = directory.Replace(iniData.InputDir, "").Remove(0, 1);
-
-            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+            // Get data found in Job xml file
+            JobXmlData jobXmlData = StaticClass.GetJobXmlData(directory, iniData, DirectoryScanType.INPUT_BUFFER);
+            if (jobXmlData == null)
             {
-                // Get data found in Job xml file
-                JobXmlData jobXmlData = StaticClass.GetJobXmlData(directory, iniData, DirectoryScanType.INPUT_BUFFER);
-                if (jobXmlData == null)
+                Logger.LogError("InputJobsScanThread GetJobXmlData failed");
+            }
+
+            // Check that the xml job and directory job strings match
+            string job = directory.Replace(iniData.InputDir, "").Remove(0, 1);
+            if (job != jobXmlData.Job)
+            {
+                logger.LogError(String.Format("Input Jobs don't match {0} {1}", job, jobXmlData.Job));
+            }
+
+            // Display job xml data found
+            StaticClass.Log("Input Job                      : " + jobXmlData.Job);
+            StaticClass.Log("Input Job Directory            : " + jobXmlData.JobDirectory);
+            StaticClass.Log("Input Job Serial Number        : " + jobXmlData.JobSerialNumber);
+            StaticClass.Log("Input Job Time Stamp           : " + jobXmlData.TimeStamp);
+            StaticClass.Log("Input Job Xml File             : " + jobXmlData.XmlFileName);
+
+            StaticClass.Log(String.Format("Started Input Job {0} executing Slot {1} at {2:HH:mm:ss.fff}",
+                jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
+
+            // Create a thread to run the job, and then start the thread
+            JobRunThread thread = new JobRunThread(DirectoryScanType.INPUT_BUFFER, jobXmlData, iniData, statusData, logger);
+            if (thread == null)
+            {
+                Logger.LogError("InputJobsScanThread thread failed to instantiate");
+            }
+            thread.ThreadProc();
+
+            // Remove Input job after start thread complete
+            StaticClass.InputJobsToRun.Remove(job);
+            StaticClass.InputFileScanComplete[job] = true;
+
+            // Cieck if the shutdown flag is set, exit method
+            if (StaticClass.ShutdownFlag == true)
+            {
+                StaticClass.Log(String.Format("\nShutdown InputJobsScanThread StartInputJob of job {0} at {1:HH:mm:ss.fff}",
+                    job, DateTime.Now));
+                return;
+            }
+
+            // Check if the pause flag is set, then wait for reset
+            if (StaticClass.PauseFlag == true)
+            {
+                do
                 {
-                    Logger.LogError("InputJobsScanThread GetJobXmlData failed");
+                    Thread.Yield();
                 }
-
-                jobXmlData.Job = job;
-                jobXmlData.JobDirectory = jobXmlData.JobDirectory;
-                jobXmlData.JobSerialNumber = jobXmlData.JobSerialNumber;
-                jobXmlData.TimeStamp = jobXmlData.TimeStamp;
-                jobXmlData.XmlFileName = jobXmlData.XmlFileName;
-
-                // Display job xml data found
-                StaticClass.Log("Input Job                      : " + jobXmlData.Job);
-                StaticClass.Log("Input Job Directory            : " + jobXmlData.JobDirectory);
-                StaticClass.Log("Input Job Serial Number        : " + jobXmlData.JobSerialNumber);
-                StaticClass.Log("Input Job Time Stamp           : " + jobXmlData.TimeStamp);
-                StaticClass.Log("Input Job Xml File             : " + jobXmlData.XmlFileName);
-
-                StaticClass.Log(String.Format("Started Input Job {0} executing slot {1} at {2:HH:mm:ss.fff}",
-                    jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
-
-                // Create a thread to run the job, and then start the thread
-                JobRunThread thread = new JobRunThread(DirectoryScanType.INPUT_BUFFER, jobXmlData, iniData, statusData, logger);
-                if (thread == null)
-                {
-                    Logger.LogError("InputJobsScanThread thread failed to instantiate");
-                }
-                thread.ThreadProc();
-
-                // Remove Input job after start thread complete
-                StaticClass.InputJobsToRun.Remove(job);
-                StaticClass.InputFileScanComplete[job] = true;
-
-                // Cieck if the shutdown flag is set, exit method
-                if (StaticClass.ShutdownFlag == true)
-                {
-                    StaticClass.Log(String.Format("\nShutdown InputJobsScanThread StartInputJob of job {0} at {1:HH:mm:ss.fff}",
-                        job, DateTime.Now));
-                    return;
-                }
-
-                // Check if the pause flag is set, then wait for reset
-                if (StaticClass.PauseFlag == true)
-                {
-                    do
-                    {
-                        Thread.Yield();
-                    }
-                    while (StaticClass.PauseFlag == true);
-                }
+                while (StaticClass.PauseFlag == true);
             }
         }
     }
