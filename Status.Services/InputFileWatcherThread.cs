@@ -57,26 +57,23 @@ namespace Status.Services
         public void InputJobsReadyCheck(string job, IniFileData iniData, 
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            if (StaticClass.InputFileScanComplete[job] == true)
+            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
             {
-                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                // Strt Input jobs currently waiting
+                for (int i = 0; i < StaticClass.InputJobsToRun.Count; i++)
                 {
-                    // Strt Input jobs currently waiting
-                    for (int i = 0; i < StaticClass.InputJobsToRun.Count; i++)
+                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                     {
-                        string directory = iniData.InputDir + @"\" + StaticClass.InputJobsToRun[i];
+                        job = StaticClass.InputJobsToRun[i];
+                        string directory = iniData.InputDir + @"\" + job;
                         InputJobsScanThread currentInputJobsScan = new InputJobsScanThread();
+                        StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
                         currentInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
+                        StaticClass.InputJobsToRun.Remove(job);
 
                         // Throttle the Job startups
                         Thread.Sleep(StaticClass.ScanWaitTime);
                     }
-                }
-                else
-                {
-                    // Add currently unfinished job to Input Jobs run list
-                    StaticClass.InputJobsToRun.Add(job);
-                    StaticClass.Log(String.Format("Unfinished Input jobs check added job {0} to Input jobs list", job));
                 }
             }
         }

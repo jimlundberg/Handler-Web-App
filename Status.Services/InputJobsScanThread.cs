@@ -69,6 +69,9 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
+            // Check for expired Input jobs
+            StaticClass.CheckForInputBufferTimeLimits(IniData);
+
             StaticClass.CurrentInputJobsScanThreadHandle = new Thread(() =>
                 CheckForCurrentInputJobs(IniData, StatusDataList, Logger));
             
@@ -220,8 +223,6 @@ namespace Status.Services
                     }
                 }
 
-                StaticClass.CheckForInputBufferTimeLimits(iniData);
-
                 Thread.Yield();
             }
             while (StaticClass.ShutdownFlag == false);
@@ -268,11 +269,7 @@ namespace Status.Services
             }
             thread.ThreadProc();
 
-            // Remove Input job after start thread complete
-            StaticClass.InputJobsToRun.Remove(job);
-            StaticClass.InputFileScanComplete[job] = true;
-
-            // Cieck if the shutdown flag is set, exit method
+            // Check if the shutdown flag is set, exit method
             if (StaticClass.ShutdownFlag == true)
             {
                 StaticClass.Log(String.Format("\nShutdown InputJobsScanThread StartInputJob of job {0} at {1:HH:mm:ss.fff}",

@@ -68,7 +68,7 @@ namespace Status.Services
             // Set the static class data needed for global use
             StaticClass.ScanWaitTime = IniData.ScanWaitTime;
             StaticClass.LogFileSizeLimit = IniData.LogFileMaxSize;
-            StaticClass.MaxJobTimeLimitSeconds = IniData.MaxJobTimeLimit * 60 * 60;
+            StaticClass.MaxJobTimeLimitSeconds = IniData.MaxJobTimeLimit; // * 60 * 60;
 
             // Set the file logging object handle only once here
             LoggingToFile loggingToFile = new LoggingToFile(IniData.ProcessLogFile);

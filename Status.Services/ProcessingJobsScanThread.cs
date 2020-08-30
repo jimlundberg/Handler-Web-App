@@ -139,7 +139,7 @@ namespace Status.Services
             // Run check loop until all unfinished Processing jobs are complete
             do
             {
-                // Cieck if the shutdown flag is set, exit method
+                // Check if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)
                 {
                     StaticClass.Log(String.Format("\nShutdown CurrentProcessingJobsScanThread CheckForCurrentProcessingJobs at {0:HH:mm:ss.fff}", DateTime.Now));
