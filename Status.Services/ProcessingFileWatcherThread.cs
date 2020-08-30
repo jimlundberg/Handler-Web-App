@@ -69,6 +69,7 @@ namespace Status.Services
                     string directory = iniData.InputDir + @"\" + StaticClass.NewProcessingJobsToRun[i];
                     CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
                     currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
+                    StaticClass.NewProcessingJobsToRun.Remove(job);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);

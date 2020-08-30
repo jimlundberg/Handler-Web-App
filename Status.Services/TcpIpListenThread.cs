@@ -122,9 +122,6 @@ namespace Status.Services
 
                 StaticClass.Log(String.Format("Opening TCP/IP socket for Job {0} on port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
 
-                StaticClass.Log(String.Format("TCP/IP job {0} Client Info: SendBufferSize:{1} ReceiveBufferSize:{2} SendTimeout:{3} ReceiveTimeout:{4}",
-                    job, client.SendBufferSize, client.ReceiveBufferSize, client.SendTimeout, client.ReceiveTimeout));
-
                 bool jobComplete = false;
                 do
                 {

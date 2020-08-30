@@ -69,7 +69,7 @@ namespace Status.Services
             StaticClass.LogFileName = IniData.ProcessLogFile;
             StaticClass.ScanWaitTime = IniData.ScanWaitTime;
             StaticClass.LogFileSizeLimit = IniData.LogFileMaxSize;
-            StaticClass.MaxJobTimeLimitSeconds = IniData.MaxJobTimeLimit * 60 * 60;
+            StaticClass.MaxJobTimeLimitSeconds = IniData.MaxJobTimeLimit; // * 60 * 60;
             
             // Output the Data.ini informatino found
             StaticClass.Log("\nConfig.ini data found:\n");

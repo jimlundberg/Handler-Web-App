@@ -84,11 +84,11 @@ namespace Status.Services
 
             if (processingDirectoryInfoList.Count > 0)
             {
-                StaticClass.Log("\nStarting unfinished Processing jobs...");
+                StaticClass.Log("\nUnfinished Processing jobs found...");
             }
             else
             {
-                StaticClass.Log("\nNo unfinished Processing Jobs Found...");
+                StaticClass.Log("\nNo unfinished Processing Jobs found...");
             }
 
             // Start the jobs in the directory list found on initial scan of the Processing Buffer
@@ -101,16 +101,22 @@ namespace Status.Services
                 {
                     CurrentProcessingJobsScanThread newProcessingJobsScanThread = new CurrentProcessingJobsScanThread();
                     newProcessingJobsScanThread.StartProcessingJob(directory, iniData, statusData, logger);
+                    StaticClass.NewProcessingJobsToRun.Remove(job);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
                 }
-                else
-                {
-                    // Add currently unfinished job to Processing Jobs run list
-                    StaticClass.NewProcessingJobsToRun.Add(job);
-                    StaticClass.Log(String.Format("Unfinished Processing jobs check added job {0} to waiting for Processing Job list", job));
-                }
+            }
+
+            StaticClass.Log("\nMore unfinished Processing jobs then execution slots found...\n");
+
+            // Start the jobs in the directory list found on initial scan of the Processing Buffer
+            foreach (DirectoryInfo dir in processingDirectoryInfoList)
+            {
+                // Add currently unfinished job to Processing Jobs run list
+                string job = dir.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
+                StaticClass.NewProcessingJobsToRun.Add(job);
+                StaticClass.Log(String.Format("Unfinished Processing jobs check added job {0} to waiting for Processing Job list", job));
             }
 
             // Run check loop until all unfinished Processing jobs are complete
@@ -150,14 +156,16 @@ namespace Status.Services
         /// <param name="logger"></param>
         public static void RunAnyUnfinishedProcessingsJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+            // Start Processing jobs currently waiting
+            for (int i = 0; i < StaticClass.NewProcessingJobsToRun.Count; i++)
             {
-                // Start Processing jobs currently waiting
-                for (int i = 0; i < StaticClass.NewProcessingJobsToRun.Count; i++)
+                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
-                    string directory = iniData.InputDir + @"\" + StaticClass.NewProcessingJobsToRun[i];
+                    string directory = iniData.ProcessingDir + @"\" + StaticClass.NewProcessingJobsToRun[i];
+                    string job = directory.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
                     CurrentProcessingJobsScanThread currentProcessingJobsScan = new CurrentProcessingJobsScanThread();
                     currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
+                    StaticClass.NewProcessingJobsToRun.Remove(job);
                 }
             }
         }
@@ -224,9 +232,6 @@ namespace Status.Services
                     Logger.LogError("CurrentProcessingJobsScanThread thread failed to instantiate");
                 }
                 thread.ThreadProc();
-
-                // Remove Processing job after start thread complete
-                StaticClass.NewProcessingJobsToRun.Remove(job);
 
                 // Check if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)
