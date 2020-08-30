@@ -163,13 +163,10 @@ namespace Status.Services
                             StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
                             newInputJobsScanThread.StartInputJob(directory, iniData, statusData, logger);
                             InputDirectoryInfoList.Remove(dirInfo);
+                            foundUnfinishedJobs = true;
 
                             // Throttle the Job startups
                             Thread.Sleep(StaticClass.ScanWaitTime);
-                        }
-                        else
-                        {
-                            foundUnfinishedJobs = true;
                         }
                     }
                 }
