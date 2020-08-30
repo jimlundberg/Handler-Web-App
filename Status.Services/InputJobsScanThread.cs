@@ -88,7 +88,7 @@ namespace Status.Services
         /// <param name="iniFileData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void CheckForCurrentInputJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public void CheckForCurrentInputJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Register with the Old Jobs Processing class event and start its thread
             ProcessingJobsScanThread currentProcessingJobs = new ProcessingJobsScanThread(iniData, statusData, logger);
@@ -221,6 +221,8 @@ namespace Status.Services
                                 string directory = iniData.InputDir + @"\" + job;
                                 InputJobsScanThread newInputJobsScan = new InputJobsScanThread();
                                 newInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
+                                StaticClass.Log(String.Format("Removing job {0} from the Input Job list at {1:HH:mm:ss.fff}",
+                                    job, DateTime.Now));
                                 StaticClass.InputJobsToRun.Remove(directory);
 
                                 // Throttle the Job startups
@@ -245,7 +247,7 @@ namespace Status.Services
         public void StartInputJob(string directory, IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Get data found in Job xml file
-            JobXmlData jobXmlData = StaticClass.GetJobXmlData(directory, iniData, DirectoryScanType.INPUT_BUFFER);
+            JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(directory, iniData, DirectoryScanType.INPUT_BUFFER);
             if (jobXmlData == null)
             {
                 Logger.LogError("InputJobsScanThread GetJobXmlData failed");

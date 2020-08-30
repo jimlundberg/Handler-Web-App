@@ -85,7 +85,7 @@ namespace Status.Services
         /// <param name="directory"></param>
         /// <param name="iniData"></param>
         /// <returns></returns>
-        public static JobXmlData GetJobXmlData(string directory, IniFileData iniData, DirectoryScanType scanType)
+        public static JobXmlData GetJobXmlFileInfo(string directory, IniFileData iniData, DirectoryScanType scanType)
         {
             JobXmlData jobScanXmlData = new JobXmlData();
             string baseDirectory = (scanType == DirectoryScanType.INPUT_BUFFER) ? iniData.InputDir : iniData.ProcessingDir;

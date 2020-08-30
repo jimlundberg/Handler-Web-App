@@ -177,7 +177,7 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public static void RunAnyUnfinishedProcessingsJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public void RunAnyUnfinishedProcessingsJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Start Processing jobs currently waiting
             for (int i = 0; i < StaticClass.ProcessingJobsToRun.Count; i++)
@@ -218,7 +218,7 @@ namespace Status.Services
             }
 
             // Get data found in job Xml file
-            JobXmlData jobXmlData = StaticClass.GetJobXmlData(directory, iniData, DirectoryScanType.PROCESSING_BUFFER);
+            JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(directory, iniData, DirectoryScanType.PROCESSING_BUFFER);
             if (jobXmlData == null)
             {
                 Logger.LogError("CurrentProcessingJobsScanThread GetJobXmlData failed");
