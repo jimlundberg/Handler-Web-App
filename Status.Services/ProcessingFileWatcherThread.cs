@@ -14,9 +14,9 @@ namespace Status.Services
     /// </summary>
     public class ProcessingFileWatcherThread
     {
-        private static IniFileData IniData;
-        private static StatusMonitorData MonitorData;
-        private static List<StatusData> StatusDataList;
+        private readonly IniFileData IniData;
+        private readonly StatusMonitorData MonitorData;
+        private readonly List<StatusData> StatusDataList;
         private readonly string DirectoryName;
         private readonly string Job;
         public event EventHandler ProcessCompleted;
@@ -78,7 +78,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
-        public static void OnCreated(object source, FileSystemEventArgs e)
+        public void OnCreated(object source, FileSystemEventArgs e)
         {
             string jobDirectory = e.FullPath;
             string jobFile = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);

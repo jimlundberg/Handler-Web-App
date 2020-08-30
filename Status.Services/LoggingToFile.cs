@@ -8,7 +8,7 @@ namespace Status.Services
     /// </summary>
     class LoggingToFile
     {
-        private static string LogFileName;
+        private string LogFileName;
         private static readonly Object FileLock = new Object();
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Status.Services
 
             if (tooBig)
             {
-                StaticClass.Log("Process log file too big. Reducing 10%");
+                StaticClass.Log("\nProcess log file too big. Reducing 10%...\n");
                 lock (FileLock)
                 {
                     // Remove old data from log file

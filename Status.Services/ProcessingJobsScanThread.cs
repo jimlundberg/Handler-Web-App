@@ -13,10 +13,10 @@ namespace Status.Services
     /// </summary>
     public class ProcessingJobsScanThread
     {
-        private static IniFileData IniData;
-        private static List<StatusData> StatusDataList;
+        private readonly IniFileData IniData;
+        private readonly List<StatusData> StatusDataList;
         public event EventHandler ProcessCompleted;
-        private static readonly Object delLock = new Object();
+        private static readonly Object DelLock = new Object();
         public static ILogger<StatusRepository> Logger;
 
         /// <summary>
@@ -67,6 +67,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
+        /// <param name="logger"></param>
         public void CheckForCurrentProcessingJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             StaticClass.Log("\nChecking for unfinished Processing Jobs...");
@@ -211,7 +212,7 @@ namespace Status.Services
             string dataXmlFile = directory + @"\" + "data.xml";
             if (File.Exists(dataXmlFile))
             {
-                lock (delLock)
+                lock (DelLock)
                 {
                     File.Delete(dataXmlFile);
                 }

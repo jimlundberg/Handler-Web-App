@@ -14,8 +14,8 @@ namespace Status.Services
     /// </summary>
     public class StatusRepository : IStatusRepository
     {
-        private IniFileData IniData = new IniFileData();
-        private List<StatusData> StatusDataList = new List<StatusData>();
+        private readonly IniFileData IniData = new IniFileData();
+        private readonly List<StatusData> StatusDataList = new List<StatusData>();
         public readonly ILogger<StatusRepository> Logger;
 
         /// <summary>
@@ -54,14 +54,19 @@ namespace Status.Services
             IniData.StartPort = int.Parse(IniParser.Read("Process", "StartPort"));
             IniData.StatusLogFile = IniParser.Read("Process", "StatusLogFile");
             IniData.ProcessLogFile = IniParser.Read("Process", "ProcessLogFile");
+            
             string scanWaitTime = IniParser.Read("Process", "ScanWaitTime");
             IniData.ScanWaitTime = int.Parse(scanWaitTime.Substring(0, scanWaitTime.IndexOf("#")));
+            
             string timeLimitString = IniParser.Read("Process", "MaxJobTimeLimit");
             IniData.MaxJobTimeLimit = double.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
+            
             string logFileHistoryLimit = IniParser.Read("Process", "LogFileHistoryLimit");
             IniData.LogFileHistoryLimit = int.Parse(logFileHistoryLimit.Substring(0, logFileHistoryLimit.IndexOf("#")));
+            
             string inputBufferTimeLimit = IniParser.Read("Process", "InputbufferTimeLimit");
             IniData.InputBufferTimeLimit = int.Parse(inputBufferTimeLimit.Substring(0, inputBufferTimeLimit.IndexOf("#")));
+            
             string logFileMaxSize = IniParser.Read("Process", "logFileMaxSize");
             IniData.LogFileMaxSize = int.Parse(logFileMaxSize.Substring(0, logFileMaxSize.IndexOf("#")));
 
@@ -131,6 +136,14 @@ namespace Status.Services
         }
 
         /// <summary>
+        /// Pause the Monitor System
+        /// </summary>
+        public void PauseMonitor()
+        {
+            StaticClass.PauseFlag = true;
+        }
+
+        /// <summary>
         /// Stop the Monitor process
         /// </summary>
         public void StopMonitor()
@@ -168,14 +181,6 @@ namespace Status.Services
         public IEnumerable<StatusData> GetJobStatus()
         {
             return StatusDataList;
-        }
-
-        /// <summary>
-        /// Pause the Monitor System
-        /// </summary>
-        public void PauseMonitor()
-        {
-            StaticClass.PauseFlag = true;
         }
 
         /// <summary>

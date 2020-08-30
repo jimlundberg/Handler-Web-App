@@ -14,7 +14,7 @@ namespace Status.Services
     public class StatusEntry
     {
         private static readonly Object CsvLock = new Object();
-        public readonly ILogger<StatusRepository> Logger;
+        public static ILogger<StatusRepository> Logger;
 
         public StatusEntry() { }
 
@@ -74,7 +74,7 @@ namespace Status.Services
         /// <param name="job"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
-        /// <param name="logFileName"></param>
+        /// <param name="statusLogFile"></param>
         public void WriteToCsvFile(string job, JobStatus status, JobType timeSlot, string statusLogFile)
         {
             lock (CsvLock)

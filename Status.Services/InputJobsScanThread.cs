@@ -13,8 +13,8 @@ namespace Status.Services
     /// </summary>
     public class InputJobsScanThread
     {
-        private static IniFileData IniData;
-        private static List<StatusData> StatusDataList;
+        private readonly IniFileData IniData;
+        private readonly List<StatusData> StatusDataList;
         public static ILogger<StatusRepository> Logger;
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace Status.Services
             InputDirectoryInfoList.Clear();
 
             // Start the Directory Watcher class to scan for new jobs
-            DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(IniData, StatusDataList, Logger);
+            DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(IniData, Logger);
             if (dirWatch == null)
             {
                 Logger.LogError("InputJobsScanThread dirWatch failed to instantiate");

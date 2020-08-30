@@ -13,7 +13,7 @@ namespace Status.Services
     /// </summary>
     public class JobRunThread
     {
-        private static IniFileData IniData;
+        private readonly IniFileData IniData;
         private readonly List<StatusData> StatusDataList;
         private readonly DirectoryScanType DirScanType;
         private readonly JobXmlData JobRunXmlData;

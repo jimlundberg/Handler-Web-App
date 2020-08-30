@@ -12,9 +12,9 @@ namespace Status.Services
     /// </summary>
     public class TcpIpListenThread
     {
-        private static IniFileData IniData;
-        private static StatusMonitorData MonitorData;
-        private static List<StatusData> StatusData;
+        private readonly IniFileData IniData;
+        private readonly StatusMonitorData MonitorData;
+        private readonly List<StatusData> StatusData;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
         public const string Host = "127.0.0.1";
@@ -248,7 +248,7 @@ namespace Status.Services
                                 break;
 
                             case "Step 6 in process.":
-                                adjustableSleepTime = 1000;
+                                adjustableSleepTime = 2500;
                                 break;
 
                             case "Whole process done, socket closed.":

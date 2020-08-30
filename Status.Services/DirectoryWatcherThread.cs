@@ -13,9 +13,8 @@ namespace Status.Services
     /// </summary>
     public class DirectoryWatcherThread
     {
-        private static string DirectoryName;
-        private static IniFileData IniData;
-        private static List<StatusData> StatusDataList;
+        private readonly string DirectoryName;
+        private readonly IniFileData IniData;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
 
@@ -23,13 +22,10 @@ namespace Status.Services
         /// New Jobs directory Scan Thread constructor receiving data buffers
         /// </summary>
         /// <param name="iniData"></param>
-        /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public DirectoryWatcherThread(IniFileData iniData, List<StatusData> statusData, 
-            ILogger<StatusRepository> logger)
+        public DirectoryWatcherThread(IniFileData iniData, ILogger<StatusRepository> logger)
         {
             IniData = iniData;
-            StatusDataList = statusData;
             DirectoryName = iniData.InputDir;
             Logger = logger;
         }
@@ -62,7 +58,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
-        public static void OnCreated(object source, FileSystemEventArgs e)
+        public void OnCreated(object source, FileSystemEventArgs e)
         {
             // Store job to run now or later
             string directory = e.FullPath;

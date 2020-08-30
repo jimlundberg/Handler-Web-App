@@ -13,10 +13,10 @@ namespace Status.Services
     /// </summary>
     public class InputFileWatcherThread
     {
-        private static IniFileData IniData;
-        private static StatusMonitorData MonitorData;
-        private static string DirectoryName;
-        private static string Job;
+        private readonly IniFileData IniData;
+        private readonly StatusMonitorData MonitorData;
+        private readonly string DirectoryName;
+        private readonly string Job;
         public event EventHandler ProcessCompleted;
         public static ILogger<StatusRepository> Logger;
 
@@ -72,7 +72,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
-        public static void OnCreated(object source, FileSystemEventArgs e)
+        public void OnCreated(object source, FileSystemEventArgs e)
         {
             string jobDirectory = e.FullPath;
             string jobFile = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
