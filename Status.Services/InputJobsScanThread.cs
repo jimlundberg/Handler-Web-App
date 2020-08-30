@@ -157,20 +157,25 @@ namespace Status.Services
                 {
                     if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                     {
-                        if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
-                        {
-                            DirectoryInfo dirInfo = InputDirectoryInfoList[i];
-                            string directory = dirInfo.ToString();
-                            string job = directory.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
-                            InputJobsScanThread newInputJobsScanThread = new InputJobsScanThread();
-                            StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
-                            newInputJobsScanThread.StartInputJob(directory, iniData, statusData, logger);
-                            InputDirectoryInfoList.Remove(dirInfo);
-                            foundUnfinishedJobs = true;
+                        DirectoryInfo dirInfo = InputDirectoryInfoList[i];
+                        string directory = dirInfo.ToString();
+                        string job = directory.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
 
-                            // Throttle the Job startups
-                            Thread.Sleep(StaticClass.ScanWaitTime);
-                        }
+                        StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+
+                        StaticClass.InputFileScanComplete[job] = false;
+
+                        InputJobsScanThread inputJobsScanThread = new InputJobsScanThread();
+                        inputJobsScanThread.StartInputJob(directory, iniData, statusData, logger);
+
+                        InputDirectoryInfoList.Remove(dirInfo);
+
+                        // Throttle the Job startups
+                        Thread.Sleep(StaticClass.ScanWaitTime);
+                    }
+                    else
+                    {
+                        foundUnfinishedJobs = true;
                     }
                 }
 

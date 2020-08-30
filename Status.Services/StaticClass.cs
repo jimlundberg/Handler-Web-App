@@ -53,7 +53,6 @@ namespace Status.Services
         /// <summary>
         /// Global log to file method
         /// </summary>
-        /// <param name="logFile"></param>
         /// <param name="msg"></param>
         public static void Log(string msg)
 		{
@@ -170,7 +169,6 @@ namespace Status.Services
         /// <param name="iniData"></param>
         public static void CheckForInputBufferTimeLimits(IniFileData iniData)
         {
-            string logFile = iniData.ProcessLogFile;
             string[] directories = Directory.GetDirectories(iniData.InputDir);
             foreach (string dir in directories)
             {

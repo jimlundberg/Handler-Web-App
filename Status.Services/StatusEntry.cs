@@ -75,11 +75,11 @@ namespace Status.Services
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
         /// <param name="logFileName"></param>
-        public void WriteToCsvFile(string job, JobStatus status, JobType timeSlot, string logFileName)
+        public void WriteToCsvFile(string job, JobStatus status, JobType timeSlot, string statusLogFile)
         {
             lock (CsvLock)
             {
-                using (StreamWriter writer = File.AppendText(logFileName))
+                using (StreamWriter writer = File.AppendText(statusLogFile))
                 {
                     DateTime timeReceived = new DateTime();
                     if (timeReceived == null)
@@ -129,13 +129,13 @@ namespace Status.Services
         public List<StatusData> ReadFromCsvFile(IniFileData iniData)
         {
             List<StatusData> statusDataTable = new List<StatusData>();
-            string logFileName = iniData.StatusLogFile;
+            string statusLogFile = iniData.StatusLogFile;
 
-            if (File.Exists(logFileName) == true)
+            if (File.Exists(statusLogFile) == true)
             {
                 lock (CsvLock)
                 {
-                    using (CsvFileReader reader = new CsvFileReader(logFileName))
+                    using (CsvFileReader reader = new CsvFileReader(statusLogFile))
                     {
                         if (reader == null)
                         {

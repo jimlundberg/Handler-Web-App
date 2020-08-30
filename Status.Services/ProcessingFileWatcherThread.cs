@@ -46,40 +46,6 @@ namespace Status.Services
             StaticClass.TcpIpScanComplete[Job] = false;
             StaticClass.ProcessingFileScanComplete[Job] = false;
             StaticClass.ProcessingJobScanComplete[Job] = false;
-
-            // Check for current unfinished job(s) in the Processing Buffer
-            ProcessingJobsReadyCheck(Job, iniData, statusData, logger);
-        }
-
-        /// <summary>
-        /// Check if unfinished Processing Jobs jobs are currently waiting to run
-        /// </summary>
-        /// <param name="job"></param>
-        /// <param name="iniData"></param>
-        /// <param name="statusData"></param>
-        /// <param name="logger"></param>
-        public void ProcessingJobsReadyCheck(string job, IniFileData iniData,
-            List<StatusData> statusData, ILogger<StatusRepository> logger)
-        {
-            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
-            {
-                // Strt Processing jobs currently waiting
-                for (int i = 0; i < StaticClass.ProcessingJobsToRun.Count; i++)
-                {
-                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
-                    {
-                        job = StaticClass.ProcessingJobsToRun[i];
-                        string directory = iniData.ProcessingDir + @"\" + job;
-                        ProcessingJobsScanThread currentProcessingJobsScan = new ProcessingJobsScanThread();
-                        StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
-                        currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
-                        StaticClass.ProcessingJobsToRun.Remove(job);
-
-                        // Throttle the Job startups
-                        Thread.Sleep(StaticClass.ScanWaitTime);
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -114,7 +80,6 @@ namespace Status.Services
         /// <param name="e"></param>
         public static void OnCreated(object source, FileSystemEventArgs e)
         {
-            string logFile = IniData.ProcessLogFile;
             string jobDirectory = e.FullPath;
             string jobFile = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
             string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));

@@ -42,40 +42,6 @@ namespace Status.Services
             StaticClass.NumberOfInputFilesFound[Job] = InputJobInfo.GetFiles().Length;
             StaticClass.NumberOfInputFilesNeeded[Job] = numberOfFilesNeeded;
             StaticClass.InputJobScanComplete[Job] = false;
-
-            // Check for current unfinished job(s) in the Input Buffer
-            InputJobsReadyCheck(Job, iniData, statusData, logger);
-        }
-
-        /// <summary>
-        /// Check if unfinished Input Jobs jobs are currently waiting to run
-        /// </summary>
-        /// <param name="job"></param>
-        /// <param name="iniData"></param>
-        /// <param name="statusData"></param>
-        /// <param name="logger"></param>
-        public void InputJobsReadyCheck(string job, IniFileData iniData, 
-            List<StatusData> statusData, ILogger<StatusRepository> logger)
-        {
-            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
-            {
-                // Strt Input jobs currently waiting
-                for (int i = 0; i < StaticClass.InputJobsToRun.Count; i++)
-                {
-                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
-                    {
-                        job = StaticClass.InputJobsToRun[i];
-                        string directory = iniData.InputDir + @"\" + job;
-                        InputJobsScanThread currentInputJobsScan = new InputJobsScanThread();
-                        StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
-                        currentInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
-                        StaticClass.InputJobsToRun.Remove(job);
-
-                        // Throttle the Job startups
-                        Thread.Sleep(StaticClass.ScanWaitTime);
-                    }
-                }
-            }
         }
 
         /// <summary>
