@@ -223,12 +223,7 @@ namespace Status.Services
                                 StaticClass.InputFileScanComplete[job] = false;
                                 InputJobsScanThread newInputJobsScan = new InputJobsScanThread();
                                 newInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
-                                StaticClass.InputJobsToRun.RemoveAt(i);
-
-                                StaticClass.Log(String.Format("Removing job {0} from the Input Job list at {1:HH:mm:ss.fff}",
-                                    job, DateTime.Now));
-
-                                // Throttle the Job startups
+                                StaticClass.InputJobsToRun.RemoveAt(i)                                // Throttle the Job startups
                                 Thread.Sleep(StaticClass.ScanWaitTime);
                             }
                         }
