@@ -215,13 +215,12 @@ namespace Status.Services
                 Logger.LogError("CurrentProcessingJobsScanThread GetJobXmlData failed");
             }
 
-            // Display Monitor Data found
-            StaticClass.Log("");
-            StaticClass.Log("Found Processing Job        : " + jobXmlData.Job);
-            StaticClass.Log("Old Job Directory           : " + jobXmlData.JobDirectory);
-            StaticClass.Log("Old Serial Number           : " + jobXmlData.JobSerialNumber);
-            StaticClass.Log("Old Time Stamp              : " + jobXmlData.TimeStamp);
-            StaticClass.Log("Old Job Xml File            : " + jobXmlData.XmlFileName);
+            // Display job xml Data found
+            StaticClass.Log("Processing Job                 : " + jobXmlData.Job);
+            StaticClass.Log("Processing Job Directory       : " + jobXmlData.JobDirectory);
+            StaticClass.Log("Processing Job Serial Number   : " + jobXmlData.JobSerialNumber);
+            StaticClass.Log("Processing Job Time Stamp      : " + jobXmlData.TimeStamp);
+            StaticClass.Log("Processing Job Xml File        : " + jobXmlData.XmlFileName);
 
             StaticClass.Log(String.Format("Starting Processing directory Job {0} Executing slot {1} at {2:HH:mm:ss.fff}",
                 jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));

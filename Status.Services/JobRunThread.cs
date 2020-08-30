@@ -153,12 +153,12 @@ namespace Status.Services
             monitorData.NumFilesToTransfer = NumFilesToTransfer;
 
             // Get the modeler and number of files to transfer
-            StaticClass.Log(String.Format("Unit Number                 : {0}", monitorData.UnitNumber));
-            StaticClass.Log(String.Format("Modeler                     : {0}", monitorData.Modeler));
-            StaticClass.Log(String.Format("Num Files Consumed          : {0}", monitorData.NumFilesConsumed));
-            StaticClass.Log(String.Format("Num Files Produced          : {0}", monitorData.NumFilesProduced));
-            StaticClass.Log(String.Format("Num Files To Transfer       : {0}", monitorData.NumFilesToTransfer));
-            StaticClass.Log(String.Format("Job Port Number             : {0}", monitorData.JobPortNumber));
+            StaticClass.Log(String.Format("Unit Number                    : {0}", monitorData.UnitNumber));
+            StaticClass.Log(String.Format("Modeler                        : {0}", monitorData.Modeler));
+            StaticClass.Log(String.Format("Num Files Consumed             : {0}", monitorData.NumFilesConsumed));
+            StaticClass.Log(String.Format("Num Files Produced             : {0}", monitorData.NumFilesProduced));
+            StaticClass.Log(String.Format("Num Files To Transfer          : {0}", monitorData.NumFilesToTransfer));
+            StaticClass.Log(String.Format("Job Port Number                : {0}", monitorData.JobPortNumber));
 
             // Create the Transfered file list from the Xml file entries
             monitorData.TransferedFileList = new List<string>(NumFilesToTransfer);
@@ -169,7 +169,7 @@ namespace Status.Services
                 string transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
                 XmlNode TransferedFileXml = jobXmlDoc.DocumentElement.SelectSingleNode(transferFileNodeName);
                 monitorData.TransferedFileList.Add(TransferedFileXml.InnerText);
-                StaticClass.Log(String.Format("Transfer File{0}              : {1}", i, TransferedFileXml.InnerText));
+                StaticClass.Log(String.Format("Transfer File{0}               : {1}", i, TransferedFileXml.InnerText));
             }
 
             // If this job comes from the Input directory, run the Input job check and start job if found

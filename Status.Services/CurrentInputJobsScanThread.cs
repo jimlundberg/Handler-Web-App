@@ -239,13 +239,12 @@ namespace Status.Services
                 jobXmlData.TimeStamp = jobXmlData.TimeStamp;
                 jobXmlData.XmlFileName = jobXmlData.XmlFileName;
 
-                // Display xmlData found
-                StaticClass.Log("");
-                StaticClass.Log("Found Input Job             : " + jobXmlData.Job);
-                StaticClass.Log("New Job directory           : " + jobXmlData.JobDirectory);
-                StaticClass.Log("New Serial Number           : " + jobXmlData.JobSerialNumber);
-                StaticClass.Log("New Time Stamp              : " + jobXmlData.TimeStamp);
-                StaticClass.Log("New Job Xml File            : " + jobXmlData.XmlFileName);
+                // Display job xml data found
+                StaticClass.Log("Input Job                      : " + jobXmlData.Job);
+                StaticClass.Log("Input Job Directory            : " + jobXmlData.JobDirectory);
+                StaticClass.Log("Input Job Serial Number        : " + jobXmlData.JobSerialNumber);
+                StaticClass.Log("Input Job Time Stamp           : " + jobXmlData.TimeStamp);
+                StaticClass.Log("Input Job Xml File             : " + jobXmlData.XmlFileName);
 
                 StaticClass.Log(String.Format("Started Input Job {0} executing slot {1} at {2:HH:mm:ss.fff}",
                     jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));

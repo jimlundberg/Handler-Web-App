@@ -81,12 +81,6 @@ namespace Status.Services
                     }
                 }
             }
-            else
-            {
-                // Add currently unfinished job to Processing Jobs run list
-                StaticClass.ProcessingJobsToRun.Add(job);
-                StaticClass.Log(String.Format("Unfinished Processing jobs check added job {0} to Processing jobs list", job));
-            }
         }
 
         /// <summary>
