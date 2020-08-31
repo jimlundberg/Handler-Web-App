@@ -1,4 +1,4 @@
-@echo on
+@echo off
 
 REM Drops a new job directory into the Input Buffer every 10 seconds
 
