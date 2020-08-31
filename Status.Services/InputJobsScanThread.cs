@@ -93,6 +93,15 @@ namespace Status.Services
             // Check and delete expired Input Buffer job directories first
             StaticClass.CheckForInputBufferTimeLimits(iniData);
 
+            // Start the Directory Watcher class to scan for new Input Buffer jobs
+            DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(iniData, logger);
+            if (dirWatch == null)
+            {
+                Logger.LogError("InputJobsScanThread dirWatch failed to instantiate");
+            }
+            dirWatch.ProcessCompleted += newJob_DirectoryFound;
+            dirWatch.ThreadProc();
+
             // Register with the Processing Buffer Jobs check completion event and start its thread
             ProcessingJobsScanThread unfinishedProcessingJobs = new ProcessingJobsScanThread(iniData, statusData, logger);
             if (unfinishedProcessingJobs == null)
@@ -199,15 +208,6 @@ namespace Status.Services
 
             // Clear the Directory Info List after done with it
             inputDirectoryInfoList.Clear();
-
-            // Start the Directory Watcher class to scan for new jobs
-            DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(iniData, logger);
-            if (dirWatch == null)
-            {
-                Logger.LogError("InputJobsScanThread dirWatch failed to instantiate");
-            }
-            dirWatch.ProcessCompleted += newJob_DirectoryFound;
-            dirWatch.ThreadProc();
 
             // Run new Input job watch loop here forever
             do
