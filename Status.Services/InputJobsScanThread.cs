@@ -151,30 +151,27 @@ namespace Status.Services
 
             // Start the jobs in the directory list found for the Input Buffer
             bool foundUnfinishedJobs = false;
-            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+            for (int i = 0; i < InputDirectoryInfoList.Count; i++)
             {
-                for (int i = 0; i < InputDirectoryInfoList.Count; i++)
+                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
-                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
-                    {
-                        DirectoryInfo dirInfo = InputDirectoryInfoList[i];
-                        string directory = dirInfo.ToString();
-                        string job = directory.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
+                    DirectoryInfo dirInfo = InputDirectoryInfoList[i];
+                    string directory = dirInfo.ToString();
+                    string job = directory.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
 
-                        StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                    StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
-                        StaticClass.InputFileScanComplete[job] = false;
-                        InputJobsScanThread inputJobsScanThread = new InputJobsScanThread();
-                        inputJobsScanThread.StartInputJob(directory, iniData, statusData, logger);
-                        InputDirectoryInfoList.Remove(dirInfo);
+                    StaticClass.InputFileScanComplete[job] = false;
+                    InputJobsScanThread inputJobsScanThread = new InputJobsScanThread();
+                    inputJobsScanThread.StartInputJob(directory, iniData, statusData, logger);
+                    InputDirectoryInfoList.Remove(dirInfo);
 
-                        // Throttle the Job startups
-                        Thread.Sleep(StaticClass.ScanWaitTime);
-                    }
-                    else
-                    {
-                        foundUnfinishedJobs = true;
-                    }
+                    // Throttle the Job startups
+                    Thread.Sleep(StaticClass.ScanWaitTime);
+                }
+                else
+                {
+                    foundUnfinishedJobs = true;
                 }
 
                 if (foundUnfinishedJobs == true)
@@ -205,6 +202,18 @@ namespace Status.Services
             dirWatch.ProcessCompleted += newJob_DirectoryFound;
             dirWatch.ThreadProc();
 
+            // Run method to endlessly scan for Unfinished Input jobs
+            CheckForUnfinishedInputJobs(iniData, statusData, logger);
+        }
+
+        /// <summary>
+        /// Check for unfinished Input Buffer jobs
+        /// </summary>
+        /// <param name="iniData"></param>
+        /// <param name="statusData"></param>
+        /// <param name="logger"></param>
+        public void CheckForUnfinishedInputJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        {
             // Wait forever while scanning for new jobs
             do
             {
@@ -219,12 +228,12 @@ namespace Status.Services
                         StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                         StaticClass.InputFileScanComplete[job] = false;
-                                
+
                         InputJobsScanThread unfinishedInputJobsScan = new InputJobsScanThread();
                         unfinishedInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
-                                
+
                         StaticClass.InputJobsToRun.Remove(job);
-                                
+
                         // Throttle the Job startups
                         Thread.Sleep(StaticClass.ScanWaitTime);
                     }

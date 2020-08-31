@@ -164,7 +164,7 @@ namespace Status.Services
                 Thread.Sleep(1000);
 
                 // Check if there are any more unfinished Processing jobs
-                RunAnyUnfinishedProcessingsJobs(IniData, StatusDataList, Logger);
+                CheckForUnfinishedProcessingsJobs(IniData, StatusDataList, Logger);
             }
             while (StaticClass.ProcessingJobsToRun.Count > 0);
 
@@ -178,7 +178,7 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public void RunAnyUnfinishedProcessingsJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public void CheckForUnfinishedProcessingsJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Start Processing jobs currently waiting
             for (int i = 0; i < StaticClass.ProcessingJobsToRun.Count; i++)
