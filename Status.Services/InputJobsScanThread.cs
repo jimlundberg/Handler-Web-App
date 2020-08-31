@@ -187,23 +187,23 @@ namespace Status.Services
                 {
                     foundUnfinishedJobs = true;
                 }
+            }
 
-                if (foundUnfinishedJobs == true)
-                {
-                    StaticClass.Log("\nMore unfinished Input Jobs then Execution Slots available...\n");
-                }
+            if (foundUnfinishedJobs == true)
+            {
+                StaticClass.Log("\nMore unfinished Input Jobs then Execution Slots available...\n");
+            }
 
-                // Sort the Input Buffer directory list by older dates first
-                inputDirectoryInfoList.Sort((x, y) => -x.LastAccessTime.CompareTo(y.LastAccessTime));
+            // Sort the Input Buffer directory list by older dates first
+            inputDirectoryInfoList.Sort((x, y) => -x.LastAccessTime.CompareTo(y.LastAccessTime));
 
-                // Add the jobs in the directory list to the Input Buffer Jobs to run list
-                foreach (DirectoryInfo dirInfo in inputDirectoryInfoList)
-                {
-                    string directory = dirInfo.ToString();
-                    string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
-                    StaticClass.InputJobsToRun.Add(job);
-                    StaticClass.Log(String.Format("\nUnfinished Input jobs check added job {0} to Input Job waiting list", job));
-                }
+            // Add the jobs in the directory list to the Input Buffer Jobs to run list
+            foreach (DirectoryInfo dirInfo in inputDirectoryInfoList)
+            {
+                string directory = dirInfo.ToString();
+                string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
+                StaticClass.InputJobsToRun.Add(job);
+                StaticClass.Log(String.Format("\nUnfinished Input jobs check added job {0} to Input Job waiting list", job));
             }
 
             // Clear the Directory Info List after done with it
