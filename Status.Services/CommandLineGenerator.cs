@@ -12,10 +12,10 @@ namespace Status.Services
     /// </summary>
     public class CommandLineGenerator
     {
-        private readonly string Executable;
-        private readonly string ProcessingDir;
-        private readonly string StartPort;
-        private readonly string CpuCores;
+        public readonly string Executable;
+        public readonly string ProcessingDir;
+        public readonly string StartPort;
+        public readonly string CpuCores;
 
         /// <summary>
         /// Command Line Generator Constructor 
@@ -49,6 +49,11 @@ namespace Status.Services
                 WorkingDirectory = ProcessingDir,
                 WindowStyle = ProcessWindowStyle.Minimized
             };
+
+            if (startInfo == null)
+            {
+                logger.LogError("CommandLineGenerator startInfo failed to instantiate");
+            }
 
             // Start the Modeler process window
             Process ModelerProcess = Process.Start(startInfo);

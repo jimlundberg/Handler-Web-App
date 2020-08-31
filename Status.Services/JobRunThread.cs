@@ -291,7 +291,10 @@ namespace Status.Services
             {
                 Logger.LogError("ProcessingFileWatcherThread cmdLineGenerator failed to instantiate");
             }
-            cmdLineGenerator.ExecuteCommand(monitorData, logger);
+            else
+            {
+                cmdLineGenerator.ExecuteCommand(monitorData, logger);
+            }
 
             // Sleep to allow the Modeler to start before starting Process Buffer job file monitoring
             Thread.Sleep(500);
