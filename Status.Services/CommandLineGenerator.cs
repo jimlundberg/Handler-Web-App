@@ -38,10 +38,8 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        public Process ExecuteCommand(StatusMonitorData monitorData, ILogger<StatusRepository> logger)
+        public Process ExecuteCommand(string job, ILogger<StatusRepository> logger)
         {
-            string job = monitorData.Job;
-
             ProcessStartInfo startInfo = new ProcessStartInfo(Executable)
             {
                 Arguments = String.Format("{0} {1} {2}", ProcessingDir, StartPort, CpuCores),

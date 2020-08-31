@@ -89,7 +89,7 @@ namespace Status.Services
             {
                 // All files needed dected
                 StaticClass.Log(
-                    String.Format("\nInput File Watcher detected the complete {0} of {1} Input job {2} files at {3:HH:mm:ss.fff}",
+                    String.Format("\nInput File Watcher detected a complete set {0} of {1} Input job {2} files at {3:HH:mm:ss.fff}",
                     StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], job, DateTime.Now));
 
                 // Signal the Run thread that the Input files were found

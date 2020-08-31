@@ -88,12 +88,11 @@ namespace Status.Services
 
             // Processing job file added
             StaticClass.Log(String.Format("\nProcessing File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
-                jobDirectory, StaticClass.NumberOfProcessingFilesFound[job],
-                StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
+                jobDirectory, StaticClass.NumberOfProcessingFilesFound[job], StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
 
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
-                StaticClass.Log(String.Format("\nProcessing File Watcher detected the complete set {0} of {1} Processing job {2} files at {3:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("\nProcessing File Watcher detected a complete set {0} of {1} Processing job {2} files at {3:HH:mm:ss.fff}",
                     StaticClass.NumberOfProcessingFilesFound[job], StaticClass.NumberOfProcessingFilesNeeded[job], job, DateTime.Now));
 
                 // Signal the Processing job Scan thread that all the Processing files were found for a job
@@ -107,7 +106,7 @@ namespace Status.Services
         /// <param name="directory"></param>
         /// <param name="iniData"></param>
         /// <returns></returns>
-        public bool OverallResultEntryCheck(string directory, IniFileData iniData)
+        public bool OverallResultEntryCheck(string directory)
         {
             bool OverallResultEntryFound = false;
             do
@@ -131,7 +130,7 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(String.Format("\nShutdown ProcessingFileWatcher Thread OverallResultEntryCheck for file {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(String.Format("\nShutdown ProcessingFileWatcherThread OverallResultEntryCheck for file {0} at {1:HH:mm:ss.fff}",
                         directory, DateTime.Now));
                     return false;
                 }
@@ -246,11 +245,11 @@ namespace Status.Services
                 }
                 while ((StaticClass.ProcessingFileScanComplete[job] == false) || (StaticClass.TcpIpScanComplete[job] == false));
 
-                // Check if the Processing Job Complete is already set for shutdowns
+                // Check if the Processing Job Complete is still set because of possible shutdown
                 if (StaticClass.ProcessingJobScanComplete[job] == false)
                 {
                     // Wait for the data.xml file to contain a result
-                    if (OverallResultEntryCheck(directory, iniData))
+                    if (OverallResultEntryCheck(directory))
                     {
                         StaticClass.ProcessingJobScanComplete[job] = true;
                     }
