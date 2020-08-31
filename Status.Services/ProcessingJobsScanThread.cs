@@ -135,7 +135,7 @@ namespace Status.Services
                 string directory = dirInfo.ToString();
                 string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
                 StaticClass.ProcessingJobsToRun.Add(job);
-                StaticClass.Log(String.Format("Unfinished Processing jobs check added job {0} to Processing Job waiting list", job));
+                StaticClass.Log(String.Format("\nUnfinished Processing jobs check added job {0} to Processing Job waiting list", job));
             }
 
             // Clear the Directory Info List after done with it

@@ -185,7 +185,7 @@ namespace Status.Services
                     string directory = dirInfo.ToString();
                     string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
                     StaticClass.InputJobsToRun.Add(job);
-                    StaticClass.Log(String.Format("Unfinished Input jobs check added job {0} to Input Job waiting list", job));
+                    StaticClass.Log(String.Format("\nUnfinished Input jobs check added job {0} to Input Job waiting list", job));
                 }
             }
 
@@ -202,7 +202,7 @@ namespace Status.Services
             dirWatch.ProcessCompleted += newJob_DirectoryFound;
             dirWatch.ThreadProc();
 
-            // Run check loop until all unfinished Input jobs are complete
+            // Run new Input job check loop here forever
             do
             {
                 // Check if the shutdown flag is set, exit method
@@ -226,9 +226,9 @@ namespace Status.Services
                 Thread.Sleep(1000);
 
                 // Run any unfinished Processing jobs
-                RunUnfinishedInputJobs(IniData, StatusDataList, Logger);
+                RunInputJobsFound(IniData, StatusDataList, Logger);
             }
-            while (StaticClass.InputJobsToRun.Count > 0);
+            while (true);
         }
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public void RunUnfinishedInputJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public void RunInputJobsFound(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Check if there are unfinished Input jobs waiting to run
             for (int i = 0; i < StaticClass.InputJobsToRun.Count; i++)
