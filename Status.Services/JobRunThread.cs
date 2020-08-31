@@ -62,10 +62,11 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(String.Format("Input_fileScan_FilesFound Received required number of files for {0} at {1:HH:mm:ss.fff}",
+            // Send message after receiving Input Buffer file scan loop complete
+            StaticClass.Log(String.Format("Input_fileScan_FilesFound Received required for Job {0} at {1:HH:mm:ss.fff}",
                job, DateTime.Now));
 
-            // Set Flag for ending file scan loop
+            // Set Flag for ending Input file scan loop
             StaticClass.InputFileScanComplete[job] = true;
         }
 
@@ -78,7 +79,25 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(String.Format("Processing_fileScan_FilesFound Received required number of files for {0} at {1:HH:mm:ss.fff}",
+            // Send message after receiving Processing Buffer file scan loop complete
+            StaticClass.Log(String.Format("Processing_fileScan_FilesFound Received for Job {0} at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
+
+            // Set Flag for ending Processing file scan loop
+            StaticClass.ProcessingFileScanComplete[job] = true;
+        }
+
+        /// <summary>
+        /// Command Line Process complete callback
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public static void cmdLineThread_ProcessCompleted(object sender, EventArgs e)
+        {
+            string job = e.ToString();
+
+            // Send message after receiving Command Line process complete
+            StaticClass.Log(String.Format("cmdLineThread_ProcessCompleted Received for Job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -262,15 +281,17 @@ namespace Status.Services
             StaticClass.Log(String.Format("Starting Job {0} with Modeler {1} on port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
                 job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores, DateTime.Now));
 
-            // Load and execute Modeler using command line generator
-            CommandLineGenerator cmdLine = new CommandLineGenerator();
-            cmdLine.SetExecutableFile(iniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe");
-            cmdLine.SetRepositoryDir(processingBufferJobDir);
-            cmdLine.SetStartPort(monitorData.JobPortNumber);
-            cmdLine.SetCpuCores(iniData.CPUCores);
-            CommandLineGeneratorThread commandLinethread = new CommandLineGeneratorThread(cmdLine, monitorData, iniData, logger);
-            Thread thread = new Thread(new ThreadStart(commandLinethread.ThreadProc));
-            thread.Start();
+            // Execute Modeler using the command line generator
+            string executable = iniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe";
+            string processingBuffer = processingBufferJobDir;
+            int port = monitorData.JobPortNumber;
+            int cpuCores = iniData.CPUCores;
+            CommandLineGenerator cmdLineGenerator = new CommandLineGenerator(executable, processingBuffer, port, cpuCores);
+            if (cmdLineGenerator == null)
+            {
+                Logger.LogError("ProcessingFileWatcherThread cmdLineGenerator failed to instantiate");
+            }
+            cmdLineGenerator.ExecuteCommand(monitorData, logger);
 
             // Sleep to allow the Modeler to start before starting Process Buffer job file monitoring
             Thread.Sleep(500);

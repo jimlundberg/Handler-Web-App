@@ -10,75 +10,47 @@ namespace Status.Services
     /// <summary>
     /// Class to run the Command Line Generator
     /// </summary>
-    public class CommandLineGeneratorThread
-    {
-        /// <summary>
-        /// Object used in the task
-        /// </summary>
-        private readonly CommandLineGenerator CommandLineGenerator;
-        private readonly IniFileData IniData;
-        private readonly StatusMonitorData MonitorData;
-        public static ILogger<StatusRepository> Logger;
-
-        /// <summary>
-        /// The constructor obtains the object information  
-        /// </summary>
-        /// <param name="commandLineGenerator"></param>
-        /// <param name="monitorData"></param>
-        /// <param name="iniData"></param>
-        /// <param name="logger"></param>
-        public CommandLineGeneratorThread(CommandLineGenerator commandLineGenerator,
-            StatusMonitorData monitorData, IniFileData iniData, ILogger<StatusRepository> logger)
-        {
-            CommandLineGenerator = commandLineGenerator;
-            MonitorData = monitorData;
-            IniData = iniData;
-            Logger = logger;
-        }
-
-        /// <summary>
-        /// The thread procedure performs the task using the command line object instance 
-        /// </summary>
-        public void ThreadProc()
-        {
-            CommandLineGenerator.ExecuteCommand(MonitorData, IniData, Logger);
-        }
-    }
-
-    /// <summary>
-    /// Class to generate and execute a command line start of the Modeler executable
-    /// </summary>
     public class CommandLineGenerator
     {
-        private string Executable;
-        private string ProcessingDir;
-        private string StartPort;
-        private string CpuCores;
+        private readonly string Executable;
+        private readonly string ProcessingDir;
+        private readonly string StartPort;
+        private readonly string CpuCores;
 
-        public CommandLineGenerator() { }
-        public string GetCurrentDirector() { return Directory.GetCurrentDirectory(); }
-        public void SetExecutableFile(string executable) { Executable = executable; }
-        public void SetRepositoryDir(string processingDir) { ProcessingDir = "-d " + processingDir; }
-        public void SetStartPort(int startPort) { StartPort = "-s " + startPort.ToString(); }
-        public void SetCpuCores(int cpuCores) { CpuCores = "-p " + cpuCores.ToString(); }
+        /// <summary>
+        /// Command Line Generator Constructor 
+        /// </summary>
+        /// <param name="executable"></param>
+        /// <param name="processingDir"></param>
+        /// <param name="startPort"></param>
+        /// <param name="cpuCores"></param>
+        public CommandLineGenerator(string executable, string processingDir, int startPort, int cpuCores)
+        {
+            Executable = executable;
+            ProcessingDir = "-d " + processingDir;
+            StartPort = "-s " + startPort.ToString();
+            CpuCores = "-p " + cpuCores.ToString();
+        }
 
         /// <summary>
         /// Execute the Modeler command line 
         /// </summary>
         /// <param name="monitorData"></param>
-        /// <param name="iniData"></param>
         /// <param name="logger"></param>
         /// <returns></returns>
-        public Process ExecuteCommand(StatusMonitorData monitorData, IniFileData iniData, ILogger<StatusRepository> logger)
+        public Process ExecuteCommand(StatusMonitorData monitorData, ILogger<StatusRepository> logger)
         {
             string job = monitorData.Job;
 
-            ProcessStartInfo startInfo = new ProcessStartInfo(Executable);
-            startInfo.Arguments = String.Format("{0} {1} {2}", ProcessingDir, StartPort, CpuCores);
-            startInfo.UseShellExecute = true;
-            startInfo.WorkingDirectory = ProcessingDir;
-            startInfo.WindowStyle = ProcessWindowStyle.Minimized;
+            ProcessStartInfo startInfo = new ProcessStartInfo(Executable)
+            {
+                Arguments = String.Format("{0} {1} {2}", ProcessingDir, StartPort, CpuCores),
+                UseShellExecute = true,
+                WorkingDirectory = ProcessingDir,
+                WindowStyle = ProcessWindowStyle.Minimized
+            };
 
+            // Start the Modeler process window
             Process ModelerProcess = Process.Start(startInfo);
             if (ModelerProcess == null)
             {
@@ -91,12 +63,11 @@ namespace Status.Services
             // Store process handle to use for stopping
             StaticClass.ProcessHandles[job] = ModelerProcess;
 
-            // Give the Modeler time to start so you can read the main window title
+            // Give the Modeler time so you can read the Main Window Title parameter for display confirmation
             Thread.Sleep(1000);
-
             StaticClass.Log(String.Format("{0} {1}", ModelerProcess.MainWindowTitle, ModelerProcess.StartInfo.Arguments));
 
-            // Wait for Modeler to get going before reading it's information
+            // Wait 30 seconds for Modeler to get started before reading it's information
             Thread.Sleep(30000);
 
             // Display Modeler Executable information
