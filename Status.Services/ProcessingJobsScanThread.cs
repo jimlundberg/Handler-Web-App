@@ -70,7 +70,7 @@ namespace Status.Services
         /// <param name="logger"></param>
         public void CheckForUnfinishedProcessingJobs(IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
-            // Register with the Processing Buffer Jobs class event and start its thread
+            // Register with the Processing Buffer Jobs completion event and start its thread
             DirectoryInfo processingDirectoryInfo = new DirectoryInfo(iniData.ProcessingDir);
             if (processingDirectoryInfo == null)
             {
@@ -81,7 +81,7 @@ namespace Status.Services
             List<DirectoryInfo> processingDirectoryInfoList = processingDirectoryInfo.EnumerateDirectories().ToList();
             if (processingDirectoryInfoList == null)
             {
-                Logger.LogError("ProcessingJobsScanThread ProcessingDirectoryInfoList failed to instantiate");
+                Logger.LogError("ProcessingJobsScanThread processingDirectoryInfoList failed to instantiate");
             }
 
             StaticClass.Log("\nChecking for unfinished Processing Jobs...");
@@ -109,11 +109,14 @@ namespace Status.Services
 
                         StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
+                        // Reset Processing file scan flag
                         StaticClass.ProcessingFileScanComplete[job] = false;
 
+                        // Start a Processing Buffer Job
                         ProcessingJobsScanThread processingJobsScanThread = new ProcessingJobsScanThread();
                         processingJobsScanThread.StartProcessingJob(directory, iniData, statusData, logger);
-                        
+
+                        // Remove job just run from the Processing directory scanned list                        
                         processingDirectoryInfoList.Remove(dirInfo);
 
                         // Throttle the Job startups
@@ -131,7 +134,10 @@ namespace Status.Services
                 StaticClass.Log("\nMore unfinished Processing Jobs then Execution Slots available...\n");
             }
 
-            // Put the extra jobs found into the Processing Buffer directory into the ProcessingJobsToRun list
+            // Sort the directory information before putting it in the Processing Jobs to run list
+            processingDirectoryInfoList.Sort((x, y) => x.LastAccessTime.CompareTo(y.LastAccessTime));
+
+            // Add the jobs in the directory list to the Processing Buffer Jobs to run list
             foreach (DirectoryInfo dirInfo in processingDirectoryInfoList)
             {
                 string directory = dirInfo.ToString();
@@ -149,7 +155,7 @@ namespace Status.Services
                 // Check if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(String.Format("\nShutdown ProcessingJobsScanThread CheckForCurrentProcessingJobs at {0:HH:mm:ss.fff}", DateTime.Now));
+                    StaticClass.Log(String.Format("\nShutdown ProcessingJobsScanThread CheckForUnfinishedInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
 
@@ -193,12 +199,15 @@ namespace Status.Services
 
                     StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
+                    // Reset Processing job and file scan flags
                     StaticClass.ProcessingFileScanComplete[job] = false;
                     StaticClass.ProcessingJobScanComplete[job] = false;
 
+                    // start a Processing Buffer Job
                     ProcessingJobsScanThread unfinishedProcessingJobsScan = new ProcessingJobsScanThread();
                     unfinishedProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
                     
+                    // Remove job just run from the Processing Jobs to run list
                     StaticClass.ProcessingJobsToRun.Remove(job);
 
                     // Throttle the Job startups

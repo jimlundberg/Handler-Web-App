@@ -93,14 +93,14 @@ namespace Status.Services
             // Check and delete expired Input Buffer job directories first
             StaticClass.CheckForInputBufferTimeLimits(iniData);
 
-            // Register with the Input Buffer Jobs class event and start its thread
-            ProcessingJobsScanThread currentProcessingJobs = new ProcessingJobsScanThread(iniData, statusData, logger);
-            if (currentProcessingJobs == null)
+            // Register with the Processing Buffer Jobs check completion event and start its thread
+            ProcessingJobsScanThread unfinishedProcessingJobs = new ProcessingJobsScanThread(iniData, statusData, logger);
+            if (unfinishedProcessingJobs == null)
             {
                 Logger.LogError("InputJobsScanThread currentProcessingJobs failed to instantiate");
             }
-            currentProcessingJobs.ProcessCompleted += currentInputJob_ProcessCompleted;
-            currentProcessingJobs.ThreadProc();
+            unfinishedProcessingJobs.ProcessCompleted += currentInputJob_ProcessCompleted;
+            unfinishedProcessingJobs.ThreadProc();
 
             // Wait while scanning for unfinished Processing jobs
             do
@@ -161,9 +161,14 @@ namespace Status.Services
 
                     StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
+                    // Reset Input file scan flag
                     StaticClass.InputFileScanComplete[job] = false;
+
+                    // Start an Input Buffer Job
                     InputJobsScanThread inputJobsScanThread = new InputJobsScanThread();
                     inputJobsScanThread.StartInputJob(directory, iniData, statusData, logger);
+
+                    // Remove job just run from the Input Jobs to run list
                     InputDirectoryInfoList.Remove(dirInfo);
 
                     // Throttle the Job startups
@@ -179,7 +184,10 @@ namespace Status.Services
                     StaticClass.Log("\nMore unfinished Input Jobs then Execution Slots available...\n");
                 }
 
-                // Start the jobs in the directory list found on initial scan of the Input Buffer
+                // Sort the directory information before putting it in the Input Jobs to run list
+                InputDirectoryInfoList.Sort((x, y) => x.LastAccessTime.CompareTo(y.LastAccessTime));
+
+                // Add the jobs in the directory list to the Input Buffer Jobs to run list
                 foreach (DirectoryInfo dirInfo in InputDirectoryInfoList)
                 {
                     string directory = dirInfo.ToString();
@@ -207,7 +215,7 @@ namespace Status.Services
                 // Check if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(String.Format("\nShutdown InputJobsScanThread CheckForCurrentProcessingJobs at {0:HH:mm:ss.fff}", DateTime.Now));
+                    StaticClass.Log(String.Format("\nShutdown InputJobsScanThread CheckForUnfinishedInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
 
