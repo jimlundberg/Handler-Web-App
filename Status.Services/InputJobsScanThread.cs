@@ -208,27 +208,25 @@ namespace Status.Services
             // Wait forever while scanning for new jobs
             do
             {
-                if (StaticClass.InputJobsToRun.Count > 0)
+                // Check if there are jobs waiting to run
+                for (int i = 0; i < StaticClass.InputJobsToRun.Count; i++)
                 {
                     if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                     {
-                        // Check if there are jobs waiting to run
-                        for (int i = 0; i < StaticClass.InputJobsToRun.Count; i++)
-                        {
-                            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
-                            {
-                                string job = StaticClass.InputJobsToRun[i];
-                                string directory = iniData.InputDir + @"\" + job;
+                        string job = StaticClass.InputJobsToRun[i];
+                        string directory = iniData.InputDir + @"\" + job;
 
-                                StaticClass.InputFileScanComplete[job] = false;
-                                InputJobsScanThread newInputJobsScan = new InputJobsScanThread();
-                                newInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
-                                StaticClass.InputJobsToRun.RemoveAt(i);
+                        StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+
+                        StaticClass.InputFileScanComplete[job] = false;
                                 
-                                // Throttle the Job startups
-                                Thread.Sleep(StaticClass.ScanWaitTime);
-                            }
-                        }
+                        InputJobsScanThread unfinishedInputJobsScan = new InputJobsScanThread();
+                        unfinishedInputJobsScan.StartInputJob(directory, iniData, statusData, logger);
+                                
+                        StaticClass.InputJobsToRun.Remove(job);
+                                
+                        // Throttle the Job startups
+                        Thread.Sleep(StaticClass.ScanWaitTime);
                     }
                 }
 

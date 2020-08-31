@@ -187,9 +187,15 @@ namespace Status.Services
                 {
                     string directory = iniData.ProcessingDir + @"\" + StaticClass.ProcessingJobsToRun[i];
                     string job = directory.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
-                    ProcessingJobsScanThread currentProcessingJobsScan = new ProcessingJobsScanThread();
+
                     StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
-                    currentProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
+
+                    StaticClass.ProcessingFileScanComplete[job] = false;
+                    StaticClass.ProcessingJobScanComplete[job] = false;
+
+                    ProcessingJobsScanThread unfinishedProcessingJobsScan = new ProcessingJobsScanThread();
+                    unfinishedProcessingJobsScan.StartProcessingJob(directory, iniData, statusData, logger);
+                    
                     StaticClass.ProcessingJobsToRun.Remove(job);
 
                     // Throttle the Job startups
