@@ -134,8 +134,8 @@ namespace Status.Services
                 StaticClass.Log("\nMore unfinished Processing Jobs then Execution Slots available...\n");
             }
 
-            // Sort the directory information before putting it in the Processing Jobs to run list
-            processingDirectoryInfoList.Sort((x, y) => x.LastAccessTime.CompareTo(y.LastAccessTime));
+            // Sort the Processing Buffer directory list by older dates first
+            processingDirectoryInfoList.Sort((x, y) => -x.LastAccessTime.CompareTo(y.LastAccessTime));
 
             // Add the jobs in the directory list to the Processing Buffer Jobs to run list
             foreach (DirectoryInfo dirInfo in processingDirectoryInfoList)

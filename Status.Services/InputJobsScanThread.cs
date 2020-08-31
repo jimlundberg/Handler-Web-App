@@ -134,13 +134,13 @@ namespace Status.Services
             }
 
             // Get the current list of directories from the Input Buffer
-            List<DirectoryInfo> InputDirectoryInfoList = InputDirectoryInfo.EnumerateDirectories().ToList();
-            if (InputDirectoryInfoList == null)
+            List<DirectoryInfo> inputDirectoryInfoList = InputDirectoryInfo.EnumerateDirectories().ToList();
+            if (inputDirectoryInfoList == null)
             {
-                Logger.LogError("InputJobsScanThread InputDirectoryInfoList failed to instantiate");
+                Logger.LogError("InputJobsScanThread inputDirectoryInfoList failed to instantiate");
             }
 
-            if (InputDirectoryInfoList.Count > 0)
+            if (inputDirectoryInfoList.Count > 0)
             {
                 StaticClass.Log("\nUnfinished Input Jobs waiting...");
             }
@@ -151,11 +151,11 @@ namespace Status.Services
 
             // Start the jobs in the directory list found for the Input Buffer
             bool foundUnfinishedJobs = false;
-            for (int i = 0; i < InputDirectoryInfoList.Count; i++)
+            for (int i = 0; i < inputDirectoryInfoList.Count; i++)
             {
                 if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
-                    DirectoryInfo dirInfo = InputDirectoryInfoList[i];
+                    DirectoryInfo dirInfo = inputDirectoryInfoList[i];
                     string directory = dirInfo.ToString();
                     string job = directory.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
 
@@ -169,7 +169,7 @@ namespace Status.Services
                     inputJobsScanThread.StartInputJob(directory, iniData, statusData, logger);
 
                     // Remove job just run from the Input Jobs to run list
-                    InputDirectoryInfoList.Remove(dirInfo);
+                    inputDirectoryInfoList.Remove(dirInfo);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
@@ -184,11 +184,11 @@ namespace Status.Services
                     StaticClass.Log("\nMore unfinished Input Jobs then Execution Slots available...\n");
                 }
 
-                // Sort the directory information before putting it in the Input Jobs to run list
-                InputDirectoryInfoList.Sort((x, y) => x.LastAccessTime.CompareTo(y.LastAccessTime));
+                // Sort the Input Buffer directory list by older dates first
+                inputDirectoryInfoList.Sort((x, y) => -x.LastAccessTime.CompareTo(y.LastAccessTime));
 
                 // Add the jobs in the directory list to the Input Buffer Jobs to run list
-                foreach (DirectoryInfo dirInfo in InputDirectoryInfoList)
+                foreach (DirectoryInfo dirInfo in inputDirectoryInfoList)
                 {
                     string directory = dirInfo.ToString();
                     string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
@@ -198,7 +198,7 @@ namespace Status.Services
             }
 
             // Clear the Directory Info List after done with it
-            InputDirectoryInfoList.Clear();
+            inputDirectoryInfoList.Clear();
 
             // Start the Directory Watcher class to scan for new jobs
             DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(iniData, logger);
