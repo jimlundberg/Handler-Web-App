@@ -88,7 +88,7 @@ namespace Status.Services
 
             if (processingDirectoryInfoList.Count > 0)
             {
-                StaticClass.Log("\nUnfinished Processing jobs waiting...");
+                StaticClass.Log("\nUnfinished Processing Jobs waiting...");
             }
             else
             {
@@ -110,8 +110,10 @@ namespace Status.Services
                         StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                         StaticClass.ProcessingFileScanComplete[job] = false;
+
                         ProcessingJobsScanThread processingJobsScanThread = new ProcessingJobsScanThread();
                         processingJobsScanThread.StartProcessingJob(directory, iniData, statusData, logger);
+                        
                         processingDirectoryInfoList.Remove(dirInfo);
 
                         // Throttle the Job startups
@@ -126,7 +128,7 @@ namespace Status.Services
 
             if (foundUnfinishedJobs == true)
             {
-                StaticClass.Log("\nMore unfinished Processing jobs then execution slots found...\n");
+                StaticClass.Log("\nMore unfinished Processing Jobs then Execution Slots available...\n");
             }
 
             // Put the extra jobs found into the Processing Buffer directory into the ProcessingJobsToRun list
@@ -212,7 +214,7 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public void StartProcessingJob(string directory, IniFileData iniData, 
+        public void StartProcessingJob(string directory, IniFileData iniData,
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Delete the data.xml file in the Processing directory if found
@@ -246,7 +248,7 @@ namespace Status.Services
             StaticClass.Log("Processing Job Time Stamp      : " + jobXmlData.TimeStamp);
             StaticClass.Log("Processing Job Xml File        : " + jobXmlData.XmlFileName);
 
-            StaticClass.Log(String.Format("Starting Processing directory Job {0} Executing slot {1} at {2:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Starting Processing directory Job {0} Executing Slot {1} at {2:HH:mm:ss.fff}",
                 jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
             // Create a thread to run the job, and then start the thread
@@ -256,24 +258,6 @@ namespace Status.Services
                 Logger.LogError("ProcessingJobsScanThread thread failed to instantiate");
             }
             thread.ThreadProc();
-
-            // Check if the shutdown flag is set, exit method
-            if (StaticClass.ShutdownFlag == true)
-            {
-                StaticClass.Log(String.Format("\nShutdown CurrentProcessingJobsScanThread StartProcessingJob at {0:HH:mm:ss.fff}",
-                    DateTime.Now));
-                return;
-            }
-
-            // Check if the pause flag is set, then wait for reset
-            if (StaticClass.PauseFlag == true)
-            {
-                do
-                {
-                    Thread.Yield();
-                }
-                while (StaticClass.PauseFlag == true);
-            }
         }
     }
 }

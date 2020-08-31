@@ -176,7 +176,7 @@ namespace Status.Services
 
                 if (foundUnfinishedJobs == true)
                 {
-                    StaticClass.Log("\nMore unfinished Input jobs then execution slots found...\n");
+                    StaticClass.Log("\nMore unfinished Input Jobs then Execution Slots available...\n");
                 }
 
                 // Start the jobs in the directory list found on initial scan of the Input Buffer
@@ -193,16 +193,15 @@ namespace Status.Services
             InputDirectoryInfoList.Clear();
 
             // Start the Directory Watcher class to scan for new jobs
-            DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(IniData, Logger);
+            DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(iniData, logger);
             if (dirWatch == null)
             {
                 Logger.LogError("InputJobsScanThread dirWatch failed to instantiate");
             }
-
             dirWatch.ProcessCompleted += newJob_DirectoryFound;
             dirWatch.ThreadProc();
 
-            // Run new Input job check loop here forever
+            // Run new Input job watch loop here forever
             do
             {
                 // Check if the shutdown flag is set, exit method
@@ -269,7 +268,8 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
         /// <param name="logger"></param>
-        public void StartInputJob(string directory, IniFileData iniData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public void StartInputJob(string directory, IniFileData iniData,
+            List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
             // Get data found in Job xml file
             JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(directory, iniData, DirectoryScanType.INPUT_BUFFER);
@@ -302,24 +302,6 @@ namespace Status.Services
                 Logger.LogError("InputJobsScanThread thread failed to instantiate");
             }
             thread.ThreadProc();
-
-            // Check if the shutdown flag is set, exit method
-            if (StaticClass.ShutdownFlag == true)
-            {
-                StaticClass.Log(String.Format("\nShutdown InputJobsScanThread StartInputJob of job {0} at {1:HH:mm:ss.fff}",
-                    job, DateTime.Now));
-                return;
-            }
-
-            // Check if the pause flag is set, then wait for reset
-            if (StaticClass.PauseFlag == true)
-            {
-                do
-                {
-                    Thread.Yield();
-                }
-                while (StaticClass.PauseFlag == true);
-            }
         }
     }
 }

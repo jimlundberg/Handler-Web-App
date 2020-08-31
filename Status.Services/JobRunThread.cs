@@ -275,16 +275,16 @@ namespace Status.Services
             // Sleep to allow the Modeler to start before starting Process Buffer job file monitoring
             Thread.Sleep(500);
 
-            // Register with the File Watcher class with an event and start its thread
+            // Register with the Processing File Watcher class with an event and start its thread
             int numFilesNeeded = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
-            ProcessingFileWatcherThread ProcessingFileWatch = new ProcessingFileWatcherThread(
+            ProcessingFileWatcherThread processingFileWatcher = new ProcessingFileWatcherThread(
                 processingBufferJobDir, numFilesNeeded, iniData, monitorData, statusData, logger);
-            if (ProcessingFileWatch == null)
+            if (processingFileWatcher == null)
             {
                 logger.LogError("JobRunThread ProcessingFileWatch failed to instantiate");
             }
-            ProcessingFileWatch.ProcessCompleted += Processing_fileScan_FilesFound;
-            ProcessingFileWatch.ThreadProc();
+            processingFileWatcher.ProcessCompleted += Processing_fileScan_FilesFound;
+            processingFileWatcher.ThreadProc();
 
             // Add entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, logger);
