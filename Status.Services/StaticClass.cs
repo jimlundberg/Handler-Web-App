@@ -27,7 +27,6 @@ namespace Status.Services
         public static Thread InputFileWatcherThreadHandle;
         public static Thread JobRunThreadHandle;
         public static Thread TcpIpListenThreadHandle;
-        public static Thread CommandLineThreadHandle;
 
         public static volatile bool ShutdownFlag = false;
         public static volatile bool PauseFlag = false;
