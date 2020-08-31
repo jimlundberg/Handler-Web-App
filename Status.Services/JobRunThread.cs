@@ -287,17 +287,7 @@ namespace Status.Services
             int port = monitorData.JobPortNumber;
             int cpuCores = iniData.CPUCores;
             CommandLineGenerator cmdLineGenerator = new CommandLineGenerator(executable, processingBuffer, port, cpuCores);
-            if (cmdLineGenerator == null)
-            {
-                Logger.LogError("ProcessingFileWatcherThread cmdLineGenerator failed to instantiate");
-            }
-            else
-            {
-                cmdLineGenerator.ExecuteCommand(monitorData, logger);
-            }
-
-            // Sleep to allow the Modeler to start before starting Process Buffer job file monitoring
-            Thread.Sleep(500);
+            cmdLineGenerator.ExecuteCommand(monitorData, logger);
 
             // Register with the Processing File Watcher class with an event and start its thread
             int numFilesNeeded = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
