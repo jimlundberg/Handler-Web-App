@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Status.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Permissions;
 using System.Threading;
@@ -65,13 +64,13 @@ namespace Status.Services
             string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
 
             // Directory Add detected
-            StaticClass.Log((String.Format("Input Directory Watcher detected new directory {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log((String.Format("Input Directory Watcher detected new Input job {0} at {1:HH:mm:ss.fff}",
                 directory, DateTime.Now)));
 
             // Add new job found to the Input job list
             StaticClass.InputJobsToRun.Add(job);
 
-            StaticClass.Log(String.Format("Input Job Scan detected and added job {0} to Input job list at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Input Job Scan detected and added new Input job {0} to Input job list at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -105,15 +104,33 @@ namespace Status.Services
                 // Add event handlers
                 watcher.Created += OnCreated;
 
-                // Begin watching for changes to input directory
+                // Begin watching for directory changes to Input directory
                 watcher.EnableRaisingEvents = true;
 
-                // Scan Input directory forever or at least until shutdown
+                // Scan Input directory forever
                 do
                 {
+                    // Check if the shutdown flag is set, exit method
+                    if (StaticClass.ShutdownFlag == true)
+                    {
+                        StaticClass.Log(String.Format("\nShutdown InputJobsScanThread StartInputJob of job {0} at {1:HH:mm:ss.fff}",
+                            job, DateTime.Now));
+                        return;
+                    }
+
+                    // Check if the pause flag is set, then wait for reset
+                    if (StaticClass.PauseFlag == true)
+                    {
+                        do
+                        {
+                            Thread.Yield();
+                        }
+                        while (StaticClass.PauseFlag == true);
+                    }
+
                     Thread.Yield();
                 }
-                while (StaticClass.ShutdownFlag == false);
+                while (true);
             }
         }
     }

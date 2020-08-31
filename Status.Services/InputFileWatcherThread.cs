@@ -131,9 +131,14 @@ namespace Status.Services
                 return;
             }
 
-            // Create a new FileSystemWatcher and set its properties.
+            // Create a new FileSystemWatcher and set its properties
             using (FileSystemWatcher watcher = new FileSystemWatcher())
             {
+                if (watcher == null)
+                {
+                    Logger.LogError("InputFileWatcherThread watcher failed to instantiate");
+                }
+
                 // Watch for file changes in the watched directory
                 watcher.NotifyFilter = NotifyFilters.FileName;
                 watcher.Path = directory;

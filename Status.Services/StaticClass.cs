@@ -20,9 +20,9 @@ namespace Status.Services
 		public static int RunningJobsIndex = 0;
 		public static int LogFileSizeLimit = 0;
 
-        public static Thread CurrentInputJobsScanThreadHandle;
+        public static Thread InputJobsScanThreadHandle;
         public static Thread ProcessingFileWatcherThreadHandle;
-        public static Thread CurrentProcessingJobsScanThreadHandle;
+        public static Thread ProcessingJobsScanThreadHandle;
         public static Thread DirectoryWatcherThreadHandle;
         public static Thread InputFileWatcherThreadHandle;
         public static Thread JobRunThreadHandle;
@@ -31,8 +31,8 @@ namespace Status.Services
         public static volatile bool ShutdownFlag = false;
         public static volatile bool PauseFlag = false;
         public static volatile bool UnfinishedProcessingJobsScanComplete = false;
-
-		public static List<string> InputJobsToRun = new List<String>();
+        
+        public static List<string> InputJobsToRun = new List<String>();
 		public static List<string> ProcessingJobsToRun = new List<String>();
 
 		public static Dictionary<string, bool> InputFileScanComplete = new Dictionary<string, bool>();

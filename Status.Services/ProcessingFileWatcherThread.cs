@@ -198,9 +198,14 @@ namespace Status.Services
             tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
             tcpIp.StartTcpIpScanProcess(iniData, monitorData, statusData);
 
-            // Create a new FileSystemWatcher and set its properties.
+            // Create a new FileSystemWatcher and set its properties
             using (FileSystemWatcher watcher = new FileSystemWatcher())
             {
+                if (watcher == null)
+                {
+                    Logger.LogError("ProcessingFileWatcherThread watcher failed to instantiate");
+                }
+
                 // Watch for file changes in the watched directory
                 watcher.NotifyFilter = NotifyFilters.FileName;
                 watcher.Path = directory;
@@ -211,7 +216,7 @@ namespace Status.Services
                 // Add event handlers
                 watcher.Created += OnCreated;
 
-                // Begin watching for changes to Processing directory
+                // Begin watching for file changes to Processing job directory
                 watcher.EnableRaisingEvents = true;
 
                 StaticClass.Log(String.Format("Processing File Watcher watching {0} at {1:HH:mm:ss.fff}",
@@ -220,8 +225,6 @@ namespace Status.Services
                 // Wait for Processing file scan to Complete with a full set of job output files
                 do
                 {
-                    Thread.Yield();
-
                     if (StaticClass.ShutdownFlag == true)
                     {
                         StaticClass.Log(String.Format("\nShutdown ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
@@ -238,6 +241,8 @@ namespace Status.Services
                         }
                         while (StaticClass.PauseFlag == true);
                     }
+
+                    Thread.Yield();
                 }
                 while ((StaticClass.ProcessingFileScanComplete[job] == false) || (StaticClass.TcpIpScanComplete[job] == false));
 
