@@ -54,7 +54,7 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(String.Format("\nCurrent Input Job Scan Received new Input Job {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("\nCurrent Input Job Scan Received Process Job {0} complete at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -169,10 +169,9 @@ namespace Status.Services
             }
 
             // Start the jobs in the directory list found for the Input Buffer
-            bool foundUnfinishedJobs = false;
             for (int i = 0; i < inputDirectoryInfoList.Count; i++)
             {
-                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                do
                 {
                     DirectoryInfo dirInfo = inputDirectoryInfoList[i];
                     string directory = dirInfo.ToString();
@@ -187,21 +186,15 @@ namespace Status.Services
                     StartInputJob(directory, iniData, statusData);
 
                     // Remove job just run from the Input Jobs list
-                    if (inputDirectoryInfoList[i] == dirInfo)
-                    {
-                        inputDirectoryInfoList.RemoveAt(i--);
-                    }
+                    inputDirectoryInfoList.Remove(dirInfo);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
                 }
-                else
-                {
-                    foundUnfinishedJobs = true;
-                }
+                while (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit);
             }
 
-            if (foundUnfinishedJobs == true)
+            if (inputDirectoryInfoList.Count > 0)
             {
                 StaticClass.Log("\nMore unfinished Input Jobs then Execution Slots available...\n");
             }
@@ -246,7 +239,7 @@ namespace Status.Services
                 // Wait a sec between scans for unfinished Input jobs
                 Thread.Sleep(1000);
 
-                // Run any unfinished Processing jobs
+                // Run any unfinished input jobs
                 RunInputJobsFound(IniData, StatusDataList);
             }
             while (true);

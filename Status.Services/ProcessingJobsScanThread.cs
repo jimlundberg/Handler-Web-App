@@ -53,7 +53,7 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(String.Format("\nCurrent Input Job Scan Received new Input Job {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("\nCurrent Process Job Scan Received Process Job {0} complete at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -105,10 +105,9 @@ namespace Status.Services
             }
 
             // Start the jobs in the directory list found for the Processing Buffer
-            bool foundUnfinishedJobs = false;
             for (int i = 0; i < processingDirectoryInfoList.Count; i++)
             {
-                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                do
                 {
                     DirectoryInfo dirInfo = processingDirectoryInfoList[i];
                     string directory = dirInfo.ToString();
@@ -121,24 +120,17 @@ namespace Status.Services
 
                     // Start a Processing Buffer Job
                     StartProcessingJob(directory, iniData, statusData);
-                    
-                    // Remove job just run from the Processing Jobs list
-                    if (processingDirectoryInfoList[i] == dirInfo)
-                    {
-                        processingDirectoryInfoList.RemoveAt(i--);
-                    }
 
+                    // Remove job just run from the Processing Jobs list
+                    processingDirectoryInfoList.Remove(dirInfo);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
                 }
-                else
-                {
-                    foundUnfinishedJobs = true;
-                }
+                while (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit);
             }
 
-            if (foundUnfinishedJobs == true)
+            if (processingDirectoryInfoList.Count > 0)
             {
                 StaticClass.Log("\nMore unfinished Processing Jobs then Execution Slots available...\n");
             }
