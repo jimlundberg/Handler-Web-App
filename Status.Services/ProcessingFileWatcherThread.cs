@@ -79,7 +79,8 @@ namespace Status.Services
         public void OnCreated(object source, FileSystemEventArgs e)
         {
             string jobDirectory = e.FullPath;
-            string job = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+            string jobFile = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
+            string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
 
             // Increment the number of Input Buffer Job files found
             StaticClass.NumberOfProcessingFilesFound[job]++;
