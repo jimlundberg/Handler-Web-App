@@ -205,9 +205,6 @@ namespace Status.Services
                 {
                     string inputJobFileDir = inputBufferJobDir + @"\" + job;
 
-                    StaticClass.Log(String.Format("Starting File scan of Input for job {0} at {1:HH:mm:ss.fff}",
-                        job, DateTime.Now));
-
                     // Register with the File Watcher class event and start its thread
                     InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(inputJobFileDir, numberOfFilesNeeded,
                         iniData, monitorData, statusData, logger);
