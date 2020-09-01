@@ -88,17 +88,18 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Command Line Process complete callback
+        /// TCP/IP Scan Complete callback
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public static void cmdLineThread_ProcessCompleted(object sender, EventArgs e)
+        public static void TcpIp_ScanCompleted(object sender, EventArgs e)
         {
             string job = e.ToString();
 
-            // Send message after receiving Command Line process complete
-            StaticClass.Log(String.Format("cmdLineThread_ProcessCompleted Received for Job {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Processing File Watcher received TCP/IP Scan Completed for job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
+
+            StaticClass.TcpIpScanComplete[job] = true;
         }
 
         /// <summary>
@@ -293,6 +294,10 @@ namespace Status.Services
             }
             cmdLineGenerator.ExecuteCommand(job, logger);
 
+            // Monitor for complete set of files in the Processing Buffer
+            StaticClass.Log(String.Format("Starting monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
+
             // Register with the Processing File Watcher class with an event and start its thread
             int numFilesNeeded = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             ProcessingFileWatcherThread processingFileWatcher = new ProcessingFileWatcherThread(
@@ -304,12 +309,17 @@ namespace Status.Services
             processingFileWatcher.ProcessCompleted += Processing_fileScan_FilesFound;
             processingFileWatcher.ThreadProc();
 
+            // Start the TCP/IP Communications thread before checking for Processing job files
+            TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData, Logger);
+            if (tcpIp == null)
+            {
+                Logger.LogError("ProcessingFileWatcherThread tcpIp thread failed to instantiate");
+            }
+            tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
+            tcpIp.StartTcpIpScanProcess(iniData, monitorData, statusData);
+
             // Add entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, logger);
-
-            // Monitor for complete set of files in the Processing Buffer
-            StaticClass.Log(String.Format("Starting monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
 
             // Wait for the Processing job scan complete which includes TCP/IP
             do

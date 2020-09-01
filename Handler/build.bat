@@ -24,12 +24,11 @@ REM Copy the Handler configuration config.ini file to the handler directory...
 copy C:\SSMCharacterizationHandler\Handler\Handler\Handler\Config.ini C:\SSMCharacterizationHandler\Handler
 
 REM Copy the Handler test batch files to the project directory...
-copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\build.bat C:\SSMCharacterizationHandler
-copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\clear.bat C:\SSMCharacterizationHandler
-copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\tcp.bat C:\SSMCharacterizationHandler
-copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\test.bat C:\SSMCharacterizationHandler
-copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\test1.bat C:\SSMCharacterizationHandler
-copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\test2.bat C:\SSMCharacterizationHandler
+copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\Build.bat C:\SSMCharacterizationHandler
+copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\Clear.bat C:\SSMCharacterizationHandler
+copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\Tcp.bat C:\SSMCharacterizationHandler
+copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\InputPartialTest.bat C:\SSMCharacterizationHandler
+copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\InputTest.bat C:\SSMCharacterizationHandler
 
 REM Delete the Handler bin directory build files after we are done with them...
 rmdir /Q /S C:\SSMCharacterizationHandler\Handler\Handler\Handler\bin

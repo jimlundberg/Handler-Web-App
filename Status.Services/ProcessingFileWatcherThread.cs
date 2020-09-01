@@ -81,21 +81,21 @@ namespace Status.Services
         public void OnCreated(object source, FileSystemEventArgs e)
         {
             string jobDirectory = e.FullPath;
-            string jobFile = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
-            string job = jobFile.Substring(0, jobFile.IndexOf(@"\"));
+            string job = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
 
+            // Increment the number of Input Buffer Job files found
             StaticClass.NumberOfProcessingFilesFound[job]++;
 
-            // Processing job file added
-            StaticClass.Log(String.Format("\nProcessing File Watcher detected: {0} file {1} of {2} at {3:HH:mm:ss.fff}",
-                jobDirectory, StaticClass.NumberOfProcessingFilesFound[job], StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
+            StaticClass.Log(String.Format("\nProcessing File Watcher detected Job {0} file {1} of {2} at {3:HH:mm:ss.fff}",
+                job, StaticClass.NumberOfProcessingFilesFound[job], StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
 
+            // If Number of files is complete
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
                 StaticClass.Log(String.Format("\nProcessing File Watcher detected a complete set {0} of {1} Processing job {2} files at {3:HH:mm:ss.fff}",
                     StaticClass.NumberOfProcessingFilesFound[job], StaticClass.NumberOfProcessingFilesNeeded[job], job, DateTime.Now));
 
-                // Signal the Processing job Scan thread that all the Processing files were found for a job
+                // Signal the Run thread that the Processing Buffer files were found
                 StaticClass.ProcessingFileScanComplete[job] = true;
             }
         }
@@ -104,7 +104,6 @@ namespace Status.Services
         /// Check if the Modeler has deposited the OverallResult entry in the job data.xml file
         /// </summary>
         /// <param name="directory"></param>
-        /// <param name="iniData"></param>
         /// <returns></returns>
         public bool OverallResultEntryCheck(string directory)
         {
@@ -153,21 +152,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// TCP/IP Scan Complete
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public static void TcpIp_ScanCompleted(object sender, EventArgs e)
-        {
-            string job = e.ToString();
-
-            StaticClass.Log(String.Format("Processing File Watcher received TCP/IP Scan Completed for job {0} at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
-
-            StaticClass.TcpIpScanComplete[job] = true;
-        }
-
-        /// <summary>
         /// Monitor a directory for a complete set of Processing files for a job 
         /// </summary>
         /// <param name="directory"></param>
@@ -187,15 +171,6 @@ namespace Status.Services
                 StaticClass.ProcessingFileScanComplete[job] = true;
                 return;
             }
-
-            // Start the TCP/IP Communications thread before checking for Processing job files
-            TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData, Logger);
-            if (tcpIp == null)
-            {
-                Logger.LogError("ProcessingFileWatcherThread tcpIp thread failed to instantiate");
-            }
-            tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
-            tcpIp.StartTcpIpScanProcess(iniData, monitorData, statusData);
 
             // Create a new FileSystemWatcher and set its properties
             using (FileSystemWatcher watcher = new FileSystemWatcher())
@@ -245,7 +220,7 @@ namespace Status.Services
                 }
                 while ((StaticClass.ProcessingFileScanComplete[job] == false) || (StaticClass.TcpIpScanComplete[job] == false));
 
-                // Check if the Processing Job Complete is still set because of possible shutdown
+                // Check if the Processing Job Complete flag is still false or you get a shutdown error
                 if (StaticClass.ProcessingJobScanComplete[job] == false)
                 {
                     // Wait for the data.xml file to contain a result

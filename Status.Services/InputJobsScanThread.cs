@@ -209,6 +209,8 @@ namespace Status.Services
             // Clear the Directory Info List after done with it
             inputDirectoryInfoList.Clear();
 
+            StaticClass.Log("\nStarting Watcher for new Input Jobs...");
+
             // Run new Input job watch loop here forever
             do
             {

@@ -24,8 +24,8 @@ namespace Status.Services
         /// <param name="logger"></param>
         public DirectoryWatcherThread(IniFileData iniData, ILogger<StatusRepository> logger)
         {
-            IniData = iniData;
             DirectoryName = iniData.InputDir;
+            IniData = iniData;
             Logger = logger;
         }
 
@@ -43,7 +43,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.DirectoryWatcherThreadHandle = new Thread(() => WatchDirectory(DirectoryName, IniData));
+            StaticClass.DirectoryWatcherThreadHandle = new Thread(() => WatchDirectory(DirectoryName));
             if (StaticClass.DirectoryWatcherThreadHandle == null)
             {
                 Logger.LogError("DirectoryWatcherThread thread failed to instantiate");
@@ -59,14 +59,13 @@ namespace Status.Services
         /// <param name="e"></param>
         public void OnCreated(object source, FileSystemEventArgs e)
         {
-            // Store job to run now or later
-            string directory = e.FullPath;
-            string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
+            string jobDirectory = e.FullPath;
+            string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
 
             // Add new job detected to the Input job list
             StaticClass.InputJobsToRun.Add(job);
 
-            StaticClass.Log(String.Format("Input Directory Watcher added new Input job {0} to Input job list at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Input Buffer Directory Watcher added new job {0} to job list at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -74,13 +73,9 @@ namespace Status.Services
         /// Scan selected directory for created directories
         /// </summary>
         /// <param name="directory"></param>
-        /// <param name="iniData"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-        public void WatchDirectory(string directory, IniFileData iniData)
+        public void WatchDirectory(string directory)
         {
-            // Get job name from directory name
-            string job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
-
             // Create a new FileSystemWatcher and set its properties
             using (FileSystemWatcher watcher = new FileSystemWatcher())
             {
@@ -109,8 +104,7 @@ namespace Status.Services
                     // Check if the shutdown flag is set, exit method
                     if (StaticClass.ShutdownFlag == true)
                     {
-                        StaticClass.Log(String.Format("\nShutdown InputJobsScanThread StartInputJob of job {0} at {1:HH:mm:ss.fff}",
-                            job, DateTime.Now));
+                        StaticClass.Log(String.Format("\nShutdown DirectoryWatcherThread WatchDirectory at {0:HH:mm:ss.fff}", DateTime.Now));
                         return;
                     }
 
