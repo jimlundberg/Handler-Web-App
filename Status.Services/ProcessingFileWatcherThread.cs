@@ -76,7 +76,7 @@ namespace Status.Services
         public void OnCreated(object source, FileSystemEventArgs e)
         {
             string fullDirectory = e.FullPath;
-            string jobDirectory = fullDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
+            string jobDirectory = fullDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
             string jobFile = jobDirectory.Substring(jobDirectory.LastIndexOf('\\') + 1);
             string job = jobDirectory.Substring(0, jobDirectory.LastIndexOf('\\'));
 
