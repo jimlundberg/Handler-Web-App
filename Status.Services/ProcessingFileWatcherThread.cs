@@ -20,7 +20,6 @@ namespace Status.Services
         private readonly string DirectoryName;
         private readonly string Job;
         public event EventHandler ProcessCompleted;
-        public static ILogger<StatusRepository> Logger;
 
         /// <summary>
         /// Processing directory file watcher thread
@@ -30,15 +29,13 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
-        /// <param name="logger"></param>
         public ProcessingFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData,
-            StatusMonitorData monitorData, List<StatusData> statusData, ILogger<StatusRepository> logger)
+            StatusMonitorData monitorData, List<StatusData> statusData)
         {
             DirectoryName = directory;
             IniData = iniData;
             MonitorData = monitorData;
             StatusDataList = statusData;
-            Logger = logger;
             Job = monitorData.Job;
             DirectoryInfo ProcessingJobInfo = new DirectoryInfo(directory);
             StaticClass.NumberOfProcessingFilesFound[Job] = ProcessingJobInfo.GetFiles().Length;
@@ -66,7 +63,7 @@ namespace Status.Services
             StaticClass.ProcessingFileWatcherThreadHandle = new Thread(() => WatchFiles(DirectoryName, IniData));
             if (StaticClass.ProcessingFileWatcherThreadHandle == null)
             {
-                Logger.LogError("ProcessingFileWatcherThread thread failed to instantiate");
+                StaticClass.Logger.LogError("ProcessingFileWatcherThread thread failed to instantiate");
             }
             StaticClass.ProcessingFileWatcherThreadHandle.Start();
         }
@@ -113,7 +110,7 @@ namespace Status.Services
                 string xmlFileName = directory + @"\" + "Data.xml";
 
                 // Wait for xml file to be ready
-                var task = StaticClass.IsFileReady(xmlFileName, Logger);
+                var task = StaticClass.IsFileReady(xmlFileName);
                 task.Wait();
 
                 // Read output Xml file data
@@ -177,7 +174,7 @@ namespace Status.Services
             {
                 if (watcher == null)
                 {
-                    Logger.LogError("ProcessingFileWatcherThread watcher failed to instantiate");
+                    StaticClass.Logger.LogError("ProcessingFileWatcherThread watcher failed to instantiate");
                 }
 
                 // Watch for file changes in the watched directory
@@ -203,6 +200,7 @@ namespace Status.Services
                     {
                         StaticClass.Log(String.Format("\nShutdown ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
                             directory, DateTime.Now));
+
                         return;
                     }
 

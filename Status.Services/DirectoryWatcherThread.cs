@@ -15,18 +15,15 @@ namespace Status.Services
         private readonly string DirectoryName;
         private readonly IniFileData IniData;
         public event EventHandler ProcessCompleted;
-        public static ILogger<StatusRepository> Logger;
 
         /// <summary>
         /// New Jobs directory Scan Thread constructor receiving data buffers
         /// </summary>
         /// <param name="iniData"></param>
-        /// <param name="logger"></param>
-        public DirectoryWatcherThread(IniFileData iniData, ILogger<StatusRepository> logger)
+        public DirectoryWatcherThread(IniFileData iniData)
         {
             DirectoryName = iniData.InputDir;
             IniData = iniData;
-            Logger = logger;
         }
 
         /// <summary>
@@ -46,7 +43,7 @@ namespace Status.Services
             StaticClass.DirectoryWatcherThreadHandle = new Thread(() => WatchDirectory(DirectoryName));
             if (StaticClass.DirectoryWatcherThreadHandle == null)
             {
-                Logger.LogError("DirectoryWatcherThread thread failed to instantiate");
+                StaticClass.Logger.LogError("DirectoryWatcherThread thread failed to instantiate");
             }
             StaticClass.DirectoryWatcherThreadHandle.Start();
         }
@@ -81,7 +78,7 @@ namespace Status.Services
             {
                 if (watcher == null)
                 {
-                    Logger.LogError("DirectoryWatcherThread watcher failed to instantiate");
+                    StaticClass.Logger.LogError("DirectoryWatcherThread watcher failed to instantiate");
                 }
 
                 // Watch for changes in the directory list

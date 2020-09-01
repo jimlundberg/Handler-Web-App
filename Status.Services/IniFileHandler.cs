@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using Microsoft.Extensions.Logging;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -26,6 +27,10 @@ namespace Status.Services
         public IniFileHandler(string IniPath = null)
         {
             Path = new FileInfo(IniPath ?? EXE + ".ini").FullName;
+            if (Path == null)
+            {
+                StaticClass.Log("IniFileHandler Path failed to instantiate");
+            }
         }
 
         /// <summary>
@@ -37,6 +42,10 @@ namespace Status.Services
         public string Read(string Section, string Key = null)
         {
             StringBuilder RetVal = new StringBuilder(255);
+            if (RetVal == null)
+            {
+                StaticClass.Log("IniFileHandler RetVal failed to instantiate");
+            }
             int length = GetPrivateProfileString(Section ?? EXE, Key, "", RetVal, 255, Path);
             return RetVal.ToString();
         }

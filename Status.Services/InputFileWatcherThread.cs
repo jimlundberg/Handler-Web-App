@@ -14,11 +14,9 @@ namespace Status.Services
     public class InputFileWatcherThread
     {
         private readonly IniFileData IniData;
-        private readonly StatusMonitorData MonitorData;
         private readonly string DirectoryName;
         private readonly string Job;
         public event EventHandler ProcessCompleted;
-        public static ILogger<StatusRepository> Logger;
 
         /// <summary>
         /// Input directory file watcher thread
@@ -27,16 +25,11 @@ namespace Status.Services
         /// <param name="numberOfFilesNeeded"></param>
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
-        /// <param name="statusData"></param>
-        /// <param name="logger"></param>
-        public InputFileWatcherThread(string directory, int numberOfFilesNeeded,
-            IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData,
-            ILogger<StatusRepository> logger)
+        public InputFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData,
+            StatusMonitorData monitorData)
         {
             DirectoryName = directory;
             IniData = iniData;
-            MonitorData = monitorData;
-            Logger = logger;
             Job = monitorData.Job;
             DirectoryInfo InputJobInfo = new DirectoryInfo(DirectoryName);
             StaticClass.NumberOfInputFilesFound[Job] = InputJobInfo.GetFiles().Length;
@@ -64,7 +57,7 @@ namespace Status.Services
             
             if (StaticClass.InputFileWatcherThreadHandle == null)
             {
-                Logger.LogError("InputFileWatcherThread thread failed to instantiate");
+                StaticClass.Logger.LogError("InputFileWatcherThread thread failed to instantiate");
             }
             StaticClass.InputFileWatcherThreadHandle.Start();
         }
@@ -137,7 +130,7 @@ namespace Status.Services
             {
                 if (watcher == null)
                 {
-                    Logger.LogError("InputFileWatcherThread watcher failed to instantiate");
+                    StaticClass.Logger.LogError("InputFileWatcherThread watcher failed to instantiate");
                 }
 
                 // Watch for file changes in the watched directory

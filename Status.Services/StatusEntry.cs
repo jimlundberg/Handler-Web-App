@@ -19,15 +19,6 @@ namespace Status.Services
         public StatusEntry() { }
 
         /// <summary>
-        /// Status Entry logging method
-        /// </summary>
-        /// <param name="logger"></param>
-        public StatusEntry(ILogger<StatusRepository> logger)
-        {
-            Logger = logger;
-        }
-
-        /// <summary>
         /// Log a Status and write to csv file
         /// </summary>
         /// <param name="iniData"></param>
@@ -35,8 +26,7 @@ namespace Status.Services
         /// <param name="job"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
-        public void ListStatus(IniFileData iniData, List<StatusData> statusList,
-            string job, JobStatus status, JobType timeSlot)
+        public void ListStatus(List<StatusData> statusList, string job, JobStatus status, JobType timeSlot)
         {
             StatusData entry = new StatusData();
             if (entry == null)

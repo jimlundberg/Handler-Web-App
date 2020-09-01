@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 
 namespace Status.Services
@@ -17,10 +18,20 @@ namespace Status.Services
         /// <param name="destinationPath"></param>
         /// <param name="removeSource"></param>
         /// <param name="overwrite"></param>
-        public static void CopyFolderContents(string sourcePath, string destinationPath, bool removeSource = false, bool overwrite = false)
+        public static void CopyFolderContents(string sourcePath, string destinationPath,
+            bool removeSource = false, bool overwrite = false)
         {
             DirectoryInfo sourceDI = new DirectoryInfo(sourcePath);
+            if (sourceDI == null)
+            {
+                StaticClass.Logger.LogError("FileHandling sourceDI failed to instantiate");
+            }
+
             DirectoryInfo destinationDI = new DirectoryInfo(destinationPath);
+            if (destinationDI == null)
+            {
+                StaticClass.Logger.LogError("FileHandling destinationDI failed to instantiate");
+            }
 
             StaticClass.Log(String.Format("CopyFolderContents from {0} -> {1}", sourcePath, destinationPath));
 
@@ -36,6 +47,10 @@ namespace Status.Services
             {
                 // This is the destination folder plus the new filename
                 FileInfo destFile = new FileInfo(Path.Combine(destinationDI.FullName, sourceFile.Name));
+                if (destFile == null)
+                {
+                    StaticClass.Log("FileHandling destFile failed to instantiate");
+                }
 
                 // Delete the destination file if overwrite is true
                 if (destFile.Exists && overwrite)
@@ -76,7 +91,16 @@ namespace Status.Services
         public static void CopyFile(string sourceFile, string targetFile)
         {
             FileInfo Source = new FileInfo(sourceFile);
+            if (Source == null)
+            {
+                StaticClass.Logger.LogError("FileHandling Source failed to instantiate");
+            }
+
             FileInfo Target = new FileInfo(targetFile);
+            if (Target == null)
+            {
+                StaticClass.Logger.LogError("FileHandling Target failed to instantiate");
+            }
 
             if (Target.Exists)
             {
@@ -110,7 +134,7 @@ namespace Status.Services
                 File.Delete(file);
             }
 
-            // Then delete directory
+            // Then delete the directory
             Directory.Delete(targetDirectory, false);
 
             StaticClass.Log(String.Format("Deleted Directory {0}", targetDirectory));

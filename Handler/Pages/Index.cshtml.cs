@@ -69,11 +69,9 @@ namespace Handler.Pages
         /// Index Model CTOR
         /// </summary>
         /// <param name="monitorDataRepository"></param>
-        /// <param name="logger"></param>
-        public IndexModel(IStatusRepository monitorDataRepository, ILogger<IndexModel> logger)
+        public IndexModel(IStatusRepository monitorDataRepository)
         {
             this.MonitorDataRepository = monitorDataRepository;
-            Logger = logger;
         }
 
         private void SetButtonState(ButtonPress buttonPress)

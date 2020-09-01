@@ -17,7 +17,6 @@ namespace Status.Services
         private readonly List<StatusData> StatusDataList;
         private readonly DirectoryScanType DirScanType;
         private readonly JobXmlData JobRunXmlData;
-        public static ILogger<StatusRepository> Logger;
 
         /// <summary>
         /// Job Run Thread constructor obtains the state information  
@@ -27,15 +26,12 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="jobXmlData"></param>
         /// <param name="statusData"></param>
-        /// <param name="logger"></param>
-        public JobRunThread(DirectoryScanType dirScanType, JobXmlData jobXmlData, IniFileData iniData,
-            List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public JobRunThread(DirectoryScanType dirScanType, JobXmlData jobXmlData, IniFileData iniData, List<StatusData> statusData)
         {
             DirScanType = dirScanType;
             JobRunXmlData = jobXmlData;
             IniData = iniData;
             StatusDataList = statusData;
-            Logger = logger;
         }
 
         /// <summary>
@@ -44,11 +40,11 @@ namespace Status.Services
         public void ThreadProc()
         {
             StaticClass.JobRunThreadHandle = new Thread(() =>
-                RunJob(DirScanType, JobRunXmlData, IniData, StatusDataList, Logger));
+                RunJob(DirScanType, JobRunXmlData, IniData, StatusDataList));
 
             if (StaticClass.JobRunThreadHandle == null)
             {
-                Logger.LogError("JobRunThread thread failed to instantiate");
+                StaticClass.Logger.LogError("JobRunThread thread failed to instantiate");
             }
             StaticClass.JobRunThreadHandle.Start();
         }
@@ -109,9 +105,7 @@ namespace Status.Services
         /// <param name="jobXmlData"></param>
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
-        /// <param name="logger"></param>
-        public static void RunJob(DirectoryScanType dirScanType, JobXmlData jobXmlData, IniFileData iniData,
-            List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public static void RunJob(DirectoryScanType dirScanType, JobXmlData jobXmlData, IniFileData iniData, List<StatusData> statusData)
         {
             // Increment number of jobs executing at very beginning of job
             StaticClass.NumberOfJobsExecuting++;
@@ -138,11 +132,11 @@ namespace Status.Services
             };
 
             // Add initial entry to status list
-            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, logger);
+            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED);
 
             // Wait for the job xml file to be ready
             string jobXmlFileName = xmlJobDirectory + @"\" + jobXmlData.XmlFileName;
-            var jobXmltask = StaticClass.IsFileReady(jobXmlFileName, logger);
+            var jobXmltask = StaticClass.IsFileReady(jobXmlFileName);
             jobXmltask.Wait();
 
             // Read Job xml file and get the top node
@@ -197,7 +191,7 @@ namespace Status.Services
             if (dirScanType == DirectoryScanType.INPUT_BUFFER)
             {
                 // Add initial entry to status list
-                StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_INPUT, JobType.TIME_START, logger);
+                StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_INPUT, JobType.TIME_START);
 
                 // Monitor the Input Buffer job directory until it has the total number of consumed files
                 string inputBufferJobDir = iniData.InputDir;
@@ -207,11 +201,11 @@ namespace Status.Services
                     string inputJobFileDir = inputBufferJobDir + @"\" + job;
 
                     // Register with the File Watcher class event and start its thread
-                    InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(inputJobFileDir, numberOfFilesNeeded,
-                        iniData, monitorData, statusData, logger);
+                    InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(inputJobFileDir,
+                        numberOfFilesNeeded, iniData, monitorData);
                     if (inputFileWatch == null)
                     {
-                        logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
+                        StaticClass.Logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
                     }
                     inputFileWatch.ProcessCompleted += Input_fileScan_FilesFound;
                     inputFileWatch.ThreadProc();
@@ -244,14 +238,14 @@ namespace Status.Services
                         inputJobFileDir, DateTime.Now));
 
                     // Add copying entry to status list
-                    StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START, logger);
+                    StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
 
                     // Move files from Input directory to the Processing directory, creating it first if needed
                     FileHandling.CopyFolderContents(inputJobFileDir, processingBufferJobDir, true, true);
                 }
                 else
                 {
-                    logger.LogError("Could not find Input Buffer Directory");
+                    StaticClass.Logger.LogError("Could not find Input Buffer Directory");
                     throw new InvalidOperationException("Could not find Input Buffer Directory");
                 }
             }
@@ -275,7 +269,7 @@ namespace Status.Services
             }
 
             // Add entry to status list
-            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.EXECUTING, JobType.TIME_START, logger);
+            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.EXECUTING, JobType.TIME_START);
 
             StaticClass.Log(String.Format("Starting Job {0} with Modeler {1} on port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
                 job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores, DateTime.Now));
@@ -288,9 +282,9 @@ namespace Status.Services
             CommandLineGenerator cmdLineGenerator = new CommandLineGenerator(executable, processingBuffer, port, cpuCores);
             if (cmdLineGenerator == null)
             {
-                logger.LogError("JobRunThread cmdLineGenerator failed to instantiate");
+                StaticClass.Logger.LogError("JobRunThread cmdLineGenerator failed to instantiate");
             }
-            cmdLineGenerator.ExecuteCommand(job, logger);
+            cmdLineGenerator.ExecuteCommand(job);
 
             // Monitor for complete set of files in the Processing Buffer
             StaticClass.Log(String.Format("Starting monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}",
@@ -299,25 +293,25 @@ namespace Status.Services
             // Register with the Processing File Watcher class with an event and start its thread
             int numFilesNeeded = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             ProcessingFileWatcherThread processingFileWatcher = new ProcessingFileWatcherThread(
-                processingBufferJobDir, numFilesNeeded, iniData, monitorData, statusData, logger);
+                processingBufferJobDir, numFilesNeeded, iniData, monitorData, statusData);
             if (processingFileWatcher == null)
             {
-                logger.LogError("JobRunThread ProcessingFileWatch failed to instantiate");
+                StaticClass.Logger.LogError("JobRunThread ProcessingFileWatch failed to instantiate");
             }
             processingFileWatcher.ProcessCompleted += Processing_fileScan_FilesFound;
             processingFileWatcher.ThreadProc();
 
             // Start the TCP/IP Communications thread before checking for Processing job files
-            TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData, Logger);
+            TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData);
             if (tcpIp == null)
             {
-                Logger.LogError("ProcessingFileWatcherThread tcpIp thread failed to instantiate");
+                StaticClass.Logger.LogError("ProcessingFileWatcherThread tcpIp thread failed to instantiate");
             }
             tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
             tcpIp.StartTcpIpScanProcess(iniData, monitorData, statusData);
 
             // Add entry to status list
-            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START, logger);
+            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
 
             // Wait for the Processing job scan complete which includes TCP/IP
             do
@@ -344,11 +338,11 @@ namespace Status.Services
             while (StaticClass.ProcessingJobScanComplete[job] == false);
 
             // Add copy to archieve entry to status list
-            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START, logger);
+            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START);
 
             // Make sure the data.xml file is ready
             string dataXmlFileName = processingBufferDirectory + @"\" + job + @"\" + "data.xml";
-            var dataXmltask = StaticClass.IsFileReady(dataXmlFileName, logger);
+            var dataXmltask = StaticClass.IsFileReady(dataXmlFileName);
             dataXmltask.Wait();
 
             // Data.xml file may not exist for timeout jobs
@@ -410,7 +404,7 @@ namespace Status.Services
             }
 
             // Add entry to status list
-            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE, logger);
+            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
 
             StaticClass.Log(String.Format("Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
                 job, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now));

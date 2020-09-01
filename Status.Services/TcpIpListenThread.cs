@@ -16,7 +16,6 @@ namespace Status.Services
         private readonly StatusMonitorData MonitorData;
         private readonly List<StatusData> StatusData;
         public event EventHandler ProcessCompleted;
-        public static ILogger<StatusRepository> Logger;
         public const string Host = "127.0.0.1";
         private readonly int Port = 0;
 
@@ -26,15 +25,12 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
-        /// <param name="logger"></param>
-        public TcpIpListenThread(IniFileData iniData, StatusMonitorData monitorData,
-            List<StatusData> statusData, ILogger<StatusRepository> logger)
+        public TcpIpListenThread(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
         {
             Port = monitorData.JobPortNumber;
             IniData = iniData;
             MonitorData = monitorData;
             StatusData = statusData;
-            Logger = logger;
         }
 
         /// <summary>
@@ -46,7 +42,7 @@ namespace Status.Services
         public void StartTcpIpScanProcess(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
         {
             // Start TCP/IP thread
-            TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData, Logger);
+            TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData);
             tcpIp.ThreadProc();
         }
 
@@ -65,11 +61,11 @@ namespace Status.Services
         public void ThreadProc()
         {
             StaticClass.TcpIpListenThreadHandle = new Thread(() =>
-                Connect(Port, IniData, MonitorData, StatusData, "status", Logger));
+                Connect(Port, IniData, MonitorData, StatusData, "status"));
 
             if (StaticClass.TcpIpListenThreadHandle == null)
             {
-                Logger.LogError("TcpIpListenThread thread failed to instantiate");
+                StaticClass.Logger.LogError("TcpIpListenThread thread failed to instantiate");
             }
             StaticClass.TcpIpListenThreadHandle.Start();
         }
@@ -82,9 +78,7 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         /// <param name="message"></param>
-        /// <param name="logger"></param>
-        public void Connect(int port, IniFileData iniData, StatusMonitorData monitorData,
-            List<StatusData> statusData, string message, ILogger<StatusRepository> logger)
+        public void Connect(int port, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, string message)
         {
             // Wait about a minute for the Modeler to start execution
             Thread.Sleep(StaticClass.ScanWaitTime * 12);
@@ -97,7 +91,7 @@ namespace Status.Services
                     job, port, DateTime.Now));
 
                 // Log starting TCP/IP monitoring entry
-                StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_TCPIP, JobType.TIME_START, logger);
+                StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
 
                 // Create a TcpClient.
                 // Note, for this client to work you need to have a TcpServer
@@ -105,7 +99,7 @@ namespace Status.Services
                 TcpClient client = new TcpClient(Host, port);
                 if (client == null)
                 {
-                    logger.LogError("TcpIp Connectinon client failed to instantiate");
+                    StaticClass.Logger.LogError("TcpIp Connectinon client failed to instantiate");
                 }
 
                 // Translate the passed message into ASCII and store it as a Byte array.
@@ -116,7 +110,7 @@ namespace Status.Services
                 NetworkStream stream = client.GetStream();
                 if (stream == null)
                 {
-                    logger.LogError("TcpIp Connection stream handle was not gotten from client");
+                    StaticClass.Logger.LogError("TcpIp Connection stream handle was not gotten from client");
                     client.Close();
                     StaticClass.TcpIpScanComplete[job] = true;
                     return;
@@ -200,12 +194,12 @@ namespace Status.Services
                             }
                             catch (Exception e)
                             {
-                                logger.LogWarning(String.Format("TCP/IP Read for job {0} port {1} failed with error {2}",
+                                StaticClass.Logger.LogWarning(String.Format("TCP/IP Read for job {0} port {1} failed with error {2}",
                                     job, port, e));
 
                                 if (i == 4)
                                 {
-                                    logger.LogError(String.Format("TCP/IP Connection Timeout for job {0} port {1} after 5 tries with error {2}",
+                                    StaticClass.Logger.LogError(String.Format("TCP/IP Connection Timeout for job {0} port {1} after 5 tries with error {2}",
                                         job, port, e));
 
                                     StaticClass.TcpIpScanComplete[job] = true;
@@ -267,7 +261,7 @@ namespace Status.Services
                                 return;
 
                             default:
-                                logger.LogWarning("Received Weird Response: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                                StaticClass.Logger.LogWarning("Received Weird Response: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                                     responseData, job, port, DateTime.Now);
                                 break;
                         }
@@ -295,7 +289,7 @@ namespace Status.Services
                             StaticClass.Log(String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}", job, DateTime.Now));
 
                             // Create job Timeout status
-                            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_RECEIVED, logger);
+                            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_RECEIVED);
 
                             // Make sure to close TCP/IP socket
                             stream.Close();
@@ -339,7 +333,7 @@ namespace Status.Services
                     }
                     else
                     {
-                        logger.LogError(String.Format("Can not read TCP/IP Stream for job {0} at {1:HH:mm:ss.fff}",
+                        StaticClass.Logger.LogError(String.Format("Can not read TCP/IP Stream for job {0} at {1:HH:mm:ss.fff}",
                             job, DateTime.Now));
 
                         // Make sure to close TCP/IP socket
@@ -357,11 +351,11 @@ namespace Status.Services
             }
             catch (ArgumentNullException e)
             {
-                logger.LogError("ArgumentNullException: {0}", e);
+                StaticClass.Logger.LogError("ArgumentNullException: {0}", e);
             }
             catch (SocketException e)
             {
-                logger.LogError("SocketException: {0}", e);
+                StaticClass.Logger.LogError("SocketException: {0}", e);
             }
         }
     }

@@ -34,9 +34,8 @@ namespace Status.Services
         /// Execute the Modeler command line 
         /// </summary>
         /// <param name="monitorData"></param>
-        /// <param name="logger"></param>
         /// <returns></returns>
-        public Process ExecuteCommand(string job, ILogger<StatusRepository> logger)
+        public Process ExecuteCommand(string job)
         {
             ProcessStartInfo startInfo = new ProcessStartInfo(Executable)
             {
@@ -46,16 +45,17 @@ namespace Status.Services
                 WindowStyle = ProcessWindowStyle.Minimized
             };
 
+            // Check object
             if (startInfo == null)
             {
-                logger.LogError("CommandLineGenerator startInfo failed to instantiate");
+                StaticClass.Logger.LogError("CommandLineGenerator startInfo failed to instantiate");
             }
 
             // Start the Modeler process window
             Process ModelerProcess = Process.Start(startInfo);
             if (ModelerProcess == null)
             {
-                logger.LogError("CommandLineGeneratorThread ModelerProcess failes to instantiate");
+                StaticClass.Logger.LogError("CommandLineGeneratorThread ModelerProcess failes to instantiate");
             }
 
             // Set Process Priority to high

@@ -16,27 +16,25 @@ namespace Status.Services
     {
         private readonly IniFileData IniData = new IniFileData();
         private readonly List<StatusData> StatusDataList = new List<StatusData>();
-        public readonly ILogger<StatusRepository> Logger;
 
         /// <summary>
         /// StatusRepository contructor
         /// </summary>
-        /// <param name="logger"></param>
-        public StatusRepository(ILogger<StatusRepository> logger)
-        {
-            Logger = logger;
-        }
+        public StatusRepository() { }
 
         /// <summary>
         /// Get the local Config.ini file data in the working directory
         /// </summary>
         public void GetIniFileData()
         {
+            // Create the logger object handle straightaway
+            StaticClass.Logger = new LoggerFactory().CreateLogger<StatusRepository>();
+
             // Check that Config.ini file exists
             string IniFileName = "Config.ini";
             if (File.Exists(IniFileName) == false)
             {
-                Logger.LogCritical("Missing Config.ini file");
+                StaticClass.Logger.LogCritical("Missing Config.ini file");
                 throw new System.InvalidOperationException("Config.ini file does not exist in the Handler directory");
             }
 
@@ -106,7 +104,7 @@ namespace Status.Services
             StatusEntry status = new StatusEntry();
             if (status == null)
             {
-                Logger.LogError("Log File History status failed to instantiate");
+                StaticClass.Logger.LogError("Log File History status failed to instantiate");
             }
             status.CheckLogFileHistory(IniData);
         }
@@ -126,10 +124,10 @@ namespace Status.Services
             else
             {
                 // Start monitor scan process
-                InputJobsScanThread newJobsScanThread = new InputJobsScanThread(IniData, StatusDataList, Logger);
+                InputJobsScanThread newJobsScanThread = new InputJobsScanThread(IniData, StatusDataList);
                 if (newJobsScanThread == null)
                 {
-                    Logger.LogError("StartMonitorProcess newJobsScanThread failed to instantiate");
+                    StaticClass.Logger.LogError("StartMonitorProcess newJobsScanThread failed to instantiate");
                 }
                 newJobsScanThread.ThreadProc();
             }
@@ -192,13 +190,13 @@ namespace Status.Services
             List<StatusData> StatusDataList = new List<StatusData>();
             if (StatusDataList == null)
             {
-                Logger.LogError("StatusRepository StatusList failed to instantiate");
+                StaticClass.Logger.LogError("StatusRepository StatusList failed to instantiate");
             }
 
             StatusEntry status = new StatusEntry();
             if (status == null)
             {
-                Logger.LogError("StatusRepository status failed to instantiate");
+                StaticClass.Logger.LogError("StatusRepository status failed to instantiate");
             }
 
             StatusDataList = status.ReadFromCsvFile(IniData);

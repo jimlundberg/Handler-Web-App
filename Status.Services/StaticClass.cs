@@ -49,6 +49,7 @@ namespace Status.Services
 		public static Dictionary<string, Process> ProcessHandles = new Dictionary<string, Process>();
 
         internal static LoggingToFile FileLoggerObject;
+        internal static ILogger<StatusRepository> Logger;
 
         /// <summary>
         /// Global log to file method
@@ -68,13 +69,12 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
-        /// <param name="logger"></param>
-        public static void StatusDataEntry(List<StatusData> statusList, string job, IniFileData iniData,
-            JobStatus status, JobType timeSlot, ILogger<StatusRepository> logger)
+        public static void StatusDataEntry(List<StatusData> statusList, string job,
+            IniFileData iniData, JobStatus status, JobType timeSlot)
         {
             string statusLogFile = iniData.StatusLogFile;
-            StatusEntry statusData = new StatusEntry(logger);
-            statusData.ListStatus(iniData, statusList, job, status, timeSlot);
+            StatusEntry statusData = new StatusEntry();
+            statusData.ListStatus(statusList, job, status, timeSlot);
             statusData.WriteToCsvFile(job, status, timeSlot, statusLogFile);
         }
 
@@ -119,7 +119,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns>Returns if file is ready to access</returns>
-        public static async Task IsFileReady(string fileName, ILogger<StatusRepository> logger)
+        public static async Task IsFileReady(string fileName)
         {
             await Task.Run(() =>
             {
@@ -154,7 +154,7 @@ namespace Status.Services
                         else
                         {
                             // Rethrow the exception as it's not an exclusively-opened-exception.
-                            logger.LogError(String.Format("IsFileReady exception {0} rethrown for file {1} at {2:HH:mm:ss.fff}",
+                            StaticClass.Logger.LogError(String.Format("IsFileReady exception {0} rethrown for file {1} at {2:HH:mm:ss.fff}",
                                 e.ToString(), fileName, DateTime.Now));
                             throw;
                         }
