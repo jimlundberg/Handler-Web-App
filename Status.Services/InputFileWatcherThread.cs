@@ -32,6 +32,11 @@ namespace Status.Services
             IniData = iniData;
             Job = monitorData.Job;
             DirectoryInfo InputJobInfo = new DirectoryInfo(DirectoryName);
+            if (InputJobInfo == null)
+            {
+                StaticClass.Logger.LogError("InputFileWatcherThread InputJobInfo failed to instantiate");
+            }
+
             StaticClass.NumberOfInputFilesFound[Job] = InputJobInfo.GetFiles().Length;
             StaticClass.NumberOfInputFilesNeeded[Job] = numberOfFilesNeeded;
             StaticClass.InputFileScanComplete[Job] = false;
@@ -52,9 +57,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.InputFileWatcherThreadHandle = new Thread(() =>
-                WatchFiles(DirectoryName, IniData));
-            
+            StaticClass.InputFileWatcherThreadHandle = new Thread(() => WatchFiles(DirectoryName, IniData));
             if (StaticClass.InputFileWatcherThreadHandle == null)
             {
                 StaticClass.Logger.LogError("InputFileWatcherThread thread failed to instantiate");

@@ -29,7 +29,7 @@ namespace Status.Services
             Path = new FileInfo(IniPath ?? EXE + ".ini").FullName;
             if (Path == null)
             {
-                StaticClass.Log("IniFileHandler Path failed to instantiate");
+                StaticClass.Logger.LogError("IniFileHandler Path failed to instantiate");
             }
         }
 
@@ -44,9 +44,11 @@ namespace Status.Services
             StringBuilder RetVal = new StringBuilder(255);
             if (RetVal == null)
             {
-                StaticClass.Log("IniFileHandler RetVal failed to instantiate");
+                StaticClass.Logger.LogError("IniFileHandler RetVal failed to instantiate");
             }
-            int length = GetPrivateProfileString(Section ?? EXE, Key, "", RetVal, 255, Path);
+
+            GetPrivateProfileString(Section ?? EXE, Key, "", RetVal, 255, Path);
+          
             return RetVal.ToString();
         }
 

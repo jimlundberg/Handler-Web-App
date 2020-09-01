@@ -17,6 +17,7 @@ namespace Status.Services
         private readonly List<StatusData> StatusDataList;
         private readonly DirectoryScanType DirScanType;
         private readonly JobXmlData JobRunXmlData;
+        public event EventHandler ProcessCompleted;
 
         /// <summary>
         /// Job Run Thread constructor obtains the state information  
@@ -47,6 +48,15 @@ namespace Status.Services
                 StaticClass.Logger.LogError("JobRunThread thread failed to instantiate");
             }
             StaticClass.JobRunThreadHandle.Start();
+        }
+
+        /// <summary>
+        /// Process complete callback
+        /// </summary>
+        /// <param name="e"></param>
+        protected virtual void OnProcessCompleted(EventArgs e)
+        {
+            ProcessCompleted?.Invoke(this, e);
         }
 
         /// <summary>

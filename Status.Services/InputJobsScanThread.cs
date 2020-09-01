@@ -50,6 +50,19 @@ namespace Status.Services
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
+        public static void jobRun_ProcessCompleted(object sender, EventArgs e)
+        {
+            string job = e.ToString();
+
+            StaticClass.Log(String.Format("\nCurrent Input Job Scan Received new Input Job {0} at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
+        }
+
+        /// <summary>
+        /// Processing complete callback
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public static void newJob_DirectoryFound(object sender, EventArgs e)
         {
             string job = e.ToString();
@@ -69,9 +82,7 @@ namespace Status.Services
             // Check for expired Input jobs
             StaticClass.CheckForInputBufferTimeLimits(IniData);
 
-            StaticClass.InputJobsScanThreadHandle = new Thread(() =>
-                CheckForUnfinishedInputJobs(IniData, StatusDataList));
-            
+            StaticClass.InputJobsScanThreadHandle = new Thread(() => CheckForUnfinishedInputJobs(IniData, StatusDataList));
             if (StaticClass.InputJobsScanThreadHandle == null)
             {
                 StaticClass.Logger.LogError("InputJobsScanThread thread failed to instantiate");
@@ -174,6 +185,10 @@ namespace Status.Services
 
                     // Start an Input Buffer Job
                     InputJobsScanThread inputJobsScanThread = new InputJobsScanThread();
+                    if (inputJobsScanThread == null)
+                    {
+                        StaticClass.Logger.LogError("InputJobsScanThread inputJobsScanThread failed to instantiate");
+                    }
                     inputJobsScanThread.StartInputJob(directory, iniData, statusData);
 
                     // Remove job just run from the Input Jobs list
@@ -213,7 +228,7 @@ namespace Status.Services
 
             StaticClass.Log("\nStarting Watching for new Input Jobs...\n");
 
-            // Run new Input job watch loop here forever
+            // Run new Input Job watch loop here forever
             do
             {
                 // Check if the shutdown flag is set, exit method
@@ -262,6 +277,10 @@ namespace Status.Services
                     StaticClass.InputFileScanComplete[job] = false;
 
                     InputJobsScanThread unfinishedInputJobsScan = new InputJobsScanThread();
+                    if (unfinishedInputJobsScan == null)
+                    {
+                        StaticClass.Logger.LogError("InputJobsScanThread unfinishedInputJobsScan failed to instantiate");
+                    }
                     unfinishedInputJobsScan.StartInputJob(directory, iniData, statusData);
 
                     StaticClass.InputJobsToRun.Remove(job);
@@ -305,12 +324,13 @@ namespace Status.Services
                 jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
             // Create a thread to run the job, and then start the thread
-            JobRunThread thread = new JobRunThread(DirectoryScanType.INPUT_BUFFER, jobXmlData, iniData, statusData);
-            if (thread == null)
+            JobRunThread jobRunThread = new JobRunThread(DirectoryScanType.INPUT_BUFFER, jobXmlData, iniData, statusData);
+            if (jobRunThread == null)
             {
-                StaticClass.Logger.LogError("InputJobsScanThread thread failed to instantiate");
+                StaticClass.Logger.LogError("InputJobsScanThread jobRunThread failed to instantiate");
             }
-            thread.ThreadProc();
+            jobRunThread.ProcessCompleted += jobRun_ProcessCompleted;
+            jobRunThread.ThreadProc();
         }
     }
 }
