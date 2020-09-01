@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using Status.Models;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Threading;
 
 namespace Status.Services
