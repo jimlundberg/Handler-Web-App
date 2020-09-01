@@ -184,12 +184,7 @@ namespace Status.Services
                     StaticClass.InputFileScanComplete[job] = false;
 
                     // Start an Input Buffer Job
-                    InputJobsScanThread inputJobsScanThread = new InputJobsScanThread();
-                    if (inputJobsScanThread == null)
-                    {
-                        StaticClass.Logger.LogError("InputJobsScanThread inputJobsScanThread failed to instantiate");
-                    }
-                    inputJobsScanThread.StartInputJob(directory, iniData, statusData);
+                    StartInputJob(directory, iniData, statusData);
 
                     // Remove job just run from the Input Jobs list
                     if (inputDirectoryInfoList[i] == dirInfo)

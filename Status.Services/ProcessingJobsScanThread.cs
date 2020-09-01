@@ -120,8 +120,7 @@ namespace Status.Services
                     StaticClass.ProcessingFileScanComplete[job] = false;
 
                     // Start a Processing Buffer Job
-                    ProcessingJobsScanThread processingJobsScanThread = new ProcessingJobsScanThread();
-                    processingJobsScanThread.StartProcessingJob(directory, iniData, statusData);
+                    StartProcessingJob(directory, iniData, statusData);
                     
                     // Remove job just run from the Processing Jobs list
                     if (processingDirectoryInfoList[i] == dirInfo)
