@@ -18,54 +18,81 @@ REM Copy directories into the Input Buffer
 
 SET JOB=1185840_202003250942
 echo Copying %JOB% .xml file
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%"
 timeout 5
 echo Copying %JOB% other files
-robocopy /NFL /NDL /NJH /NJS "test\%JOB% - Start" "%buffer%\%JOB%" "*.*" >nul
+xcopy /S /F "test\%JOB% - Start\*.*" "%buffer%\%JOB%"
 
 timeout 10
 
 SET JOB=1307106_202002181307
 echo Copying %JOB% .xml file
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%"
 timeout 5
 echo Copying %JOB% other files
-robocopy /NFL /NDL /NJH /NJS "test\%JOB% - Start" "%buffer%\%JOB%" "*.*" >nul
+xcopy /S /F "test\%JOB% - Start\*.*" "%buffer%\%JOB%"
 
 timeout 10
 
-SET JOB=1278061_202006301109
+SET JOB=1178350_202006030856
 echo Copying %JOB% .xml file
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%"
 timeout 5
 echo Copying %JOB% other files
-robocopy /NFL /NDL /NJH /NJS "test\%JOB% - Start" "%buffer%\%JOB%" "*.*" >nul
+xcopy /S /F "test\%JOB% - Start\*.*" "%buffer%\%JOB%"
 
 timeout 10
 
-SET JOB=1202741_202003101418
+SET JOB=1202740_202006110832
 echo Copying %JOB% .xml file
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%"
 timeout 5
 echo Copying %JOB% other files
-robocopy /NFL /NDL /NJH /NJS "test\%JOB% - Start" "%buffer%\%JOB%" "*.*" >nul
+xcopy /S /F "test\%JOB% - Start\*.*" "%buffer%\%JOB%"
 
 timeout 10
 
 SET JOB=1185841_202005070801
 echo Copying %JOB% .xml file
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%"
 timeout 5
 echo Copying %JOB% other files
-robocopy /NFL /NDL /NJH /NJS "test\%JOB% - Start" "%buffer%\%JOB%" "*.*" >nul
+xcopy /S /F "test\%JOB% - Start\*.*" "%buffer%\%JOB%"
 
 timeout 10
 
 SET JOB=1202741_202003101418
 echo Copying %JOB% .xml file
-robocopy /NFL /NDL /NJH /NJS "test\%JOB%" "%buffer%\%JOB%" "*.xml" >nul
+xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%"
 timeout 5
 echo Copying %JOB% other files
-robocopy /NFL /NDL /NJH /NJS "test\%JOB% - Start" "%buffer%\%JOB%" "*.*" >nul
+xcopy /S /F "test\%JOB% - Start\*.*" "%buffer%\%JOB%"
+
+timeout 10
+
+SET JOB=1178352_202005050818
+echo Copying %JOB% .xml file
+xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%"
+timeout 5
+echo Copying %JOB% other files
+xcopy /S /F "test\%JOB% - Start\*.*" "%buffer%\%JOB%"
+
+timeout 10
+
+SET JOB=1278061_202006301109
+echo Copying %JOB% .xml file
+xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%"
+timeout 5
+echo Copying %JOB% other files
+xcopy /S /F "test\%JOB% - Start\*.*" "%buffer%\%JOB%"
+
+timeout 10
+
+SET JOB=1610789_201911281057
+echo Copying %JOB% .xml file
+xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%"
+timeout 5
+echo Copying %JOB% other files
+xcopy /S /F "test\%JOB% - Start\*.*" "%buffer%\%JOB%"
 
 :End
