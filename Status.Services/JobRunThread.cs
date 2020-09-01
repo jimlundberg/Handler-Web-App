@@ -311,9 +311,6 @@ namespace Status.Services
             processingFileWatcher.ProcessCompleted += Processing_fileScan_FilesFound;
             processingFileWatcher.ThreadProc();
 
-            // Add entry to status list
-            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
-
             // Start the TCP/IP Communications thread before checking for Processing job files
             TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData);
             if (tcpIp == null)
@@ -322,6 +319,9 @@ namespace Status.Services
             }
             tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
             tcpIp.StartTcpIpScanProcess(iniData, monitorData, statusData);
+
+            // Add entry to status list
+            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
 
             // Wait for the Processing job scan complete which includes TCP/IP
             do
