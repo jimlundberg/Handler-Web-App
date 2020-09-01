@@ -84,13 +84,13 @@ namespace Status.Services
             // Increment the number of Input Buffer Job files found
             StaticClass.NumberOfInputFilesFound[job]++;
 
-            StaticClass.Log(String.Format("\nInput File Watcher detected file {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Input File Watcher detected file {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}",
                 jobFile, job, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
 
             // If Number of files is complete
             if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
-                StaticClass.Log(String.Format("\nInput File Watcher detected a complete Job {0} set of {1} files at {2:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("Input File Watcher detected Job {0} complete set of {1} files at {2:HH:mm:ss.fff}",
                     job, StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
 
                 // Signal the Run thread that the Input Buffer files were found
