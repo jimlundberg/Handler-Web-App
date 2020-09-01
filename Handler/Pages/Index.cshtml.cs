@@ -145,7 +145,6 @@ namespace Handler.Pages
             else
             {
                 SetButtonState(ButtonPress.Start);
-                MonitorDataRepository.CheckLogFileHistory();
             }
             statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
