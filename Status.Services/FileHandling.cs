@@ -22,7 +22,7 @@ namespace Status.Services
             DirectoryInfo sourceDI = new DirectoryInfo(sourcePath);
             DirectoryInfo destinationDI = new DirectoryInfo(destinationPath);
 
-            StaticClass.Log(String.Format("CopyFolderContents from {0} to {1}", sourcePath, destinationPath));
+            StaticClass.Log(String.Format("CopyFolderContents from {0} -> {1}", sourcePath, destinationPath));
 
             // If the destination directory does not exist, create it
             if (!destinationDI.Exists)
