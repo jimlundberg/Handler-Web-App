@@ -259,6 +259,9 @@ namespace Status.Services
                                 stream.Close();
                                 client.Close();
 
+                                StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                                    job, port, DateTime.Now));
+
                                 // Flag TCP/IP scan complete
                                 StaticClass.TcpIpScanComplete[job] = true;
                                 return;
@@ -278,6 +281,9 @@ namespace Status.Services
                             // Make sure to close TCP/IP socket
                             stream.Close();
                             client.Close();
+
+                            StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                                job, port, DateTime.Now));
 
                             StaticClass.TcpIpScanComplete[job] = true;
                             return;
