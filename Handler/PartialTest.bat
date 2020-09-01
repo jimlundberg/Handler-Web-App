@@ -19,8 +19,8 @@ echo Copying %JOB% .xml file
 xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%\*.xml"
 timeout 5
 echo Copying %JOB% other files
-xcopy /S /F "test\%JOB% - Start\*.csv" "%buffer%\%JOB%\*.csv"
-xcopy /S /F "test\%JOB% - Start\*.tab" "%buffer%\%JOB%\*.tab"
+xcopy /S /F "test\%JOB%\*.csv" "%buffer%\%JOB%\*.csv"
+xcopy /S /F "test\%JOB%\*.tab" "%buffer%\%JOB%\*.tab"
 
 timeout 10
 
@@ -29,8 +29,8 @@ echo Copying %JOB% .xml file
 xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%\*.xml"
 timeout 5
 echo Copying %JOB% other files
-xcopy /S /F "test\%JOB% - Start\*.csv" "%buffer%\%JOB%\*.csv"
-xcopy /S /F "test\%JOB% - Start\*.tab" "%buffer%\%JOB%\*.tab"
+xcopy /S /F "test\%JOB%\*.csv" "%buffer%\%JOB%\*.csv"
+xcopy /S /F "test\%JOB%\*.tab" "%buffer%\%JOB%\*.tab"
 
 timeout 10
 
@@ -39,8 +39,8 @@ echo Copying %JOB% .xml file
 xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%\*.xml"
 timeout 5
 echo Copying %JOB% other files
-xcopy /S /F "test\%JOB% - Start\*.csv" "%buffer%\%JOB%\*.csv"
-xcopy /S /F "test\%JOB% - Start\*.tab" "%buffer%\%JOB%\*.tab"
+xcopy /S /F "test\%JOB%\*.csv" "%buffer%\%JOB%\*.csv"
+xcopy /S /F "test\%JOB%\*.tab" "%buffer%\%JOB%\*.tab"
 
 timeout 10
 
@@ -49,8 +49,8 @@ echo Copying %JOB% .xml file
 xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%\*.xml"
 timeout 5
 echo Copying %JOB% other files
-xcopy /S /F "test\%JOB% - Start\*.csv" "%buffer%\%JOB%\*.csv"
-xcopy /S /F "test\%JOB% - Start\*.tab" "%buffer%\%JOB%\*.tab"
+xcopy /S /F "test\%JOB%\*.csv" "%buffer%\%JOB%\*.csv"
+xcopy /S /F "test\%JOB%\*.tab" "%buffer%\%JOB%\*.tab"
 
 timeout 10
 
@@ -59,8 +59,8 @@ echo Copying %JOB% .xml file
 xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%\*.xml"
 timeout 5
 echo Copying %JOB% other files
-xcopy /S /F "test\%JOB% - Start\*.csv" "%buffer%\%JOB%\*.csv"
-xcopy /S /F "test\%JOB% - Start\*.tab" "%buffer%\%JOB%\*.tab"
+xcopy /S /F "test\%JOB%\*.csv" "%buffer%\%JOB%\*.csv"
+xcopy /S /F "test\%JOB%\*.tab" "%buffer%\%JOB%\*.tab"
 
 timeout 10
 
@@ -69,8 +69,8 @@ echo Copying %JOB% .xml file
 xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%\*.xml"
 timeout 5
 echo Copying %JOB% other files
-xcopy /S /F "test\%JOB% - Start\*.csv" "%buffer%\%JOB%\*.csv"
-xcopy /S /F "test\%JOB% - Start\*.tab" "%buffer%\%JOB%\*.tab"
+xcopy /S /F "test\%JOB%\*.csv" "%buffer%\%JOB%\*.csv"
+xcopy /S /F "test\%JOB%\*.tab" "%buffer%\%JOB%\*.tab"
 
 timeout 10
 
@@ -79,8 +79,8 @@ echo Copying %JOB% .xml file
 xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%\*.xml"
 timeout 5
 echo Copying %JOB% other files
-xcopy /S /F "test\%JOB% - Start\*.csv" "%buffer%\%JOB%\*.csv"
-xcopy /S /F "test\%JOB% - Start\*.tab" "%buffer%\%JOB%\*.tab"
+xcopy /S /F "test\%JOB%\*.csv" "%buffer%\%JOB%\*.csv"
+xcopy /S /F "test\%JOB%\*.tab" "%buffer%\%JOB%\*.tab"
 
 timeout 10
 
@@ -89,8 +89,8 @@ echo Copying %JOB% .xml file
 xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%\*.xml"
 timeout 5
 echo Copying %JOB% other files
-xcopy /S /F "test\%JOB% - Start\*.csv" "%buffer%\%JOB%\*.csv"
-xcopy /S /F "test\%JOB% - Start\*.tab" "%buffer%\%JOB%\*.tab"
+xcopy /S /F "test\%JOB%\*.csv" "%buffer%\%JOB%\*.csv"
+xcopy /S /F "test\%JOB%\*.tab" "%buffer%\%JOB%\*.tab"
 
 timeout 10
 
@@ -98,7 +98,7 @@ SET JOB=1610789_201911281057
 xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%\*.xml"
 timeout 5
 echo Copying %JOB% other files
-xcopy /S /F "test\%JOB% - Start\*.csv" "%buffer%\%JOB%\*.csv"
-xcopy /S /F "test\%JOB% - Start\*.tab" "%buffer%\%JOB%\*.tab"
+xcopy /S /F "test\%JOB%\*.csv" "%buffer%\%JOB%\*.csv"
+xcopy /S /F "test\%JOB%\*.tab" "%buffer%\%JOB%\*.tab"
 
 :End
