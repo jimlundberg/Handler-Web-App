@@ -59,7 +59,9 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.InputFileWatcherThreadHandle = new Thread(() => WatchFiles(DirectoryName, IniData));
+            StaticClass.InputFileWatcherThreadHandle = new Thread(() =>
+                WatchFiles(DirectoryName, IniData));
+            
             if (StaticClass.InputFileWatcherThreadHandle == null)
             {
                 Logger.LogError("InputFileWatcherThread thread failed to instantiate");
@@ -86,8 +88,8 @@ namespace Status.Services
             // If Number of files is complete
             if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
-                StaticClass.Log(String.Format("\nInput File Watcher detected a complete set {0} of {1} Input job {2} files at {3:HH:mm:ss.fff}",
-                    StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], job, DateTime.Now));
+                StaticClass.Log(String.Format("\nInput File Watcher detected a complete Job {0} set of {1} files at {2:HH:mm:ss.fff}",
+                    job, StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
 
                 // Signal the Run thread that the Input Buffer files were found
                 StaticClass.InputFileScanComplete[job] = true;
@@ -149,7 +151,8 @@ namespace Status.Services
                 // Begin watching for changes to Input directory
                 watcher.EnableRaisingEvents = true;
 
-                StaticClass.Log(String.Format("Input File Watcher watching {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                StaticClass.Log(String.Format("Input File Watcher watching directory {0} at {1:HH:mm:ss.fff}",
+                    directory, DateTime.Now));
 
                 // Wait for Input file scan to Complete with a full set of job output files
                 do

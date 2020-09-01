@@ -63,9 +63,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.ProcessingFileWatcherThreadHandle = new Thread(() =>
-                WatchFiles(DirectoryName, IniData, MonitorData, StatusDataList));
-
+            StaticClass.ProcessingFileWatcherThreadHandle = new Thread(() => WatchFiles(DirectoryName, IniData));
             if (StaticClass.ProcessingFileWatcherThreadHandle == null)
             {
                 Logger.LogError("ProcessingFileWatcherThread thread failed to instantiate");
@@ -92,8 +90,8 @@ namespace Status.Services
             // If Number of files is complete
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
-                StaticClass.Log(String.Format("\nProcessing File Watcher detected a complete set {0} of {1} Processing job {2} files at {3:HH:mm:ss.fff}",
-                    StaticClass.NumberOfProcessingFilesFound[job], StaticClass.NumberOfProcessingFilesNeeded[job], job, DateTime.Now));
+                StaticClass.Log(String.Format("\nProcessing File Watcher detected a complete Job {0} set of {1} files at {2:HH:mm:ss.fff}",
+                    job, StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
 
                 // Signal the Run thread that the Processing Buffer files were found
                 StaticClass.ProcessingFileScanComplete[job] = true;
@@ -159,7 +157,7 @@ namespace Status.Services
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-        public void WatchFiles(string directory, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
+        public void WatchFiles(string directory, IniFileData iniData)
         {
             // Get job name from directory name
             string job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
@@ -193,7 +191,7 @@ namespace Status.Services
                 // Begin watching for file changes to Processing job directory
                 watcher.EnableRaisingEvents = true;
 
-                StaticClass.Log(String.Format("Processing File Watcher watching {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("Processing File Watcher watching directory {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
 
                 // Wait for Processing file scan to Complete with a full set of job output files
