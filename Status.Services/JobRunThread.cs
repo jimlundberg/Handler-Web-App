@@ -174,12 +174,12 @@ namespace Status.Services
             monitorData.NumFilesToTransfer = NumFilesToTransfer;
 
             // Get the modeler and number of files to transfer
-            StaticClass.Log(String.Format("Unit Number                    : {0}", monitorData.UnitNumber));
-            StaticClass.Log(String.Format("Modeler                        : {0}", monitorData.Modeler));
-            StaticClass.Log(String.Format("Num Files Consumed             : {0}", monitorData.NumFilesConsumed));
-            StaticClass.Log(String.Format("Num Files Produced             : {0}", monitorData.NumFilesProduced));
-            StaticClass.Log(String.Format("Num Files To Transfer          : {0}", monitorData.NumFilesToTransfer));
-            StaticClass.Log(String.Format("Job Port Number                : {0}", monitorData.JobPortNumber));
+            StaticClass.Log("Unit Number                    : {monitorData.UnitNumber}");
+            StaticClass.Log("Modeler                        : {monitorData.Modeler}");
+            StaticClass.Log("Num Files Consumed             : {monitorData.NumFilesConsumed}");
+            StaticClass.Log("Num Files Produced             : {monitorData.NumFilesProduced}");
+            StaticClass.Log("Num Files To Transfer          : {monitorData.NumFilesToTransfer}");
+            StaticClass.Log("Job Port Number                : {monitorData.JobPortNumber}");
 
             // Create the Transfered file list from the Xml file entries
             monitorData.TransferedFileList = new List<string>(NumFilesToTransfer);
