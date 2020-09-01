@@ -84,7 +84,7 @@ namespace Status.Services
             // Increment the number of Input Buffer Job files found
             StaticClass.NumberOfInputFilesFound[job]++;
 
-            StaticClass.Log(String.Format("Input File Watcher detected file {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Input File Watcher detected {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}",
                 jobFile, job, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
 
             // If Number of files is complete
@@ -153,7 +153,7 @@ namespace Status.Services
                 // Begin watching for changes to Input directory
                 watcher.EnableRaisingEvents = true;
 
-                StaticClass.Log(String.Format("Input File Watcher watching directory {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("Input File Watcher watching {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
 
                 // Wait for Input file scan to Complete with a full set of job output files
