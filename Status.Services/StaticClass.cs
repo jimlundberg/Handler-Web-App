@@ -73,9 +73,21 @@ namespace Status.Services
             IniFileData iniData, JobStatus status, JobType timeSlot)
         {
             string statusLogFile = iniData.StatusLogFile;
+
+            // Write to the Status accumulator
             StatusEntry statusData = new StatusEntry();
+            if (statusData == null)
+            {
+                StaticClass.Logger.LogError("StaticClass statusData failed to instantiate");
+            }
             statusData.ListStatus(statusList, job, status, timeSlot);
-            statusData.WriteToCsvFile(job, status, timeSlot, statusLogFile);
+
+            // Write new status to the log file
+            CsvFileHandler csvFileHandler = new CsvFileHandler();
+            {
+                StaticClass.Logger.LogError("StaticClass csvFileHandler failed to instantiate");
+            }
+            csvFileHandler.WriteToCsvFile(job, status, timeSlot, statusLogFile);
         }
 
         /// <summary>

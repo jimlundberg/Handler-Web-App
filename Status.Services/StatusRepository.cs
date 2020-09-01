@@ -101,12 +101,12 @@ namespace Status.Services
         /// </summary>
         public void CheckLogFileHistory()
         {
-            StatusEntry status = new StatusEntry();
-            if (status == null)
+            CsvFileHandler csvFileHandler = new CsvFileHandler();
+            if (csvFileHandler == null)
             {
-                StaticClass.Logger.LogError("Log File History status failed to instantiate");
+                StaticClass.Logger.LogError("StatusRepository csvFileHandler failed to instantiate");
             }
-            status.CheckLogFileHistory(IniData);
+            csvFileHandler.CheckLogFileHistory(IniData);
         }
 
         /// <summary>
@@ -193,13 +193,12 @@ namespace Status.Services
                 StaticClass.Logger.LogError("StatusRepository StatusList failed to instantiate");
             }
 
-            StatusEntry status = new StatusEntry();
-            if (status == null)
+            CsvFileHandler csvFileHandler = new CsvFileHandler();
+            if (csvFileHandler == null)
             {
-                StaticClass.Logger.LogError("StatusRepository status failed to instantiate");
+                StaticClass.Logger.LogError("StatusRepository csvFileHandler failed to instantiate");
             }
-
-            StatusDataList = status.ReadFromCsvFile(IniData);
+            StatusDataList = csvFileHandler.ReadFromCsvFile(IniData);
             
             return StatusDataList;
         }
