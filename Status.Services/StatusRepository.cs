@@ -87,13 +87,13 @@ namespace Status.Services
             StaticClass.Log($"Modeler Root Dir               : {IniData.ModelerRootDir}");
             StaticClass.Log($"Status Log File                : {IniData.StatusLogFile}");
             StaticClass.Log($"Process Log File               : {IniData.ProcessLogFile}");
-            StaticClass.Log($"CPU Cores                      : {IniData.CPUCores} Cores}");
+            StaticClass.Log($"CPU Cores                      : {IniData.CPUCores} Cores");
             StaticClass.Log($"Execution Limit                : {IniData.ExecutionLimit} Jobs");
             StaticClass.Log($"Start Port                     : {IniData.StartPort}");
-            StaticClass.Log($"Scan Wait Time                 : {IniData.ScanWaitTime} Miliseconds}");
-            StaticClass.Log($"Max Job Time Limit             : {IniData.MaxJobTimeLimit} Hours}");
-            StaticClass.Log($"Log File History Limit         : {IniData.LogFileHistoryLimit} Days}");
-            StaticClass.Log($"Log File Max Size              : {IniData.LogFileMaxSize} Megabytes}");
+            StaticClass.Log($"Scan Wait Time                 : {IniData.ScanWaitTime} Miliseconds");
+            StaticClass.Log($"Max Job Time Limit             : {IniData.MaxJobTimeLimit} Hours");
+            StaticClass.Log($"Log File History Limit         : {IniData.LogFileHistoryLimit} Days");
+            StaticClass.Log($"Log File Max Size              : {IniData.LogFileMaxSize} Megabytes");
         }
 
         /// <summary>
