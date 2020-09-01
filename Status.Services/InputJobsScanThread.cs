@@ -102,6 +102,9 @@ namespace Status.Services
             dirWatch.ProcessCompleted += newJob_DirectoryFound;
             dirWatch.ThreadProc();
 
+            // Thread timing
+            Thread.Sleep(500);
+
             // Register with the Processing Buffer Jobs check completion event and start its thread
             ProcessingJobsScanThread unfinishedProcessingJobs = new ProcessingJobsScanThread(iniData, statusData, logger);
             if (unfinishedProcessingJobs == null)
@@ -209,7 +212,7 @@ namespace Status.Services
             // Clear the Directory Info List after done with it
             inputDirectoryInfoList.Clear();
 
-            StaticClass.Log("\nStarting Watcher for new Input Jobs...");
+            StaticClass.Log("\nStarting Watching for new Input Jobs...");
 
             // Run new Input job watch loop here forever
             do

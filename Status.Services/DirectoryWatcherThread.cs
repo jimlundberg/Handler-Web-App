@@ -98,7 +98,7 @@ namespace Status.Services
                 // Begin watching for directory changes to Input directory
                 watcher.EnableRaisingEvents = true;
 
-                StaticClass.Log(String.Format("Directory Watcher watching Input Buffer Job directory {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("\nDirectory Watcher watching Input Buffer Job directory {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
 
                 // Scan Input directory forever
