@@ -113,6 +113,10 @@ namespace Status.Services
         public static void RunJob(DirectoryScanType dirScanType, JobXmlData jobXmlData, IniFileData iniData,
             List<StatusData> statusData, ILogger<StatusRepository> logger)
         {
+            // Increment number of jobs executing at very beginning of job
+            StaticClass.NumberOfJobsExecuting++;
+
+            // Create the Job Run common strings
             string job = jobXmlData.Job;
             string xmlJobDirectory = jobXmlData.JobDirectory;
             string processingBufferDirectory = iniData.ProcessingDir;
@@ -121,7 +125,7 @@ namespace Status.Services
             string finishedDirectory = iniData.FinishedDir;
             string errorDirectory = iniData.ErrorDir;
 
-            // Create new status monitor data and fill in the job xml data found
+            // Create new status monitor data and fill it in with the job xml data
             StatusMonitorData monitorData = new StatusMonitorData
             {
                 Job = job,
@@ -132,9 +136,6 @@ namespace Status.Services
                 TimeStamp = jobXmlData.TimeStamp,
                 XmlFileName = jobXmlData.XmlFileName
             };
-
-            // Increment number of jobs executing at beginning of job and time hack
-            StaticClass.NumberOfJobsExecuting++;
 
             // Add initial entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED, logger);

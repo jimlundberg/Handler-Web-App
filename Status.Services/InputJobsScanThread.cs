@@ -180,8 +180,11 @@ namespace Status.Services
                     InputJobsScanThread inputJobsScanThread = new InputJobsScanThread();
                     inputJobsScanThread.StartInputJob(directory, iniData, statusData, logger);
 
-                    // Remove job just run from the Input Jobs to run list
-                    inputDirectoryInfoList.Remove(dirInfo);
+                    // Remove job just run from the Input Jobs list
+                    if (inputDirectoryInfoList[i] == dirInfo)
+                    {
+                        inputDirectoryInfoList.RemoveAt(i--);
+                    }
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);

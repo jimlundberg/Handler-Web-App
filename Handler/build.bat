@@ -25,7 +25,7 @@ copy C:\SSMCharacterizationHandler\Handler\Handler\Handler\Config.ini C:\SSMChar
 
 REM Copy the Handler test batch files to the project directory...
 copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\Build.bat C:\SSMCharacterizationHandler
-copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\Clear.bat C:\SSMCharacterizationHandler
+copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\Clean.bat C:\SSMCharacterizationHandler
 copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\Tcp.bat C:\SSMCharacterizationHandler
 copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\PartialTest.bat C:\SSMCharacterizationHandler
 copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\FullTest.bat C:\SSMCharacterizationHandler
