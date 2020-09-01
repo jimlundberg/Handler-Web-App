@@ -262,15 +262,13 @@ namespace Status.Services
 
                     StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
+                    // Reset Processing job and file scan flags
                     StaticClass.InputFileScanComplete[job] = false;
 
-                    InputJobsScanThread unfinishedInputJobsScan = new InputJobsScanThread();
-                    if (unfinishedInputJobsScan == null)
-                    {
-                        StaticClass.Logger.LogError("InputJobsScanThread unfinishedInputJobsScan failed to instantiate");
-                    }
-                    unfinishedInputJobsScan.StartInputJob(directory, iniData, statusData);
+                    // Start an Input Buffer Job
+                    StartInputJob(directory, iniData, statusData);
 
+                    // Remove job just run from the Input Jobs to run list
                     StaticClass.InputJobsToRun.Remove(job);
 
                     // Throttle the Job startups

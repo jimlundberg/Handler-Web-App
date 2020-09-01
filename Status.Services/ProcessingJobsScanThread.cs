@@ -203,9 +203,8 @@ namespace Status.Services
                     StaticClass.ProcessingFileScanComplete[job] = false;
                     StaticClass.ProcessingJobScanComplete[job] = false;
 
-                    // start a Processing Buffer Job
-                    ProcessingJobsScanThread unfinishedProcessingJobsScan = new ProcessingJobsScanThread();
-                    unfinishedProcessingJobsScan.StartProcessingJob(directory, iniData, statusData);
+                    // Start a Processing Buffer Job
+                    StartProcessingJob(directory, iniData, statusData);
                     
                     // Remove job just run from the Processing Jobs to run list
                     StaticClass.ProcessingJobsToRun.Remove(job);
