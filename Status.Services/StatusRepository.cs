@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using Status.Models;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 /// <summary>
 /// Status data repository services
@@ -116,14 +118,15 @@ namespace Status.Services
         {
             StaticClass.ShutdownFlag = false;
 
-            // Check for pause state and continue if set
+            // Check for pause state and reset it if the Start button is pressed when in Pause mode
             if (StaticClass.PauseFlag == true)
             {
+                StaticClass.Log(String.Format("Setting the system into Pause Mode at {0:HH:mm:ss.fff}", DateTime.Now));
                 StaticClass.PauseFlag = false;
             }
             else
             {
-                // Start monitor scan process
+                // Start Modeler job Processing thread
                 InputJobsScanThread newJobsScanThread = new InputJobsScanThread(IniData, StatusDataList);
                 if (newJobsScanThread == null)
                 {
@@ -146,10 +149,10 @@ namespace Status.Services
         /// </summary>
         public void StopMonitor()
         {
-            // Exit Handler threads by setting shutdown flag
+            // Soft exit Handler threads by just setting volitale Shutdown flag
             StaticClass.ShutdownFlag = true;
 
-            // Shutdown Modeler executables
+            // Shutdown all active Modeler executables
             foreach (KeyValuePair<string, Process> process in StaticClass.ProcessHandles)
             {
                 process.Value.Kill();

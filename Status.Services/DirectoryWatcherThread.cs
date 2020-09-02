@@ -89,7 +89,7 @@ namespace Status.Services
                 watcher.Filter = "*.*";
                 watcher.IncludeSubdirectories = true;
 
-                // Add event handlers
+                // Add OnCreated event handler which is the only one needed
                 watcher.Created += OnCreated;
 
                 // Begin watching for directory changes to Input directory
@@ -111,6 +111,7 @@ namespace Status.Services
                     // Check if the pause flag is set, then wait for reset
                     if (StaticClass.PauseFlag == true)
                     {
+                        StaticClass.Log(String.Format("DirectoryWatcherThread WatchDirectory is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                         do
                         {
                             Thread.Yield();

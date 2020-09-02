@@ -9,6 +9,9 @@ using ReadWriteCsvFile;
 
 namespace Status.Services
 {
+    /// <summary>
+    /// Handles csv file reading, writing, and expiration date checking
+    /// </summary>
     public class CsvFileHandler
     {
         /// <summary>
@@ -181,6 +184,7 @@ namespace Status.Services
                         // Check if the pause flag is set, then wait for reset
                         if (StaticClass.PauseFlag == true)
                         {
+                            StaticClass.Log(String.Format("CsvFileHandler ReadFromCsvFile is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                             do
                             {
                                 Thread.Yield();
@@ -325,6 +329,7 @@ namespace Status.Services
                         // Check if the pause flag is set, then wait for reset
                         if (StaticClass.PauseFlag == true)
                         {
+                            StaticClass.Log(String.Format("CsvFileHandler CheckLogFileHistory is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                             do
                             {
                                 Thread.Yield();

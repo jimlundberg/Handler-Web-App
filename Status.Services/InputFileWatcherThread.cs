@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Status.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Permissions;
 using System.Threading;
@@ -167,6 +166,7 @@ namespace Status.Services
                     // Check if the pause flag is set, then wait for reset
                     if (StaticClass.PauseFlag == true)
                     {
+                        StaticClass.Log(String.Format("InputFileWatcherThread WatchFiles is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                         do
                         {
                             Thread.Yield();

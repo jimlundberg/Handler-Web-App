@@ -1,0 +1,18 @@
+
+Config.ini data found:
+
+Input Dir                      : C:\SSMCharacterizationHandler\Input Buffer
+Processing Dir                 : C:\SSMCharacterizationHandler\ProcessingBuffer
+Repository Dir                 : C:\SSMCharacterizationHandler\Archive
+Finished Dir                   : C:\SSMCharacterizationHandler\Output Buffer
+Error Dir                      : C:\SSMCharacterizationHandler\Error Buffer
+Modeler Root Dir               : C:\SSMCharacterizationHandler\Application\Modelers
+Status Log File                : StatusData.csv
+Process Log File               : log.txt
+CPU Cores                      : 8 Cores
+Execution Limit                : 2 Jobs
+Start Port                     : 3000
+Scan Wait Time                 : 5000 Miliseconds
+Max Job Time Limit             : 12 Hours
+Log File History Limit         : 30 Days
+Log File Max Size              : 5 Megabytes

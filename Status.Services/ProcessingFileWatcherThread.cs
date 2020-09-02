@@ -134,6 +134,7 @@ namespace Status.Services
                 // Check if the pause flag is set, then wait for reset
                 if (StaticClass.PauseFlag == true)
                 {
+                    StaticClass.Log(String.Format("ProcessingFileWatcherThread OverallResultEntryCheck is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                     do
                     {
                         Thread.Yield();
@@ -207,6 +208,7 @@ namespace Status.Services
                     // Check if the pause flag is set, then wait for reset
                     if (StaticClass.PauseFlag == true)
                     {
+                        StaticClass.Log(String.Format("ProcessingFileWatcherThread WatchFiles is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                         do
                         {
                             Thread.Yield();
