@@ -128,7 +128,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Returns when file is ready to access
+        /// Returns when a file is ready to access
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns>Returns if file is ready to access</returns>
@@ -139,6 +139,7 @@ namespace Status.Services
                 // Check if file even exists
                 if (!File.Exists(fileName))
                 {
+                    StaticClass.Logger.LogError(String.Format("IsFileReady did not find file {0}", fileName));
                     return;
                 }
 
