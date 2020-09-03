@@ -195,11 +195,6 @@ namespace Status.Services
                             resendTimer.Stop();
                             resendTimer.Start();
                         }
-                        else
-                        {
-                            StaticClass.Log(String.Format("Received: zero length msg from Job {0} on port {1} at {2:HH:mm:ss.fff}",
-                                job, port, DateTime.Now));
-                        }
 
                         // Send status for response received
                         switch (responseData)
