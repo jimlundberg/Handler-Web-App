@@ -102,7 +102,7 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(String.Format("InputFileWatcherThread received TCP/IP Scan Completed for job {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("InputFileWatcherThread received TCP/IP Scan Completed for Job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
 
             // Signal that the TCP/IP scan for a job is complete
@@ -180,7 +180,7 @@ namespace Status.Services
                 StaticClass.InputJobScanComplete[job] = true;
 
                 // Exiting thread message
-                StaticClass.Log(String.Format("Input File Watcher thread completed the scan for job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("Input File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
             }
         }

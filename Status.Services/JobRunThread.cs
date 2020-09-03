@@ -104,7 +104,7 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(String.Format("Processing File Watcher received TCP/IP Scan Completed for job {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Processing File Watcher received TCP/IP Scan Completed for Job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
 
             StaticClass.TcpIpScanComplete[job] = true;
@@ -259,7 +259,7 @@ namespace Status.Services
 
                         if (StaticClass.ShutdownFlag == true)
                         {
-                            StaticClass.Log(String.Format("\nShutdown RunJob Input Scan for job {0} at {1:HH:mm:ss.fff}",
+                            StaticClass.Log(String.Format("\nShutdown RunJob Input Scan for Job {0} at {1:HH:mm:ss.fff}",
                                 job, DateTime.Now));
                             return;
                         }
@@ -281,7 +281,7 @@ namespace Status.Services
                     Task checkInputFilesTask = WaitForFilesToBeReady(inputJobFileDir);
                     checkInputFilesTask.Wait();
 
-                    StaticClass.Log(String.Format("Finished Input Buffer file scan for job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(String.Format("Finished Input Buffer file scan for Job {0} at {1:HH:mm:ss.fff}",
                         inputJobFileDir, DateTime.Now));
 
                     // Add copying entry to status list
@@ -368,7 +368,7 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(String.Format("\nShutdown RunJob job complete scan for job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(String.Format("\nShutdown RunJob job complete scan for Job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
                     return;
                 }

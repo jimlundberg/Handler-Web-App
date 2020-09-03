@@ -231,7 +231,7 @@ namespace Status.Services
                 }
 
                 // Exiting thread message
-                StaticClass.Log(String.Format("Processing File Watcher thread completed the scan for job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("Processing File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
             }
         }

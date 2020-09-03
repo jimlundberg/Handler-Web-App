@@ -70,7 +70,7 @@ namespace Status.Services
             // Set Flag for ending directory scan loop
             StaticClass.InputJobsToRun.Add(job);
 
-            StaticClass.Log(String.Format("Input Job Scan detected and added job {0} to Input job list at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Input Job Scan detected and added Job {0} to Input job list at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -209,7 +209,7 @@ namespace Status.Services
                 string directory = dirInfo.ToString();
                 string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
                 StaticClass.InputJobsToRun.Add(job);
-                StaticClass.Log(String.Format("Unfinished Input jobs check added job {0} to Input Job waiting list", job));
+                StaticClass.Log(String.Format("Unfinished Input jobs check added Job {0} to Input Job waiting list", job));
             }
 
             // Clear the Directory Info List after done with it

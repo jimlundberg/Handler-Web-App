@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Timers;
 
 namespace Status.Services
 {
@@ -17,7 +19,13 @@ namespace Status.Services
         private readonly List<StatusData> StatusData;
         public event EventHandler ProcessCompleted;
         public const string Host = "127.0.0.1";
-        private readonly int Port = 0;
+        private static int Port = 0;
+        private static System.Timers.Timer RetryTimer;
+        private static NetworkStream StreamHandle;
+        private static byte[] Data;
+        private static bool RetryTcpIpRequest;
+        private static string Job;
+        private static string Message;
 
         /// <summary>
         /// Job Tcp/IP thread 
@@ -28,6 +36,7 @@ namespace Status.Services
         public TcpIpListenThread(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
         {
             Port = monitorData.JobPortNumber;
+            Job = monitorData.Job;
             IniData = iniData;
             MonitorData = monitorData;
             StatusData = statusData;
@@ -70,6 +79,19 @@ namespace Status.Services
             StaticClass.TcpIpListenThreadHandle.Start();
         }
 
+        static void retryTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            if (RetryTcpIpRequest)
+            {
+                StaticClass.Log(String.Format("\nSending Retry msg {0} to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                    Message, Job, Port, DateTime.Now));
+
+                // Send the message to the Modeler
+                StreamHandle.Write(Data, 0, Data.Length);
+
+            }
+        }
+
         /// <summary>
         /// Connect to TCP/IP Port 
         /// </summary>
@@ -87,7 +109,7 @@ namespace Status.Services
             {
                 string job = monitorData.Job;
 
-                StaticClass.Log(String.Format("\nStarting TCP/IP Scan for job {0} on port {1} at {2:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("\nStarting TCP/IP Scan for Job {0} on port {1} at {2:HH:mm:ss.fff}",
                     job, port, DateTime.Now));
 
                 // Log starting TCP/IP monitoring entry
@@ -121,6 +143,8 @@ namespace Status.Services
                 bool jobComplete = false;
                 do
                 {
+                    RetryTcpIpRequest = true;
+
                     if (StaticClass.ShutdownFlag == true)
                     {
                         StaticClass.Log(String.Format("\nShutdown TcpIpListenThread prewrite for Job {0} on port {1} at {2:HH:mm:ss.fff}",
@@ -145,6 +169,16 @@ namespace Status.Services
 
                     // Send the message to the Modeler
                     stream.Write(data, 0, data.Length);
+
+                    // Start 60 second resend timer
+                    StreamHandle = stream;
+                    Data = data;
+                    Message = message;
+                    var resendTimer = new System.Timers.Timer(60000);
+                    resendTimer.Elapsed += new ElapsedEventHandler(retryTimer_Elapsed);
+                    resendTimer.Enabled = true;
+                    RetryTimer = resendTimer;
+                    resendTimer.Start();
 
                     // Receive the TcpServer.response.
                     StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
@@ -196,12 +230,12 @@ namespace Status.Services
                             }
                             catch (Exception e)
                             {
-                                StaticClass.Logger.LogWarning(String.Format("TCP/IP Read for job {0} port {1} failed with error {2}",
+                                StaticClass.Logger.LogWarning(String.Format("TCP/IP Read for Job {0} on Port {1} failed with error {2}",
                                     job, port, e));
 
                                 if (i == 4)
                                 {
-                                    StaticClass.Logger.LogError(String.Format("TCP/IP Connection Timeout for job {0} port {1} after 5 tries with error {2}",
+                                    StaticClass.Logger.LogError(String.Format("TCP/IP Connection Timeout for Job {0} on Port {1} after 5 tries with error {2}",
                                         job, port, e));
 
                                     StaticClass.TcpIpScanComplete[job] = true;
@@ -219,6 +253,11 @@ namespace Status.Services
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
                         StaticClass.Log(String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                             responseData, job, port, DateTime.Now));
+
+                        if (responseData.Length > 0)
+                        {
+                            RetryTcpIpRequest = false;
+                        }
 
                         // Send status for response received
                         switch (responseData)
@@ -288,7 +327,7 @@ namespace Status.Services
                         // Check for job timeout
                         if ((DateTime.Now - monitorData.StartTime).TotalSeconds > StaticClass.MaxJobTimeLimitSeconds)
                         {
-                            StaticClass.Log(String.Format("Job Timeout for job {0} at {1:HH:mm:ss.fff}", job, DateTime.Now));
+                            StaticClass.Log(String.Format("Job Timeout for Job {0} at {1:HH:mm:ss.fff}", job, DateTime.Now));
 
                             // Create job Timeout status
                             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_START);
@@ -336,7 +375,7 @@ namespace Status.Services
                     }
                     else
                     {
-                        StaticClass.Logger.LogError(String.Format("Can not read TCP/IP Stream for job {0} at {1:HH:mm:ss.fff}",
+                        StaticClass.Logger.LogError(String.Format("Can not read TCP/IP Stream for Job {0} at {1:HH:mm:ss.fff}",
                             job, DateTime.Now));
 
                         // Make sure to close TCP/IP socket
@@ -361,5 +400,10 @@ namespace Status.Services
                 StaticClass.Logger.LogError("SocketException: {0}", e);
             }
         }
+
+    Task HandleRetryTimer(NetworkStream stream, byte[] data)
+    {
+        throw new NotImplementedException();
     }
+}
 }

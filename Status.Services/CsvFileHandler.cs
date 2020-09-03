@@ -177,7 +177,7 @@ namespace Status.Services
                         // If the shutdown flag is set, exit method
                         if (StaticClass.ShutdownFlag == true)
                         {
-                            StaticClass.Log(String.Format("\nShutdown ReadFromCsvFile job {0} row {1}", rowStatusData.Job, rowStatusData));
+                            StaticClass.Log(String.Format("\nShutdown ReadFromCsvFile Job {0} row {1}", rowStatusData.Job, rowStatusData));
                             return null;
                         }
 
@@ -321,7 +321,7 @@ namespace Status.Services
                         // If the shutdown flag is set, exit method
                         if (StaticClass.ShutdownFlag == true)
                         {
-                            StaticClass.Log(String.Format("\nShutdown CsvFileHandler job {0} at {1:HH:mm:ss.fff}",
+                            StaticClass.Log(String.Format("\nShutdown CsvFileHandler Job {0} at {1:HH:mm:ss.fff}",
                                 job, DateTime.Now));
                             return;
                         }
