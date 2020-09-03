@@ -19,13 +19,11 @@ namespace Status.Services
         private readonly List<StatusData> StatusData;
         public event EventHandler ProcessCompleted;
         public const string Host = "127.0.0.1";
-        private static int Port = 0;
-        private static System.Timers.Timer RetryTimer;
-        private static NetworkStream StreamHandle;
-        private static byte[] Data;
-        private static bool RetryTcpIpRequest;
         private static string Job;
-        private static string Message;
+        private static int Port = 0;
+        private static NetworkStream StreamHandle;
+        private static readonly string Message = "status";
+        private const int TIMEOUT = 60000;
 
         /// <summary>
         /// Job Tcp/IP thread 
@@ -70,7 +68,7 @@ namespace Status.Services
         public void ThreadProc()
         {
             StaticClass.TcpIpListenThreadHandle = new Thread(() =>
-                Connect(Port, IniData, MonitorData, StatusData, "status"));
+                Connect(Port, IniData, MonitorData, StatusData));
 
             if (StaticClass.TcpIpListenThreadHandle == null)
             {
@@ -81,15 +79,13 @@ namespace Status.Services
 
         static void retryTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (RetryTcpIpRequest)
-            {
-                StaticClass.Log(String.Format("\nSending Retry msg {0} to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                    Message, Job, Port, DateTime.Now));
+            StaticClass.Log(String.Format("\nSending Retry msg {0} to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                Message, Job, Port, DateTime.Now));
 
-                // Send the message to the Modeler
-                StreamHandle.Write(Data, 0, Data.Length);
-
-            }
+            // Send retry message to the Modeler
+            Byte[] data;
+            data = System.Text.Encoding.ASCII.GetBytes(Message);
+            StreamHandle.Write(data, 0, data.Length);
         }
 
         /// <summary>
@@ -99,8 +95,7 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
-        /// <param name="message"></param>
-        public void Connect(int port, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData, string message)
+        public void Connect(int port, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
         {
             // Wait about a minute for the Modeler to start execution
             Thread.Sleep(StaticClass.ScanWaitTime * 12);
@@ -125,7 +120,7 @@ namespace Status.Services
                 }
 
                 // Translate the passed message into ASCII and store it as a Byte array.
-                Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
+                Byte[] data = System.Text.Encoding.ASCII.GetBytes(Message);
 
                 // Get a client stream for reading and writing.
                 // Stream stream = client.GetStream();
@@ -140,11 +135,16 @@ namespace Status.Services
 
                 StaticClass.Log(String.Format("Opening TCP/IP Socket for Job {0} on port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
 
+                // Start 60 second resend timer that gets reset if we receive data
+                StreamHandle = stream;
+                var resendTimer = new System.Timers.Timer(TIMEOUT);
+                resendTimer.Elapsed += new ElapsedEventHandler(retryTimer_Elapsed);
+                resendTimer.Enabled = true;
+                resendTimer.Start();
+
                 bool jobComplete = false;
                 do
                 {
-                    RetryTcpIpRequest = true;
-
                     if (StaticClass.ShutdownFlag == true)
                     {
                         StaticClass.Log(String.Format("\nShutdown TcpIpListenThread prewrite for Job {0} on port {1} at {2:HH:mm:ss.fff}",
@@ -170,19 +170,9 @@ namespace Status.Services
                     // Send the message to the Modeler
                     stream.Write(data, 0, data.Length);
 
-                    // Start 60 second resend timer
-                    StreamHandle = stream;
-                    Data = data;
-                    Message = message;
-                    var resendTimer = new System.Timers.Timer(60000);
-                    resendTimer.Elapsed += new ElapsedEventHandler(retryTimer_Elapsed);
-                    resendTimer.Enabled = true;
-                    RetryTimer = resendTimer;
-                    resendTimer.Start();
-
                     // Receive the TcpServer.response.
                     StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
-                        message, job, port, DateTime.Now));
+                        Message, job, port, DateTime.Now));
 
                     // Buffer to store the response bytes.
                     data = new Byte[256];
@@ -190,73 +180,25 @@ namespace Status.Services
                     // String to store the response ASCII representation.
                     string responseData = String.Empty;
                     int adjustableSleepTime = 5000;
-
-                    // Try to read the Modeler response at least 5 times
                     if (stream.CanRead)
                     {
                         int bytes = 0;
-                        for (int i = 0; i < 5; i++)
-                        {
-                            try
-                            {
-                                // Check if the shutdown flag is set
-                                if (StaticClass.ShutdownFlag == true)
-                                {
-                                    StaticClass.Log(String.Format("\nShutdown TcpIpListenThread preread for Job {0} on port {1} at {2:HH:mm:ss.fff}",
-                                        job, port, DateTime.Now));
-
-                                    StaticClass.TcpIpScanComplete[job] = true;
-
-                                    // Make sure to close TCP/IP socket
-                                    jobComplete = true;
-                                }
-
-                                // Check if the pause flag is set, then wait for reset
-                                if (StaticClass.PauseFlag == true)
-                                {
-                                    StaticClass.Log(String.Format("TcpIpListenThread Connect2 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
-                                    do
-                                    {
-                                        Thread.Yield();
-                                    }
-                                    while (StaticClass.PauseFlag == true);
-                                }
-
-                                bytes = stream.Read(data, 0, data.Length);
-                                if (bytes > 0)
-                                {
-                                    break;
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                StaticClass.Logger.LogWarning(String.Format("TCP/IP Read for Job {0} on Port {1} failed with error {2}",
-                                    job, port, e));
-
-                                if (i == 4)
-                                {
-                                    StaticClass.Logger.LogError(String.Format("TCP/IP Connection Timeout for Job {0} on Port {1} after 5 tries with error {2}",
-                                        job, port, e));
-
-                                    StaticClass.TcpIpScanComplete[job] = true;
-
-                                    // Make sure to close TCP/IP socket
-                                    jobComplete = true;
-                                }
-                            }
-
-                            // Wait between TCP/IP Connection tries
-                            Thread.Sleep(StaticClass.ScanWaitTime * 3);
-                        }
-
-                        // Get the Modeler response and display it
+                        bytes = stream.Read(data, 0, data.Length);
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
+
                         StaticClass.Log(String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
                             responseData, job, port, DateTime.Now));
 
+                        // Reset timer if data received
                         if (responseData.Length > 0)
                         {
-                            RetryTcpIpRequest = false;
+                            resendTimer.Stop();
+                            resendTimer.Start();
+                        }
+                        else
+                        {
+                            StaticClass.Log(String.Format("Received: zero length msg from Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                                job, port, DateTime.Now));
                         }
 
                         // Send status for response received
