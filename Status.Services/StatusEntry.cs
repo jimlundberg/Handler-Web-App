@@ -10,6 +10,9 @@ namespace Status.Services
     /// </summary>
     public class StatusEntry
     {
+        /// <summary>
+        /// Status Entry Constructor
+        /// </summary>
         public StatusEntry() { }
 
         /// <summary>
