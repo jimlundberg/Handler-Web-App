@@ -23,7 +23,7 @@ namespace Status.Services
         private static int Port = 0;
         private static NetworkStream StreamHandle;
         private static readonly string Message = "status";
-        private const int TIMEOUT = 60000;
+        private const int TIMEOUT = 120000;
 
         /// <summary>
         /// Job Tcp/IP thread 
@@ -179,7 +179,7 @@ namespace Status.Services
 
                     // String to store the response ASCII representation.
                     string responseData = String.Empty;
-                    int adjustableSleepTime = 5000;
+                    int adjustableSleepTime = 15000;
                     if (stream.CanRead)
                     {
                         int bytes = 0;
