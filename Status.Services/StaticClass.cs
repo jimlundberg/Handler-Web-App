@@ -35,7 +35,8 @@ namespace Status.Services
         public static List<string> InputJobsToRun = new List<String>();
 		public static List<string> ProcessingJobsToRun = new List<String>();
 
-		public static Dictionary<string, bool> InputFileScanComplete = new Dictionary<string, bool>();
+        public static Dictionary<string, DateTime> JobStartTime = new Dictionary<string, DateTime>();
+        public static Dictionary<string, bool> InputFileScanComplete = new Dictionary<string, bool>();
         public static Dictionary<string, bool> InputJobScanComplete = new Dictionary<string, bool>();
         public static Dictionary<string, bool> ProcessingFileScanComplete = new Dictionary<string, bool>();
         public static Dictionary<string, bool> ProcessingJobScanComplete = new Dictionary<string, bool>();

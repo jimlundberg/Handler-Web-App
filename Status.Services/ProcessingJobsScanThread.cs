@@ -86,7 +86,7 @@ namespace Status.Services
                 StaticClass.Logger.LogError("ProcessingJobsScanThread processingDirectoryInfo failed to instantiate");
             }
 
-            // Get the current list of directories from the Processing Buffer
+            // Get the current list of directories from the Job Processing Buffer
             List<DirectoryInfo> processingDirectoryInfoList = processingDirectoryInfo.EnumerateDirectories().ToList();
             if (processingDirectoryInfoList == null)
             {

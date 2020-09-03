@@ -251,12 +251,12 @@ namespace Status.Services
                                 StaticClass.Log(String.Format("TCP/IP for Job {0} on port {1} received Modeler process done at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
+                                StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                                    job, port, DateTime.Now));
+
                                 // Make sure to close TCP/IP socket
                                 stream.Close();
                                 client.Close();
-
-                                StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on port {1} at {2:HH:mm:ss.fff}",
-                                    job, port, DateTime.Now));
 
                                 // Flag TCP/IP scan complete
                                 StaticClass.TcpIpScanComplete[job] = true;
@@ -274,12 +274,12 @@ namespace Status.Services
                             StaticClass.Log(String.Format("TCP/IP for Job {0} on port {1} received Modeler process done at {2:HH:mm:ss.fff}",
                                 job, port, DateTime.Now));
 
+                            StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                                job, port, DateTime.Now));
+
                             // Make sure to close TCP/IP socket
                             stream.Close();
                             client.Close();
-
-                            StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on port {1} at {2:HH:mm:ss.fff}",
-                                job, port, DateTime.Now));
 
                             StaticClass.TcpIpScanComplete[job] = true;
                             return;

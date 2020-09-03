@@ -3,7 +3,9 @@ using Status.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Status.Services
@@ -109,13 +111,40 @@ namespace Status.Services
         }
 
         /// <summary>
+        /// Method to wait until the files in the Job Input Buffer are complete
+        /// </summary>
+        /// <param name="directory"></param>
+        public static async Task WaitForFilesToBeReady(string directory)
+        {
+            // Get the current job buffer directory info
+            DirectoryInfo processingDirectoryInfo = new DirectoryInfo(directory);
+            if (processingDirectoryInfo == null)
+            {
+                StaticClass.Logger.LogError("JobRunThread processingDirectoryInfo failed to instantiate");
+            }
+
+            // Get the current list of directories from the Job Processing Buffer
+            List<DirectoryInfo> processingDirectoryInfoList = processingDirectoryInfo.EnumerateDirectories().ToList();
+            if (processingDirectoryInfoList == null)
+            {
+                StaticClass.Logger.LogError("ProcessingJobsScanThread processingDirectoryInfoList failed to instantiate");
+            }
+
+            // Start the jobs in the directory list found for the Processing Buffer
+            foreach (DirectoryInfo dirInfo in processingDirectoryInfoList)
+            {
+                await StaticClass.IsFileReady(dirInfo.FullName);
+            }
+        }
+
+        /// <summary>
         /// Run a job from Input or Processing Buffers
         /// </summary>
         /// <param name="dirScanType"></param>
         /// <param name="jobXmlData"></param>
         /// <param name="iniData"></param>
         /// <param name="statusData"></param>
-        public static void RunJob(DirectoryScanType dirScanType, JobXmlData jobXmlData, IniFileData iniData, List<StatusData> statusData)
+        public void RunJob(DirectoryScanType dirScanType, JobXmlData jobXmlData, IniFileData iniData, List<StatusData> statusData)
         {
             // Increment number of jobs executing at very beginning of job
             StaticClass.NumberOfJobsExecuting++;
@@ -128,6 +157,9 @@ namespace Status.Services
             string repositoryDirectory = iniData.RepositoryDir;
             string finishedDirectory = iniData.FinishedDir;
             string errorDirectory = iniData.ErrorDir;
+
+            // Set the job start time
+            StaticClass.JobStartTime[job] = DateTime.Now;
 
             // Create new status monitor data and fill it in with the job xml data
             StatusMonitorData monitorData = new StatusMonitorData
@@ -146,8 +178,8 @@ namespace Status.Services
 
             // Wait for the job xml file to be ready
             string jobXmlFileName = xmlJobDirectory + @"\" + jobXmlData.XmlFileName;
-            var jobXmltask = StaticClass.IsFileReady(jobXmlFileName);
-            jobXmltask.Wait();
+            Task checkJobXmlFileTask = StaticClass.IsFileReady(jobXmlFileName);
+            checkJobXmlFileTask.Wait();
 
             // Read Job xml file and get the top node
             XmlDocument jobXmlDoc = new XmlDocument();
@@ -244,6 +276,10 @@ namespace Status.Services
                         }
                     }
                     while (StaticClass.InputFileScanComplete[job] == false);
+
+                    // Check that Job input files are complete
+                    Task checkInputFilesTask = WaitForFilesToBeReady(inputJobFileDir);
+                    checkInputFilesTask.Wait();
 
                     StaticClass.Log(String.Format("Finished Input Buffer file scan for job {0} at {1:HH:mm:ss.fff}",
                         inputJobFileDir, DateTime.Now));
@@ -419,8 +455,8 @@ namespace Status.Services
             // Add entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
 
-            StaticClass.Log(String.Format("Job {0} Complete, decrementing job count to {1} at {2:HH:mm:ss.fff}",
-                job, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now));
+            StaticClass.Log(String.Format("Job {0} Complete taking {1} decrementing job count to {2} at {3:HH:mm:ss.fff}",
+                job, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now - StaticClass.JobStartTime[job], DateTime.Now));
 
             StaticClass.NumberOfJobsExecuting--;
         }
