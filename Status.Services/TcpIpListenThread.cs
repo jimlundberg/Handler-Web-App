@@ -22,7 +22,7 @@ namespace Status.Services
         private static int Port = 0;
         private static NetworkStream StreamHandle;
         private static readonly string Message = "status";
-        private const int TIMEOUT = 120000;
+        private const int TIMEOUT = 30300; // 5 minutes
 
         /// <summary>
         /// Job Tcp/IP thread 
@@ -84,7 +84,7 @@ namespace Status.Services
             // Send retry message to the Modeler
             Byte[] data;
             data = System.Text.Encoding.ASCII.GetBytes(Message);
-            StreamHandle.Write(data, 0, data.Length);
+            //StreamHandle.Write(data, 0, data.Length);
         }
 
         /// <summary>
@@ -135,11 +135,15 @@ namespace Status.Services
                 StaticClass.Log(String.Format("Opening TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                     job, port, DateTime.Now));
 
+                // Receive the TcpServer.response
+                //StaticClass.Log(String.Format("Starting timer for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                //    job, port, DateTime.Now));
+
                 // Start 60 second resend timer that gets reset if we receive data
-                var resendTimer = new System.Timers.Timer(TIMEOUT);
-                resendTimer.Elapsed += new ElapsedEventHandler(retryTimer_Elapsed);
-                resendTimer.Enabled = true;
-                resendTimer.Start();
+                //var resendTimer = new System.Timers.Timer(TIMEOUT);
+                //resendTimer.Elapsed += new ElapsedEventHandler(retryTimer_Elapsed);
+                //resendTimer.Enabled = true;
+                //resendTimer.Start();
 
                 bool jobComplete = false;
                 do
@@ -169,7 +173,6 @@ namespace Status.Services
                     // Send the message to the Modeler
                     stream.Write(data, 0, data.Length);
 
-                    // Receive the TcpServer.response.
                     StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
                         Message, job, port, DateTime.Now));
 
@@ -192,11 +195,15 @@ namespace Status.Services
                             responseData, job, port, DateTime.Now));
 
                         // Reset timer if data received
-                        if (responseData.Length > 0)
-                        {
-                            resendTimer.Stop();
-                            resendTimer.Start();
-                        }
+                        //if (responseData.Length > 0)
+                        //{
+                            // Receive the TcpServer.response
+                            //StaticClass.Log(String.Format("Resetting TCP/IP Timout timer for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                            //    job, port, DateTime.Now));
+
+                            //resendTimer.Stop();
+                            //resendTimer.Start();
+                        //}
 
                         // Readjust sleep time according to Step number
                         switch (responseData)

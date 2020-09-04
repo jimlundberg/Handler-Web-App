@@ -366,8 +366,8 @@ namespace Status.Services
             // Add entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
 
-            // Wait 30 seconds for Modeler to get started before reading it's information
-            Thread.Sleep(30000);
+            // Wait 45 seconds for Modeler to get started before reading it's information
+            Thread.Sleep(45000);
 
             // Display Modeler Executable information
             StaticClass.Log($"\nJob {job} Modeler execution process data:");
