@@ -319,7 +319,7 @@ namespace Status.Services
             // Add entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.EXECUTING, JobType.TIME_START);
 
-            StaticClass.Log(String.Format("Starting Job {0} with Modeler {1} on port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Starting Job {0} with Modeler {1} on Port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
                 job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores, DateTime.Now));
 
             // Execute Modeler using the command line generator
@@ -456,9 +456,9 @@ namespace Status.Services
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
 
             // Show Job Complete message
-            var jobProcessingTime = (DateTime.Now - StaticClass.JobStartTime[job]).TotalHours;
-            StaticClass.Log(String.Format("Job {0} Complete taking {1} hours. Decrementing job count to {2} at {3:HH:mm:ss.fff}",
-                job, StaticClass.NumberOfJobsExecuting - 1, jobProcessingTime.ToString("H:mm"), DateTime.Now));
+            TimeSpan timeSpan = DateTime.Now - StaticClass.JobStartTime[job];
+            StaticClass.Log(String.Format("Job {0} Complete taking {1} hours {2} min. Decrementing job count to {3} at {4:HH:mm:ss.fff}",
+                job, StaticClass.NumberOfJobsExecuting - 1, timeSpan.Days, timeSpan.Hours, DateTime.Now));
 
             // Decrement the number of Jobs executing in one place!
             StaticClass.NumberOfJobsExecuting--;

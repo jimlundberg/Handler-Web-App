@@ -172,7 +172,7 @@ namespace Status.Services
             // Start the jobs in the directory list found for the Input Buffer
             for (int i = 0; i < inputDirectoryInfoList.Count; i++)
             {
-                do
+                while (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
                     DirectoryInfo dirInfo = inputDirectoryInfoList[i];
                     string directory = dirInfo.ToString();
@@ -192,7 +192,6 @@ namespace Status.Services
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
                 }
-                while (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit);
             }
 
             if (inputDirectoryInfoList.Count > 0)

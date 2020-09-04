@@ -147,7 +147,7 @@ namespace Status.Services
                 {
                     if (StaticClass.ShutdownFlag == true)
                     {
-                        StaticClass.Log(String.Format("\nShutdown TcpIpListenThread prewrite for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                        StaticClass.Log(String.Format("\nShutdown TcpIpListenThread prewrite for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));
 
                         StaticClass.TcpIpScanComplete[job] = true;
