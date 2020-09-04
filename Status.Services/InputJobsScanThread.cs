@@ -172,7 +172,7 @@ namespace Status.Services
             // Start the jobs in the directory list found for the Input Buffer
             for (int i = 0; i < inputDirectoryInfoList.Count; i++)
             {
-                while (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
                     DirectoryInfo dirInfo = inputDirectoryInfoList[i];
                     string directory = dirInfo.ToString();
