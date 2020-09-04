@@ -177,7 +177,7 @@ namespace Status.Services
                     // Buffer to store the response bytes.
                     data = new Byte[256];
 
-                    // String to store the response ASCII representation.
+                    // String to store the response in ASCII representation
                     string responseData = String.Empty;
                     int adjustableSleepTime = 15000;
                     if (stream.CanRead)
@@ -196,7 +196,7 @@ namespace Status.Services
                             resendTimer.Start();
                         }
 
-                        // Send status for response received
+                        // Readjust sleep time according to Step number
                         switch (responseData)
                         {
                             case "Step 1 in process.":
@@ -337,10 +337,5 @@ namespace Status.Services
                 StaticClass.Logger.LogError("SocketException: {0}", e);
             }
         }
-
-    Task HandleRetryTimer(NetworkStream stream, byte[] data)
-    {
-        throw new NotImplementedException();
     }
-}
 }
