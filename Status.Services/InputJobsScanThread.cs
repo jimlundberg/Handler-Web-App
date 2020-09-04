@@ -266,7 +266,7 @@ namespace Status.Services
                     // Remove job run
                     StaticClass.InputJobsToRun.RemoveAt(i);
 
-                    // Reset Processing job and file scan flags
+                    // Reset Input job file scan complete flag
                     StaticClass.InputFileScanComplete[job] = false;
 
                     // Start an Input Buffer Job

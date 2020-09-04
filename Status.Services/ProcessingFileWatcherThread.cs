@@ -79,7 +79,7 @@ namespace Status.Services
             string jobFile = jobDirectory.Substring(jobDirectory.LastIndexOf('\\') + 1);
             string job = jobDirectory.Substring(0, jobDirectory.LastIndexOf('\\'));
 
-            // Increment the number of Input Buffer Job files found
+            // Increment the number of Processing Buffer Job files found
             StaticClass.NumberOfProcessingFilesFound[job]++;
 
             StaticClass.Log(String.Format("Processing File Watcher detected {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}",
@@ -89,7 +89,7 @@ namespace Status.Services
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
                 StaticClass.Log(String.Format("Processing File Watcher detected Job {0} complete set of {1} files at {2:HH:mm:ss.fff}",
-                    job, StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
+                    job, StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
 
                 // Signal the Run thread that the Processing Buffer files were found
                 StaticClass.ProcessingFileScanComplete[job] = true;
