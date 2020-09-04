@@ -38,9 +38,19 @@
 }
 
 <script type="text/javascript">
+    var table = $('#_rowGrid').DataTable();
+
     $(document).ready(function () {
         $('#jobGrid').dataTable({
             fixedHeader: true
         });
+    });
+
+    table.on('preInit', function () {
+        $('#_rowGrid').hide();
+    },
+
+    table.on('preDraw', function () {
+        $('#_rowGrid').draw();
     });
 </script>
