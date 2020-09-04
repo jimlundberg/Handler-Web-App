@@ -84,7 +84,7 @@ namespace Status.Services
             // Send retry message to the Modeler
             Byte[] data;
             data = System.Text.Encoding.ASCII.GetBytes(Message);
-            //StreamHandle.Write(data, 0, data.Length);
+            StreamHandle.Write(data, 0, data.Length);
         }
 
         /// <summary>
