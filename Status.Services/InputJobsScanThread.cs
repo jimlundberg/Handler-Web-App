@@ -183,17 +183,14 @@ namespace Status.Services
                     // Reset Input file scan flag
                     StaticClass.InputFileScanComplete[job] = false;
 
+                    // Remove job run
+                    inputDirectoryInfoList.RemoveAt(i);
+
                     // Start an Input Buffer Job
                     StartInputJob(directory, iniData, statusData);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
-                }
-
-                // Remove jobs run
-                for (int j = 0; j < inputDirectoryInfoList.Count; j++)
-                {
-                    inputDirectoryInfoList.RemoveAt(j);
                 }
             }
 
@@ -266,14 +263,14 @@ namespace Status.Services
 
                     StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
+                    // Remove job run
+                    StaticClass.InputJobsToRun.RemoveAt(i);
+
                     // Reset Processing job and file scan flags
                     StaticClass.InputFileScanComplete[job] = false;
 
                     // Start an Input Buffer Job
                     StartInputJob(directory, iniData, statusData);
-
-                    // Remove job just run from the Input Jobs to run list
-                    StaticClass.InputJobsToRun.Remove(job);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);

@@ -105,7 +105,8 @@ namespace Status.Services
             }
 
             // Start the jobs in the directory list found for the Processing Buffer
-            for (int i = 0; i < processingDirectoryInfoList.Count; i++)
+            int i = 0;
+            for (i = 0; i < processingDirectoryInfoList.Count; i++)
             {
                 if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
@@ -118,17 +119,14 @@ namespace Status.Services
                     // Reset Processing file scan flag
                     StaticClass.ProcessingFileScanComplete[job] = false;
 
+                    // Remove job run
+                    processingDirectoryInfoList.RemoveAt(i);
+
                     // Start a Processing Buffer Job
                     StartProcessingJob(directory, iniData, statusData);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
-                }
-
-                // Remove jobs run
-                for (int j = 0; j < processingDirectoryInfoList.Count; j++)
-                {
-                    processingDirectoryInfoList.RemoveAt(j);
                 }
             }
 
@@ -206,12 +204,12 @@ namespace Status.Services
                     StaticClass.ProcessingFileScanComplete[job] = false;
                     StaticClass.ProcessingJobScanComplete[job] = false;
 
+                    // Remove job run
+                    StaticClass.ProcessingJobsToRun.RemoveAt(i);
+
                     // Start a Processing Buffer Job
                     StartProcessingJob(directory, iniData, statusData);
                     
-                    // Remove job just run from the Processing Jobs to run list
-                    StaticClass.ProcessingJobsToRun.Remove(job);
-
                     // Throttle the Job startups
                     Thread.Sleep(iniData.ScanWaitTime);
                 }
