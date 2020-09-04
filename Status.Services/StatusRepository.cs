@@ -120,7 +120,7 @@ namespace Status.Services
             // Check for pause state and reset it if the Start button is pressed when in Pause mode
             if (StaticClass.PauseFlag == true)
             {
-                StaticClass.Log(String.Format("Setting the system into Pause Mode at {0:HH:mm:ss.fff}", DateTime.Now));
+                StaticClass.Log(String.Format("Taking the system out of Pause Mode at {0:HH:mm:ss.fff}", DateTime.Now));
                 StaticClass.PauseFlag = false;
             }
             else
@@ -140,6 +140,7 @@ namespace Status.Services
         /// </summary>
         public void PauseMonitor()
         {
+            StaticClass.Log(String.Format("Putting the system into Pause Mode at {0:HH:mm:ss.fff}", DateTime.Now));
             StaticClass.PauseFlag = true;
         }
 
@@ -158,6 +159,7 @@ namespace Status.Services
             }
 
             // Clear the Dictionaries after Modeler shutdowns complete
+            StaticClass.ProcessHandles.Clear();
             StaticClass.InputJobsToRun.Clear();
             StaticClass.ProcessingJobsToRun.Clear();
             StaticClass.ProcessHandles.Clear();
