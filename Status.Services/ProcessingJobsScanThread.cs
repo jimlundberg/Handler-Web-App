@@ -107,7 +107,7 @@ namespace Status.Services
             // Start the jobs in the directory list found for the Processing Buffer
             for (int i = 0; i < processingDirectoryInfoList.Count; i++)
             {
-                do
+                while (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
                     DirectoryInfo dirInfo = processingDirectoryInfoList[i];
                     string directory = dirInfo.ToString();
@@ -127,7 +127,6 @@ namespace Status.Services
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
                 }
-                while (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit);
             }
 
             if (processingDirectoryInfoList.Count > 0)
