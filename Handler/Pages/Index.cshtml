@@ -9,7 +9,7 @@
 {
     <meta http-equiv="refresh" content="5">
 }
-  
+
 @section Scripts {
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/datatables.min.js"></script>
@@ -39,19 +39,9 @@
 
 <script type="text/javascript">
     var table = $('#_rowGrid').DataTable();
-
     $(document).ready(function () {
         $('#jobGrid').dataTable({
-            fixedHeader: true,
-            serverSide: true
+            fixedHeader: true
         });
-    });
-
-    table.on('preInit', function () {
-        $('#_rowGrid').hide();
-    },
-
-    table.on('preDraw', function () {
-        $('#_rowGrid').draw();
     });
 </script>
