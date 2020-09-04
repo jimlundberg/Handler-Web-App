@@ -70,7 +70,7 @@ namespace Status.Services
             // Set Flag for ending directory scan loop
             StaticClass.InputJobsToRun.Add(job);
 
-            StaticClass.Log(String.Format("Input Job Scan detected and added Job {0} to Input job list at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Input Job Scan detected and added Job {0} to Input Job list at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -214,7 +214,7 @@ namespace Status.Services
             // Clear the Directory Info List after done with it
             inputDirectoryInfoList.Clear();
 
-            StaticClass.Log("\nStarting Watching for new Input Jobs...\n");
+            StaticClass.Log("\nStarting Watching for new Input Jobs...");
 
             // Run new Input Job watch loop here forever
             do
