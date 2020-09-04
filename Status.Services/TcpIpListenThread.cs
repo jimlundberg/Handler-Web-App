@@ -78,7 +78,7 @@ namespace Status.Services
 
         static void retryTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            StaticClass.Log(String.Format("\nSending Retry msg {0} to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("\nSending Retry msg {0} to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
                 Message, Job, Port, DateTime.Now));
 
             // Send retry message to the Modeler
@@ -103,7 +103,7 @@ namespace Status.Services
             {
                 string job = monitorData.Job;
 
-                StaticClass.Log(String.Format("\nStarting TCP/IP Scan for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("\nStarting TCP/IP Scan for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                     job, port, DateTime.Now));
 
                 // Log starting TCP/IP monitoring entry
@@ -132,7 +132,8 @@ namespace Status.Services
                     return;
                 }
 
-                StaticClass.Log(String.Format("Opening TCP/IP Socket for Job {0} on port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
+                StaticClass.Log(String.Format("Opening TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                    job, port, DateTime.Now));
 
                 // Start 60 second resend timer that gets reset if we receive data
                 StreamHandle = stream;
@@ -170,7 +171,7 @@ namespace Status.Services
                     stream.Write(data, 0, data.Length);
 
                     // Receive the TcpServer.response.
-                    StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                    StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
                         Message, job, port, DateTime.Now));
 
                     // Buffer to store the response bytes.
@@ -185,7 +186,7 @@ namespace Status.Services
                         bytes = stream.Read(data, 0, data.Length);
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
 
-                        StaticClass.Log(String.Format("Received: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                        StaticClass.Log(String.Format("Received: {0} from Job {1} on Port {2} at {3:HH:mm:ss.fff}",
                             responseData, job, port, DateTime.Now));
 
                         // Reset timer if data received
@@ -223,10 +224,10 @@ namespace Status.Services
                                 break;
 
                             case "Whole process done, socket closed.":
-                                StaticClass.Log(String.Format("TCP/IP for Job {0} on port {1} received Modeler process done at {2:HH:mm:ss.fff}",
+                                StaticClass.Log(String.Format("TCP/IP for Job {0} on Port {1} received Modeler process done at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
-                                StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                                StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
                                 // Make sure to close TCP/IP socket
@@ -238,7 +239,7 @@ namespace Status.Services
                                 return;
 
                             default:
-                                StaticClass.Logger.LogWarning("Received Weird Response: {0} from Job {1} on port {2} at {3:HH:mm:ss.fff}",
+                                StaticClass.Logger.LogWarning("Received Weird Response: {0} from Job {1} on Port {2} at {3:HH:mm:ss.fff}",
                                     responseData, job, port, DateTime.Now);
                                 break;
                         }
@@ -246,10 +247,10 @@ namespace Status.Services
                         // Backup check of the process complete string, even if it is concatenated with another string
                         if (responseData.Contains("Whole process done, socket closed."))
                         {
-                            StaticClass.Log(String.Format("TCP/IP for Job {0} on port {1} received Modeler process done at {2:HH:mm:ss.fff}",
+                            StaticClass.Log(String.Format("TCP/IP for Job {0} on Port {1} received Modeler process done at {2:HH:mm:ss.fff}",
                                 job, port, DateTime.Now));
 
-                            StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                            StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                                 job, port, DateTime.Now));
 
                             // Make sure to close TCP/IP socket
@@ -286,7 +287,7 @@ namespace Status.Services
                         // Check if the shutdown flag is set, then exit method
                         if (StaticClass.ShutdownFlag == true)
                         {
-                            StaticClass.Log(String.Format("\nShutdown TcpIpListenThread Connect for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                            StaticClass.Log(String.Format("\nShutdown TcpIpListenThread Connect for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                                 job, port, DateTime.Now));
 
                             StaticClass.TcpIpScanComplete[job] = true;
@@ -324,7 +325,7 @@ namespace Status.Services
                 stream.Close();
                 client.Close();
 
-                StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on port {1} at {2:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                     job, port, DateTime.Now));
             }
             catch (ArgumentNullException e)
