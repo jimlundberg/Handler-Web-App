@@ -105,8 +105,7 @@ namespace Status.Services
             }
 
             // Start the jobs in the directory list found for the Processing Buffer
-            int i = 0;
-            for (i = 0; i < processingDirectoryInfoList.Count; i++)
+            for (int i = 0; i < processingDirectoryInfoList.Count; i++)
             {
                 if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {

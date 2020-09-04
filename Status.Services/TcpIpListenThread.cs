@@ -136,7 +136,6 @@ namespace Status.Services
                     job, port, DateTime.Now));
 
                 // Start 60 second resend timer that gets reset if we receive data
-                StreamHandle = stream;
                 var resendTimer = new System.Timers.Timer(TIMEOUT);
                 resendTimer.Elapsed += new ElapsedEventHandler(retryTimer_Elapsed);
                 resendTimer.Enabled = true;
@@ -169,6 +168,7 @@ namespace Status.Services
 
                     // Send the message to the Modeler
                     stream.Write(data, 0, data.Length);
+                    StreamHandle = stream;
 
                     // Receive the TcpServer.response.
                     StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",

@@ -458,7 +458,7 @@ namespace Status.Services
             // Show Job Complete message
             TimeSpan timeSpan = DateTime.Now - StaticClass.JobStartTime[job];
             StaticClass.Log(String.Format("Job {0} Complete taking {1} hours {2} min. Decrementing job count to {3} at {4:HH:mm:ss.fff}",
-                job, StaticClass.NumberOfJobsExecuting - 1, timeSpan.Days, timeSpan.Hours, DateTime.Now));
+                job, StaticClass.NumberOfJobsExecuting - 1, timeSpan.Hours, timeSpan.Minutes, DateTime.Now));
 
             // Decrement the number of Jobs executing in one place!
             StaticClass.NumberOfJobsExecuting--;
