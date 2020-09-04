@@ -186,11 +186,14 @@ namespace Status.Services
                     // Start an Input Buffer Job
                     StartInputJob(directory, iniData, statusData);
 
-                    // Remove job just run from the Input Jobs list
-                    inputDirectoryInfoList.Remove(dirInfo);
-
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
+                }
+
+                // Remove jobs run
+                for (int j = 0; j < inputDirectoryInfoList.Count; j++)
+                {
+                    inputDirectoryInfoList.RemoveAt(j);
                 }
             }
 

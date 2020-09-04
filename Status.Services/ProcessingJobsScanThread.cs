@@ -121,11 +121,14 @@ namespace Status.Services
                     // Start a Processing Buffer Job
                     StartProcessingJob(directory, iniData, statusData);
 
-                    // Remove job just run from the Processing Jobs list
-                    processingDirectoryInfoList.Remove(dirInfo);
-
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
+                }
+
+                // Remove jobs run
+                for (int j = 0; j < processingDirectoryInfoList.Count; j++)
+                {
+                    processingDirectoryInfoList.RemoveAt(j);
                 }
             }
 
