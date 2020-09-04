@@ -316,6 +316,21 @@ namespace Status.Services
                 while (StaticClass.PauseFlag == true);
             }
 
+            // Monitor for complete set of files in the Processing Buffer
+            StaticClass.Log(String.Format("Starting monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
+
+            // Register with the Processing File Watcher class with an event and start its thread
+            int numFilesNeeded = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
+            ProcessingFileWatcherThread processingFileWatcher = new ProcessingFileWatcherThread(
+                processingBufferJobDir, numFilesNeeded, iniData, monitorData, statusData);
+            if (processingFileWatcher == null)
+            {
+                StaticClass.Logger.LogError("JobRunThread ProcessingFileWatch failed to instantiate");
+            }
+            processingFileWatcher.ProcessCompleted += Processing_fileScan_FilesFound;
+            processingFileWatcher.ThreadProc();
+
             // Add entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.EXECUTING, JobType.TIME_START);
 
@@ -333,21 +348,6 @@ namespace Status.Services
                 StaticClass.Logger.LogError("JobRunThread cmdLineGenerator failed to instantiate");
             }
             cmdLineGenerator.ExecuteCommand(job);
-
-            // Monitor for complete set of files in the Processing Buffer
-            StaticClass.Log(String.Format("Starting monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
-
-            // Register with the Processing File Watcher class with an event and start its thread
-            int numFilesNeeded = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
-            ProcessingFileWatcherThread processingFileWatcher = new ProcessingFileWatcherThread(
-                processingBufferJobDir, numFilesNeeded, iniData, monitorData, statusData);
-            if (processingFileWatcher == null)
-            {
-                StaticClass.Logger.LogError("JobRunThread ProcessingFileWatch failed to instantiate");
-            }
-            processingFileWatcher.ProcessCompleted += Processing_fileScan_FilesFound;
-            processingFileWatcher.ThreadProc();
 
             // Start the TCP/IP Communications thread before checking for Processing job files
             TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData);
