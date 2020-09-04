@@ -54,7 +54,6 @@ namespace Status.Services
             ProcessCompleted?.Invoke(this, e);
         }
 
-        // The thread procedure performs the task
         /// <summary>
         /// Thread procedure to start the Processing job file watching
         /// </summary>

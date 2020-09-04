@@ -146,7 +146,7 @@ namespace Status.Services
         /// <param name="statusData"></param>
         public void RunJob(DirectoryScanType dirScanType, JobXmlData jobXmlData, IniFileData iniData, List<StatusData> statusData)
         {
-            // Increment number of jobs executing at very beginning of job
+            // Increment number of Jobs executing in only one place!
             StaticClass.NumberOfJobsExecuting++;
 
             // Create the Job Run common strings
@@ -455,9 +455,12 @@ namespace Status.Services
             // Add entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
 
-            StaticClass.Log(String.Format("Job {0} Complete taking {1} decrementing job count to {2} at {3:HH:mm:ss.fff}",
-                job, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now - StaticClass.JobStartTime[job], DateTime.Now));
+            // Show Job Complete message
+            var jobProcessingTime = (DateTime.Now - StaticClass.JobStartTime[job]).TotalHours;
+            StaticClass.Log(String.Format("Job {0} Complete taking {1} hours. Decrementing job count to {2} at {3:HH:mm:ss.fff}",
+                job, StaticClass.NumberOfJobsExecuting - 1, jobProcessingTime.ToString("H:mm"), DateTime.Now));
 
+            // Decrement the number of Jobs executing in one place!
             StaticClass.NumberOfJobsExecuting--;
         }
     }
