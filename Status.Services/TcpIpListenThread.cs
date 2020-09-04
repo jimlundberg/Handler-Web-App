@@ -141,9 +141,6 @@ namespace Status.Services
                 resendTimer.Enabled = true;
                 resendTimer.Start();
 
-                StaticClass.Log(String.Format("\nStarted timer at {0} for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
-                    resendTimer.Interval, job, port, DateTime.Now));
-
                 bool jobComplete = false;
                 do
                 {
@@ -178,6 +175,9 @@ namespace Status.Services
 
                     // Buffer to store the response bytes.
                     data = new Byte[256];
+                    StreamHandle = stream;
+                    Port = port;
+                    Job = job;
 
                     // String to store the response in ASCII representation
                     string responseData = String.Empty;
@@ -187,9 +187,6 @@ namespace Status.Services
                         int bytes = 0;
                         bytes = stream.Read(data, 0, data.Length);
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
-                        StreamHandle = stream;
-                        Port = port;
-                        Job = job;
 
                         StaticClass.Log(String.Format("Received: {0} from Job {1} on Port {2} at {3:HH:mm:ss.fff}",
                             responseData, job, port, DateTime.Now));
@@ -197,9 +194,6 @@ namespace Status.Services
                         // Reset timer if data received
                         if (responseData.Length > 0)
                         {
-                            StaticClass.Log(String.Format("\nResetting the timer for Job {0} on Port {1} at {2:HH:mm:ss.fff}\n",
-                                Job, Port, DateTime.Now));
-
                             resendTimer.Stop();
                             resendTimer.Start();
                         }

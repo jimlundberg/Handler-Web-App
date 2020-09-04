@@ -2,6 +2,7 @@
 using Status.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -316,21 +317,6 @@ namespace Status.Services
                 while (StaticClass.PauseFlag == true);
             }
 
-            // Monitor for complete set of files in the Processing Buffer
-            StaticClass.Log(String.Format("Starting monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
-
-            // Register with the Processing File Watcher class with an event and start its thread
-            int numFilesNeeded = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
-            ProcessingFileWatcherThread processingFileWatcher = new ProcessingFileWatcherThread(
-                processingBufferJobDir, numFilesNeeded, iniData, monitorData, statusData);
-            if (processingFileWatcher == null)
-            {
-                StaticClass.Logger.LogError("JobRunThread ProcessingFileWatch failed to instantiate");
-            }
-            processingFileWatcher.ProcessCompleted += Processing_fileScan_FilesFound;
-            processingFileWatcher.ThreadProc();
-
             // Add entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.EXECUTING, JobType.TIME_START);
 
@@ -347,7 +333,26 @@ namespace Status.Services
             {
                 StaticClass.Logger.LogError("JobRunThread cmdLineGenerator failed to instantiate");
             }
-            cmdLineGenerator.ExecuteCommand(job);
+            Process modelerProcess = cmdLineGenerator.ExecuteCommand(job);
+
+            // Monitor for complete set of files in the Processing Buffer
+            StaticClass.Log(String.Format("Starting file monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
+
+            // Register with the Processing File Watcher class with an event and start its thread
+            int numFilesNeeded = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
+            ProcessingFileWatcherThread processingFileWatcher = new ProcessingFileWatcherThread(
+                processingBufferJobDir, numFilesNeeded, iniData, monitorData, statusData);
+            if (processingFileWatcher == null)
+            {
+                StaticClass.Logger.LogError("JobRunThread ProcessingFileWatch failed to instantiate");
+            }
+            processingFileWatcher.ProcessCompleted += Processing_fileScan_FilesFound;
+            processingFileWatcher.ThreadProc();
+
+            // Monitor for complete set of files in the Processing Buffer
+            StaticClass.Log(String.Format("Starting TCP/IP monitoring for Job {0} at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
 
             // Start the TCP/IP Communications thread before checking for Processing job files
             TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData);
@@ -356,10 +361,44 @@ namespace Status.Services
                 StaticClass.Logger.LogError("ProcessingFileWatcherThread tcpIp thread failed to instantiate");
             }
             tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
-            tcpIp.StartTcpIpScanProcess(iniData, monitorData, statusData);
+            tcpIp.ThreadProc();
 
             // Add entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
+
+            // Wait 30 seconds for Modeler to get started before reading it's information
+            Thread.Sleep(30000);
+
+            // Display Modeler Executable information
+            StaticClass.Log($"\nJob {job} Modeler execution process data:");
+            StaticClass.Log($"ProcessName                    : {modelerProcess.ProcessName}");
+            StaticClass.Log($"StartTime                      : {modelerProcess.StartTime}");
+            StaticClass.Log($"MainWindowTitle                : {modelerProcess.MainWindowTitle}");
+            StaticClass.Log($"MainModule                     : {modelerProcess.MainModule}");
+            StaticClass.Log($"StartInfo                      : {modelerProcess.StartInfo}");
+            StaticClass.Log($"GetType                        : {modelerProcess.GetType()}");
+            StaticClass.Log($"MainWindowHandle               : {modelerProcess.MainWindowHandle}");
+            StaticClass.Log($"Handle                         : {modelerProcess.Handle}");
+            StaticClass.Log($"Id                             : {modelerProcess.Id}");
+            StaticClass.Log($"PriorityClass                  : {modelerProcess.PriorityClass}");
+            StaticClass.Log($"Basepriority                   : {modelerProcess.BasePriority}");
+            StaticClass.Log($"PriorityBoostEnabled           : {modelerProcess.PriorityBoostEnabled}");
+            StaticClass.Log($"Responding                     : {modelerProcess.Responding}");
+            StaticClass.Log($"ProcessorAffinity              : {modelerProcess.ProcessorAffinity}");
+            StaticClass.Log($"HandleCount                    : {modelerProcess.HandleCount}");
+            StaticClass.Log($"MaxWorkingSet                  : {modelerProcess.MaxWorkingSet}");
+            StaticClass.Log($"MinWorkingSet                  : {modelerProcess.MinWorkingSet}");
+            StaticClass.Log($"NonpagedSystemMemorySize64     : {modelerProcess.NonpagedSystemMemorySize64}");
+            StaticClass.Log($"PeakVirtualMemorySize64        : {modelerProcess.PeakVirtualMemorySize64}");
+            StaticClass.Log($"PagedSystemMemorySize64        : {modelerProcess.PagedSystemMemorySize64}");
+            StaticClass.Log($"PrivateMemorySize64            : {modelerProcess.PrivateMemorySize64}");
+            StaticClass.Log($"VirtualMemorySize64            : {modelerProcess.VirtualMemorySize64}");
+            StaticClass.Log($"NonpagedSystemMemorySize64     : {modelerProcess.PagedMemorySize64}");
+            StaticClass.Log($"WorkingSet64                   : {modelerProcess.WorkingSet64}");
+            StaticClass.Log($"PeakWorkingSet64               : {modelerProcess.PeakWorkingSet64}");
+            StaticClass.Log($"PrivilegedProcessorTime        : {modelerProcess.PrivilegedProcessorTime}");
+            StaticClass.Log($"TotalProcessorTime             : {modelerProcess.TotalProcessorTime}");
+            StaticClass.Log($"UserProcessorTime              : {modelerProcess.UserProcessorTime}");
 
             // Wait for the Processing job scan complete which includes TCP/IP
             do
