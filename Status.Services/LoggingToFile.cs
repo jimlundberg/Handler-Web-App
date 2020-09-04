@@ -8,7 +8,7 @@ namespace Status.Services
     /// </summary>
     class LoggingToFile
     {
-        private string LogFileName;
+        private readonly string LogFileName;
         private static readonly Object FileLock = new Object();
 
         /// <summary>
@@ -21,15 +21,6 @@ namespace Status.Services
         /// </summary>
         /// <param name="logFileName"></param>
         public LoggingToFile(string logFileName)
-        {
-            LogFileName = logFileName;
-        }
-
-        /// <summary>
-        /// Set the log file name
-        /// </summary>
-        /// <param name="logFileName"></param>
-        public void SetLogFileName(string logFileName)
         {
             LogFileName = logFileName;
         }

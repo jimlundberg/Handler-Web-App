@@ -164,6 +164,9 @@ namespace Status.Services
             // Quick check to see if the directory is already full
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
+                StaticClass.Log(String.Format("Processing File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
+                    job, DateTime.Now));
+
                 // Signal the Run thread that the Processing files were found
                 StaticClass.ProcessingFileScanComplete[job] = true;
                 return;

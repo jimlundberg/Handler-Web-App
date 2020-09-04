@@ -294,13 +294,6 @@ namespace Status.Services
                 StaticClass.Logger.LogError("InputJobsScanThread GetJobXmlData failed");
             }
 
-            // Check that the xml job and directory job strings match
-            string job = directory.Replace(iniData.InputDir, "").Remove(0, 1);
-            if (job != jobXmlData.Job)
-            {
-                StaticClass.Logger.LogError(String.Format("Input Jobs don't match {0} {1}", job, jobXmlData.Job));
-            }
-
             // Display job xml data found
             StaticClass.Log("Input Job                      : " + jobXmlData.Job);
             StaticClass.Log("Input Job Directory            : " + jobXmlData.JobDirectory);

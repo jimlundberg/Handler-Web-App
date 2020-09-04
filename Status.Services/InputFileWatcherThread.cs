@@ -24,8 +24,8 @@ namespace Status.Services
         /// <param name="numberOfFilesNeeded"></param>
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
-        public InputFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData,
-            StatusMonitorData monitorData)
+        public InputFileWatcherThread(string directory, int numberOfFilesNeeded,
+            IniFileData iniData, StatusMonitorData monitorData)
         {
             DirectoryName = directory;
             IniData = iniData;
@@ -122,6 +122,10 @@ namespace Status.Services
 
             if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
+                // Exiting thread message
+                StaticClass.Log(String.Format("Input File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
+                    job, DateTime.Now));
+
                 // Signal the Run thread that the Input files were found
                 StaticClass.InputFileScanComplete[job] = true;
                 return;
@@ -181,7 +185,7 @@ namespace Status.Services
 
                 // Exiting thread message
                 StaticClass.Log(String.Format("Input File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
-                    directory, DateTime.Now));
+                    job, DateTime.Now));
             }
         }
     }

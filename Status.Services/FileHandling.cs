@@ -130,12 +130,18 @@ namespace Status.Services
             string[] files = Directory.GetFiles(targetDirectory);
             foreach (string file in files)
             {
-                File.SetAttributes(file, FileAttributes.Normal);
-                File.Delete(file);
+                lock (FileLock)
+                {
+                    File.SetAttributes(file, FileAttributes.Normal);
+                    File.Delete(file);
+                }
             }
 
-            // Then delete the directory
-            Directory.Delete(targetDirectory, false);
+            lock (FileLock)
+            {
+                // Then delete the directory
+                Directory.Delete(targetDirectory, false);
+            }
 
             StaticClass.Log(String.Format("Deleted Directory {0}", targetDirectory));
         }

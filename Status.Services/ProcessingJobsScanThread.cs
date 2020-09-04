@@ -217,7 +217,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Start a processing directory job
+        /// Start a Processing directory job
         /// </summary>
         /// <param name="directory"></param>
         /// <param name="iniData"></param>
@@ -239,13 +239,6 @@ namespace Status.Services
             if (jobXmlData == null)
             {
                 StaticClass.Logger.LogError("ProcessingJobsScanThread GetJobXmlData failed");
-            }
-
-            // Check that the xml job and directory job strings match
-            string job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
-            if (job != jobXmlData.Job)
-            {
-                StaticClass.Logger.LogError(String.Format("Processing Jobs don't match {0} {1}", job, jobXmlData.Job));
             }
 
             // Display job xml Data found

@@ -10,10 +10,10 @@ namespace Status.Services
     /// </summary>
     public class CommandLineGenerator
     {
-        public readonly string Executable;
-        public readonly string ProcessingDir;
-        public readonly string StartPort;
-        public readonly string CpuCores;
+        private readonly string Executable;
+        private readonly string ProcessingDir;
+        private readonly string StartPort;
+        private readonly string CpuCores;
 
         /// <summary>
         /// Command Line Generator Constructor 
@@ -33,7 +33,7 @@ namespace Status.Services
         /// <summary>
         /// Execute the Modeler command line 
         /// </summary>
-        /// <param name="monitorData"></param>
+        /// <param name="job"></param>
         /// <returns></returns>
         public Process ExecuteCommand(string job)
         {
