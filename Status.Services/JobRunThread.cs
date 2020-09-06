@@ -283,7 +283,7 @@ namespace Status.Services
                     Task checkInputFilesTask = WaitForFilesToBeReady(inputJobFileDir);
                     checkInputFilesTask.Wait();
 
-                    StaticClass.Log(String.Format("Finished Input Buffer file scan for Job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(String.Format("Finished Input file scan for Job {0} at {1:HH:mm:ss.fff}",
                         inputJobFileDir, DateTime.Now));
 
                     // Add copying entry to status list

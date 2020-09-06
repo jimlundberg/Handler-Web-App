@@ -97,7 +97,7 @@ namespace Status.Services
         public void Connect(int port, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
         {
             // Wait about a minute for the Modeler to start execution
-            Thread.Sleep(StaticClass.ScanWaitTime * 12);
+            Thread.Sleep(60000);
 
             try
             {
