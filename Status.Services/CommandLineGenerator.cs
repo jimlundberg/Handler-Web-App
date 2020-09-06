@@ -67,7 +67,7 @@ namespace Status.Services
             StaticClass.ProcessHandles[job] = ModelerProcess;
 
             // Give the Modeler time so you can read the Main Window Title parameter for display confirmation
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
             StaticClass.Log(String.Format("{0} {1}", ModelerProcess.MainWindowTitle, ModelerProcess.StartInfo.Arguments));
 
             return ModelerProcess;
