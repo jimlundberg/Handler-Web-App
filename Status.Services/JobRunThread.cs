@@ -170,7 +170,6 @@ namespace Status.Services
                 Job = job,
                 JobDirectory = xmlJobDirectory,
                 StartTime = DateTime.Now,
-                JobIndex = StaticClass.RunningJobsIndex++,
                 JobSerialNumber = jobXmlData.JobSerialNumber,
                 TimeStamp = jobXmlData.TimeStamp,
                 XmlFileName = jobXmlData.XmlFileName
@@ -197,8 +196,8 @@ namespace Status.Services
             XmlNode TransferedNode = jobXmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Transfered");
             XmlNode ModelerNode = jobXmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
 
-            // Assign port number for this Job
-            monitorData.JobPortNumber = iniData.StartPort + monitorData.JobIndex;
+            // Assign then increment port number for this Job
+            monitorData.JobPortNumber = iniData.StartPort + StaticClass.JobPortIndex++;
 
             // Get the modeler and number of files to transfer
             int NumFilesToTransfer = 0;

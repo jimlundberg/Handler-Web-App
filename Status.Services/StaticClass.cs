@@ -17,7 +17,7 @@ namespace Status.Services
         public static double MaxJobTimeLimitSeconds = 0.0;
         public static int ScanWaitTime = 0;
 		public static int NumberOfJobsExecuting = 0;
-		public static int RunningJobsIndex = 0;
+		public static int JobPortIndex = 0;
 		public static int LogFileSizeLimit = 0;
 
         public static Thread InputJobsScanThreadHandle;

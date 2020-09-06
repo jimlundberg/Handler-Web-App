@@ -11,23 +11,25 @@ namespace Status.Services
     public class CommandLineGenerator
     {
         private readonly string Executable;
-        private readonly string ProcessingDir;
-        private readonly string StartPort;
-        private readonly string CpuCores;
+        private readonly string ProcessingDirectory;
+        private readonly string ProcessingDirParam;
+        private readonly string StartPortParam;
+        private readonly string CpuCoresParam;
 
         /// <summary>
         /// Command Line Generator Constructor 
         /// </summary>
         /// <param name="executable"></param>
-        /// <param name="processingDir"></param>
+        /// <param name="processingDirectory"></param>
         /// <param name="startPort"></param>
         /// <param name="cpuCores"></param>
-        public CommandLineGenerator(string executable, string processingDir, int startPort, int cpuCores)
+        public CommandLineGenerator(string executable, string processingDirectory, int startPort, int cpuCores)
         {
             Executable = executable;
-            ProcessingDir = "-d " + processingDir;
-            StartPort = "-s " + startPort.ToString();
-            CpuCores = "-p " + cpuCores.ToString();
+            ProcessingDirectory = processingDirectory;
+            ProcessingDirParam = "-d " + processingDirectory;
+            StartPortParam = "-s " + startPort.ToString();
+            CpuCoresParam = "-p " + cpuCores.ToString();
         }
 
         /// <summary>
@@ -39,9 +41,9 @@ namespace Status.Services
         {
             ProcessStartInfo startInfo = new ProcessStartInfo(Executable)
             {
-                Arguments = String.Format("{0} {1} {2}", ProcessingDir, StartPort, CpuCores),
+                Arguments = String.Format("{0} {1} {2}", ProcessingDirParam, StartPortParam, CpuCoresParam),
                 UseShellExecute = true,
-                WorkingDirectory = ProcessingDir,
+                WorkingDirectory = ProcessingDirectory,
                 WindowStyle = ProcessWindowStyle.Minimized
             };
 
@@ -65,7 +67,7 @@ namespace Status.Services
             StaticClass.ProcessHandles[job] = ModelerProcess;
 
             // Give the Modeler time so you can read the Main Window Title parameter for display confirmation
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
             StaticClass.Log(String.Format("{0} {1}", ModelerProcess.MainWindowTitle, ModelerProcess.StartInfo.Arguments));
 
             return ModelerProcess;

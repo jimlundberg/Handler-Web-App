@@ -62,7 +62,7 @@ namespace Status.Services
             // Add new job detected to the Input job list
             StaticClass.InputJobsToRun.Add(job);
 
-            StaticClass.Log(String.Format("Input Buffer Directory Watcher added new Job {0} to Input Job list at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("Input Directory Watcher added new Job {0} to Input Job list at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 

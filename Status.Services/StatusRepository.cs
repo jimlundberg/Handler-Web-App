@@ -173,7 +173,7 @@ namespace Status.Services
             StaticClass.NumberOfProcessingFilesFound.Clear();
             StaticClass.NumberOfProcessingFilesNeeded.Clear();
             StaticClass.NumberOfJobsExecuting = 0;
-            StaticClass.RunningJobsIndex = 0;
+            StaticClass.JobPortIndex = 0;
         }
 
         /// <summary>
