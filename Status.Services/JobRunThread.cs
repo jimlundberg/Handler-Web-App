@@ -136,8 +136,6 @@ namespace Status.Services
             {
                 await StaticClass.IsFileReady(dirInfo.FullName);
             }
-
-            Thread.Sleep(1000);
         }
 
         /// <summary>

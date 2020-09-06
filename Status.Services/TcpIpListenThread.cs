@@ -2,6 +2,7 @@
 using Status.Models;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Timers;
@@ -17,7 +18,7 @@ namespace Status.Services
         private readonly StatusMonitorData MonitorData;
         private readonly List<StatusData> StatusData;
         public event EventHandler ProcessCompleted;
-        public const string Host = "127.0.0.1";
+        public const string Server = "127.0.0.1";
         private static string Job;
         private static int Port = 0;
         private static NetworkStream StreamHandle;
@@ -67,7 +68,7 @@ namespace Status.Services
         public void ThreadProc()
         {
             StaticClass.TcpIpListenThreadHandle = new Thread(() =>
-                Connect(Port, IniData, MonitorData, StatusData));
+                Connect(Port, Server, IniData, MonitorData, StatusData));
 
             if (StaticClass.TcpIpListenThreadHandle == null)
             {
@@ -94,119 +95,68 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
-        public void Connect(int port, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
+        public void Connect(int port, string server, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
         {
             // Wait about a minute for the Modeler to start execution
             Thread.Sleep(60000);
 
+            string job = monitorData.Job;
+
+            StaticClass.Log(String.Format("\nStarting TCP/IP Scan for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                job, port, DateTime.Now));
+
+            // Log starting TCP/IP monitoring entry
+            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
+
+            TcpListener tcpListener = null;
             try
             {
-                string job = monitorData.Job;
+                tcpListener = new TcpListener(IPAddress.Parse(Server), Port);
 
-                StaticClass.Log(String.Format("\nStarting TCP/IP Scan for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
-                    job, port, DateTime.Now));
+                // Start listening for client requests
+                tcpListener.Start();
 
-                // Log starting TCP/IP monitoring entry
-                StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
+                // Buffer for reading data
+                Byte[] bytes = new Byte[256];
+                String messageReceived = null;
 
-                // Create a TcpClient.
-                // Note, for this client to work you need to have a TcpServer
-                // connected to the same address as specified by the server, port combination.
-                TcpClient client = new TcpClient(Host, port);
-                if (client == null)
-                {
-                    StaticClass.Logger.LogError("TcpIp Connectinon client failed to instantiate");
-                }
+                // Enter the listening loop
+                Console.Write("\nWaiting for a connection...\n");
 
-                // Translate the passed message into ASCII and store it as a Byte array.
-                Byte[] data = System.Text.Encoding.ASCII.GetBytes(Message);
+                // Perform a blocking call to accept requests
+                TcpClient client = tcpListener.AcceptTcpClient();
+                Console.WriteLine("Connected!");
 
-                // Get a client stream for reading and writing.
-                // Stream stream = client.GetStream();
+                // Get a stream object for reading and writing
                 NetworkStream stream = client.GetStream();
-                if (stream == null)
+
+                // Store for retries
+                StreamHandle = stream;
+                Port = port;
+                Job = job;
+
+                StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
+                    Message, job, port, DateTime.Now));
+
+                // Send the message to the Modeler
+                Byte[] data = System.Text.Encoding.ASCII.GetBytes(Message);
+                stream.Write(data, 0, data.Length);
+
+                // Loop to receive all the data sent by the client
+                int i = 0;
+                bool connectionComplete = false;
+                int adjustableSleepTime = 15000;
+                while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                 {
-                    StaticClass.Logger.LogError("TcpIp Connection stream handle was not gotten from client");
-                    client.Close();
-                    StaticClass.TcpIpScanComplete[job] = true;
-                    return;
-                }
+                    // Translate data bytes to a ASCII string
+                    messageReceived = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                    Console.WriteLine("Received: {0}", messageReceived);
 
-                StaticClass.Log(String.Format("Opening TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
-                    job, port, DateTime.Now));
-
-                // Receive the TcpServer.response
-                //StaticClass.Log(String.Format("Starting timer for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
-                //    job, port, DateTime.Now));
-
-                // Start 60 second resend timer that gets reset if we receive data
-                //var resendTimer = new System.Timers.Timer(TIMEOUT);
-                //resendTimer.Elapsed += new ElapsedEventHandler(retryTimer_Elapsed);
-                //resendTimer.Enabled = true;
-                //resendTimer.Start();
-
-                bool jobComplete = false;
-                do
-                {
-                    if (StaticClass.ShutdownFlag == true)
+                    // Display message received and set the adjustable sleep time
+                    if (messageReceived == "status")
                     {
-                        StaticClass.Log(String.Format("\nShutdown TcpIpListenThread prewrite for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
-                            job, port, DateTime.Now));
-
-                        StaticClass.TcpIpScanComplete[job] = true;
-
-                        // Make sure to close TCP/IP socket
-                        jobComplete = true;
-                    }
-
-                    // Check if the pause flag is set, then wait for reset
-                    if (StaticClass.PauseFlag == true)
-                    {
-                        StaticClass.Log(String.Format("TcpIpListenThread Connect1 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
-                        do
-                        {
-                            Thread.Yield();
-                        }
-                        while (StaticClass.PauseFlag == true);
-                    }
-
-                    // Send the message to the Modeler
-                    stream.Write(data, 0, data.Length);
-
-                    StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
-                        Message, job, port, DateTime.Now));
-
-                    // Buffer to store the response bytes.
-                    data = new Byte[256];
-                    StreamHandle = stream;
-                    Port = port;
-                    Job = job;
-
-                    // String to store the response in ASCII representation
-                    string responseData = String.Empty;
-                    int adjustableSleepTime = 15000;
-                    if (stream.CanRead)
-                    {
-                        int bytes = 0;
-                        bytes = stream.Read(data, 0, data.Length);
-                        responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
-
-                        StaticClass.Log(String.Format("Received: {0} from Job {1} on Port {2} at {3:HH:mm:ss.fff}",
-                            responseData, job, port, DateTime.Now));
-
-                        // Reset timer if data received
-                        //if (responseData.Length > 0)
-                        //{
-                            // Receive the TcpServer.response
-                            //StaticClass.Log(String.Format("Resetting TCP/IP Timout timer for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
-                            //    job, port, DateTime.Now));
-
-                            //resendTimer.Stop();
-                            //resendTimer.Start();
-                        //}
-
                         // Readjust sleep time according to Step number
-                        switch (responseData)
+                        switch (messageReceived)
                         {
                             case "Step 1 in process.":
                                 adjustableSleepTime = 15000;
@@ -233,41 +183,41 @@ namespace Status.Services
                                 break;
 
                             case "Whole process done, socket closed.":
+                                // Received process complete
                                 StaticClass.Log(String.Format("TCP/IP for Job {0} on Port {1} received Modeler process done at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
                                 StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
-                                // Make sure to close TCP/IP socket
-                                stream.Close();
-                                client.Close();
-
                                 // Flag TCP/IP scan complete
                                 StaticClass.TcpIpScanComplete[job] = true;
-                                return;
+
+                                // Make sure to close TCP/IP socket
+                                connectionComplete = true;
+                                break;
 
                             default:
                                 StaticClass.Logger.LogWarning("Received Weird Response: {0} from Job {1} on Port {2} at {3:HH:mm:ss.fff}",
-                                    responseData, job, port, DateTime.Now);
+                                    messageReceived, job, port, DateTime.Now);
                                 break;
                         }
 
                         // Backup check of the process complete string, even if it is concatenated with another string
-                        if (responseData.Contains("Whole process done, socket closed."))
+                        if (messageReceived.Contains("Whole process done, socket closed."))
                         {
-                            StaticClass.Log(String.Format("TCP/IP for Job {0} on Port {1} received Modeler process done at {2:HH:mm:ss.fff}",
+                            // Received process complete
+                            StaticClass.Log(String.Format("TCP/IP for Job {0} on Port {1} received Modeler process complete at {2:HH:mm:ss.fff}",
                                 job, port, DateTime.Now));
 
                             StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                                 job, port, DateTime.Now));
 
-                            // Make sure to close TCP/IP socket
-                            stream.Close();
-                            client.Close();
-
+                            // Flag TCP/IP scan complete
                             StaticClass.TcpIpScanComplete[job] = true;
-                            return;
+
+                            // Make sure to close TCP/IP socket
+                            connectionComplete = true;
                         }
 
                         // Check for job timeout
@@ -278,10 +228,6 @@ namespace Status.Services
                             // Create job Timeout status
                             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_START);
 
-                            // Make sure to close TCP/IP socket
-                            stream.Close();
-                            client.Close();
-
                             // Set all flags to complete job Process
                             StaticClass.ProcessingJobScanComplete[job] = true;
                             StaticClass.TcpIpScanComplete[job] = true;
@@ -290,7 +236,9 @@ namespace Status.Services
                             // Wait a bit then shutdown the Modeler after completing job
                             Thread.Sleep(1000);
                             StaticClass.ProcessHandles[job].Kill();
-                            return;
+
+                            // Make sure to close TCP/IP socket
+                            connectionComplete = true;
                         }
 
                         // Check if the shutdown flag is set, then exit method
@@ -302,7 +250,7 @@ namespace Status.Services
                             StaticClass.TcpIpScanComplete[job] = true;
 
                             // Make sure to close TCP/IP socket
-                            jobComplete = true;
+                            connectionComplete = true;
                         }
 
                         // Check if the pause flag is set, then wait for reset
@@ -319,32 +267,25 @@ namespace Status.Services
                         // Wait for an adjustable time between TCP/IP status requests
                         Thread.Sleep(adjustableSleepTime);
                     }
-                    else
-                    {
-                        StaticClass.Logger.LogError(String.Format("Can not read TCP/IP Stream for Job {0} at {1:HH:mm:ss.fff}",
-                            job, DateTime.Now));
+                    while (connectionComplete == false);
 
-                        // Make sure to close TCP/IP socket
-                        jobComplete = true;
-                    }
+                    // Shutdown and end connection
+                    client.Close();
                 }
-                while (jobComplete == false);
-
-                // Close everything
-                stream.Close();
-                client.Close();
-
-                StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
-                    job, port, DateTime.Now));
-            }
-            catch (ArgumentNullException e)
-            {
-                StaticClass.Logger.LogError("ArgumentNullException: {0}", e);
             }
             catch (SocketException e)
             {
-                StaticClass.Logger.LogError("SocketException: {0}", e);
+                Console.WriteLine("SocketException: {0}", e);
             }
+            finally
+            {
+                // Stop listening for new clients
+                tcpListener.Stop();
+            }
+
+            Console.WriteLine("\nHit enter to continue...");
+            Console.Read();
         }
     }
 }
+
