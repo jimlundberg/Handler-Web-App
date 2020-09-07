@@ -399,19 +399,20 @@ namespace Status.Services
             // Add copy to archieve entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START);
 
+            // Make sure Modeler Process is killed
+            if (StaticClass.ProcessHandles[job] != null)
+            {
+                StaticClass.ProcessHandles[job].Kill();
+                Thread.Sleep(2000);
+            }
+
             // Check and open the data.xml file
             string dataXmlFileName = processingBufferDirectory + @"\" + job + @"\" + "data.xml";
-
-            // Wait for data.xml file to be ready
             do
             {
                 Thread.Sleep(250);
             }
             while (StaticClass.IsFileReady(dataXmlFileName) == false);
-
-            // Make sure Modeler Process is killed
-            StaticClass.ProcessHandles[job].Kill();
-            Thread.Sleep(2000);
 
             // Get the pass or fail data from the data.xml OverallResult result node
             XmlDocument dataXmlDoc = new XmlDocument();
