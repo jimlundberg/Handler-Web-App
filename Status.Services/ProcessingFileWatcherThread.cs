@@ -85,7 +85,7 @@ namespace Status.Services
                 // Increment the number of Processing Buffer Job files found
                 StaticClass.NumberOfProcessingFilesFound[job]++;
 
-                StaticClass.Log(String.Format("Processing File Watcher detected {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("\nProcessing File Watcher detected {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}",
                     jobFile, job, StaticClass.NumberOfProcessingFilesFound[job], StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
 
                 // If Number of Processing files is complete

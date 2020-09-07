@@ -139,6 +139,8 @@ namespace Status.Services
                 {
                     using (StreamReader stream = new StreamReader(fileName))
                     {
+
+                        StaticClass.Log(String.Format("File {0} is ready at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
                         return true;
                     }
                 }
