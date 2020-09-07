@@ -68,7 +68,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// The Add or Change of files callback
+        /// The Add of files callback
         /// </summary>
         /// <param name="source"></param>
         /// <param name="e"></param>
@@ -97,6 +97,20 @@ namespace Status.Services
         }
 
         /// <summary>
+        /// The Change of files callback
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
+        public void OnChanged(object source, FileSystemEventArgs e)
+        {
+            string jobDirectory = e.FullPath;
+            string job = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+
+            StaticClass.Log(String.Format("Processing File Watcher ignoring change to file {0} at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
+        }
+
+        /// <summary>
         /// Check if the Modeler has deposited the OverallResult entry in the job data.xml file
         /// </summary>
         /// <param name="directory"></param>
@@ -108,12 +122,12 @@ namespace Status.Services
             {
                 string xmlFileName = directory + @"\" + "Data.xml";
 
+                // Read output Xml file data
+                XmlDocument XmlDoc = new XmlDocument();
+
                 // Wait for xml file to be ready
                 var task = StaticClass.IsFileReady(xmlFileName);
                 task.Wait();
-
-                // Read output Xml file data
-                XmlDocument XmlDoc = new XmlDocument();
                 XmlDoc.Load(xmlFileName);
 
                 // Check if the OverallResult node exists
@@ -189,6 +203,7 @@ namespace Status.Services
 
                 // Add event handlers
                 watcher.Created += OnCreated;
+                watcher.Changed += OnChanged;
 
                 // Begin watching for file changes to Processing job directory
                 watcher.EnableRaisingEvents = true;

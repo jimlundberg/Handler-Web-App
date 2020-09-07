@@ -94,6 +94,20 @@ namespace Status.Services
         }
 
         /// <summary>
+        /// The Change of files callback
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
+        public void OnChanged(object source, FileSystemEventArgs e)
+        {
+            string jobDirectory = e.FullPath;
+            string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
+
+            StaticClass.Log(String.Format("Input File Watcher ignoring change to file {0} at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
+        }
+
+        /// <summary>
         /// TCP/IP Scan Complete
         /// </summary>
         /// <param name="sender"></param>
@@ -148,6 +162,7 @@ namespace Status.Services
 
                 // Add event handlers
                 watcher.Created += OnCreated;
+                watcher.Changed += OnChanged;
 
                 // Begin watching for changes to Input directory
                 watcher.EnableRaisingEvents = true;

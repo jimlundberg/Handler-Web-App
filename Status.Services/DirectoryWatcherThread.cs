@@ -67,6 +67,20 @@ namespace Status.Services
         }
 
         /// <summary>
+        /// The Change of files callback
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="e"></param>
+        public void OnChanged(object source, FileSystemEventArgs e)
+        {
+            string jobDirectory = e.FullPath;
+            string job = jobDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+
+            StaticClass.Log(String.Format("Input Directory Watcher ignoring change to directory {0} at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
+        }
+
+        /// <summary>
         /// Scan selected directory for created directories
         /// </summary>
         /// <param name="directory"></param>
@@ -91,6 +105,7 @@ namespace Status.Services
 
                 // Add OnCreated event handler which is the only one needed
                 watcher.Created += OnCreated;
+                watcher.Changed += OnChanged;
 
                 // Begin watching for directory changes to Input directory
                 watcher.EnableRaisingEvents = true;

@@ -177,9 +177,9 @@ namespace Status.Services
                     stream.Write(sendData, 0, sendData.Length);
 
                     // Set data for retries
-                    //StreamHandle = stream;
-                    //Port = port;
-                    //Job = job;
+                    StreamHandle = stream;
+                    Port = port;
+                    Job = job;
 
                     StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
                         Message, job, port, DateTime.Now));
