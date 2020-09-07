@@ -189,7 +189,10 @@ namespace Status.Services
                     // Remove job run from Input Job directory list
                     lock (ListLock)
                     {
-                        inputDirectoryInfoList.Remove(dirInfo);
+                        if (inputDirectoryInfoList.Remove(dirInfo))
+                        {
+                            StaticClass.Logger.LogError("InputJobsScanThread failed to remove Job {0} from Input Job list", job);
+                        }
                     }
 
                     // Throttle the Job startups
@@ -274,7 +277,10 @@ namespace Status.Services
                     // Remove job run from Input Job list
                     lock (ListLock)
                     {
-                        StaticClass.InputJobsToRun.Remove(job);
+                        if (StaticClass.InputJobsToRun.Remove(job))
+                        {
+                            StaticClass.Logger.LogError("InputJobsScanThread failed to remove Job {0} from Input Job list", job);
+                        }
                     }
 
                     // Throttle the Job startups

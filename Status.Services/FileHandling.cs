@@ -81,8 +81,6 @@ namespace Status.Services
             {
                 lock (FileLock)
                 {
-                    Thread.Sleep(1000);
-
                     var dirInfo = new DirectoryInfo(sourceDI.FullName);
                     dirInfo.Attributes |= FileAttributes.Normal;
                     sourceDI.Delete();
