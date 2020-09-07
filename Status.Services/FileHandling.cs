@@ -119,7 +119,6 @@ namespace Status.Services
             // Copy to target file
             lock (FileLock)
             {
-                File.SetAttributes(targetFile, FileAttributes.Normal);
                 Source.CopyTo(targetFile);
             }
 
