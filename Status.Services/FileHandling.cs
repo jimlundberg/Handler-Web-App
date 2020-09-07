@@ -57,6 +57,7 @@ namespace Status.Services
                 {
                     lock (FileLock)
                     {
+                        File.SetAttributes(destFile.FullName, FileAttributes.Normal);
                         destFile.Delete();
                     }
                 }
@@ -68,6 +69,7 @@ namespace Status.Services
                 {
                     lock (FileLock)
                     {
+                        File.SetAttributes(sourceFile.FullName, FileAttributes.Normal);
                         sourceFile.Delete();
                     }
                 }
@@ -78,6 +80,8 @@ namespace Status.Services
             {
                 lock (FileLock)
                 {
+                    var dirInfo = new DirectoryInfo(sourceDI.FullName);
+                    dirInfo.Attributes |= FileAttributes.Normal;
                     sourceDI.Delete();
                 }
             }
@@ -107,6 +111,7 @@ namespace Status.Services
                 // Delete the Target file first
                 lock (FileLock)
                 {
+                    File.SetAttributes(Target.FullName, FileAttributes.Normal);
                     Target.Delete();
                 }
             }
@@ -114,6 +119,7 @@ namespace Status.Services
             // Copy to target file
             lock (FileLock)
             {
+                File.SetAttributes(targetFile, FileAttributes.Normal);
                 Source.CopyTo(targetFile);
             }
 
@@ -140,6 +146,7 @@ namespace Status.Services
             lock (FileLock)
             {
                 // Then delete the directory
+                File.SetAttributes(targetDirectory, FileAttributes.Normal);
                 Directory.Delete(targetDirectory, false);
             }
 

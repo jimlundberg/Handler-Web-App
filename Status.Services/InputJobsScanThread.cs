@@ -237,8 +237,8 @@ namespace Status.Services
                     while (StaticClass.PauseFlag == true);
                 }
 
-                // Wait a sec between scans for unfinished Input jobs
-                Thread.Sleep(1000);
+                // Wait between scans for unfinished Input jobs
+                Thread.Sleep(StaticClass.ScanWaitTime);
 
                 // Run any unfinished input jobs
                 RunInputJobsFound(IniData, StatusDataList);

@@ -170,7 +170,7 @@ namespace Status.Services
                 }
 
                 // Wait a sec between scans for unfinished Processing jobs
-                Thread.Sleep(1000);
+                Thread.Sleep(StaticClass.ScanWaitTime);
 
                 // Run any unfinished Processing jobs
                 RunUnfinishedProcessingJobs(IniData, StatusDataList);

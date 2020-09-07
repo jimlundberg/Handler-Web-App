@@ -150,12 +150,16 @@ namespace Status.Services
             // Wait for the job xml file to be ready
             XmlDocument jobXmlDoc = new XmlDocument();
             string jobXmlFileName = xmlJobDirectory + @"\" + jobXmlData.XmlFileName;
-            if (StaticClass.IsFileReady(jobXmlFileName) == true)
+
+            // Wait for Job xml file to be ready
+            do
             {
-                jobXmlDoc.Load(jobXmlFileName);
+                Thread.Sleep(250);
             }
+            while (StaticClass.IsFileReady(jobXmlFileName) == false);
 
             // Read Job xml file and get the top node
+            jobXmlDoc.Load(jobXmlFileName);
             XmlElement root = jobXmlDoc.DocumentElement;
             string TopNode = root.LocalName;
 
@@ -254,9 +258,6 @@ namespace Status.Services
 
                     // Add copying entry to status list
                     StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
-
-                    // Delay before copy
-                    Thread.Sleep(2000);
 
                     // Move files from Input directory to the Processing directory, creating it first if needed
                     FileHandling.CopyFolderContents(inputJobFileDir, processingBufferJobDir, true, true);
@@ -400,13 +401,17 @@ namespace Status.Services
 
             // Check and open the data.xml file
             string dataXmlFileName = processingBufferDirectory + @"\" + job + @"\" + "data.xml";
-            XmlDocument dataXmlDoc = new XmlDocument();
-            if (StaticClass.IsFileReady(dataXmlFileName) == true)
+
+            // Wait for data.xml file to be ready
+            do
             {
-                dataXmlDoc.Load(dataXmlFileName);
+                Thread.Sleep(250);
             }
+            while (StaticClass.IsFileReady(dataXmlFileName) == false);
 
             // Get the pass or fail data from the data.xml OverallResult result node
+            XmlDocument dataXmlDoc = new XmlDocument();
+            dataXmlDoc.Load(dataXmlFileName);
             XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
             string passFail = "Fail";
             if (OverallResult != null)

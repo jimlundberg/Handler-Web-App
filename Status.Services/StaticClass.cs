@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace Status.Services
@@ -133,21 +134,17 @@ namespace Status.Services
         /// <returns>Returns if file is ready to access</returns>
         public static bool IsFileReady(string fileName)
         {
-            while (true)
+            try
             {
-                try
+                using (File.OpenWrite(fileName))
                 {
-                    using (StreamReader stream = new StreamReader(fileName))
-                    {
-
-                        StaticClass.Log(String.Format("File {0} is ready at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
-                        return true;
-                    }
+                    return true;
                 }
-                catch
-                {
-                    Thread.Sleep(1000);
-                }
+            }
+            catch (IOException e)
+            {
+                var errorCode = Marshal.GetHRForException(e) & ((1 << 16) - 1);
+                return errorCode == 32 || errorCode == 33;
             }
         }
 
