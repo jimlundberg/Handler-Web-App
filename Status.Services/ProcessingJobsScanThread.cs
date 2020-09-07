@@ -136,7 +136,7 @@ namespace Status.Services
 
             if (processingDirectoryInfoList.Count > 0)
             {
-                StaticClass.Log("\nMore unfinished Processing Jobs then Execution Slots available...\n");
+                StaticClass.Log("\nMore unfinished Processing Jobs then Execution Slots available...");
             }
 
             // Sort the Processing Buffer directory list by older dates first
@@ -148,7 +148,10 @@ namespace Status.Services
                 string directory = dirInfo.ToString();
                 string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
                 StaticClass.ProcessingJobsToRun.Add(job);
-                StaticClass.Log(String.Format("Unfinished Processing jobs check added Job {0} to Processing Job waiting list", job));
+
+                int index = StaticClass.ProcessingJobsToRun.IndexOf(job);
+                StaticClass.Log(String.Format("\nUnfinished Processing jobs check added new Job {0} to Processing Job List index {1} at {2:HH:mm:ss.fff}",
+                    job, index, DateTime.Now));
             }
 
             // Clear the Directory Info List after done with it

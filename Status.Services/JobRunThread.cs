@@ -147,19 +147,18 @@ namespace Status.Services
             // Add initial entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED);
 
-            // Wait for the job xml file to be ready
-            XmlDocument jobXmlDoc = new XmlDocument();
-            string jobXmlFileName = xmlJobDirectory + @"\" + jobXmlData.XmlFileName;
-
             // Wait for Job xml file to be ready
+            string jobXmlFileName = xmlJobDirectory + @"\" + jobXmlData.XmlFileName;
             do
             {
-                Thread.Sleep(250);
+                Thread.Sleep(10);
             }
             while (StaticClass.IsFileReady(jobXmlFileName) == false);
 
             // Read Job xml file and get the top node
+            XmlDocument jobXmlDoc = new XmlDocument();
             jobXmlDoc.Load(jobXmlFileName);
+
             XmlElement root = jobXmlDoc.DocumentElement;
             string TopNode = root.LocalName;
 
@@ -410,7 +409,7 @@ namespace Status.Services
             string dataXmlFileName = processingBufferDirectory + @"\" + job + @"\" + "data.xml";
             do
             {
-                Thread.Sleep(250);
+                Thread.Sleep(10);
             }
             while (StaticClass.IsFileReady(dataXmlFileName) == false);
 

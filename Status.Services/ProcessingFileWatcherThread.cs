@@ -125,14 +125,14 @@ namespace Status.Services
                 // Wait for data.xml file to be ready
                 do
                 {
-                    Thread.Sleep(250);
+                    Thread.Sleep(10);
                 }
                 while (StaticClass.IsFileReady(dataXmlFileName) == false);
 
                 // Check if the OverallResult node exists
-                XmlDocument XmlDoc = new XmlDocument();
-                XmlDoc.Load(dataXmlFileName);
-                XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
+                XmlDocument dataXmlDoc = new XmlDocument();
+                dataXmlDoc.Load(dataXmlFileName);
+                XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
                 if (OverallResult != null)
                 {
                     OverallResultEntryFound = true;

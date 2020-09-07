@@ -42,7 +42,7 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(String.Format("\nCurrent Input Job Scan Received new Input Job {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("\nCurrent Input Job Scan detected Input Job {0} complete at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -55,7 +55,7 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            StaticClass.Log(String.Format("\nCurrent Input Job Scan Received Process Job {0} complete at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("\nCurrent Input Job Scan detectd Process Job {0} complete at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -68,10 +68,7 @@ namespace Status.Services
         {
             string job = e.ToString();
 
-            // Set Flag for ending directory scan loop
-            StaticClass.InputJobsToRun.Add(job);
-
-            StaticClass.Log(String.Format("Input Job Scan detected and added Job {0} to Input Job list at {1:HH:mm:ss.fff}",
+            StaticClass.Log(String.Format("\nCurrent Directory Scan detected Input Job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
         }
 
@@ -199,7 +196,7 @@ namespace Status.Services
 
             if (inputDirectoryInfoList.Count > 0)
             {
-                StaticClass.Log("\nMore unfinished Input Jobs then Execution Slots available...\n");
+                StaticClass.Log("\nMore unfinished Input Jobs then Execution Slots available...");
             }
 
             // Sort the Input Buffer directory list by older dates first
@@ -211,7 +208,10 @@ namespace Status.Services
                 string directory = dirInfo.ToString();
                 string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
                 StaticClass.InputJobsToRun.Add(job);
-                StaticClass.Log(String.Format("Unfinished Input jobs check added Job {0} to Input Job waiting list", job));
+
+                int index = StaticClass.InputJobsToRun.IndexOf(job);
+                StaticClass.Log(String.Format("\nUnfinished Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
+                    job, index, DateTime.Now));
             }
 
             // Clear the Directory Info List after done with it
