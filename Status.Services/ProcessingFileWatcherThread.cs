@@ -79,20 +79,24 @@ namespace Status.Services
             string jobFile = jobDirectory.Substring(jobDirectory.LastIndexOf('\\') + 1);
             string job = jobDirectory.Substring(0, jobDirectory.LastIndexOf('\\'));
 
-            // Increment the number of Processing Buffer Job files found
-            StaticClass.NumberOfProcessingFilesFound[job]++;
-
-            StaticClass.Log(String.Format("Processing File Watcher detected {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}",
-                jobFile, job, StaticClass.NumberOfProcessingFilesFound[job], StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
-
-            // If Number of files is complete
-            if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
+            // If Number of files is not complete
+            if (StaticClass.NumberOfProcessingFilesFound[job] < StaticClass.NumberOfProcessingFilesNeeded[job])
             {
-                StaticClass.Log(String.Format("Processing File Watcher detected Job {0} complete set of {1} files at {2:HH:mm:ss.fff}",
-                    job, StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
+                // Increment the number of Processing Buffer Job files found
+                StaticClass.NumberOfProcessingFilesFound[job]++;
 
-                // Signal the Run thread that the Processing Buffer files were found
-                StaticClass.ProcessingFileScanComplete[job] = true;
+                StaticClass.Log(String.Format("Processing File Watcher detected {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}",
+                    jobFile, job, StaticClass.NumberOfProcessingFilesFound[job], StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
+
+                // If Number of Processing files is complete
+                if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
+                {
+                    StaticClass.Log(String.Format("Processing File Watcher detected Job {0} complete set of {1} files at {2:HH:mm:ss.fff}",
+                        job, StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
+
+                    // Signal the Run thread that the Processing Buffer files were found
+                    StaticClass.ProcessingFileScanComplete[job] = true;
+                }
             }
         }
 

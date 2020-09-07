@@ -76,20 +76,24 @@ namespace Status.Services
             string jobFile = jobDirectory.Substring(jobDirectory.LastIndexOf('\\') + 1);
             string job = jobDirectory.Substring(0, jobDirectory.LastIndexOf('\\'));         
 
-            // Increment the number of Input Buffer Job files found
-            StaticClass.NumberOfInputFilesFound[job]++;
-
-            StaticClass.Log(String.Format("Input File Watcher detected {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}",
-                jobFile, job, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
-
-            // If Number of files is complete
-            if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
+            // If Number of files is not complete
+            if (StaticClass.NumberOfInputFilesFound[job] < StaticClass.NumberOfInputFilesNeeded[job])
             {
-                StaticClass.Log(String.Format("Input File Watcher detected Job {0} complete set of {1} files at {2:HH:mm:ss.fff}",
+                // Increment the number of Input Buffer Job files found
+                StaticClass.NumberOfInputFilesFound[job]++;
+
+                StaticClass.Log(String.Format("Input File Watcher detected {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}",
+                    jobFile, job, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
+
+                // If Number of Input files is complete
+                if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
+                {
+                    StaticClass.Log(String.Format("Input File Watcher detected Job {0} complete set of {1} files at {2:HH:mm:ss.fff}",
                     job, StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
 
-                // Signal the Run thread that the Input Buffer files were found
-                StaticClass.InputFileScanComplete[job] = true;
+                    // Signal the Run thread that the Input Buffer files were found
+                    StaticClass.InputFileScanComplete[job] = true;
+                }
             }
         }
 
