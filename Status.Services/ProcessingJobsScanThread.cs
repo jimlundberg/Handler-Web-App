@@ -217,7 +217,7 @@ namespace Status.Services
                     }
 
                     // Throttle the Job startups
-                    Thread.Sleep(iniData.ScanWaitTime);
+                    Thread.Sleep(StaticClass.ScanWaitTime);
                 }
             }
         }
