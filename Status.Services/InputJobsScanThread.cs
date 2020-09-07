@@ -15,6 +15,7 @@ namespace Status.Services
     {
         private readonly IniFileData IniData;
         private readonly List<StatusData> StatusDataList;
+        private static readonly Object ListLock = new Object();
 
         /// <summary>
         /// Current Input Jobs Scan thread default constructor
@@ -186,7 +187,10 @@ namespace Status.Services
                     StartInputJob(directory, iniData, statusData);
 
                     // Remove job run from Input Job directory list
-                    inputDirectoryInfoList.Remove(dirInfo);
+                    lock (ListLock)
+                    {
+                        inputDirectoryInfoList.Remove(dirInfo);
+                    }
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
@@ -213,7 +217,7 @@ namespace Status.Services
             // Clear the Directory Info List after done with it
             inputDirectoryInfoList.Clear();
 
-            StaticClass.Log("\nStarted Watching for new Input Jobs...\n");
+            StaticClass.Log("\nStarted Watching for new Input Jobs...");
 
             // Run new Input Job watch loop here forever
             do
@@ -268,7 +272,10 @@ namespace Status.Services
                     StartInputJob(directory, iniData, statusData);
 
                     // Remove job run from Input Job list
-                    StaticClass.InputJobsToRun.Remove(job);
+                    lock (ListLock)
+                    {
+                        StaticClass.InputJobsToRun.Remove(job);
+                    }
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);

@@ -16,6 +16,7 @@ namespace Status.Services
         private readonly IniFileData IniData;
         private readonly List<StatusData> StatusDataList;
         public event EventHandler ProcessCompleted;
+        private static readonly Object ListLock = new Object();
 
         /// <summary>
         /// Current Processing Jobs Scan thread default constructor
@@ -120,7 +121,10 @@ namespace Status.Services
                     StartProcessingJob(directory, iniData, statusData);
 
                     // Remove job run from Processing Job list
-                    processingDirectoryInfoList.Remove(dirInfo);
+                    lock (ListLock)
+                    {
+                        processingDirectoryInfoList.Remove(dirInfo);
+                    }
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
@@ -204,7 +208,10 @@ namespace Status.Services
                     StartProcessingJob(directory, iniData, statusData);
 
                     // Remove job run from Processing Job list
-                    StaticClass.ProcessingJobsToRun.Remove(job);
+                    lock (ListLock)
+                    {
+                        StaticClass.ProcessingJobsToRun.Remove(job);
+                    }
 
                     // Throttle the Job startups
                     Thread.Sleep(iniData.ScanWaitTime);
