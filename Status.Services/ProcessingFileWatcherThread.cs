@@ -246,6 +246,8 @@ namespace Status.Services
                 // Check if the Processing Job Complete flag is still false or you get a shutdown error
                 if (StaticClass.ProcessingJobScanComplete[job] == false)
                 {
+                    Thread.Sleep(5000);
+
                     // Wait for the data.xml file to contain a result
                     if (OverallResultEntryCheck(directory))
                     {
