@@ -409,6 +409,10 @@ namespace Status.Services
             }
             while (StaticClass.IsFileReady(dataXmlFileName) == false);
 
+            // Make sure Modeler Process is killed
+            StaticClass.ProcessHandles[job].Kill();
+            Thread.Sleep(2000);
+
             // Get the pass or fail data from the data.xml OverallResult result node
             XmlDocument dataXmlDoc = new XmlDocument();
             dataXmlDoc.Load(dataXmlFileName);

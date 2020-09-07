@@ -175,9 +175,6 @@ namespace Status.Services
                     while (StaticClass.PauseFlag == true);
                 }
 
-                // Wait a sec between scans for unfinished Processing jobs
-                Thread.Sleep(StaticClass.ScanWaitTime);
-
                 // Run any unfinished Processing jobs
                 RunUnfinishedProcessingJobs(IniData, StatusDataList);
             }

@@ -110,9 +110,6 @@ namespace Status.Services
             dirWatch.ProcessCompleted += newJob_DirectoryFound;
             dirWatch.ThreadProc();
 
-            // Thread timing
-            Thread.Sleep(100);
-
             // Register with the Processing Buffer Jobs check completion event and start its thread
             ProcessingJobsScanThread unfinishedProcessingJobs = new ProcessingJobsScanThread(iniData, statusData);
             if (unfinishedProcessingJobs == null)
@@ -242,9 +239,6 @@ namespace Status.Services
                     }
                     while (StaticClass.PauseFlag == true);
                 }
-
-                // Wait between scans for unfinished Input jobs
-                Thread.Sleep(StaticClass.ScanWaitTime);
 
                 // Run any unfinished input jobs
                 RunInputJobsFound(IniData, StatusDataList);
