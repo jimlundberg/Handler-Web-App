@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -132,49 +131,22 @@ namespace Status.Services
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns>Returns if file is ready to access</returns>
-        public static async Task IsFileReady(string fileName)
+        public static bool IsFileReady(string fileName)
         {
-            await Task.Run(() =>
+            while (true)
             {
-                // Check if file even exists
-                if (!File.Exists(fileName))
+                try
                 {
-                    StaticClass.Logger.LogError(String.Format("IsFileReady did not find file {0}", fileName));
-                    return;
-                }
-
-                bool isReady = false;
-                while (!isReady)
-                {
-                    // If file can be opened for exclusive access it means it is no longer locked by other process
-                    try
+                    using (StreamReader stream = new StreamReader(fileName))
                     {
-                        using (FileStream inputStream = File.Open(fileName, FileMode.Open, FileAccess.Read, FileShare.None))
-                        {
-                            if (inputStream.Length > 0)
-                            {
-                                isReady = true;
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        // Check if the exception is related to an IO error.
-                        if (e.GetType() == typeof(IOException))
-                        {
-                            isReady = false;
-                            Thread.Yield();
-                        }
-                        else
-                        {
-                            // Rethrow the exception as it's not an exclusively-opened-exception.
-                            StaticClass.Logger.LogError(String.Format("IsFileReady exception {0} rethrown for file {1} at {2:HH:mm:ss.fff}",
-                                e.ToString(), fileName, DateTime.Now));
-                            throw;
-                        }
+                        return true;
                     }
                 }
-            });
+                catch
+                {
+                    Thread.Sleep(1000);
+                }
+            }
         }
 
         /// <summary>

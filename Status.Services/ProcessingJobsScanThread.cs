@@ -16,7 +16,6 @@ namespace Status.Services
         private readonly IniFileData IniData;
         private readonly List<StatusData> StatusDataList;
         public event EventHandler ProcessCompleted;
-        private static readonly Object DelLock = new Object();
 
         /// <summary>
         /// Current Processing Jobs Scan thread default constructor
@@ -227,10 +226,7 @@ namespace Status.Services
             string dataXmlFile = directory + @"\" + "data.xml";
             if (File.Exists(dataXmlFile))
             {
-                lock (DelLock)
-                {
-                    File.Delete(dataXmlFile);
-                }
+                File.Delete(dataXmlFile);
             }
 
             // Get data found in job Xml file

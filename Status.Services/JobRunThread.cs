@@ -4,9 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace Status.Services
@@ -112,33 +110,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Method to wait until the files in the Job Input Buffer are complete
-        /// </summary>
-        /// <param name="directory"></param>
-        public static async Task WaitForFilesToBeReady(string directory)
-        {
-            // Get the current job buffer directory info
-            DirectoryInfo processingDirectoryInfo = new DirectoryInfo(directory);
-            if (processingDirectoryInfo == null)
-            {
-                StaticClass.Logger.LogError("JobRunThread processingDirectoryInfo failed to instantiate");
-            }
-
-            // Get the current list of directories from the Job Processing Buffer
-            List<DirectoryInfo> processingDirectoryInfoList = processingDirectoryInfo.EnumerateDirectories().ToList();
-            if (processingDirectoryInfoList == null)
-            {
-                StaticClass.Logger.LogError("ProcessingJobsScanThread processingDirectoryInfoList failed to instantiate");
-            }
-
-            // Start the jobs in the directory list found for the Processing Buffer
-            foreach (DirectoryInfo dirInfo in processingDirectoryInfoList)
-            {
-                await StaticClass.IsFileReady(dirInfo.FullName);
-            }
-        }
-
-        /// <summary>
         /// Run a job from Input or Processing Buffers
         /// </summary>
         /// <param name="dirScanType"></param>
@@ -177,13 +148,14 @@ namespace Status.Services
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED);
 
             // Wait for the job xml file to be ready
+            XmlDocument jobXmlDoc = new XmlDocument();
             string jobXmlFileName = xmlJobDirectory + @"\" + jobXmlData.XmlFileName;
-            Task checkJobXmlFileTask = StaticClass.IsFileReady(jobXmlFileName);
-            checkJobXmlFileTask.Wait();
+            if (StaticClass.IsFileReady(jobXmlFileName) == true)
+            {
+                jobXmlDoc.Load(jobXmlFileName);
+            }
 
             // Read Job xml file and get the top node
-            XmlDocument jobXmlDoc = new XmlDocument();
-            jobXmlDoc.Load(jobXmlFileName);
             XmlElement root = jobXmlDoc.DocumentElement;
             string TopNode = root.LocalName;
 
@@ -277,15 +249,14 @@ namespace Status.Services
                     }
                     while (StaticClass.InputFileScanComplete[job] == false);
 
-                    // Check that Job input files are complete
-                    Task checkInputFilesTask = WaitForFilesToBeReady(inputJobFileDir);
-                    checkInputFilesTask.Wait();
-
                     StaticClass.Log(String.Format("Finished Input file scan for Job {0} at {1:HH:mm:ss.fff}",
                         inputJobFileDir, DateTime.Now));
 
                     // Add copying entry to status list
                     StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
+
+                    // Delay before copy
+                    Thread.Sleep(2000);
 
                     // Move files from Input directory to the Processing directory, creating it first if needed
                     FileHandling.CopyFolderContents(inputJobFileDir, processingBufferJobDir, true, true);
@@ -427,79 +398,74 @@ namespace Status.Services
             // Add copy to archieve entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START);
 
-            // Make sure the data.xml file is ready
+            // Check and open the data.xml file
             string dataXmlFileName = processingBufferDirectory + @"\" + job + @"\" + "data.xml";
-            var dataXmltask = StaticClass.IsFileReady(dataXmlFileName);
-            dataXmltask.Wait();
-
-            // Data.xml file may not exist for timeout jobs
-            if (File.Exists(dataXmlFileName))
+            XmlDocument dataXmlDoc = new XmlDocument();
+            if (StaticClass.IsFileReady(dataXmlFileName) == true)
             {
-                // Get the pass or fail data from the data.xml OverallResult result node
-                XmlDocument dataXmlDoc = new XmlDocument();
                 dataXmlDoc.Load(dataXmlFileName);
-                XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
-
-                string passFail = "Fail";
-                if (OverallResult != null)
-                {
-                    passFail = OverallResult.InnerText;
-                }
-
-                string repositoryJobDirectoryName = repositoryDirectory + @"\" + job;
-                if ((OverallResult != null) && (passFail == "Pass"))
-                {
-                    string finishedJobDirectoryName = finishedDirectory + @"\" + monitorData.JobSerialNumber;
-
-                    // If the Finished directory does not exist, create it
-                    if (!Directory.Exists(finishedJobDirectoryName))
-                    {
-                        Directory.CreateDirectory(finishedJobDirectoryName);
-                    }
-
-                    // Copy the Transfered files to the Finished directory 
-                    foreach (string file in monitorData.TransferedFileList)
-                    {
-                        FileHandling.CopyFile(processingBufferJobDir + @"\" + file, finishedJobDirectoryName + @"\" + file);
-                    }
-
-                    // Move Processing Buffer Files to the Repository directory when passed
-                    FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
-                }
-                else // Send files to the Error Buffer and repository
-                {
-                    string errorJobDirectoryName = errorDirectory + @"\" + monitorData.JobSerialNumber;
-
-                    // If the Error directory does not exist, create it
-                    if (!Directory.Exists(errorJobDirectoryName))
-                    {
-                        Directory.CreateDirectory(errorJobDirectoryName);
-                    }
-
-                    // Copy the Transfered files to the Error directory 
-                    foreach (string file in monitorData.TransferedFileList)
-                    {
-                        if (File.Exists(file))
-                        {
-                            FileHandling.CopyFile(processingBufferJobDir + @"\" + file, errorJobDirectoryName + @"\" + file);
-                        }
-                    }
-
-                    // Move Processing Buffer Files to the Repository directory when failed
-                    FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
-                }
             }
 
-            // Add entry to status list
-            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
+            // Get the pass or fail data from the data.xml OverallResult result node
+            XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
+            string passFail = "Fail";
+            if (OverallResult != null)
+            {
+                passFail = OverallResult.InnerText;
+            }
 
-            // Show Job Complete message
-            TimeSpan timeSpan = DateTime.Now - StaticClass.JobStartTime[job];
-            StaticClass.Log(String.Format("Job {0} Complete taking {1:hh\\:mm\\:ss}. Decrementing Job count to {2} at {3:HH:mm:ss.fff}",
-                job, timeSpan, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now));
+            string repositoryJobDirectoryName = repositoryDirectory + @"\" + job;
+            if ((OverallResult != null) && (passFail == "Pass"))
+            {
+                string finishedJobDirectoryName = finishedDirectory + @"\" + monitorData.JobSerialNumber;
 
-            // Decrement the number of Jobs executing in one place!
-            StaticClass.NumberOfJobsExecuting--;
-        }
+                // If the Finished directory does not exist, create it
+                if (!Directory.Exists(finishedJobDirectoryName))
+                {
+                    Directory.CreateDirectory(finishedJobDirectoryName);
+                }
+
+                // Copy the Transfered files to the Finished directory 
+                foreach (string file in monitorData.TransferedFileList)
+                {
+                    FileHandling.CopyFile(processingBufferJobDir + @"\" + file, finishedJobDirectoryName + @"\" + file);
+                }
+
+                // Move Processing Buffer Files to the Repository directory when passed
+                FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
+            }
+            else // Send files to the Error Buffer and repository
+            {
+                string errorJobDirectoryName = errorDirectory + @"\" + monitorData.JobSerialNumber;
+
+                // If the Error directory does not exist, create it
+                if (!Directory.Exists(errorJobDirectoryName))
+                {
+                    Directory.CreateDirectory(errorJobDirectoryName);
+                }
+
+                // Copy the Transfered files to the Error directory 
+                foreach (string file in monitorData.TransferedFileList)
+                {
+                    if (File.Exists(file))
+                    {
+                        FileHandling.CopyFile(processingBufferJobDir + @"\" + file, errorJobDirectoryName + @"\" + file);
+                    }
+                }
+
+                // Move Processing Buffer Files to the Repository directory when failed
+                FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
+            }
+
+        // Add entry to status list
+        StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
+
+        // Show Job Complete message
+        TimeSpan timeSpan = DateTime.Now - StaticClass.JobStartTime[job];
+        StaticClass.Log(String.Format("Job {0} Complete taking {1:hh\\:mm\\:ss}. Decrementing Job count to {2} at {3:HH:mm:ss.fff}",
+            job, timeSpan, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now));
+
+        // Decrement the number of Jobs executing in one place!
+        StaticClass.NumberOfJobsExecuting--;
     }
 }

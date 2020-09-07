@@ -74,7 +74,7 @@ namespace Status.Services
             string fullDirectory = e.FullPath;
             string jobDirectory = fullDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
             string jobFile = jobDirectory.Substring(jobDirectory.LastIndexOf('\\') + 1);
-            string job = jobDirectory.Substring(0, jobDirectory.LastIndexOf('\\'));
+            string job = jobDirectory.Substring(0, jobDirectory.LastIndexOf('\\'));         
 
             // Increment the number of Input Buffer Job files found
             StaticClass.NumberOfInputFilesFound[job]++;
@@ -152,7 +152,8 @@ namespace Status.Services
                 // Watch for file changes in the watched directory
                 watcher.NotifyFilter =
                     NotifyFilters.FileName |
-                    NotifyFilters.CreationTime;
+                    NotifyFilters.CreationTime |
+                    NotifyFilters.LastAccess;
 
                 // Set the Path to scan for files
                 watcher.Path = directory;

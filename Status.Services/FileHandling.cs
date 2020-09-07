@@ -55,7 +55,7 @@ namespace Status.Services
                 // Delete the destination file if overwrite is true
                 if (destFile.Exists && overwrite)
                 {
-                    lock (FileLock)
+                    //lock (FileLock)
                     {
                         destFile.Delete();
                     }
@@ -66,7 +66,7 @@ namespace Status.Services
                 // Delete the source file if removeSource is true
                 if (removeSource)
                 {
-                    lock (FileLock)
+                    //lock (FileLock)
                     {
                         sourceFile.Delete();
                     }
@@ -76,7 +76,7 @@ namespace Status.Services
             // Delete the source directory if removeSource is true
             if (removeSource)
             {
-                lock (FileLock)
+                //lock (FileLock)
                 {
                     sourceDI.Delete();
                 }
@@ -105,14 +105,14 @@ namespace Status.Services
             if (Target.Exists)
             {
                 // Delete the Target file first
-                lock (FileLock)
+                //lock (FileLock)
                 {
                     Target.Delete();
                 }
             }
 
             // Copy to target file
-            lock (FileLock)
+            //lock (FileLock)
             {
                 Source.CopyTo(targetFile);
             }
@@ -130,14 +130,14 @@ namespace Status.Services
             string[] files = Directory.GetFiles(targetDirectory);
             foreach (string file in files)
             {
-                lock (FileLock)
+              //lock (FileLock)
                 {
                     File.SetAttributes(file, FileAttributes.Normal);
                     File.Delete(file);
                 }
             }
 
-            lock (FileLock)
+            //lock (FileLock)
             {
                 // Then delete the directory
                 Directory.Delete(targetDirectory, false);

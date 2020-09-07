@@ -122,9 +122,11 @@ namespace Status.Services
                 XmlDocument XmlDoc = new XmlDocument();
 
                 // Wait for xml file to be ready
-                var task = StaticClass.IsFileReady(xmlFileName);
-                task.Wait();
-                XmlDoc.Load(xmlFileName);
+                if (StaticClass.IsFileReady(xmlFileName) == true)
+                {
+                    // Load the xml file
+                    XmlDoc.Load(xmlFileName);
+                }
 
                 // Check if the OverallResult node exists
                 XmlNode OverallResult = XmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
@@ -193,7 +195,8 @@ namespace Status.Services
                 // Watch for file changes in the watched directory
                 watcher.NotifyFilter =
                     NotifyFilters.FileName |
-                    NotifyFilters.CreationTime;
+                    NotifyFilters.CreationTime |
+                    NotifyFilters.LastAccess;
 
                 // Set the Path to scan for files
                 watcher.Path = directory;

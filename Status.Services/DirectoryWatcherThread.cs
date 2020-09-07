@@ -59,8 +59,11 @@ namespace Status.Services
             string jobDirectory = e.FullPath;
             string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
 
-            // Add new job detected to the Input job list
-            StaticClass.InputJobsToRun.Add(job);
+            // Add new job detected if not already in the Input job list
+            if (StaticClass.InputJobsToRun.Contains(job) == false)
+            {
+                StaticClass.InputJobsToRun.Add(job);
+            }
 
             StaticClass.Log(String.Format("Input Directory Watcher added new Job {0} to Input Job list at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
