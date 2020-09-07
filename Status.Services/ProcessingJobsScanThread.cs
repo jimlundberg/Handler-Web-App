@@ -104,24 +104,23 @@ namespace Status.Services
             }
 
             // Start the jobs in the directory list found for the Processing Buffer
-            for (int i = 0; i < processingDirectoryInfoList.Count; i++)
+            foreach (DirectoryInfo dirInfo in processingDirectoryInfoList.Reverse<DirectoryInfo>())
             {
                 if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
-                    DirectoryInfo dirInfo = processingDirectoryInfoList[i];
                     string directory = dirInfo.ToString();
                     string job = directory.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
 
                     StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
-
-                    // Remove job run from Processing Job list
-                    processingDirectoryInfoList.Remove(dirInfo);
 
                     // Reset Processing file scan flag
                     StaticClass.ProcessingFileScanComplete[job] = false;
 
                     // Start a Processing Buffer Job
                     StartProcessingJob(directory, iniData, statusData);
+
+                    // Remove job run from Processing Job list
+                    processingDirectoryInfoList.Remove(dirInfo);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
@@ -189,17 +188,13 @@ namespace Status.Services
         public void RunUnfinishedProcessingJobs(IniFileData iniData, List<StatusData> statusData)
         {
             // Start Processing jobs currently waiting
-            for (int i = 0; i < StaticClass.ProcessingJobsToRun.Count; i++)
+            foreach (string job in StaticClass.ProcessingJobsToRun.Reverse<string>())
             {
                 if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
-                    string job = StaticClass.ProcessingJobsToRun[i];
                     string directory = iniData.ProcessingDir + @"\" + job;
 
                     StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
-
-                    // Remove job run from Processing Job list
-                    StaticClass.ProcessingJobsToRun.Remove(job);
 
                     // Reset Processing job and file scan flags
                     StaticClass.ProcessingFileScanComplete[job] = false;
@@ -207,7 +202,10 @@ namespace Status.Services
 
                     // Start a Processing Buffer Job
                     StartProcessingJob(directory, iniData, statusData);
-                    
+
+                    // Remove job run from Processing Job list
+                    StaticClass.ProcessingJobsToRun.Remove(job);
+
                     // Throttle the Job startups
                     Thread.Sleep(iniData.ScanWaitTime);
                 }

@@ -170,24 +170,23 @@ namespace Status.Services
             }
 
             // Start the jobs in the directory list found for the Input Buffer
-            for (int i = 0; i < inputDirectoryInfoList.Count; i++)
+            foreach (DirectoryInfo dirInfo in inputDirectoryInfoList.Reverse<DirectoryInfo>())
             {
                 if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
-                    DirectoryInfo dirInfo = inputDirectoryInfoList[i];
                     string directory = dirInfo.ToString();
                     string job = directory.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
 
                     StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
-
-                    // Remove job run from Input Job directory list
-                    inputDirectoryInfoList.Remove(dirInfo);
 
                     // Reset Input file scan flag
                     StaticClass.InputFileScanComplete[job] = false;
 
                     // Start an Input Buffer Job
                     StartInputJob(directory, iniData, statusData);
+
+                    // Remove job run from Input Job directory list
+                    inputDirectoryInfoList.Remove(dirInfo);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
@@ -254,23 +253,22 @@ namespace Status.Services
         public void RunInputJobsFound(IniFileData iniData, List<StatusData> statusData)
         {
             // Check if there are unfinished Input jobs waiting to run
-            for (int i = 0; i < StaticClass.InputJobsToRun.Count; i++)
+            foreach (string job in StaticClass.InputJobsToRun.Reverse<string>())
             {
                 if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
-                    string job = StaticClass.InputJobsToRun[i];
                     string directory = iniData.InputDir + @"\" + job;
 
                     StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
-
-                    // Remove job run from Input Job list
-                    StaticClass.InputJobsToRun.Remove(job);
 
                     // Reset Input job file scan flag
                     StaticClass.InputFileScanComplete[job] = false;
 
                     // Start an Input Buffer Job
                     StartInputJob(directory, iniData, statusData);
+
+                    // Remove job run from Input Job list
+                    StaticClass.InputJobsToRun.Remove(job);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
