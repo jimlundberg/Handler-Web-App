@@ -114,12 +114,6 @@ namespace Status.Services
 
                     StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
-                    // Reset Processing file scan flag
-                    StaticClass.ProcessingFileScanComplete[job] = false;
-
-                    // Start a Processing Buffer Job
-                    StartProcessingJob(directory, iniData, statusData);
-
                     // Remove job run from Processing Job list
                     lock (ListLock)
                     {
@@ -128,6 +122,12 @@ namespace Status.Services
                             StaticClass.Logger.LogError("ProcessingJobsScanThread failed to remove Job {0} from Processing Job list", job);
                         }
                     }
+
+                    // Reset Processing file scan flag
+                    StaticClass.ProcessingFileScanComplete[job] = false;
+
+                    // Start a Processing Buffer Job
+                    StartProcessingJob(directory, iniData, statusData);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
@@ -203,13 +203,6 @@ namespace Status.Services
 
                     StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
-                    // Reset Processing job and file scan flags
-                    StaticClass.ProcessingFileScanComplete[job] = false;
-                    StaticClass.ProcessingJobScanComplete[job] = false;
-
-                    // Start a Processing Buffer Job
-                    StartProcessingJob(directory, iniData, statusData);
-
                     // Remove job run from Processing Job list
                     lock (ListLock)
                     {
@@ -218,6 +211,13 @@ namespace Status.Services
                             StaticClass.Logger.LogError("ProcessingJobsScanThread failed to remove Job {0} from Processing Job list", job);
                         }
                     }
+
+                    // Reset Processing job and file scan flags
+                    StaticClass.ProcessingFileScanComplete[job] = false;
+                    StaticClass.ProcessingJobScanComplete[job] = false;
+
+                    // Start a Processing Buffer Job
+                    StartProcessingJob(directory, iniData, statusData);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);

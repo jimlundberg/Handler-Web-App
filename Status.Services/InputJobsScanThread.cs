@@ -174,12 +174,6 @@ namespace Status.Services
 
                     StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
-                    // Reset Input file scan flag
-                    StaticClass.InputFileScanComplete[job] = false;
-
-                    // Start an Input Buffer Job
-                    StartInputJob(directory, iniData, statusData);
-
                     // Remove job run from Input Job directory list
                     lock (ListLock)
                     {
@@ -188,6 +182,12 @@ namespace Status.Services
                             StaticClass.Logger.LogError("InputJobsScanThread failed to remove Job {0} from Input Job list", job);
                         }
                     }
+
+                    // Reset Input file scan flag
+                    StaticClass.InputFileScanComplete[job] = false;
+
+                    // Start an Input Buffer Job
+                    StartInputJob(directory, iniData, statusData);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
@@ -262,12 +262,6 @@ namespace Status.Services
 
                     StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
-                    // Reset Input job file scan flag
-                    StaticClass.InputFileScanComplete[job] = false;
-
-                    // Start an Input Buffer Job
-                    StartInputJob(directory, iniData, statusData);
-
                     // Remove job run from Input Job list
                     lock (ListLock)
                     {
@@ -276,6 +270,12 @@ namespace Status.Services
                             StaticClass.Logger.LogError("InputJobsScanThread failed to remove Job {0} from Input Job list", job);
                         }
                     }
+
+                    // Reset Input job file scan flag
+                    StaticClass.InputFileScanComplete[job] = false;
+
+                    // Start an Input Buffer Job
+                    StartInputJob(directory, iniData, statusData);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);

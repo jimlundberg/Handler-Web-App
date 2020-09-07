@@ -142,9 +142,6 @@ namespace Status.Services
                 StaticClass.Log(String.Format("\nConnected to TCP/IP for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                     job, port, DateTime.Now));
 
-                // Log starting TCP/IP monitoring entry
-                StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
-
                 bool jobComplete = false;
                 do
                 {
