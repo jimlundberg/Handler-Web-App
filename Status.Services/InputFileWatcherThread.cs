@@ -100,11 +100,7 @@ namespace Status.Services
         /// <param name="e"></param>
         public void OnChanged(object source, FileSystemEventArgs e)
         {
-            string jobDirectory = e.FullPath;
-            string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
-
-            StaticClass.Log(String.Format("Input File Watcher ignoring change to file {0} at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
+            // Ignore Changes
         }
 
         /// <summary>
@@ -154,7 +150,11 @@ namespace Status.Services
                 }
 
                 // Watch for file changes in the watched directory
-                watcher.NotifyFilter = NotifyFilters.FileName;
+                watcher.NotifyFilter =
+                    NotifyFilters.FileName |
+                    NotifyFilters.CreationTime;
+
+                // Set the Path to scan for files
                 watcher.Path = directory;
 
                 // Watch for any file to get directory changes
