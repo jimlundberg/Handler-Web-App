@@ -2,13 +2,10 @@
 using Status.Models;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Timers;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -335,10 +332,6 @@ namespace Status.Services
                 StaticClass.Logger.LogError(String.Format("SocketException {0} for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
                     e, job, port, DateTime.Now));
             }
-
-            StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
-                job, port, DateTime.Now));
         }
     }
 }
-
