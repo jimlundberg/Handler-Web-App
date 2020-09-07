@@ -180,11 +180,11 @@ namespace Status.Services
 
                     StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
+                    // Remove job run from Input Job directory list
+                    inputDirectoryInfoList.Remove(dirInfo);
+
                     // Reset Input file scan flag
                     StaticClass.InputFileScanComplete[job] = false;
-
-                    // Remove job run
-                    inputDirectoryInfoList.RemoveAt(i);
 
                     // Start an Input Buffer Job
                     StartInputJob(directory, iniData, statusData);
@@ -263,10 +263,10 @@ namespace Status.Services
 
                     StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
-                    // Remove job run
-                    StaticClass.InputJobsToRun.RemoveAt(i);
+                    // Remove job run from Input Job list
+                    StaticClass.InputJobsToRun.Remove(job);
 
-                    // Reset Input job file scan complete flag
+                    // Reset Input job file scan flag
                     StaticClass.InputFileScanComplete[job] = false;
 
                     // Start an Input Buffer Job

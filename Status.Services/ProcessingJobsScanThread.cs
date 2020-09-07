@@ -114,11 +114,11 @@ namespace Status.Services
 
                     StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
+                    // Remove job run from Processing Job list
+                    processingDirectoryInfoList.Remove(dirInfo);
+
                     // Reset Processing file scan flag
                     StaticClass.ProcessingFileScanComplete[job] = false;
-
-                    // Remove job run
-                    processingDirectoryInfoList.RemoveAt(i);
 
                     // Start a Processing Buffer Job
                     StartProcessingJob(directory, iniData, statusData);
@@ -198,12 +198,12 @@ namespace Status.Services
 
                     StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
+                    // Remove job run from Processing Job list
+                    StaticClass.ProcessingJobsToRun.Remove(job);
+
                     // Reset Processing job and file scan flags
                     StaticClass.ProcessingFileScanComplete[job] = false;
                     StaticClass.ProcessingJobScanComplete[job] = false;
-
-                    // Remove job run
-                    StaticClass.ProcessingJobsToRun.RemoveAt(i);
 
                     // Start a Processing Buffer Job
                     StartProcessingJob(directory, iniData, statusData);
