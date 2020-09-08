@@ -137,12 +137,27 @@ namespace Status.Services
                         while (StaticClass.PauseFlag == true);
                     }
 
-                    // Translate the passed message into ASCII and store it as a Byte array.
-                    Byte[] sendData = Encoding.ASCII.GetBytes(Message);
-                    stream.Write(sendData, 0, sendData.Length);
+                    // Check if the stream is writable, if not, exit
+                    if (stream.CanWrite)
+                    {
+                        // Translate the passed message into ASCII and store it as a Byte array.
+                        Byte[] sendData = Encoding.ASCII.GetBytes(Message);
+                        stream.Write(sendData, 0, sendData.Length);
 
-                    StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
-                        Message, job, port, DateTime.Now));
+                        StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
+                            Message, job, port, DateTime.Now));
+                    }
+                    else
+                    {
+                        StaticClass.Log(String.Format("\nTCP/IP stream closed for Modeler Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                            job, port, DateTime.Now));
+
+                        // Set the TCP/IP Scan complete flag to signal the RunJob thread
+                        StaticClass.TcpIpScanComplete[job] = true;
+
+                        // Make sure to close TCP/IP socket
+                        jobComplete = true;
+                    }
 
                     // Check if TCP/IP stream is readable and data is available
                     int adjustableSleepTime = StaticClass.STARTING_TCP_IP_WAIT;
