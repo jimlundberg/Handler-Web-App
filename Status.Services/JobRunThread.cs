@@ -402,7 +402,7 @@ namespace Status.Services
             if (StaticClass.ProcessHandles[job] != null)
             {
                 StaticClass.ProcessHandles[job].Kill();
-                Thread.Sleep(2000);
+                Thread.Sleep(5000);
             }
 
             // Check and open the data.xml file
