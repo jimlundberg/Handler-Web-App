@@ -221,15 +221,15 @@ namespace Status.Services
                             break;
 
                         case "Step 4 in process.":
-                            adjustableSleepTime = 10000;
-                            break;
-
-                        case "Step 5 in process.":
                             adjustableSleepTime = 5000;
                             break;
 
-                        case "Step 6 in process.":
+                        case "Step 5 in process.":
                             adjustableSleepTime = 2500;
+                            break;
+
+                        case "Step 6 in process.":
+                            adjustableSleepTime = 500;
                             break;
 
                         case "Whole process done, socket closed.":
