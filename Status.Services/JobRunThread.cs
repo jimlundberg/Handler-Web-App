@@ -151,7 +151,7 @@ namespace Status.Services
             string jobXmlFileName = xmlJobDirectory + @"\" + jobXmlData.XmlFileName;
             do
             {
-                Thread.Sleep(10);
+                Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
             }
             while (StaticClass.IsFileReady(jobXmlFileName) == false);
 
@@ -337,7 +337,7 @@ namespace Status.Services
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
 
             // Wait 45 seconds for Modeler to get started before reading it's information
-            Thread.Sleep(45000);
+            Thread.Sleep(StaticClass.DISPLAY_PROCESS_DATA_WAIT);
 
             // Display Modeler Executable information
             StaticClass.Log($"\nJob {job} Modeler execution process data:");
@@ -402,14 +402,14 @@ namespace Status.Services
             if (StaticClass.ProcessHandles[job] != null)
             {
                 StaticClass.ProcessHandles[job].Kill();
-                Thread.Sleep(5000);
+                Thread.Sleep(StaticClass.KILL_PROCESS_WAIT);
             }
 
             // Check and open the data.xml file
             string dataXmlFileName = processingBufferDirectory + @"\" + job + @"\" + "data.xml";
             do
             {
-                Thread.Sleep(10);
+                Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
             }
             while (StaticClass.IsFileReady(dataXmlFileName) == false);
 

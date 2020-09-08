@@ -125,7 +125,7 @@ namespace Status.Services
                 // Wait for data.xml file to be ready
                 do
                 {
-                    Thread.Sleep(10);
+                    Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
                 }
                 while (StaticClass.IsFileReady(dataXmlFileName) == false);
 
@@ -246,7 +246,7 @@ namespace Status.Services
                 // Check if the Processing Job Complete flag is still false or you get a shutdown error
                 if (StaticClass.ProcessingJobScanComplete[job] == false)
                 {
-                    Thread.Sleep(5000);
+                    Thread.Sleep(StaticClass.KILL_PROCESS_WAIT);
 
                     // Wait for the data.xml file to contain a result
                     if (OverallResultEntryCheck(directory))

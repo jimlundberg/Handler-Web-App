@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Timers;
 
 namespace Status.Services
 {
@@ -21,8 +20,7 @@ namespace Status.Services
         private static readonly string Server = "127.0.0.1";
         private static readonly string Message = "status";
         private static int Port = 0;
-        private const int STARTING_TCP_IP_WAIT = 15000;
-        private const int NUM_TCP_IP_RETRIES = 240;
+
 
         /// <summary>
         /// Job Tcp/IP thread 
@@ -78,7 +76,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="port"></param>
         /// <param name="iniData"></param>
-        /// <param name="monitorData"></param>
+        /// <param name="monitorData"></pram>
         /// <param name="statusData"></param>
         public static void Connect(int port, string server, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
         {
@@ -86,7 +84,7 @@ namespace Status.Services
             string job = monitorData.Job;
 
             // Wait about a minute for the Modeler to start execution
-            Thread.Sleep(60000);
+            Thread.Sleep(StaticClass.TCP_IP_STARTUP_WAIT);
 
             StaticClass.Log(String.Format("\nStarting TCP/IP Scan for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                 job, port, DateTime.Now));
@@ -114,7 +112,6 @@ namespace Status.Services
                 }
 
                 StaticClass.Log(String.Format("\nConnected to TCP/IP for Job {0} on Port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
-
                 bool jobComplete = false;
                 do
                 {
@@ -148,8 +145,9 @@ namespace Status.Services
                         Message, job, port, DateTime.Now));
 
                     // Check if TCP/IP stream is readable and data is available
-                    int adjustableSleepTime = STARTING_TCP_IP_WAIT;
-                    int TcpIpRetryCount = 0;
+                    int adjustableSleepTime = StaticClass.STARTING_TCP_IP_WAIT;
+                    int tcpIpRetryCount = 0;
+                    bool messageReceived = false;
                     do
                     {
                         if (stream.CanRead && stream.DataAvailable)
@@ -251,7 +249,7 @@ namespace Status.Services
 
                                 // Wait a sec then shutdown the Modeler after completing job
                                 StaticClass.ProcessHandles[job].Kill();
-                                Thread.Sleep(5000);
+                                Thread.Sleep(StaticClass.KILL_PROCESS_WAIT);
 
                                 // Make sure to close TCP/IP socket
                                 jobComplete = true;
@@ -281,16 +279,18 @@ namespace Status.Services
                                 while (StaticClass.PauseFlag == true);
                             }
 
-                            // Wait for an adjustable time between TCP/IP status requests
-                            Thread.Sleep(adjustableSleepTime);
+                            messageReceived = true;
                         }
-                        
-                        // Pause between checks of TCP/IP stream CanRead & DataAvailable flags
-                        Thread.Sleep(250);
+                        else
+                        {
+                            Thread.Sleep(StaticClass.READ_AVAILABLE_RETRY_DELAY);
+                            tcpIpRetryCount++;
+                        }
                     }
-                    // In 60 seconds it will send the status request again
-                    while (TcpIpRetryCount++ < NUM_TCP_IP_RETRIES);
+                    while ((tcpIpRetryCount < StaticClass.NUM_TCP_IP_RETRIES) && (messageReceived == false));
 
+                    // Wait for an adjustable time between TCP/IP status requests
+                    Thread.Sleep(adjustableSleepTime);
                 }
                 while (jobComplete == false);
 
