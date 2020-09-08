@@ -20,10 +20,7 @@ namespace Status.Services
         public event EventHandler ProcessCompleted;
         private static readonly string Server = "127.0.0.1";
         private static readonly string Message = "status";
-        private static string Job;
         private static int Port = 0;
-//      private static NetworkStream StreamHandle;
-//      private const int RETRY_TIMEOUT = 30300; // 5 minutes
         private const int STARTING_TCP_IP_WAIT = 15000;
 
         /// <summary>
@@ -35,7 +32,6 @@ namespace Status.Services
         public TcpIpListenThread(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
         {
             Port = monitorData.JobPortNumber;
-            Job = monitorData.Job;
             IniData = iniData;
             MonitorData = monitorData;
             StatusData = statusData;
@@ -74,21 +70,6 @@ namespace Status.Services
                 StaticClass.Logger.LogError("TcpIpListenThread TcpListenerThreadHandle failed to instantiate");
             }
             StaticClass.TcpListenerThreadHandle.Start();
-        }
-
-        /// <summary>
-        /// Retry Timer elapsed handler
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        static void retryTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            StaticClass.Log(String.Format("\nSending Retry msg {0} to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
-                Message, Job, Port, DateTime.Now));
-
-            // Send retry message to the Modeler
-            //Byte[] sendData = Encoding.ASCII.GetBytes(Message);
-            //StreamHandle.Write(sendData, 0, sendData.Length);
         }
 
         /// <summary>
@@ -131,14 +112,6 @@ namespace Status.Services
                     return;
                 }
 
-                // Start TCP/IP resend timer that gets reset if we receive data
-                //var resendTimer = new System.Timers.Timer(RETRY_TIMEOUT);
-                //resendTimer.Elapsed += new ElapsedEventHandler(retryTimer_Elapsed);
-                //resendTimer.Enabled = true;
-                //resendTimer.Start();
-                //StaticClass.Log(String.Format("Started TCP/IP timeout timer for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
-                //    job, port, DateTime.Now));
-
                 StaticClass.Log(String.Format("\nConnected to TCP/IP for Job {0} on Port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
 
                 bool jobComplete = false;
@@ -168,7 +141,6 @@ namespace Status.Services
 
                     // Translate the passed message into ASCII and store it as a Byte array.
                     Byte[] sendData = Encoding.ASCII.GetBytes(Message);
-                    stream.ReadTimeout = 5000;
                     stream.Write(sendData, 0, sendData.Length);
 
                     StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
@@ -186,18 +158,6 @@ namespace Status.Services
 
                         StaticClass.Log(String.Format("Received: {0} from Job {1} on Port {2} at {3:HH:mm:ss.fff}",
                             responseData, job, port, DateTime.Now));
-
-                        // Reset timer if data received
-                        // StreamHandle = stream;
-                        //if (responseData.Length > 0)
-                        //{
-                        // Receive the TcpServer.response
-                        //StaticClass.Log(String.Format("Resetting TCP/IP Timout timer for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
-                        //    job, port, DateTime.Now));
-
-                        //resendTimer.Stop();
-                        //resendTimer.Start();
-                        //}
 
                         // Readjust sleep time according to Step number
                         switch (responseData)
