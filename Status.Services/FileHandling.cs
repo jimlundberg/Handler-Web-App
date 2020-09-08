@@ -34,8 +34,6 @@ namespace Status.Services
                 StaticClass.Logger.LogError("FileHandling destinationDI failed to instantiate");
             }
 
-            StaticClass.Log(String.Format("CopyFolderContents from {0} -> {1}", sourcePath, destinationPath));
-
             // If the destination directory does not exist, create it
             if (!destinationDI.Exists)
             {
@@ -86,6 +84,8 @@ namespace Status.Services
                     sourceDI.Delete();
                 }
             }
+
+            StaticClass.Log(String.Format("CopyFolderContents from {0} -> {1}", sourcePath, destinationPath));
         }
 
         /// <summary>
