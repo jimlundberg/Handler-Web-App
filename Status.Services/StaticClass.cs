@@ -94,10 +94,10 @@ namespace Status.Services
         /// <summary>
         /// Get the Job XML data 
         /// </summary>
-        /// <param name="scanType"></param>
         /// <param name="directory"></param>
         /// <param name="iniData"></param>
-        /// <returns></returns>
+        /// <param name="scanType"></param>
+        /// <returns>Job xml data</returns>
         public static JobXmlData GetJobXmlFileInfo(string directory, IniFileData iniData, DirectoryScanType scanType)
         {
             JobXmlData jobScanXmlData = new JobXmlData();

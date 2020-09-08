@@ -37,4 +37,19 @@
         INPUT_BUFFER,
         PROCESSING_BUFFER
     }
+
+    /// <summary>
+    /// Modeler Step State enum
+    /// </summary>
+    public enum ModelerStepState
+    {
+        NONE,
+        STEP_1,
+        STEP_2,
+        STEP_3,
+        STEP_4,
+        STEP_5,
+        STEP_6,
+        STEP_COMPLETE
+    };
 }
