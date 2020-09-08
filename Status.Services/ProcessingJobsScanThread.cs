@@ -117,7 +117,7 @@ namespace Status.Services
                     // Remove job run from Processing Job list
                     lock (ListLock)
                     {
-                        if (processingDirectoryInfoList.Remove(dirInfo))
+                        if (processingDirectoryInfoList.Remove(dirInfo) == false)
                         {
                             StaticClass.Logger.LogError("ProcessingJobsScanThread failed to remove Job {0} from Processing Job list", job);
                         }
@@ -206,7 +206,7 @@ namespace Status.Services
                     // Remove job run from Processing Job list
                     lock (ListLock)
                     {
-                        if (StaticClass.ProcessingJobsToRun.Remove(job))
+                        if (StaticClass.ProcessingJobsToRun.Remove(job) == false)
                         {
                             StaticClass.Logger.LogError("ProcessingJobsScanThread failed to remove Job {0} from Processing Job list", job);
                         }
