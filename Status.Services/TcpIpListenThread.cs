@@ -22,6 +22,7 @@ namespace Status.Services
         private static readonly string Message = "status";
         private static int Port = 0;
         private const int STARTING_TCP_IP_WAIT = 15000;
+        private const int NUM_TCP_IP_RETRIES = 240;
 
         /// <summary>
         /// Job Tcp/IP thread 
@@ -148,57 +149,82 @@ namespace Status.Services
 
                     // Check if TCP/IP stream is readable and data is available
                     int adjustableSleepTime = STARTING_TCP_IP_WAIT;
-                    if (stream.CanRead && stream.DataAvailable)
+                    int TcpIpRetryCount = 0;
+                    do
                     {
-                        // Buffers to store the response
-                        Byte[] recvData = new Byte[256];
-                        string responseData = String.Empty;
-                        int bytes = stream.Read(recvData, 0, recvData.Length);
-                        responseData = Encoding.ASCII.GetString(recvData, 0, bytes);
-
-                        StaticClass.Log(String.Format("Received: {0} from Job {1} on Port {2} at {3:HH:mm:ss.fff}",
-                            responseData, job, port, DateTime.Now));
-
-                        // Readjust sleep time according to Step number
-                        switch (responseData)
+                        if (stream.CanRead && stream.DataAvailable)
                         {
-                            case "Step 1 in process.":
-                                ModelerCurrentStepState = ModelerStepState.STEP_1;
-                                adjustableSleepTime = 15000;
-                                break;
+                            // Buffers to store the response
+                            Byte[] recvData = new Byte[256];
+                            string responseData = String.Empty;
+                            int bytes = stream.Read(recvData, 0, recvData.Length);
+                            responseData = Encoding.ASCII.GetString(recvData, 0, bytes);
 
-                            case "Step 2 in process.":
-                                ModelerCurrentStepState = ModelerStepState.STEP_2;
-                                adjustableSleepTime = 10000;
-                                break;
+                            StaticClass.Log(String.Format("Received: {0} from Job {1} on Port {2} at {3:HH:mm:ss.fff}",
+                                responseData, job, port, DateTime.Now));
 
-                            case "Step 3 in process.":
-                                ModelerCurrentStepState = ModelerStepState.STEP_3;
-                                adjustableSleepTime = 7500;
-                                break;
+                            // Readjust sleep time according to Step number
+                            switch (responseData)
+                            {
+                                case "Step 1 in process.":
+                                    ModelerCurrentStepState = ModelerStepState.STEP_1;
+                                    adjustableSleepTime = 15000;
+                                    break;
 
-                            case "Step 4 in process.":
-                                ModelerCurrentStepState = ModelerStepState.STEP_4;
-                                adjustableSleepTime = 5000;
-                                break;
+                                case "Step 2 in process.":
+                                    ModelerCurrentStepState = ModelerStepState.STEP_2;
+                                    adjustableSleepTime = 10000;
+                                    break;
 
-                            case "Step 5 in process.":
-                                ModelerCurrentStepState = ModelerStepState.STEP_5;
-                                adjustableSleepTime = 2500;
-                                break;
+                                case "Step 3 in process.":
+                                    ModelerCurrentStepState = ModelerStepState.STEP_3;
+                                    adjustableSleepTime = 7500;
+                                    break;
 
-                            case "Step 6 in process.":
-                                ModelerCurrentStepState = ModelerStepState.STEP_6;
-                                adjustableSleepTime = 250;
-                                break;
+                                case "Step 4 in process.":
+                                    ModelerCurrentStepState = ModelerStepState.STEP_4;
+                                    adjustableSleepTime = 5000;
+                                    break;
 
-                            case "Whole process done, socket closed.":
+                                case "Step 5 in process.":
+                                    ModelerCurrentStepState = ModelerStepState.STEP_5;
+                                    adjustableSleepTime = 2500;
+                                    break;
+
+                                case "Step 6 in process.":
+                                    ModelerCurrentStepState = ModelerStepState.STEP_6;
+                                    adjustableSleepTime = 250;
+                                    break;
+
+                                case "Whole process done, socket closed.":
+                                    ModelerCurrentStepState = ModelerStepState.STEP_COMPLETE;
+
+                                    StaticClass.Log(String.Format("TCP/IP for Job {0} on Port {1} received Modeler process done at {2:HH:mm:ss.fff}",
+                                        job, port, DateTime.Now));
+
+                                    StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                                        job, port, DateTime.Now));
+
+                                    // Set the TCP/IP Scan complete flag to signal the RunJob thread
+                                    StaticClass.TcpIpScanComplete[job] = true;
+
+                                    // Make sure to close TCP/IP socket
+                                    adjustableSleepTime = 0;
+                                    jobComplete = true;
+                                    break;
+
+                                default:
+                                    StaticClass.Logger.LogWarning("Received Weird Response: {0} from Job {1} on Port {2} at {3:HH:mm:ss.fff}",
+                                        responseData, job, port, DateTime.Now);
+                                    break;
+                            }
+
+                            // Backup check of the process complete string, even if it is concatenated with another string
+                            if (responseData.Contains("Whole process done, socket closed."))
+                            {
                                 ModelerCurrentStepState = ModelerStepState.STEP_COMPLETE;
 
-                                StaticClass.Log(String.Format("TCP/IP for Job {0} on Port {1} received Modeler process done at {2:HH:mm:ss.fff}",
-                                    job, port, DateTime.Now));
-
-                                StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                                StaticClass.Log(String.Format("TCP/IP for Job {0} on Port {1} received Modeler process complete at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
                                 // Set the TCP/IP Scan complete flag to signal the RunJob thread
@@ -207,87 +233,64 @@ namespace Status.Services
                                 // Make sure to close TCP/IP socket
                                 adjustableSleepTime = 0;
                                 jobComplete = true;
-                                break;
-
-                            default:
-                                StaticClass.Logger.LogWarning("Received Weird Response: {0} from Job {1} on Port {2} at {3:HH:mm:ss.fff}",
-                                    responseData, job, port, DateTime.Now);
-                                break;
-                        }
-
-                        // Backup check of the process complete string, even if it is concatenated with another string
-                        if (responseData.Contains("Whole process done, socket closed."))
-                        {
-                            ModelerCurrentStepState = ModelerStepState.STEP_COMPLETE;
-
-                            StaticClass.Log(String.Format("TCP/IP for Job {0} on Port {1} received Modeler process complete at {2:HH:mm:ss.fff}",
-                                job, port, DateTime.Now));
-
-                            // Set the TCP/IP Scan complete flag to signal the RunJob thread
-                            StaticClass.TcpIpScanComplete[job] = true;
-
-                            // Make sure to close TCP/IP socket
-                            adjustableSleepTime = 0;
-                            jobComplete = true;
-                        }
-
-                        // Check for Job timeout
-                        if ((DateTime.Now - monitorData.StartTime).TotalSeconds > StaticClass.MaxJobTimeLimitSeconds)
-                        {
-                            StaticClass.Log(String.Format("Job Timeout for Job {0} in state {1} at {2:HH:mm:ss.fff}",
-                                ModelerCurrentStepState, job, DateTime.Now));
-
-                            // Create job Timeout status
-                            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_START);
-
-                            // Set all flags to complete job Process
-                            StaticClass.ProcessingJobScanComplete[job] = true;
-                            StaticClass.TcpIpScanComplete[job] = true;
-                            StaticClass.ProcessingFileScanComplete[job] = true;
-
-                            // Wait a sec then shutdown the Modeler after completing job
-                            StaticClass.ProcessHandles[job].Kill();
-                            Thread.Sleep(5000);
-
-                            // Make sure to close TCP/IP socket
-                            jobComplete = true;
-                        }
-
-                        // Check if the shutdown flag is set, then exit method
-                        if (StaticClass.ShutdownFlag == true)
-                        {
-                            StaticClass.Log(String.Format("\nShutdown TcpIpListenThread Connect for Job {0} in state {1} on Port {2} at {3:HH:mm:ss.fff}",
-                                job, ModelerCurrentStepState, port, DateTime.Now));
-
-                            StaticClass.TcpIpScanComplete[job] = true;
-
-                            // Make sure to close TCP/IP socket
-                            jobComplete = true;
-                        }
-
-                        // Check if the pause flag is set, then wait for reset
-                        if (StaticClass.PauseFlag == true)
-                        {
-                            StaticClass.Log(String.Format("TcpIpListenThread Connect3 is in Pause mode in state {0} at {1:HH:mm:ss.fff}",
-                                ModelerCurrentStepState, DateTime.Now));
-                            do
-                            {
-                                Thread.Yield();
                             }
-                            while (StaticClass.PauseFlag == true);
+
+                            // Check for Job timeout
+                            if ((DateTime.Now - monitorData.StartTime).TotalSeconds > StaticClass.MaxJobTimeLimitSeconds)
+                            {
+                                StaticClass.Log(String.Format("Job Timeout for Job {0} in state {1} at {2:HH:mm:ss.fff}",
+                                    ModelerCurrentStepState, job, DateTime.Now));
+
+                                // Create job Timeout status
+                                StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_START);
+
+                                // Set all flags to complete job Process
+                                StaticClass.ProcessingJobScanComplete[job] = true;
+                                StaticClass.TcpIpScanComplete[job] = true;
+                                StaticClass.ProcessingFileScanComplete[job] = true;
+
+                                // Wait a sec then shutdown the Modeler after completing job
+                                StaticClass.ProcessHandles[job].Kill();
+                                Thread.Sleep(5000);
+
+                                // Make sure to close TCP/IP socket
+                                jobComplete = true;
+                            }
+
+                            // Check if the shutdown flag is set, then exit method
+                            if (StaticClass.ShutdownFlag == true)
+                            {
+                                StaticClass.Log(String.Format("\nShutdown TcpIpListenThread Connect for Job {0} in state {1} on Port {2} at {3:HH:mm:ss.fff}",
+                                    job, ModelerCurrentStepState, port, DateTime.Now));
+
+                                StaticClass.TcpIpScanComplete[job] = true;
+
+                                // Make sure to close TCP/IP socket
+                                jobComplete = true;
+                            }
+
+                            // Check if the pause flag is set, then wait for reset
+                            if (StaticClass.PauseFlag == true)
+                            {
+                                StaticClass.Log(String.Format("TcpIpListenThread Connect3 is in Pause mode in state {0} at {1:HH:mm:ss.fff}",
+                                    ModelerCurrentStepState, DateTime.Now));
+                                do
+                                {
+                                    Thread.Yield();
+                                }
+                                while (StaticClass.PauseFlag == true);
+                            }
+
+                            // Wait for an adjustable time between TCP/IP status requests
+                            Thread.Sleep(adjustableSleepTime);
                         }
-
-                        // Wait for an adjustable time between TCP/IP status requests
-                        Thread.Sleep(adjustableSleepTime);
+                        
+                        // Pause between checks of TCP/IP stream CanRead & DataAvailable flags
+                        Thread.Sleep(250);
                     }
-                    else
-                    {
-                        StaticClass.Logger.LogError("TCP/IP stream Error with CanRead = {0} or DataAvailable = {1} in state {2} at {3:HH:mm:ss.fff}",
-                            stream.CanRead, stream.DataAvailable, ModelerCurrentStepState, DateTime.Now);
+                    // In 60 seconds it will send the status request again
+                    while (TcpIpRetryCount++ < NUM_TCP_IP_RETRIES);
 
-                        // Wait for an adjustable time between TCP/IP error checks
-                        Thread.Sleep(adjustableSleepTime);
-                    }
                 }
                 while (jobComplete == false);
 
