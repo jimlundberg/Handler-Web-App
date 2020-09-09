@@ -61,23 +61,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Input directory scan complete callback
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public static void Input_fileScan_FilesFound(object sender, EventArgs e)
-        {
-            string job = e.ToString();
-
-            // Send message after receiving Input Buffer file scan loop complete
-            StaticClass.Log(String.Format("Input_fileScan_FilesFound Received required for Job {0} at {1:HH:mm:ss.fff}",
-               job, DateTime.Now));
-
-            // Set Flag for ending Input file scan loop
-            StaticClass.InputFileScanComplete[job] = true;
-        }
-
-        /// <summary>
         /// Processing directory scan complete callback
         /// </summary>
         /// <param name="sender"></param>
@@ -209,7 +192,6 @@ namespace Status.Services
                     {
                         StaticClass.Logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
                     }
-                    inputFileWatch.ProcessCompleted += Input_fileScan_FilesFound;
                     inputFileWatch.ThreadProc();
 
                     // Wait for Input file scan to complete
