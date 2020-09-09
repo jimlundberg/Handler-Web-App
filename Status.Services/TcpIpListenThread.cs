@@ -262,7 +262,7 @@ namespace Status.Services
                                 StaticClass.TcpIpScanComplete[job] = true;
                                 StaticClass.ProcessingFileScanComplete[job] = true;
 
-                                // Wait a sec then shutdown the Modeler after completing job
+                                // Wait a sec then shutdown the Modeler after job timeout
                                 StaticClass.ProcessHandles[job].Kill();
                                 Thread.Sleep(StaticClass.KILL_PROCESS_WAIT);
 

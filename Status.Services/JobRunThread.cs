@@ -422,7 +422,7 @@ namespace Status.Services
                 // Copy the Transfered files to the Error directory 
                 foreach (string file in monitorData.TransferedFileList)
                 {
-                    if (File.Exists(file))
+                    if (File.Exists(processingBufferJobDir + @"\" + file))
                     {
                         FileHandling.CopyFile(processingBufferJobDir + @"\" + file, errorJobDirectoryName + @"\" + file);
                     }
