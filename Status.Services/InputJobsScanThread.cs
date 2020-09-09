@@ -15,6 +15,7 @@ namespace Status.Services
     {
         private readonly IniFileData IniData;
         private readonly List<StatusData> StatusDataList;
+        private static readonly Object RemoveLock = new Object();
         private static readonly Object ListLock = new Object();
 
         /// <summary>
@@ -134,7 +135,7 @@ namespace Status.Services
                     StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                     // Remove job run from Input Job directory list
-                    lock (ListLock)
+                    lock (RemoveLock)
                     {
                         if (inputDirectoryInfoList.Remove(dirInfo) == false)
                         {
@@ -212,32 +213,35 @@ namespace Status.Services
         /// <param name="statusData"></param>
         public void RunInputJobsFound(IniFileData iniData, List<StatusData> statusData)
         {
-            // Check if there are unfinished Input jobs waiting to run
-            foreach (string job in StaticClass.InputJobsToRun.Reverse<string>())
+            lock (ListLock)
             {
-                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                // Check if there are unfinished Input jobs waiting to run
+                foreach (string job in StaticClass.InputJobsToRun.Reverse<string>())
                 {
-                    string directory = iniData.InputDir + @"\" + job;
-
-                    StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
-
-                    // Remove job run from Input Job list
-                    lock (ListLock)
+                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                     {
-                        if (StaticClass.InputJobsToRun.Remove(job) == false)
+                        string directory = iniData.InputDir + @"\" + job;
+
+                        StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+
+                        // Remove job run from Input Job list
+                        lock (RemoveLock)
                         {
-                            StaticClass.Logger.LogError("InputJobsScanThread failed to remove Job {0} from Input Job list", job);
+                            if (StaticClass.InputJobsToRun.Remove(job) == false)
+                            {
+                                StaticClass.Logger.LogError("InputJobsScanThread failed to remove Job {0} from Input Job list", job);
+                            }
                         }
+
+                        // Reset Input job file scan flag
+                        StaticClass.InputFileScanComplete[job] = false;
+
+                        // Start an Input Buffer Job
+                        StartInputJob(directory, iniData, statusData);
+
+                        // Throttle the Job startups
+                        Thread.Sleep(StaticClass.ScanWaitTime);
                     }
-
-                    // Reset Input job file scan flag
-                    StaticClass.InputFileScanComplete[job] = false;
-
-                    // Start an Input Buffer Job
-                    StartInputJob(directory, iniData, statusData);
-
-                    // Throttle the Job startups
-                    Thread.Sleep(StaticClass.ScanWaitTime);
                 }
             }
         }
