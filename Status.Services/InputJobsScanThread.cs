@@ -34,45 +34,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Processing complete callback
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public static void currentInputJob_ProcessCompleted(object sender, EventArgs e)
-        {
-            string job = e.ToString();
-
-            StaticClass.Log(String.Format("\nCurrent Input Job Scan detected Input Job {0} complete at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
-        }
-
-        /// <summary>
-        /// Processing complete callback
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public static void jobRun_ProcessCompleted(object sender, EventArgs e)
-        {
-            string job = e.ToString();
-
-            StaticClass.Log(String.Format("\nCurrent Input Job Scan detectd Process Job {0} complete at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
-        }
-
-        /// <summary>
-        /// Processing complete callback
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public static void newJob_DirectoryFound(object sender, EventArgs e)
-        {
-            string job = e.ToString();
-
-            StaticClass.Log(String.Format("\nCurrent Directory Scan detected Input Job {0} at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
-        }
-
-        /// <summary>
         /// A Thread procedure that scans for new jobs
         /// </summary>
         public void ThreadProc()
@@ -104,7 +65,6 @@ namespace Status.Services
             {
                 StaticClass.Logger.LogError("InputJobsScanThread dirWatch failed to instantiate");
             }
-            dirWatch.ProcessCompleted += newJob_DirectoryFound;
             dirWatch.ThreadProc();
 
             // Register with the Processing Buffer Jobs check completion event and start its thread
@@ -113,7 +73,6 @@ namespace Status.Services
             {
                 StaticClass.Logger.LogError("InputJobsScanThread currentProcessingJobs failed to instantiate");
             }
-            unfinishedProcessingJobs.ProcessCompleted += currentInputJob_ProcessCompleted;
             unfinishedProcessingJobs.ThreadProc();
 
             // Wait while scanning for unfinished Processing jobs
@@ -314,7 +273,6 @@ namespace Status.Services
             {
                 StaticClass.Logger.LogError("InputJobsScanThread jobRunThread failed to instantiate");
             }
-            jobRunThread.ProcessCompleted += jobRun_ProcessCompleted;
             jobRunThread.ThreadProc();
         }
     }

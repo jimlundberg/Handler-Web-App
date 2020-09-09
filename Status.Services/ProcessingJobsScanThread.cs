@@ -45,19 +45,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Processing complete callback
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public static void jobRun_ProcessCompleted(object sender, EventArgs e)
-        {
-            string job = e.ToString();
-
-            StaticClass.Log(String.Format("\nCurrent Process Job Scan Received Process Job {0} complete at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
-        }
-
-        /// <summary>
         /// A Thread procedure that scans for unfinished Processing jobs
         /// </summary>
         public void ThreadProc()
@@ -263,7 +250,6 @@ namespace Status.Services
             {
                 StaticClass.Logger.LogError("ProcessingJobsScanThread jobRunThread failed to instantiate");
             }
-            jobRunThread.ProcessCompleted += jobRun_ProcessCompleted;
             jobRunThread.ThreadProc();
         }
     }

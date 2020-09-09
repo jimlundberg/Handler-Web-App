@@ -108,22 +108,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// TCP/IP Scan Complete
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public static void TcpIp_ScanCompleted(object sender, EventArgs e)
-        {
-            string job = e.ToString();
-
-            StaticClass.Log(String.Format("InputFileWatcherThread received TCP/IP Scan Completed for Job {0} at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
-
-            // Signal that the TCP/IP scan for a job is complete
-            StaticClass.TcpIpScanComplete[job] = true;
-        }
-
-        /// <summary>
         /// Monitor a Directory for a selected number of files with a timeout
         /// </summary>
         /// <param name="directory"></param>

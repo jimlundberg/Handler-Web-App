@@ -95,21 +95,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// TCP/IP Scan Complete callback
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public static void TcpIp_ScanCompleted(object sender, EventArgs e)
-        {
-            string job = e.ToString();
-
-            StaticClass.Log(String.Format("Processing File Watcher received TCP/IP Scan Completed for Job {0} at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
-
-            StaticClass.TcpIpScanComplete[job] = true;
-        }
-
-        /// <summary>
         /// Run a job from Input or Processing Buffers
         /// </summary>
         /// <param name="dirScanType"></param>
@@ -330,7 +315,6 @@ namespace Status.Services
             {
                 StaticClass.Logger.LogError("ProcessingFileWatcherThread tcpIp thread failed to instantiate");
             }
-            tcpIp.ProcessCompleted += TcpIp_ScanCompleted;
             tcpIp.ThreadProc();
 
             // Add entry to status list
