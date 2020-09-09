@@ -167,11 +167,15 @@ namespace Status.Services
             {
                 string directory = dirInfo.ToString();
                 string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
+
+                lock (ListLock)
+                {
+                    StaticClass.InputJobsToRun.Add(job);
+                }
+
                 int index = StaticClass.InputJobsToRun.IndexOf(job);
                 StaticClass.Log(String.Format("\nUnfinished Input Jobs Scan adding new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
                     job, index, DateTime.Now));
-
-                StaticClass.InputJobsToRun.Add(job);
             }
 
             // Clear the Directory Info List after done with it

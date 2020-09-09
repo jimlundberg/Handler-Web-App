@@ -15,6 +15,7 @@ namespace Status.Services
         private readonly string DirectoryName;
         private readonly IniFileData IniData;
         public event EventHandler ProcessCompleted;
+        private static readonly Object ListLock = new Object();
 
         /// <summary>
         /// New Jobs directory Scan Thread constructor receiving data buffers
@@ -62,11 +63,14 @@ namespace Status.Services
             // Add only new jobs found to the Input Jobs list
             if (StaticClass.InputJobsToRun.Contains(job) == false)
             {
+                lock (ListLock)
+                {
+                    StaticClass.InputJobsToRun.Add(job);
+                }
+
                 int index = StaticClass.InputJobsToRun.IndexOf(job);
                 StaticClass.Log(String.Format("\nInput Directory Watcher adding new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",
                     job, index, DateTime.Now));
-
-                StaticClass.InputJobsToRun.Add(job);
             }
         }
 
