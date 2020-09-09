@@ -62,12 +62,12 @@ namespace Status.Services
             // Add only new jobs found to the Input Jobs list
             if (StaticClass.InputJobsToRun.Contains(job) == false)
             {
+                int index = StaticClass.InputJobsToRun.IndexOf(job);
+                StaticClass.Log(String.Format("\nInput Directory Watcher adding new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",
+                    job, index, DateTime.Now));
+
                 StaticClass.InputJobsToRun.Add(job);
             }
-
-            int index = StaticClass.InputJobsToRun.IndexOf(job);
-            StaticClass.Log(String.Format("\nInput Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",
-                job, index, DateTime.Now));
         }
 
         /// <summary>
