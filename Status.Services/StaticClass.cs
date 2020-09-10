@@ -42,7 +42,6 @@ namespace Status.Services
         public static volatile bool PauseFlag = false;
         public static volatile bool UnfinishedProcessingJobsScanComplete = false;
         
-        public static List<string> InputJobsToRun = new List<String>();
 		public static List<string> ProcessingJobsToRun = new List<String>();
 
         public static Dictionary<string, DateTime> JobStartTime = new Dictionary<string, DateTime>();
@@ -61,6 +60,7 @@ namespace Status.Services
 
         internal static LoggingToFile FileLoggerObject;
         internal static ILogger<StatusRepository> Logger;
+        internal static SynchronizedCache InputJobsToRun = new SynchronizedCache();
 
         /// <summary>
         /// Global log to file method

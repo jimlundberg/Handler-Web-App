@@ -160,7 +160,6 @@ namespace Status.Services
 
             // Clear the Dictionaries after Modeler shutdowns complete
             StaticClass.ProcessHandles.Clear();
-            StaticClass.InputJobsToRun.Clear();
             StaticClass.ProcessingJobsToRun.Clear();
             StaticClass.ProcessHandles.Clear();
             StaticClass.InputFileScanComplete.Clear();

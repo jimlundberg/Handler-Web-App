@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Security.Permissions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -59,19 +60,22 @@ namespace Status.Services
         {
             string jobDirectory = e.FullPath;
             string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
+            int index = 0;
 
-            // Add only new jobs found to the Input Jobs list
-            if (StaticClass.InputJobsToRun.Contains(job) == false)
+            Task AddTask = Task.Run(() =>
             {
-                lock (ListLock)
-                {
-                    StaticClass.InputJobsToRun.Add(job);
-                }
+                index = StaticClass.InputJobsToRun.Count + 1;
+                StaticClass.InputJobsToRun.Add(index, job);
+            });
 
-                int index = StaticClass.InputJobsToRun.IndexOf(job);
-                StaticClass.Log(String.Format("\nInput Directory Watcher adding new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",
-                    job, index, DateTime.Now));
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(150);
+            if (!AddTask.Wait(timeSpan))
+            {
+                Console.WriteLine("The timeout interval elapsed.");
             }
+
+            StaticClass.Log(String.Format("\nInput Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",
+                job, index, DateTime.Now));
         }
 
         /// <summary>
