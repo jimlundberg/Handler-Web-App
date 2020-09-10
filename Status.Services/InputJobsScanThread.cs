@@ -58,9 +58,6 @@ namespace Status.Services
         /// <param name="statusData"></param>
         public void CheckForUnfinishedInputJobs(IniFileData iniData, List<StatusData> statusData)
         {
-            // Check and delete expired Input Buffer job directories first
-            StaticClass.CheckForInputBufferTimeLimits(iniData);
-
             // Start the Directory Watcher class to scan for new Input Buffer jobs
             DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(iniData);
             if (dirWatch == null)
