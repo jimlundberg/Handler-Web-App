@@ -166,6 +166,9 @@ namespace Status.Services
                     string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
                     int index = 0;
 
+                    StaticClass.Log(String.Format("\nUnfinished Input Jobs Scan adding new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
+                        job, index, DateTime.Now));
+
                     Task AddTask = Task.Run(() =>
                     {
                         index = StaticClass.InputJobsToRun.Count + 1;
@@ -177,9 +180,6 @@ namespace Status.Services
                     {
                         StaticClass.Logger.LogError("InputJobScanThread Add Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
                     }
-
-                    StaticClass.Log(String.Format("\nUnfinished Input Jobs Scan adding new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
-                        job, index, DateTime.Now));
                 }
 
                 // Clear the Directory Info List after done with it

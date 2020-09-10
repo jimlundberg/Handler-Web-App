@@ -62,6 +62,9 @@ namespace Status.Services
             string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
             int index = 0;
 
+            StaticClass.Log(String.Format("\nInput Directory Watcher adding new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",
+                job, index, DateTime.Now));
+
             Task AddTask = Task.Run(() =>
             {
                 index = StaticClass.InputJobsToRun.Count + 1;
@@ -73,9 +76,6 @@ namespace Status.Services
             {
                 StaticClass.Logger.LogError("DirectoryWatcherThread Add Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
             }
-
-            StaticClass.Log(String.Format("\nInput Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",
-                job, index, DateTime.Now));
         }
 
         /// <summary>
