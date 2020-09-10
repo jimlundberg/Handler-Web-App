@@ -221,10 +221,10 @@ namespace Status.Services
                                     // Set the TCP/IP Scan complete flag to signal the RunJob thread
                                     StaticClass.TcpIpScanComplete[job] = true;
 
-                                    // Make sure to close TCP/IP socket
-                                    adjustableSleepTime = 0;
-                                    jobComplete = true;
-                                    break;
+                                    // Make sure to close TCP/IP socket and return immediately
+                                    stream.Close();
+                                    client.Close();
+                                    return;
 
                                 default:
                                     StaticClass.Logger.LogWarning("Received Weird Response: {0} from Job {1} on Port {2} at {3:HH:mm:ss.fff}",
@@ -243,9 +243,10 @@ namespace Status.Services
                                 // Set the TCP/IP Scan complete flag to signal the RunJob thread
                                 StaticClass.TcpIpScanComplete[job] = true;
 
-                                // Make sure to close TCP/IP socket
-                                adjustableSleepTime = 0;
-                                jobComplete = true;
+                                // Make sure to close TCP/IP socket and return immediately
+                                stream.Close();
+                                client.Close();
+                                return;
                             }
 
                             // Check for Job timeout
