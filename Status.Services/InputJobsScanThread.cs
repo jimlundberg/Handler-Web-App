@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -157,31 +158,36 @@ namespace Status.Services
             if (inputDirectoryInfoList.Count > 0)
             {
                 StaticClass.Log("\nMore unfinished Input Jobs then Execution Slots available...");
-            }
 
-            // Sort the Input Buffer directory list by older dates first
-            inputDirectoryInfoList.Sort((x, y) => -x.LastAccessTime.CompareTo(y.LastAccessTime));
+                // Sort the Input Buffer directory list by older dates first
+                inputDirectoryInfoList.Sort((x, y) => -x.LastAccessTime.CompareTo(y.LastAccessTime));
 
-            // Add the jobs in the directory list to the Input Buffer Jobs to run list
-            foreach (DirectoryInfo dirInfo in inputDirectoryInfoList)
-            {
-                string directory = dirInfo.ToString();
-                string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
-
-                lock (ListLock)
+                Task RunTask = Task.Run(() =>
                 {
-                    StaticClass.InputJobsToRun.Add(job);
+                    // Add the jobs in the directory list to the Input Buffer Jobs to run list
+                    for (int i = 1; i <= inputDirectoryInfoList.Count; i++)
+                    {
+                        string directory = inputDirectoryInfoList[i].FullName;
+                        string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
+
+                        StaticClass.InputjobsToRun.Add(i, job);
+
+                        StaticClass.Log(String.Format("\nUnfinished Input Jobs Scan adding new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
+                            job, i, DateTime.Now));
+                    }
+                });
+
+                TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.INPUT_FILE_WAIT);
+                if (!RunTask.Wait(timeSpan))
+                {
+                    StaticClass.Logger.LogError("InputJobsScanThread RunInputJobsFound failed run Job");
                 }
 
-                int index = StaticClass.InputJobsToRun.IndexOf(job);
-                StaticClass.Log(String.Format("\nUnfinished Input Jobs Scan adding new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
-                    job, index, DateTime.Now));
+                // Clear the Directory Info List after done with it
+                inputDirectoryInfoList.Clear();
             }
 
-            // Clear the Directory Info List after done with it
-            inputDirectoryInfoList.Clear();
-
-            StaticClass.Log("\nStarted Watching for new Input Jobs...");
+            StaticClass.Log("\nWatching for new Input Jobs...");
 
             // Run new Input Job watch loop here forever
             do
@@ -217,36 +223,33 @@ namespace Status.Services
         /// <param name="statusData"></param>
         public void RunInputJobsFound(IniFileData iniData, List<StatusData> statusData)
         {
-            lock (ListLock)
+            Task RunTask = Task.Run(() =>
             {
                 // Check if there are unfinished Input jobs waiting to run
-                foreach (string job in StaticClass.InputJobsToRun.Reverse<string>())
+                for (int i = 1; i <= StaticClass.InputjobsToRun.Count; i++)
                 {
                     if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                     {
+                        string job = StaticClass.InputjobsToRun.Read(i);
                         string directory = iniData.InputDir + @"\" + job;
 
-                        StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                        StaticClass.InputjobsToRun.Delete(i);
 
-                        // Remove job run from Input Job list
-                        lock (RemoveLock)
-                        {
-                            if (StaticClass.InputJobsToRun.Remove(job) == false)
-                            {
-                                StaticClass.Logger.LogError("InputJobsScanThread failed to remove Job {0} from Input Job list", job);
-                            }
-                        }
+                        StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                         // Reset Input job file scan flag
                         StaticClass.InputFileScanComplete[job] = false;
 
                         // Start an Input Buffer Job
                         StartInputJob(directory, iniData, statusData);
-
-                        // Throttle the Job startups
-                        Thread.Sleep(StaticClass.ScanWaitTime);
                     }
                 }
+            });
+
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ScanWaitTime);
+            if (!RunTask.Wait(timeSpan))
+            {
+                StaticClass.Logger.LogError("InputJobsScanThread RunInputJobsFound failed run Job");
             }
         }
 

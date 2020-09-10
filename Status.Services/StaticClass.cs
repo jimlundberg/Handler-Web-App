@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Handler.Services;
+using Microsoft.Extensions.Logging;
 using Status.Models;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ namespace Status.Services
         public const int SHUTDOWN_PROCESS_WAIT = 5000;
         public const int READ_AVAILABLE_RETRY_DELAY = 250;
         public const int FILE_WAIT_DELAY = 10;
+        public const int INPUT_FILE_WAIT = 250;
         public const int NUM_TCP_IP_RETRIES = 240;
 
         public static double MaxJobTimeLimitSeconds = 0.0;
@@ -42,9 +44,6 @@ namespace Status.Services
         public static volatile bool PauseFlag = false;
         public static volatile bool UnfinishedProcessingJobsScanComplete = false;
         
-        public static List<string> InputJobsToRun = new List<String>();
-		public static List<string> ProcessingJobsToRun = new List<String>();
-
         public static Dictionary<string, DateTime> JobStartTime = new Dictionary<string, DateTime>();
         public static Dictionary<string, bool> InputFileScanComplete = new Dictionary<string, bool>();
         public static Dictionary<string, bool> InputJobScanComplete = new Dictionary<string, bool>();
@@ -61,6 +60,8 @@ namespace Status.Services
 
         internal static LoggingToFile FileLoggerObject;
         internal static ILogger<StatusRepository> Logger;
+        internal static List<string> ProcessingJobsToRun = new List<String>();
+        internal static SynchronizedCache InputjobsToRun = new SynchronizedCache();
 
         /// <summary>
         /// Global log to file method

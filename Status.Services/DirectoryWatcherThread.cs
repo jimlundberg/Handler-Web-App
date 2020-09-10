@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Security.Permissions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -57,20 +58,23 @@ namespace Status.Services
         /// <param name="e"></param>
         public void OnCreated(object source, FileSystemEventArgs e)
         {
-            string jobDirectory = e.FullPath;
-            string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
-
-            // Add only new jobs found to the Input Jobs list
-            if (StaticClass.InputJobsToRun.Contains(job) == false)
+            Task RunTask = Task.Run(() =>
             {
-                lock (ListLock)
-                {
-                    StaticClass.InputJobsToRun.Add(job);
-                }
+                string jobDirectory = e.FullPath;
+                string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
+                string directory = IniData.InputDir + @"\" + job;
+                int index = StaticClass.InputjobsToRun.Count + 1;
 
-                int index = StaticClass.InputJobsToRun.IndexOf(job);
+                StaticClass.InputjobsToRun.Add(index, job);
+
                 StaticClass.Log(String.Format("\nInput Directory Watcher adding new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",
                     job, index, DateTime.Now));
+            });
+
+            TimeSpan ts = TimeSpan.FromMilliseconds(StaticClass.INPUT_FILE_WAIT);
+            if (!RunTask.Wait(ts))
+            {
+                StaticClass.Logger.LogError("InputJobsScanThread RunInputJobsFound failed run Job");
             }
         }
 
@@ -117,9 +121,6 @@ namespace Status.Services
 
                 // Begin watching for directory changes to Input directory
                 watcher.EnableRaisingEvents = true;
-
-                StaticClass.Log(String.Format("\nDirectory Watcher watching directory {0} at {1:HH:mm:ss.fff}",
-                    directory, DateTime.Now));
 
                 // Scan Input directory forever
                 do
