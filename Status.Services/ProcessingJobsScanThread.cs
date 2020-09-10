@@ -158,9 +158,8 @@ namespace Status.Services
                         // Sychronized Add of Job to Processing Buffer Job list
                         sc.Add(i, job);
 
-                        int index = StaticClass.ProcessingJobsToRun.IndexOf(job);
                         StaticClass.Log(String.Format("\nUnfinished Processing Jobs Scan adding new Job {0} to Processing Job List index {1} at {2:HH:mm:ss.fff}",
-                            job, index, DateTime.Now));
+                            job, i, DateTime.Now));
                     }
                 });
 

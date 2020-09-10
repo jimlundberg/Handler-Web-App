@@ -189,9 +189,8 @@ namespace Status.Services
                         // Sychronized Add of Job to Input Buffer Job list
                         sc.Add(i, job);
 
-                        int index = StaticClass.InputJobsToRun.IndexOf(job);
                         StaticClass.Log(String.Format("\nUnfinished Input Jobs Scan adding new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
-                            job, index, DateTime.Now));
+                            job, i, DateTime.Now));
                     }
                 });
 
