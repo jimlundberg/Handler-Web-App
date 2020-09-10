@@ -16,7 +16,6 @@ namespace Status.Services
         private readonly string DirectoryName;
         private readonly IniFileData IniData;
         public event EventHandler ProcessCompleted;
-        private static readonly Object ListLock = new Object();
 
         /// <summary>
         /// Directory Watcher thread default constructor
@@ -74,21 +73,21 @@ namespace Status.Services
         /// <param name="e"></param>
         public void OnCreated(object source, FileSystemEventArgs e)
         {
+            string jobDirectory = e.FullPath;
+            string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
+            string directory = IniData.InputDir + @"\" + job;
+            int index = StaticClass.InputjobsToRun.Count + 1;
+
+            StaticClass.Log(String.Format("\nInput Directory Watcher adding new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",
+                job, index, DateTime.Now));
+
             Task RunTask = Task.Run(() =>
             {
-                string jobDirectory = e.FullPath;
-                string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
-                string directory = IniData.InputDir + @"\" + job;
-                int index = StaticClass.InputjobsToRun.Count + 1;
-
                 StaticClass.InputjobsToRun.Add(index, job);
-
-                StaticClass.Log(String.Format("\nInput Directory Watcher adding new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",
-                    job, index, DateTime.Now));
             });
 
-            TimeSpan ts = TimeSpan.FromMilliseconds(StaticClass.INPUT_FILE_WAIT);
-            if (!RunTask.Wait(ts))
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.INPUT_FILE_WAIT);
+            if (!RunTask.Wait(timeSpan))
             {
                 StaticClass.Logger.LogError("InputJobsScanThread RunInputJobsFound failed run Job");
             }
