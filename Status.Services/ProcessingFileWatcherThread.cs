@@ -43,7 +43,7 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
-        public ProcessingFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData)
+        public ProcessingFileWatcherThread(string directory, StatusMonitorData monitorData, IniFileData iniData)
         {
             DirectoryName = directory;
             IniData = iniData;
@@ -54,7 +54,7 @@ namespace Status.Services
                 StaticClass.Logger.LogError("ProcessingFileWatcherThread ProcessingJobInfo failed to instantiate");
             }
             StaticClass.NumberOfProcessingFilesFound[Job] = ProcessingJobInfo.GetFiles().Length;
-            StaticClass.NumberOfProcessingFilesNeeded[Job] = numberOfFilesNeeded;
+            StaticClass.NumberOfProcessingFilesNeeded[Job] = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             StaticClass.TcpIpScanComplete[Job] = false;
             StaticClass.ProcessingFileScanComplete[Job] = false;
             StaticClass.ProcessingJobScanComplete[Job] = false;

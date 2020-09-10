@@ -44,7 +44,7 @@ namespace Status.Services
             DirectoryName = directory;
             IniData = iniData;
             Job = directory.Replace(iniData.InputDir, "").Remove(0, 1);
-            DirectoryInfo InputJobInfo = new DirectoryInfo(DirectoryName);
+            DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
             if (InputJobInfo == null)
             {
                 StaticClass.Logger.LogError("InputFileWatcherThread InputJobInfo failed to instantiate");
