@@ -215,15 +215,15 @@ namespace Status.Services
                                     StaticClass.Log(String.Format("TCP/IP for Job {0} on Port {1} received Modeler process done at {2:HH:mm:ss.fff}",
                                         job, port, DateTime.Now));
 
-                                    StaticClass.Log(String.Format("Closing TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                                    // Make sure to close TCP/IP socket
+                                    stream.Close();
+                                    client.Close();
+
+                                    StaticClass.Log(String.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                                         job, port, DateTime.Now));
 
                                     // Set the TCP/IP Scan complete flag to signal the RunJob thread
                                     StaticClass.TcpIpScanComplete[job] = true;
-
-                                    // Make sure to close TCP/IP socket and return immediately
-                                    stream.Close();
-                                    client.Close();
                                     return;
 
                                 default:
@@ -240,12 +240,15 @@ namespace Status.Services
                                 StaticClass.Log(String.Format("TCP/IP for Job {0} on Port {1} received Modeler process complete at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
-                                // Set the TCP/IP Scan complete flag to signal the RunJob thread
-                                StaticClass.TcpIpScanComplete[job] = true;
-
-                                // Make sure to close TCP/IP socket and return immediately
+                                // Make sure to close TCP/IP socket
                                 stream.Close();
                                 client.Close();
+
+                                StaticClass.Log(String.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                                    job, port, DateTime.Now));
+
+                                // Set the TCP/IP Scan complete flag to signal the RunJob thread
+                                StaticClass.TcpIpScanComplete[job] = true;
                                 return;
                             }
 
