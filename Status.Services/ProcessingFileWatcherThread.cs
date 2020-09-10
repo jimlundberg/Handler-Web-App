@@ -15,8 +15,6 @@ namespace Status.Services
     public class ProcessingFileWatcherThread
     {
         private readonly IniFileData IniData;
-        private readonly StatusMonitorData MonitorData;
-        private readonly List<StatusData> StatusDataList;
         private readonly string DirectoryName;
         private readonly string Job;
         public event EventHandler ProcessCompleted;
@@ -29,15 +27,16 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
-        public ProcessingFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData,
-            StatusMonitorData monitorData, List<StatusData> statusData)
+        public ProcessingFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData)
         {
             DirectoryName = directory;
             IniData = iniData;
-            MonitorData = monitorData;
-            StatusDataList = statusData;
-            Job = monitorData.Job;
+            Job = directory.Replace(iniData.InputDir, "").Remove(0, 1);
             DirectoryInfo ProcessingJobInfo = new DirectoryInfo(directory);
+            if (ProcessingJobInfo == null)
+            {
+                StaticClass.Logger.LogError("ProcessingFileWatcherThread ProcessingJobInfo failed to instantiate");
+            }
             StaticClass.NumberOfProcessingFilesFound[Job] = ProcessingJobInfo.GetFiles().Length;
             StaticClass.NumberOfProcessingFilesNeeded[Job] = numberOfFilesNeeded;
             StaticClass.TcpIpScanComplete[Job] = false;
@@ -168,8 +167,6 @@ namespace Status.Services
         /// </summary>
         /// <param name="directory"></param>
         /// <param name="iniData"></param>
-        /// <param name="monitorData"></param>
-        /// <param name="statusData"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public void WatchFiles(string directory, IniFileData iniData)
         {

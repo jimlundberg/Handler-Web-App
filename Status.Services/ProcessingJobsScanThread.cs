@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.Extensions.Logging;
 using Status.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -16,13 +18,22 @@ namespace Status.Services
         private readonly IniFileData IniData;
         private readonly List<StatusData> StatusDataList;
         public event EventHandler ProcessCompleted;
-        private static readonly Object RemoveLock = new Object();
-        private static readonly Object ListLock = new Object();
 
         /// <summary>
         /// Current Processing Jobs Scan thread default constructor
         /// </summary>
-        public ProcessingJobsScanThread() { }
+        public ProcessingJobsScanThread()
+        {
+            StaticClass.Logger.LogInformation("ProcessingJobsScanThread default constructor called");
+        }
+
+        /// <summary>
+        /// Current Processing Jobs Scan thread default destructor
+        /// </summary>
+        ~ProcessingJobsScanThread()
+        {
+            StaticClass.Logger.LogInformation("ProcessingJobsScanThread default destructor called");
+        }
 
         /// <summary>
         /// Old Jobs Scan Thread constructor receiving data buffers
@@ -92,35 +103,39 @@ namespace Status.Services
                 StaticClass.Log("\nNo unfinished Processing Jobs waiting...");
             }
 
-            // Start the jobs in the directory list found for the Processing Buffer
-            foreach (DirectoryInfo dirInfo in processingDirectoryInfoList.Reverse<DirectoryInfo>())
+            // Do Synchronized add of jobs to Processing Job List
+            CancellationTokenSource ts = new CancellationTokenSource();
+            SynchronizedCache sc = new SynchronizedCache();
+            Task runTask = Task.Run(() =>
             {
-                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                // Add the jobs in the directory list to the Processing Buffer Jobs to run list
+                for (int i = 1; i <= processingDirectoryInfoList.Count; i++)
                 {
-                    string directory = dirInfo.ToString();
-                    string job = directory.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
-
-                    StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
-
-                    // Remove job run from Processing Job list
-                    lock (RemoveLock)
+                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                     {
-                        if (processingDirectoryInfoList.Remove(dirInfo) == false)
-                        {
-                            StaticClass.Logger.LogError("ProcessingJobsScanThread failed to remove Job {0} from Processing Job list", job);
-                        }
+                        DirectoryInfo dirInfo = processingDirectoryInfoList[i];
+                        string directory = dirInfo.Name;
+                        string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+
+                        StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+
+                        // Clear Processing Job file scan flag to start job
+                        StaticClass.ProcessingFileScanComplete[job] = false;
+
+                        // Start an Processing Buffer Job
+                        StartProcessingJob(directory, iniData, statusData);
+
+                        // Remove Job run from Processing Job list
+                        sc.Delete(i);
+
+                        // Throttle the Job startups
+                        Thread.Sleep(StaticClass.ScanWaitTime);
                     }
-
-                    // Reset Processing file scan flag
-                    StaticClass.ProcessingFileScanComplete[job] = false;
-
-                    // Start a Processing Buffer Job
-                    StartProcessingJob(directory, iniData, statusData);
-
-                    // Throttle the Job startups
-                    Thread.Sleep(StaticClass.ScanWaitTime);
                 }
-            }
+            });
+
+            // Wait a sec for the task to complete
+            bool result = runTask.Wait(1000, ts.Token);
 
             if (processingDirectoryInfoList.Count > 0)
             {
@@ -130,16 +145,31 @@ namespace Status.Services
             // Sort the Processing Buffer directory list by older dates first
             processingDirectoryInfoList.Sort((x, y) => -x.LastAccessTime.CompareTo(y.LastAccessTime));
 
-            // Add the jobs in the directory list to the Processing Buffer Jobs to run list
-            foreach (DirectoryInfo dirInfo in processingDirectoryInfoList)
+            // Do Synchronized add of jobs to Processing Job List
+            ts = new CancellationTokenSource();
+            sc = new SynchronizedCache();
+            Task addTask = Task.Run(() =>
             {
-                string directory = dirInfo.ToString();
-                string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
-                StaticClass.ProcessingJobsToRun.Add(job);
+                // Add the jobs in the directory list to the Processing Buffer Jobs to run list
+                for (int i = 1; i <= processingDirectoryInfoList.Count; i++)
+                {
+                    string directory = processingDirectoryInfoList[i].ToString();
+                    string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
 
-                int index = StaticClass.ProcessingJobsToRun.IndexOf(job);
-                StaticClass.Log(String.Format("\nUnfinished Processing jobs check added new Job {0} to Processing Job List index {1} at {2:HH:mm:ss.fff}",
-                    job, index, DateTime.Now));
+                    // Sychronized Add of Job to Processing Buffer Job list
+                    sc.Add(i, job);
+
+                    int index = StaticClass.ProcessingJobsToRun.IndexOf(job);
+                    StaticClass.Log(String.Format("\nUnfinished Processing Jobs Scan adding new Job {0} to Processing Job List index {1} at {2:HH:mm:ss.fff}",
+                        job, index, DateTime.Now));
+                }
+            });
+
+            // Wait a sec for the task to complete
+            result = addTask.Wait(1000, ts.Token);
+            if (result == false)
+            {
+                StaticClass.Logger.LogError("ProcessingJobWatcherThread failed to Add all Jobs");
             }
 
             // Clear the Directory Info List after done with it
@@ -182,38 +212,38 @@ namespace Status.Services
         /// <param name="statusData"></param>
         public void RunUnfinishedProcessingJobs(IniFileData iniData, List<StatusData> statusData)
         {
-            lock (ListLock)
+            // Do Synchronized add of jobs to Processing Job List
+            CancellationTokenSource ts = new CancellationTokenSource();
+            SynchronizedCache sc = new SynchronizedCache();
+            Task runTask = Task.Run(() =>
             {
-                // Start Processing jobs currently waiting
-                foreach (string job in StaticClass.ProcessingJobsToRun.Reverse<string>())
+                // Add the Jobs in the directory list to the Processing Buffer Jobs to run list
+                for (int i = 1; i <= StaticClass.ProcessingJobsToRun.Count; i++)
                 {
                     if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                     {
+                        string job = StaticClass.ProcessingJobsToRun[i];
                         string directory = iniData.ProcessingDir + @"\" + job;
 
                         StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
-                        // Remove job run from Processing Job list
-                        lock (RemoveLock)
-                        {
-                            if (StaticClass.ProcessingJobsToRun.Remove(job) == false)
-                            {
-                                StaticClass.Logger.LogError("ProcessingJobsScanThread failed to remove Job {0} from Processing Job list", job);
-                            }
-                        }
-
-                        // Reset Processing job and file scan flags
+                        // Clear Processing Job file scan flag to start job
                         StaticClass.ProcessingFileScanComplete[job] = false;
-                        StaticClass.ProcessingJobScanComplete[job] = false;
 
-                        // Start a Processing Buffer Job
+                        // Start an Processing Buffer Job
                         StartProcessingJob(directory, iniData, statusData);
+
+                        // Remove job run from Processing Job list
+                        sc.Delete(i);
 
                         // Throttle the Job startups
                         Thread.Sleep(StaticClass.ScanWaitTime);
                     }
                 }
-            }
+            });
+
+            // Wait for the task to complete
+            bool result = runTask.Wait(5000, ts.Token);
         }
 
         /// <summary>

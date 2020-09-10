@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Security.Permissions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Status.Services
 {
@@ -15,7 +16,6 @@ namespace Status.Services
         private readonly string DirectoryName;
         private readonly IniFileData IniData;
         public event EventHandler ProcessCompleted;
-        private static readonly Object ListLock = new Object();
 
         /// <summary>
         /// New Jobs directory Scan Thread constructor receiving data buffers
@@ -60,17 +60,24 @@ namespace Status.Services
             string jobDirectory = e.FullPath;
             string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
 
-            // Add only new jobs found to the Input Jobs list
-            if (StaticClass.InputJobsToRun.Contains(job) == false)
+            CancellationTokenSource ts = new CancellationTokenSource();
+            var sc = new SynchronizedCache();
+            Task t = Task.Run(() =>
             {
-                lock (ListLock)
-                {
-                    StaticClass.InputJobsToRun.Add(job);
-                }
+                int index = StaticClass.InputJobsToRun.Count;
 
-                int index = StaticClass.InputJobsToRun.IndexOf(job);
-                StaticClass.Log(String.Format("\nInput Directory Watcher adding new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",
+                // Synchronized add or update of a Job in the Input Jobs list to add old jobs back in
+                sc.AddOrUpdate(index, job);
+
+                StaticClass.Log(String.Format("\nInput Jobs Scan adding new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
                     job, index, DateTime.Now));
+            });
+
+            // Wait for the task to complete
+            bool result = t.Wait(100, ts.Token);
+            if (result == false)
+            {
+                StaticClass.Logger.LogError("DirectoryWatcherThread failed to Add Job {0}", job);
             }
         }
 

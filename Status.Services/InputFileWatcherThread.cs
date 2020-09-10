@@ -35,7 +35,6 @@ namespace Status.Services
             {
                 StaticClass.Logger.LogError("InputFileWatcherThread InputJobInfo failed to instantiate");
             }
-
             StaticClass.NumberOfInputFilesFound[Job] = InputJobInfo.GetFiles().Length;
             StaticClass.NumberOfInputFilesNeeded[Job] = numberOfFilesNeeded;
             StaticClass.InputFileScanComplete[Job] = false;

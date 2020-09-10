@@ -279,7 +279,7 @@ namespace Status.Services
             // Register with the Processing File Watcher class with an event and start its thread
             int numFilesNeeded = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             ProcessingFileWatcherThread processingFileWatcher = new ProcessingFileWatcherThread(
-                processingBufferJobDir, numFilesNeeded, iniData, monitorData, statusData);
+                processingBufferJobDir, numFilesNeeded, iniData);
             if (processingFileWatcher == null)
             {
                 StaticClass.Logger.LogError("JobRunThread ProcessingFileWatch failed to instantiate");

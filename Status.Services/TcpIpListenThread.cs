@@ -21,7 +21,6 @@ namespace Status.Services
         private static readonly string Message = "status";
         private static int Port = 0;
 
-
         /// <summary>
         /// Job Tcp/IP thread 
         /// </summary>
