@@ -166,9 +166,6 @@ namespace Status.Services
                     string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
                     int index = 0;
 
-                    StaticClass.Log(String.Format("\nUnfinished Input Jobs Scan adding new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
-                        job, index, DateTime.Now));
-
                     Task AddTask = Task.Run(() =>
                     {
                         index = StaticClass.InputJobsToRun.Count + 1;
@@ -180,6 +177,9 @@ namespace Status.Services
                     {
                         StaticClass.Logger.LogError("InputJobScanThread Add Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
                     }
+
+                    StaticClass.Log(String.Format("\nUnfinished Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
+                        job, index, DateTime.Now));
                 }
 
                 // Clear the Directory Info List after done with it
@@ -209,9 +209,6 @@ namespace Status.Services
                     while (StaticClass.PauseFlag == true);
                 }
 
-                // Throttle the Job startups
-                Thread.Sleep(StaticClass.ScanWaitTime);
-
                 // Run any unfinished input jobs
                 RunInputJobsFound(IniData, StatusDataList);
             }
@@ -232,9 +229,9 @@ namespace Status.Services
                 string job = String.Empty;
                 Task AddTask = Task.Run(() =>
                 {
-                    if (StaticClass.InputJobsToRun.Count > 1)
+                    if (StaticClass.InputJobsToRun.Count > 0)
                     {
-                        index = StaticClass.InputJobsToRun.Count + 1;
+                        index = StaticClass.InputJobsToRun.Count;
                         job = StaticClass.InputJobsToRun.Read(index);
                         StaticClass.InputJobsToRun.Delete(index);
                     }
@@ -258,6 +255,9 @@ namespace Status.Services
                     // Start an Input Buffer Job
                     StartInputJob(directory, iniData, statusData);
                 }
+
+                // Throttle the Job startups
+                Thread.Sleep(StaticClass.ScanWaitTime);
             }
         }
 
