@@ -13,10 +13,28 @@ namespace Status.Services
     {
         private readonly string Path;
         private readonly string EXE = Assembly.GetExecutingAssembly().GetName().Name;
-
+        
+        /// <summary>
+        /// Write Private Profile string
+        /// </summary>
+        /// <param name="Key"></param>
+        /// <param name="Section"></param>
+        /// <param name="Value"></param>
+        /// <param name="FilePath"></param>
+        /// <returns></returns>
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
         static extern long WritePrivateProfileString(string Key, string Section, string Value, string FilePath);
 
+        /// <summary>
+        /// Get Private Profile string
+        /// </summary>
+        /// <param name="Key"></param>
+        /// <param name="Section"></param>
+        /// <param name="Default"></param>
+        /// <param name="RetVal"></param>
+        /// <param name="Size"></param>
+        /// <param name="FilePath"></param>
+        /// <returns></returns>
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
         static extern int GetPrivateProfileString(string Key, string Section, string Default, StringBuilder RetVal, int Size, string FilePath);
 

@@ -21,6 +21,22 @@ namespace Status.Services
         public event EventHandler ProcessCompleted;
 
         /// <summary>
+        /// Job Run thread default constructor
+        /// </summary>
+        public JobRunThread()
+        {
+            StaticClass.Logger.LogInformation("JobRunThread default constructor called");
+        }
+
+        /// <summary>
+        /// Job Run thread default destructor
+        /// </summary>
+        ~JobRunThread()
+        {
+            StaticClass.Logger.LogInformation("JobRunThread default destructor called");
+        }
+
+        /// <summary>
         /// Job Run Thread constructor obtains the state information  
         /// </summary>
         /// <param name="dirScanType"></param>

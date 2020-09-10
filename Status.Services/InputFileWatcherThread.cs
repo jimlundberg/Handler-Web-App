@@ -18,6 +18,22 @@ namespace Status.Services
         public event EventHandler ProcessCompleted;
 
         /// <summary>
+        /// Current Input File Watcher thread default constructor
+        /// </summary>
+        public InputFileWatcherThread()
+        {
+            StaticClass.Logger.LogInformation("InputFileWatcherThread default constructor called");
+        }
+
+        /// <summary>
+        /// Current Input File Watcher thread default destructor
+        /// </summary>
+        ~InputFileWatcherThread()
+        {
+            StaticClass.Logger.LogInformation("InputFileWatcherThread default destructor called");
+        }
+
+        /// <summary>
         /// Input directory file watcher thread
         /// </summary>
         /// <param name="directory"></param>

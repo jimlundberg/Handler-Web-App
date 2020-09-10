@@ -20,12 +20,18 @@ namespace Status.Services
         /// <summary>
         /// Current Input Jobs Scan thread default constructor
         /// </summary>
-        public InputJobsScanThread() { }
+        public InputJobsScanThread()
+        {
+            StaticClass.Logger.LogInformation("InputJobsScanThread default constructor called");
+        }
 
         /// <summary>
         /// Current Input Jobs Scan thread default destructor
         /// </summary>
-        ~InputJobsScanThread() { }
+        ~InputJobsScanThread()
+        {
+            StaticClass.Logger.LogInformation("InputJobsScanThread default destructor called");
+        }
 
         /// <summary>
         /// New jobs Scan thread

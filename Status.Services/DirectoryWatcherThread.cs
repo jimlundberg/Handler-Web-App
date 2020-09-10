@@ -18,6 +18,22 @@ namespace Status.Services
         public event EventHandler ProcessCompleted;
 
         /// <summary>
+        /// Input Buffer Directory Watcher thread default constructor
+        /// </summary>
+        public DirectoryWatcherThread()
+        {
+            StaticClass.Logger.LogInformation("DirectoryWatcherThread default constructor called");
+        }
+
+        /// <summary>
+        /// Input Buffer Directory Watcher thread default destructor
+        /// </summary>
+        ~DirectoryWatcherThread()
+        {
+            StaticClass.Logger.LogInformation("DirectoryWatcherThread default destructor called");
+        }
+
+        /// <summary>
         /// New Jobs directory Scan Thread constructor receiving data buffers
         /// </summary>
         /// <param name="iniData"></param>
