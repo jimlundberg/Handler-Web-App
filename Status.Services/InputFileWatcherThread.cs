@@ -39,13 +39,11 @@ namespace Status.Services
         /// <param name="directory"></param>
         /// <param name="numberOfFilesNeeded"></param>
         /// <param name="iniData"></param>
-        /// <param name="monitorData"></param>
-        public InputFileWatcherThread(string directory, int numberOfFilesNeeded,
-            IniFileData iniData, StatusMonitorData monitorData)
+        public InputFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData)
         {
             DirectoryName = directory;
             IniData = iniData;
-            Job = monitorData.Job;
+            Job = directory.Replace(iniData.InputDir, "").Remove(0, 1);
             DirectoryInfo InputJobInfo = new DirectoryInfo(DirectoryName);
             if (InputJobInfo == null)
             {

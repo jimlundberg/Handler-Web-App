@@ -184,8 +184,8 @@ namespace Status.Services
                     string inputJobFileDir = inputBufferJobDir + @"\" + job;
 
                     // Register with the File Watcher class event and start its thread
-                    InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(inputJobFileDir,
-                        numberOfFilesNeeded, iniData, monitorData);
+                    InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(
+                        inputJobFileDir, numberOfFilesNeeded, iniData);
                     if (inputFileWatch == null)
                     {
                         StaticClass.Logger.LogError("Job Run Thread inputFileWatch failed to instantiate");

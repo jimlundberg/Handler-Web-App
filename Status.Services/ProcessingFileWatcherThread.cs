@@ -47,7 +47,7 @@ namespace Status.Services
         {
             DirectoryName = directory;
             IniData = iniData;
-            Job = directory.Replace(iniData.InputDir, "").Remove(0, 1);
+            Job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
             DirectoryInfo ProcessingJobInfo = new DirectoryInfo(directory);
             if (ProcessingJobInfo == null)
             {
