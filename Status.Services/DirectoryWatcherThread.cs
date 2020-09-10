@@ -76,22 +76,20 @@ namespace Status.Services
             string jobDirectory = e.FullPath;
             string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
 
-            CancellationTokenSource ts = new CancellationTokenSource();
-            var sc = new SynchronizedCache();
-            Task t = Task.Run(() =>
+            Task addTask = Task.Run(() =>
             {
-                int index = StaticClass.InputJobsToRun.Count;
+                // Use the Sync Cache count plus 1
+                int index = StaticClass.SyncCache.Count + 1;
 
-                // Synchronized add or update of a Job in the Input Jobs list to add old jobs back in
-                sc.AddOrUpdate(index, job);
+                // Synchronized add of the Job to the Input Jobs list
+                StaticClass.SyncCache.Add(index, job);
 
-                StaticClass.Log(String.Format("\nInput Jobs Scan adding new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
+                StaticClass.Log(String.Format("\nInput Buffer Watcher adding new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
                     job, index, DateTime.Now));
             });
 
             // Wait for the task to complete
-            bool result = t.Wait(100, ts.Token);
-            if (result == false)
+            if (addTask.Wait(100, StaticClass.TokenSource.Token))
             {
                 StaticClass.Logger.LogError("DirectoryWatcherThread failed to Add Job {0}", job);
             }
