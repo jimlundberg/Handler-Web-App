@@ -42,8 +42,8 @@ namespace Status.Services
         public static volatile bool PauseFlag = false;
         public static volatile bool UnfinishedProcessingJobsScanComplete = false;
         
-        public static List<string> InputJobsToRun = new List<String>();
-		public static List<string> ProcessingJobsToRun = new List<String>();
+        public static List<string> InputJobsToRun = new List<string>();
+		public static List<string> ProcessingJobsToRun = new List<string>();
 
         public static Dictionary<string, DateTime> JobStartTime = new Dictionary<string, DateTime>();
         public static Dictionary<string, bool> InputFileScanComplete = new Dictionary<string, bool>();
@@ -153,7 +153,7 @@ namespace Status.Services
             }
             catch (IOException e)
             {
-                var errorCode = Marshal.GetHRForException(e) & ((1 << 16) - 1);
+                int errorCode = Marshal.GetHRForException(e) & ((1 << 16) - 1);
                 return errorCode == 32 || errorCode == 33;
             }
         }

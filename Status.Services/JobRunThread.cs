@@ -42,7 +42,6 @@ namespace Status.Services
         /// <param name="dirScanType"></param>
         /// <param name="jobXmlData"></param>
         /// <param name="iniData"></param>
-        /// <param name="jobXmlData"></param>
         /// <param name="statusData"></param>
         public JobRunThread(DirectoryScanType dirScanType, JobXmlData jobXmlData, IniFileData iniData, List<StatusData> statusData)
         {
@@ -74,23 +73,6 @@ namespace Status.Services
         protected virtual void OnProcessCompleted(EventArgs e)
         {
             ProcessCompleted?.Invoke(this, e);
-        }
-
-        /// <summary>
-        /// Processing directory scan complete callback
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public static void Processing_fileScan_FilesFound(object sender, EventArgs e)
-        {
-            string job = e.ToString();
-
-            // Send message after receiving Processing Buffer file scan loop complete
-            StaticClass.Log(String.Format("Processing_fileScan_FilesFound Received for Job {0} at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
-
-            // Set Flag for ending Processing file scan loop
-            StaticClass.ProcessingFileScanComplete[job] = true;
         }
 
         /// <summary>
@@ -292,7 +274,7 @@ namespace Status.Services
             StaticClass.Log(String.Format("Starting file monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
 
-            // Register with the Processing File Watcher class with an event and start its thread
+            // Register with the Processing File Watcher class and start its thread
             int numFilesNeeded = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             ProcessingFileWatcherThread processingFileWatcher = new ProcessingFileWatcherThread(
                 processingBufferJobDir, numFilesNeeded, iniData);
@@ -300,7 +282,6 @@ namespace Status.Services
             {
                 StaticClass.Logger.LogError("JobRunThread ProcessingFileWatch failed to instantiate");
             }
-            processingFileWatcher.ProcessCompleted += Processing_fileScan_FilesFound;
             processingFileWatcher.ThreadProc();
 
             // Monitor for complete set of files in the Processing Buffer

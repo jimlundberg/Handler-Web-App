@@ -243,7 +243,7 @@ namespace Status.Services
             });
 
             // Wait for the task to complete
-            bool result = runTask.Wait(5000, ts.Token);
+            bool result = runTask.Wait(1000, ts.Token);
         }
 
         /// <summary>

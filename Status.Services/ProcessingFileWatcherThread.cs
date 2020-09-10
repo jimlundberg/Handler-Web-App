@@ -135,18 +135,18 @@ namespace Status.Services
             bool OverallResultEntryFound = false;
             do
             {
-                string dataXmlFileName = directory + @"\" + "Data.xml";
+                string dataXmlFile = directory + @"\" + "Data.xml";
 
                 // Wait for data.xml file to be ready
                 do
                 {
                     Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
                 }
-                while (StaticClass.IsFileReady(dataXmlFileName) == false);
+                while (StaticClass.IsFileReady(dataXmlFile) == false);
 
                 // Check if the OverallResult node exists
                 XmlDocument dataXmlDoc = new XmlDocument();
-                dataXmlDoc.Load(dataXmlFileName);
+                dataXmlDoc.Load(dataXmlFile);
                 XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
                 if (OverallResult != null)
                 {

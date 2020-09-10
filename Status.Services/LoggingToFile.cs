@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.IO;
 
 namespace Status.Services
@@ -6,7 +7,7 @@ namespace Status.Services
     /// <summary>
     /// Class to log to and control the size of the process log file
     /// </summary>
-    class LoggingToFile
+    public class LoggingToFile
     {
         private readonly string LogFileName;
         private static readonly Object FileLock = new Object();
@@ -14,7 +15,18 @@ namespace Status.Services
         /// <summary>
         /// Default logging To file constructor
         /// </summary>
-        public LoggingToFile() { }
+        public LoggingToFile()
+        {
+            StaticClass.Logger.LogInformation("LoggingToFile default cestructor called");
+        }
+
+        /// <summary>
+        /// Default logging To file destructor
+        /// </summary>
+        ~LoggingToFile()
+        {
+            StaticClass.Logger.LogInformation("LoggingToFile default destructor called");
+        }
 
         /// <summary>
         /// Logging to file constructor with file name 
