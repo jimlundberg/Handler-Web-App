@@ -229,9 +229,12 @@ namespace Status.Services
                 string job = String.Empty;
                 Task AddTask = Task.Run(() =>
                 {
-                    index = StaticClass.InputJobsToRun.Count + 1;
-                    job = StaticClass.InputJobsToRun.Read(index);
-                    StaticClass.InputJobsToRun.Add(index, job);
+                    if (StaticClass.InputJobsToRun.Count > 1)
+                    {
+                        index = StaticClass.InputJobsToRun.Count + 1;
+                        job = StaticClass.InputJobsToRun.Read(index);
+                        StaticClass.InputJobsToRun.Delete(index);
+                    }
                 });
 
                 TimeSpan timeSpan = TimeSpan.FromMilliseconds(150);
