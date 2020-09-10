@@ -131,39 +131,30 @@ namespace Status.Services
                 StaticClass.Log("\nNo unfinished Input Jobs found...");
             }
 
-            // Do Synchronized add of jobs to Input Job List
-            CancellationTokenSource ts = new CancellationTokenSource();
-            SynchronizedCache sc = new SynchronizedCache();
-            Task runTask = Task.Run(() =>
+            // Add the jobs in the directory list to the Input Buffer Jobs to run list
+            for (int i = 0; i < inputDirectoryInfoList.Count; i++)
             {
-                // Add the jobs in the directory list to the Input Buffer Jobs to run list
-                for (int i = 0; i < inputDirectoryInfoList.Count; i++)
+                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
-                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
-                    {
-                        DirectoryInfo dirInfo = inputDirectoryInfoList[i];
-                        string directory = dirInfo.FullName;
-                        string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
+                    DirectoryInfo dirInfo = inputDirectoryInfoList[i];
+                    string directory = dirInfo.FullName;
+                    string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
 
-                        StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                    // Remove Job run from Input Job list
+                    inputDirectoryInfoList.Remove(dirInfo);
 
-                        // Clear Input Job file scan flag to start job
-                        StaticClass.InputFileScanComplete[job] = false;
+                    StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
-                        // Start an Input Buffer Job
-                        StartInputJob(directory, iniData, statusData);
+                    // Unset Input Job file scan flag to start job
+                    StaticClass.InputFileScanComplete[job] = false;
 
-                        // Remove Job run from Input Job list
-                        sc.Delete(i);
+                    // Start an Input Buffer Job
+                    StartInputJob(directory, iniData, statusData);
 
-                        // Throttle the Job startups
-                        Thread.Sleep(StaticClass.ScanWaitTime);
-                    }
+                    // Throttle the Job startups
+                    Thread.Sleep(StaticClass.ScanWaitTime);
                 }
-            });
-
-            // Wait a sec for the task to complete
-            bool result = runTask.Wait(1000, ts.Token);
+            }
 
             if (inputDirectoryInfoList.Count > 0)
             {
@@ -173,8 +164,8 @@ namespace Status.Services
                 inputDirectoryInfoList.Sort((x, y) => -x.LastAccessTime.CompareTo(y.LastAccessTime));
 
                 // Do Synchronized add of jobs to Input Job List
-                ts = new CancellationTokenSource();
-                sc = new SynchronizedCache();
+                CancellationTokenSource ts = new CancellationTokenSource();
+                SynchronizedCache sc = new SynchronizedCache();
                 Task addTask = Task.Run(() =>
                 {
                     // Add the jobs in the directory list to the Input Buffer Jobs to run list
@@ -192,8 +183,7 @@ namespace Status.Services
                 });
 
                 // Wait a sec for the task to complete
-                result = addTask.Wait(1000, ts.Token);
-                if (result == false)
+                if (addTask.Wait(1000, ts.Token))
                 {
                     StaticClass.Logger.LogError("InputJobWatcherThread failed to Add all Jobs");
                 }
