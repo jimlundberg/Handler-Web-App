@@ -71,7 +71,7 @@ namespace Status.Services
             TimeSpan timeSpan = TimeSpan.FromMilliseconds(150);
             if (!AddTask.Wait(timeSpan))
             {
-                Console.WriteLine("The timeout interval elapsed.");
+                StaticClass.Logger.LogError("DirectoryWatcherThread Add Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
             }
 
             StaticClass.Log(String.Format("\nInput Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",

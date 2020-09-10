@@ -175,7 +175,7 @@ namespace Status.Services
                     TimeSpan timeSpan = TimeSpan.FromMilliseconds(150);
                     if (!AddTask.Wait(timeSpan))
                     {
-                        Console.WriteLine("The timeout interval elapsed.");
+                        StaticClass.Logger.LogError("InputJobScanThread Add Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
                     }
 
                     StaticClass.Log(String.Format("\nUnfinished Input Jobs Scan adding new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
@@ -209,6 +209,9 @@ namespace Status.Services
                     while (StaticClass.PauseFlag == true);
                 }
 
+                // Throttle the Job startups
+                Thread.Sleep(StaticClass.ScanWaitTime);
+
                 // Run any unfinished input jobs
                 RunInputJobsFound(IniData, StatusDataList);
             }
@@ -240,7 +243,7 @@ namespace Status.Services
                 TimeSpan timeSpan = TimeSpan.FromMilliseconds(150);
                 if (!AddTask.Wait(timeSpan))
                 {
-                    Console.WriteLine("The timeout interval elapsed.");
+                    StaticClass.Logger.LogError("InputJobScanThread Run Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
                 }
 
                 if (job != String.Empty)
@@ -254,9 +257,6 @@ namespace Status.Services
 
                     // Start an Input Buffer Job
                     StartInputJob(directory, iniData, statusData);
-
-                    // Throttle the Job startups
-                    Thread.Sleep(StaticClass.ScanWaitTime);
                 }
             }
         }
