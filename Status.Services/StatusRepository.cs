@@ -111,7 +111,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Start the Monitor process by strting the new jobs scan thread
+        /// Start the Monitor process by starting the new jobs scan thread
         /// </summary>
         public void StartMonitorProcess()
         {

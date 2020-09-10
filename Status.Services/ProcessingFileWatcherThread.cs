@@ -15,11 +15,25 @@ namespace Status.Services
     public class ProcessingFileWatcherThread
     {
         private readonly IniFileData IniData;
-        private readonly StatusMonitorData MonitorData;
-        private readonly List<StatusData> StatusDataList;
         private readonly string DirectoryName;
         private readonly string Job;
         public event EventHandler ProcessCompleted;
+
+        /// <summary>
+        /// Current Processing File Watcher thread default constructor
+        /// </summary>
+        public ProcessingFileWatcherThread()
+        {
+            StaticClass.Logger.LogInformation("ProcessingFileWatcherThread default constructor called");
+        }
+
+        /// <summary>
+        /// Current Processing File Watcher thread default destructor
+        /// </summary>
+        ~ProcessingFileWatcherThread()
+        {
+            StaticClass.Logger.LogInformation("ProcessingFileWatcherThread default destructor called");
+        }
 
         /// <summary>
         /// Processing directory file watcher thread
@@ -29,17 +43,18 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
         /// <param name="statusData"></param>
-        public ProcessingFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData,
-            StatusMonitorData monitorData, List<StatusData> statusData)
+        public ProcessingFileWatcherThread(string directory, StatusMonitorData monitorData, IniFileData iniData)
         {
             DirectoryName = directory;
             IniData = iniData;
-            MonitorData = monitorData;
-            StatusDataList = statusData;
-            Job = monitorData.Job;
+            Job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
             DirectoryInfo ProcessingJobInfo = new DirectoryInfo(directory);
+            if (ProcessingJobInfo == null)
+            {
+                StaticClass.Logger.LogError("ProcessingFileWatcherThread ProcessingJobInfo failed to instantiate");
+            }
             StaticClass.NumberOfProcessingFilesFound[Job] = ProcessingJobInfo.GetFiles().Length;
-            StaticClass.NumberOfProcessingFilesNeeded[Job] = numberOfFilesNeeded;
+            StaticClass.NumberOfProcessingFilesNeeded[Job] = monitorData.NumFilesConsumed + monitorData.NumFilesProduced;
             StaticClass.TcpIpScanComplete[Job] = false;
             StaticClass.ProcessingFileScanComplete[Job] = false;
             StaticClass.ProcessingJobScanComplete[Job] = false;
@@ -120,18 +135,18 @@ namespace Status.Services
             bool OverallResultEntryFound = false;
             do
             {
-                string dataXmlFileName = directory + @"\" + "Data.xml";
+                string dataXmlFile = directory + @"\" + "Data.xml";
 
                 // Wait for data.xml file to be ready
                 do
                 {
                     Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
                 }
-                while (StaticClass.IsFileReady(dataXmlFileName) == false);
+                while (StaticClass.IsFileReady(dataXmlFile) == false);
 
                 // Check if the OverallResult node exists
                 XmlDocument dataXmlDoc = new XmlDocument();
-                dataXmlDoc.Load(dataXmlFileName);
+                dataXmlDoc.Load(dataXmlFile);
                 XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
                 if (OverallResult != null)
                 {
@@ -168,8 +183,6 @@ namespace Status.Services
         /// </summary>
         /// <param name="directory"></param>
         /// <param name="iniData"></param>
-        /// <param name="monitorData"></param>
-        /// <param name="statusData"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public void WatchFiles(string directory, IniFileData iniData)
         {

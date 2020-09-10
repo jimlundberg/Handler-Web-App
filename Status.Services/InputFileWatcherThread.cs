@@ -18,24 +18,37 @@ namespace Status.Services
         public event EventHandler ProcessCompleted;
 
         /// <summary>
+        /// Current Input File Watcher thread default constructor
+        /// </summary>
+        public InputFileWatcherThread()
+        {
+            StaticClass.Logger.LogInformation("InputFileWatcherThread default constructor called");
+        }
+
+        /// <summary>
+        /// Current Input File Watcher thread default destructor
+        /// </summary>
+        ~InputFileWatcherThread()
+        {
+            StaticClass.Logger.LogInformation("InputFileWatcherThread default destructor called");
+        }
+
+        /// <summary>
         /// Input directory file watcher thread
         /// </summary>
         /// <param name="directory"></param>
         /// <param name="numberOfFilesNeeded"></param>
         /// <param name="iniData"></param>
-        /// <param name="monitorData"></param>
-        public InputFileWatcherThread(string directory, int numberOfFilesNeeded,
-            IniFileData iniData, StatusMonitorData monitorData)
+        public InputFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData)
         {
             DirectoryName = directory;
             IniData = iniData;
-            Job = monitorData.Job;
-            DirectoryInfo InputJobInfo = new DirectoryInfo(DirectoryName);
+            Job = directory.Replace(iniData.InputDir, "").Remove(0, 1);
+            DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
             if (InputJobInfo == null)
             {
                 StaticClass.Logger.LogError("InputFileWatcherThread InputJobInfo failed to instantiate");
             }
-
             StaticClass.NumberOfInputFilesFound[Job] = InputJobInfo.GetFiles().Length;
             StaticClass.NumberOfInputFilesNeeded[Job] = numberOfFilesNeeded;
             StaticClass.InputFileScanComplete[Job] = false;

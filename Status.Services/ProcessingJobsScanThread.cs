@@ -17,12 +17,22 @@ namespace Status.Services
         private readonly List<StatusData> StatusDataList;
         public event EventHandler ProcessCompleted;
         private static readonly Object RemoveLock = new Object();
-        private static readonly Object ListLock = new Object();
 
         /// <summary>
-        /// Current Processing Jobs Scan thread default constructor
+        /// Input File Scan thread default constructor
         /// </summary>
-        public ProcessingJobsScanThread() { }
+        public ProcessingJobsScanThread()
+        {
+            StaticClass.Logger.LogInformation("ProcessingJobsScanThread default constructor called");
+        }
+
+        /// <summary>
+        /// Input File Scan thread default destructor
+        /// </summary>
+        ~ProcessingJobsScanThread()
+        {
+            StaticClass.Logger.LogInformation("ProcessingJobsScanThread default destructor called");
+        }
 
         /// <summary>
         /// Old Jobs Scan Thread constructor receiving data buffers
@@ -182,36 +192,33 @@ namespace Status.Services
         /// <param name="statusData"></param>
         public void RunUnfinishedProcessingJobs(IniFileData iniData, List<StatusData> statusData)
         {
-            lock (ListLock)
+            // Start Processing jobs currently waiting
+            foreach (string job in StaticClass.ProcessingJobsToRun.Reverse<string>())
             {
-                // Start Processing jobs currently waiting
-                foreach (string job in StaticClass.ProcessingJobsToRun.Reverse<string>())
+                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
                 {
-                    if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                    string directory = iniData.ProcessingDir + @"\" + job;
+
+                    StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+
+                    // Remove job run from Processing Job list
+                    lock (RemoveLock)
                     {
-                        string directory = iniData.ProcessingDir + @"\" + job;
-
-                        StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
-
-                        // Remove job run from Processing Job list
-                        lock (RemoveLock)
+                        if (StaticClass.ProcessingJobsToRun.Remove(job) == false)
                         {
-                            if (StaticClass.ProcessingJobsToRun.Remove(job) == false)
-                            {
-                                StaticClass.Logger.LogError("ProcessingJobsScanThread failed to remove Job {0} from Processing Job list", job);
-                            }
+                            StaticClass.Logger.LogError("ProcessingJobsScanThread failed to remove Job {0} from Processing Job list", job);
                         }
-
-                        // Reset Processing job and file scan flags
-                        StaticClass.ProcessingFileScanComplete[job] = false;
-                        StaticClass.ProcessingJobScanComplete[job] = false;
-
-                        // Start a Processing Buffer Job
-                        StartProcessingJob(directory, iniData, statusData);
-
-                        // Throttle the Job startups
-                        Thread.Sleep(StaticClass.ScanWaitTime);
                     }
+
+                    // Reset Processing job and file scan flags
+                    StaticClass.ProcessingFileScanComplete[job] = false;
+                    StaticClass.ProcessingJobScanComplete[job] = false;
+
+                    // Start a Processing Buffer Job
+                    StartProcessingJob(directory, iniData, statusData);
+
+                    // Throttle the Job startups
+                    Thread.Sleep(StaticClass.ScanWaitTime);
                 }
             }
         }

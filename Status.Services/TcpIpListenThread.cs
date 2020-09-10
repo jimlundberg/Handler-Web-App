@@ -21,6 +21,21 @@ namespace Status.Services
         private static readonly string Message = "status";
         private static int Port = 0;
 
+        /// <summary>
+        /// TCP/IP Listen thread default constructor
+        /// </summary>
+        public TcpIpListenThread()
+        {
+            StaticClass.Logger.LogInformation("TcpIpListenThread default constructor called");
+        }
+
+        /// <summary>
+        /// TCP/IP Listen thread default destructor
+        /// </summary>
+        ~TcpIpListenThread()
+        {
+            StaticClass.Logger.LogInformation("TcpIpListenThread default destructor called");
+        }
 
         /// <summary>
         /// Job Tcp/IP thread 
