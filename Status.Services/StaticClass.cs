@@ -1,5 +1,4 @@
-﻿using Handler.Services;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Status.Models;
 using System;
 using System.Collections.Generic;

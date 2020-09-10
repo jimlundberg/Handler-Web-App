@@ -11,9 +11,20 @@ namespace Status.Services
     public class StatusEntry
     {
         /// <summary>
-        /// Status Entry Constructor
+        /// Status Entry default constructor
         /// </summary>
-        public StatusEntry() { }
+        public StatusEntry()
+        {
+            StaticClass.Logger.LogInformation("StatusEntry default constructor called");
+        }
+
+        /// <summary>
+        /// Status Entry thread default destructor
+        /// </summary>
+        ~StatusEntry()
+        {
+            StaticClass.Logger.LogInformation("StatusEntry default destructor called");
+        }
 
         /// <summary>
         /// Log a Status and write to csv file

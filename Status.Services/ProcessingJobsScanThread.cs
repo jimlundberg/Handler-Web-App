@@ -19,9 +19,20 @@ namespace Status.Services
         private static readonly Object RemoveLock = new Object();
 
         /// <summary>
-        /// Current Processing Jobs Scan thread default constructor
+        /// Input File Scan thread default constructor
         /// </summary>
-        public ProcessingJobsScanThread() { }
+        public ProcessingJobsScanThread()
+        {
+            StaticClass.Logger.LogInformation("ProcessingJobsScanThread default constructor called");
+        }
+
+        /// <summary>
+        /// Input File Scan thread default destructor
+        /// </summary>
+        ~ProcessingJobsScanThread()
+        {
+            StaticClass.Logger.LogInformation("ProcessingJobsScanThread default destructor called");
+        }
 
         /// <summary>
         /// Old Jobs Scan Thread constructor receiving data buffers

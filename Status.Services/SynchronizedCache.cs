@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 
-namespace Handler.Services
+namespace Status.Services
 {
     /// <summary>
     /// Class to manage access to a resource, allowing multiple threads

@@ -20,9 +20,20 @@ namespace Status.Services
         private static readonly Object ListLock = new Object();
 
         /// <summary>
-        /// Current Input Jobs Scan thread default constructor
+        /// Input File Scan thread default constructor
         /// </summary>
-        public InputJobsScanThread() { }
+        public InputJobsScanThread()
+        {
+            StaticClass.Logger.LogInformation("InputJobsScanThread default constructor called");
+        }
+
+        /// <summary>
+        /// Input File Scan thread default destructor
+        /// </summary>
+        ~InputJobsScanThread()
+        {
+            StaticClass.Logger.LogInformation("InputJobsScanThread default destructor called");
+        }
 
         /// <summary>
         /// New jobs Scan thread
