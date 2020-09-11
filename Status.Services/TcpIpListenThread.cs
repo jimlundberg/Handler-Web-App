@@ -101,7 +101,7 @@ namespace Status.Services
             // Wait about a minute for the Modeler to start execution
             Thread.Sleep(StaticClass.TCP_IP_STARTUP_WAIT);
 
-            StaticClass.Log(String.Format("\nStarting TCP/IP Scan for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+            StaticClass.Log(string.Format("\nStarting TCP/IP Scan for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                 job, port, DateTime.Now));
 
             // Log starting TCP/IP monitoring entry
@@ -126,13 +126,13 @@ namespace Status.Services
                     return;
                 }
 
-                StaticClass.Log(String.Format("\nConnected to TCP/IP for Job {0} on Port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
+                StaticClass.Log(string.Format("\nConnected to TCP/IP for Job {0} on Port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
                 bool jobComplete = false;
                 do
                 {
                     if (StaticClass.ShutdownFlag == true)
                     {
-                        StaticClass.Log(String.Format("\nShutdown TcpIpListenThread prewrite for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                        StaticClass.Log(string.Format("\nShutdown TcpIpListenThread prewrite for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));
 
                         StaticClass.TcpIpScanComplete[job] = true;
@@ -144,7 +144,7 @@ namespace Status.Services
                     // Check if the pause flag is set, then wait for reset
                     if (StaticClass.PauseFlag == true)
                     {
-                        StaticClass.Log(String.Format("TcpIpListenThread Connect1 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
+                        StaticClass.Log(string.Format("TcpIpListenThread Connect1 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                         do
                         {
                             Thread.Yield();
@@ -159,19 +159,19 @@ namespace Status.Services
                         Byte[] sendData = Encoding.ASCII.GetBytes(StatusMessage);
                         stream.Write(sendData, 0, sendData.Length);
 
-                        StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
+                        StaticClass.Log(string.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
                             StatusMessage, job, port, DateTime.Now));
                     }
                     else
                     {
-                        StaticClass.Log(String.Format("\nTCP/IP stream closed for Modeler Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                        StaticClass.Log(string.Format("\nTCP/IP stream closed for Modeler Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));
                       
                         // Make sure to close TCP/IP socket
                         stream.Close();
                         client.Close();
 
-                        StaticClass.Log(String.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                        StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));
 
                         // Set the TCP/IP Scan complete flag to signal the RunJob thread
@@ -193,7 +193,7 @@ namespace Status.Services
                             int bytes = stream.Read(recvData, 0, recvData.Length);
                             responseData = Encoding.ASCII.GetString(recvData, 0, bytes);
 
-                            StaticClass.Log(String.Format("Received: {0} from Job {1} on Port {2} at {3:HH:mm:ss.fff}",
+                            StaticClass.Log(string.Format("Received: {0} from Job {1} on Port {2} at {3:HH:mm:ss.fff}",
                                 responseData, job, port, DateTime.Now));
 
                             // Readjust sleep time according to Step number
@@ -232,14 +232,14 @@ namespace Status.Services
                                 case "Whole process done, socket closed.":
                                     ModelerCurrentStepState = ModelerStepState.STEP_COMPLETE;
 
-                                    StaticClass.Log(String.Format("TCP/IP for Job {0} on Port {1} received Modeler process done at {2:HH:mm:ss.fff}",
+                                    StaticClass.Log(string.Format("TCP/IP for Job {0} on Port {1} received Modeler process done at {2:HH:mm:ss.fff}",
                                         job, port, DateTime.Now));
 
                                     // Make sure to close TCP/IP socket
                                     stream.Close();
                                     client.Close();
 
-                                    StaticClass.Log(String.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                                    StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                                         job, port, DateTime.Now));
 
                                     // Set the TCP/IP Scan complete flag to signal the RunJob thread
@@ -257,14 +257,14 @@ namespace Status.Services
                             {
                                 ModelerCurrentStepState = ModelerStepState.STEP_COMPLETE;
 
-                                StaticClass.Log(String.Format("TCP/IP for Job {0} on Port {1} received Modeler process complete at {2:HH:mm:ss.fff}",
+                                StaticClass.Log(string.Format("TCP/IP for Job {0} on Port {1} received Modeler process complete at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
                                 // Make sure to close TCP/IP socket
                                 stream.Close();
                                 client.Close();
 
-                                StaticClass.Log(String.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                                StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
                                 // Set the TCP/IP Scan complete flag to signal the RunJob thread
@@ -275,7 +275,7 @@ namespace Status.Services
                             // Check for Job timeout
                             if ((DateTime.Now - monitorData.StartTime).TotalSeconds > StaticClass.MaxJobTimeLimitSeconds)
                             {
-                                StaticClass.Log(String.Format("Job Timeout for Job {0} in state {1} at {2:HH:mm:ss.fff}",
+                                StaticClass.Log(string.Format("Job Timeout for Job {0} in state {1} at {2:HH:mm:ss.fff}",
                                     ModelerCurrentStepState, job, DateTime.Now));
 
                                 // Create job Timeout status
@@ -297,7 +297,7 @@ namespace Status.Services
                             // Check if the shutdown flag is set, then exit method
                             if (StaticClass.ShutdownFlag == true)
                             {
-                                StaticClass.Log(String.Format("\nShutdown TcpIpListenThread Connect for Job {0} in state {1} on Port {2} at {3:HH:mm:ss.fff}",
+                                StaticClass.Log(string.Format("\nShutdown TcpIpListenThread Connect for Job {0} in state {1} on Port {2} at {3:HH:mm:ss.fff}",
                                     job, ModelerCurrentStepState, port, DateTime.Now));
 
                                 StaticClass.TcpIpScanComplete[job] = true;
@@ -309,7 +309,7 @@ namespace Status.Services
                             // Check if the pause flag is set, then wait for reset
                             if (StaticClass.PauseFlag == true)
                             {
-                                StaticClass.Log(String.Format("TcpIpListenThread Connect3 is in Pause mode in state {0} at {1:HH:mm:ss.fff}",
+                                StaticClass.Log(string.Format("TcpIpListenThread Connect3 is in Pause mode in state {0} at {1:HH:mm:ss.fff}",
                                     ModelerCurrentStepState, DateTime.Now));
                                 do
                                 {
@@ -337,15 +337,15 @@ namespace Status.Services
                 stream.Close();
                 client.Close();
 
-                StaticClass.Log(String.Format("Closed TCP/IP Socket for Job {0} on Port {1} in state {2} at {3:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} in state {2} at {3:HH:mm:ss.fff}",
                     job, port, ModelerCurrentStepState, DateTime.Now));
             }
             catch (SocketException e)
             {
-                StaticClass.Log(String.Format("SocketException {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("SocketException {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
                     e, job, port, ModelerCurrentStepState, DateTime.Now));
 
-                StaticClass.Logger.LogError(String.Format("SocketException {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
+                StaticClass.Logger.LogError(string.Format("SocketException {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
                     e, job, port, ModelerCurrentStepState, DateTime.Now));
             }
         }

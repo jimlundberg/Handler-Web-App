@@ -95,13 +95,13 @@ namespace Status.Services
                 // Increment the number of Input Buffer Job files found
                 StaticClass.NumberOfInputFilesFound[job]++;
 
-                StaticClass.Log(String.Format("\nInput File Watcher detected {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}\n",
+                StaticClass.Log(string.Format("\nInput File Watcher detected {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}\n",
                     jobFile, job, StaticClass.NumberOfInputFilesFound[job], StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
 
                 // If Number of Input files is complete
                 if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
                 {
-                    StaticClass.Log(String.Format("Input File Watcher detected Job {0} complete set of {1} files at {2:HH:mm:ss.fff}",
+                    StaticClass.Log(string.Format("Input File Watcher detected Job {0} complete set of {1} files at {2:HH:mm:ss.fff}",
                     job, StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
 
                     // Signal the Run thread that the Input Buffer files were found
@@ -134,7 +134,7 @@ namespace Status.Services
             if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
                 // Exiting thread message
-                StaticClass.Log(String.Format("Input File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Input File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
 
                 // Signal the Run thread that the Input files were found
@@ -169,7 +169,7 @@ namespace Status.Services
                 // Begin watching for changes to Input directory
                 watcher.EnableRaisingEvents = true;
 
-                StaticClass.Log(String.Format("Input File Watcher watching {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Input File Watcher watching {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
 
                 // Wait for Input file scan to Complete with a full set of job output files
@@ -179,7 +179,7 @@ namespace Status.Services
 
                     if (StaticClass.ShutdownFlag == true)
                     {
-                        StaticClass.Log(String.Format("\nShutdown InputFileWatcherThread WatchFiles watching {0} at {1:HH:mm:ss.fff}",
+                        StaticClass.Log(string.Format("\nShutdown InputFileWatcherThread WatchFiles watching {0} at {1:HH:mm:ss.fff}",
                             directory, DateTime.Now));
                         return;
                     }
@@ -187,7 +187,7 @@ namespace Status.Services
                     // Check if the pause flag is set, then wait for reset
                     if (StaticClass.PauseFlag == true)
                     {
-                        StaticClass.Log(String.Format("InputFileWatcherThread WatchFiles is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
+                        StaticClass.Log(string.Format("InputFileWatcherThread WatchFiles is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                         do
                         {
                             Thread.Yield();
@@ -201,7 +201,7 @@ namespace Status.Services
                 StaticClass.InputJobScanComplete[job] = true;
 
                 // Exiting thread message
-                StaticClass.Log(String.Format("Input File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Input File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
             }
         }

@@ -167,7 +167,7 @@ namespace Status.Services
                 string transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
                 XmlNode TransferedFileXml = jobXmlDoc.DocumentElement.SelectSingleNode(transferFileNodeName);
                 monitorData.TransferedFileList.Add(TransferedFileXml.InnerText);
-                StaticClass.Log(String.Format("Transfer File{0}                 : {1}", i, TransferedFileXml.InnerText));
+                StaticClass.Log(string.Format("Transfer File{0}                 : {1}", i, TransferedFileXml.InnerText));
             }
 
             // If this job comes from the Input directory, run the Input job check and start job if found
@@ -199,7 +199,7 @@ namespace Status.Services
 
                         if (StaticClass.ShutdownFlag == true)
                         {
-                            StaticClass.Log(String.Format("\nShutdown RunJob Input Scan for Job {0} at {1:HH:mm:ss.fff}",
+                            StaticClass.Log(string.Format("\nShutdown RunJob Input Scan for Job {0} at {1:HH:mm:ss.fff}",
                                 job, DateTime.Now));
                             return;
                         }
@@ -207,7 +207,7 @@ namespace Status.Services
                         // Check if the pause flag is set, then wait for reset
                         if (StaticClass.PauseFlag == true)
                         {
-                            StaticClass.Log(String.Format("JobRunThread RunJob1 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
+                            StaticClass.Log(string.Format("JobRunThread RunJob1 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                             do
                             {
                                 Thread.Yield();
@@ -217,7 +217,7 @@ namespace Status.Services
                     }
                     while (StaticClass.InputFileScanComplete[job] == false);
 
-                    StaticClass.Log(String.Format("Finished Input file scan for Job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(string.Format("Finished Input file scan for Job {0} at {1:HH:mm:ss.fff}",
                         inputJobFileDir, DateTime.Now));
 
                     // Add copying entry to status list
@@ -236,7 +236,7 @@ namespace Status.Services
             // If the shutdown flag is set, exit method
             if (StaticClass.ShutdownFlag == true)
             {
-                StaticClass.Log(String.Format("\nShutdown RunJob pre executinon of Job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("\nShutdown RunJob pre execution of Job {0} at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
                 return;
             }
@@ -244,7 +244,7 @@ namespace Status.Services
             // Check if the pause flag is set, then wait for reset
             if (StaticClass.PauseFlag == true)
             {
-                StaticClass.Log(String.Format("JobRunThread RunJob2 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
+                StaticClass.Log(string.Format("JobRunThread RunJob2 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                 do
                 {
                     Thread.Yield();
@@ -255,7 +255,7 @@ namespace Status.Services
             // Add entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.EXECUTING, JobType.TIME_START);
 
-            StaticClass.Log(String.Format("Starting Job {0} with Modeler {1} on Port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
+            StaticClass.Log(string.Format("Starting Job {0} with Modeler {1} on Port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
                 job, monitorData.Modeler, monitorData.JobPortNumber, iniData.CPUCores, DateTime.Now));
 
             // Execute Modeler using the command line generator
@@ -271,7 +271,7 @@ namespace Status.Services
             Process modelerProcess = cmdLineGenerator.ExecuteCommand(job);
 
             // Monitor for complete set of files in the Processing Buffer
-            StaticClass.Log(String.Format("Starting file monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}",
+            StaticClass.Log(string.Format("Starting file monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
 
             // Register with the Processing File Watcher class and start its thread
@@ -284,7 +284,7 @@ namespace Status.Services
             processingFileWatcher.ThreadProc();
 
             // Monitor for complete set of files in the Processing Buffer
-            StaticClass.Log(String.Format("Starting TCP/IP monitoring for Job {0} at {1:HH:mm:ss.fff}",
+            StaticClass.Log(string.Format("Starting TCP/IP monitoring for Job {0} at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
 
             // Start the TCP/IP Communications thread before checking for Processing job files
@@ -339,7 +339,7 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(String.Format("\nShutdown RunJob job complete scan for Job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(string.Format("\nShutdown RunJob job complete scan for Job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
                     return;
                 }
@@ -347,7 +347,7 @@ namespace Status.Services
                 // Check if the pause flag is set, then wait for reset
                 if (StaticClass.PauseFlag == true)
                 {
-                    StaticClass.Log(String.Format("JobRunThread RunJob3 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
+                    StaticClass.Log(string.Format("JobRunThread RunJob3 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                     do
                     {
                         Thread.Yield();
@@ -433,7 +433,7 @@ namespace Status.Services
 
             // Show Job Complete message
             TimeSpan timeSpan = DateTime.Now - StaticClass.JobStartTime[job];
-            StaticClass.Log(String.Format("Job {0} Complete taking {1:hh\\:mm\\:ss}. Decrementing Job count to {2} at {3:HH:mm:ss.fff}",
+            StaticClass.Log(string.Format("Job {0} Complete taking {1:hh\\:mm\\:ss}. Decrementing Job count to {2} at {3:HH:mm:ss.fff}",
                 job, timeSpan, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now));
 
             // Decrement the number of Jobs executing in one place!

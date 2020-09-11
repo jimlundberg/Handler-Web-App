@@ -41,7 +41,7 @@ namespace Status.Services
         {
             ProcessStartInfo startInfo = new ProcessStartInfo(Executable)
             {
-                Arguments = String.Format("{0} {1} {2}", ProcessingDirParam, StartPortParam, CpuCoresParam),
+                Arguments = string.Format("{0} {1} {2}", ProcessingDirParam, StartPortParam, CpuCoresParam),
                 UseShellExecute = true,
                 WorkingDirectory = ProcessingDirectory,
                 WindowStyle = ProcessWindowStyle.Minimized
@@ -68,7 +68,7 @@ namespace Status.Services
 
             // Give the Modeler time so you can read the Main Window Title parameter for display confirmation
             Thread.Sleep(StaticClass.DISPLAY_PROCESS_TITLE_WAIT);
-            StaticClass.Log(String.Format("{0} {1}", ModelerProcess.MainWindowTitle, ModelerProcess.StartInfo.Arguments));
+            StaticClass.Log(string.Format("{0} {1}", ModelerProcess.MainWindowTitle, ModelerProcess.StartInfo.Arguments));
 
             return ModelerProcess;
         }

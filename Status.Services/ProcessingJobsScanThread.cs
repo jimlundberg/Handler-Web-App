@@ -110,7 +110,7 @@ namespace Status.Services
                     string directory = dirInfo.ToString();
                     string job = directory.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
 
-                    StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                    StaticClass.Log(string.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                     // Remove job run from Processing Job list
                     lock (RemoveLock)
@@ -148,7 +148,7 @@ namespace Status.Services
                 StaticClass.ProcessingJobsToRun.Add(job);
 
                 int index = StaticClass.ProcessingJobsToRun.IndexOf(job);
-                StaticClass.Log(String.Format("\nUnfinished Processing jobs check added new Job {0} to Processing Job List index {1} at {2:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("\nUnfinished Processing jobs check added new Job {0} to Processing Job List index {1} at {2:HH:mm:ss.fff}",
                     job, index, DateTime.Now));
             }
 
@@ -161,14 +161,14 @@ namespace Status.Services
                 // Check if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(String.Format("\nShutdown ProcessingJobsScanThread CheckForUnfinishedProcessingJobs at {0:HH:mm:ss.fff}", DateTime.Now));
+                    StaticClass.Log(string.Format("\nShutdown ProcessingJobsScanThread CheckForUnfinishedProcessingJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
 
                 // Check if the pause flag is set, then wait for reset
                 if (StaticClass.PauseFlag == true)
                 {
-                    StaticClass.Log(String.Format("ProcessingJobsScanThread CheckForUnfinishedProcessingJobs is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
+                    StaticClass.Log(string.Format("ProcessingJobsScanThread CheckForUnfinishedProcessingJobs is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                     do
                     {
                         Thread.Yield();
@@ -199,7 +199,7 @@ namespace Status.Services
                 {
                     string directory = iniData.ProcessingDir + @"\" + job;
 
-                    StaticClass.Log(String.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                    StaticClass.Log(string.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                     // Remove job run from Processing Job list
                     lock (RemoveLock)
@@ -252,7 +252,7 @@ namespace Status.Services
             StaticClass.Log("Processing Job Time Stamp      : " + jobXmlData.TimeStamp);
             StaticClass.Log("Processing Job Xml File        : " + jobXmlData.XmlFileName);
 
-            StaticClass.Log(String.Format("Starting Processing directory Job {0} Executing Slot {1} at {2:HH:mm:ss.fff}",
+            StaticClass.Log(string.Format("Starting Processing directory Job {0} Executing Slot {1} at {2:HH:mm:ss.fff}",
                 jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
             // Create a thread to run the job, and then start the thread

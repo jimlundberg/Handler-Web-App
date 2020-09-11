@@ -84,7 +84,7 @@ namespace Status.Services
                 }
             }
 
-            StaticClass.Log(String.Format("CopyFolderContents from {0} -> {1}", sourcePath, destinationPath));
+            StaticClass.Log(string.Format("CopyFolderContents from {0} -> {1}", sourcePath, destinationPath));
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace Status.Services
                 Source.CopyTo(targetFile);
             }
 
-            StaticClass.Log(String.Format("Copied {0} -> {1}", sourceFile, targetFile));
+            StaticClass.Log(string.Format("Copied {0} -> {1}", sourceFile, targetFile));
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace Status.Services
                 Directory.Delete(targetDirectory, false);
             }
 
-            StaticClass.Log(String.Format("Deleted Directory {0}", targetDirectory));
+            StaticClass.Log(string.Format("Deleted Directory {0}", targetDirectory));
         }
     }
 }

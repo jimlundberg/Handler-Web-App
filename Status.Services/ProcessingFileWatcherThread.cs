@@ -100,13 +100,13 @@ namespace Status.Services
                 // Increment the number of Processing Buffer Job files found
                 StaticClass.NumberOfProcessingFilesFound[job]++;
 
-                StaticClass.Log(String.Format("\nProcessing File Watcher detected {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}\n",
+                StaticClass.Log(string.Format("\nProcessing File Watcher detected {0} for Job {1} file {2} of {3} at {4:HH:mm:ss.fff}\n",
                     jobFile, job, StaticClass.NumberOfProcessingFilesFound[job], StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
 
                 // If Number of Processing files is complete
                 if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
                 {
-                    StaticClass.Log(String.Format("Processing File Watcher detected Job {0} complete set of {1} files at {2:HH:mm:ss.fff}",
+                    StaticClass.Log(string.Format("Processing File Watcher detected Job {0} complete set of {1} files at {2:HH:mm:ss.fff}",
                         job, StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
 
                     // Signal the Run thread that the Processing Buffer files were found
@@ -155,7 +155,7 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(String.Format("\nShutdown ProcessingFileWatcherThread OverallResultEntryCheck for file {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(string.Format("\nShutdown ProcessingFileWatcherThread OverallResultEntryCheck for file {0} at {1:HH:mm:ss.fff}",
                         directory, DateTime.Now));
                     return false;
                 }
@@ -163,7 +163,7 @@ namespace Status.Services
                 // Check if the pause flag is set, then wait for reset
                 if (StaticClass.PauseFlag == true)
                 {
-                    StaticClass.Log(String.Format("ProcessingFileWatcherThread OverallResultEntryCheck is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
+                    StaticClass.Log(string.Format("ProcessingFileWatcherThread OverallResultEntryCheck is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                     do
                     {
                         Thread.Yield();
@@ -192,7 +192,7 @@ namespace Status.Services
             // Quick check to see if the directory is already full
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
-                StaticClass.Log(String.Format("Processing File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Processing File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
 
                 // Signal the Run thread that the Processing files were found
@@ -227,7 +227,7 @@ namespace Status.Services
                 // Begin watching for file changes to Processing job directory
                 watcher.EnableRaisingEvents = true;
 
-                StaticClass.Log(String.Format("Processing File Watcher watching {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Processing File Watcher watching {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
 
                 // Wait for Processing file scan to Complete with a full set of job output files
@@ -235,7 +235,7 @@ namespace Status.Services
                 {
                     if (StaticClass.ShutdownFlag == true)
                     {
-                        StaticClass.Log(String.Format("\nShutdown ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
+                        StaticClass.Log(string.Format("\nShutdown ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
                             directory, DateTime.Now));
 
                         return;
@@ -244,7 +244,7 @@ namespace Status.Services
                     // Check if the pause flag is set, then wait for reset
                     if (StaticClass.PauseFlag == true)
                     {
-                        StaticClass.Log(String.Format("ProcessingFileWatcherThread WatchFiles is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
+                        StaticClass.Log(string.Format("ProcessingFileWatcherThread WatchFiles is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                         do
                         {
                             Thread.Yield();
@@ -269,7 +269,7 @@ namespace Status.Services
                 }
 
                 // Exiting thread message
-                StaticClass.Log(String.Format("Processing File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Processing File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
                     directory, DateTime.Now));
             }
         }

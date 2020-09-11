@@ -63,7 +63,7 @@ namespace Status.Services
                         break;
                 }
 
-                string line = String.Format("{0},{1},{2},{3},{4}", job, status.ToString(), timeReceived, timeStarted, timeCompleted);
+                string line = string.Format("{0},{1},{2},{3},{4}", job, status.ToString(), timeReceived, timeStarted, timeCompleted);
 
                 writer.WriteLineAsync(line);
             }
@@ -177,14 +177,14 @@ namespace Status.Services
                         // If the shutdown flag is set, exit method
                         if (StaticClass.ShutdownFlag == true)
                         {
-                            StaticClass.Log(String.Format("\nShutdown ReadFromCsvFile Job {0} row {1}", rowStatusData.Job, rowStatusData));
+                            StaticClass.Log(string.Format("\nShutdown ReadFromCsvFile Job {0} row {1}", rowStatusData.Job, rowStatusData));
                             return null;
                         }
 
                         // Check if the pause flag is set, then wait for reset
                         if (StaticClass.PauseFlag == true)
                         {
-                            StaticClass.Log(String.Format("CsvFileHandler ReadFromCsvFile is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
+                            StaticClass.Log(string.Format("CsvFileHandler ReadFromCsvFile is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                             do
                             {
                                 Thread.Yield();
@@ -321,7 +321,7 @@ namespace Status.Services
                         // If the shutdown flag is set, exit method
                         if (StaticClass.ShutdownFlag == true)
                         {
-                            StaticClass.Log(String.Format("\nShutdown CsvFileHandler Job {0} at {1:HH:mm:ss.fff}",
+                            StaticClass.Log(string.Format("\nShutdown CsvFileHandler Job {0} at {1:HH:mm:ss.fff}",
                                 job, DateTime.Now));
                             return;
                         }
@@ -329,7 +329,7 @@ namespace Status.Services
                         // Check if the pause flag is set, then wait for reset
                         if (StaticClass.PauseFlag == true)
                         {
-                            StaticClass.Log(String.Format("CsvFileHandler CheckLogFileHistory is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
+                            StaticClass.Log(string.Format("CsvFileHandler CheckLogFileHistory is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                             do
                             {
                                 Thread.Yield();

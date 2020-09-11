@@ -81,14 +81,14 @@ namespace Status.Services
 
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(String.Format("\nShutdown InputJobsScanThread CheckForUnfinishedInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
+                    StaticClass.Log(string.Format("\nShutdown InputJobsScanThread CheckForUnfinishedInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
 
                 // Check if the pause flag is set, then wait for reset
                 if (StaticClass.PauseFlag == true)
                 {
-                    StaticClass.Log(String.Format("InputJobsScanThread CheckForUnfinishedInputJobs1 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
+                    StaticClass.Log(string.Format("InputJobsScanThread CheckForUnfinishedInputJobs1 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                     do
                     {
                         Thread.Yield();
@@ -130,7 +130,7 @@ namespace Status.Services
                     string directory = dirInfo.ToString();
                     string job = directory.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
 
-                    StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                    StaticClass.Log(string.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                     // Remove job run from Input Job directory list
                     lock (RemoveLock)
@@ -178,7 +178,7 @@ namespace Status.Services
                         StaticClass.Logger.LogError("InputJobScanThread Add Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
                     }
 
-                    StaticClass.Log(String.Format("\nUnfinished Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
+                    StaticClass.Log(string.Format("\nUnfinished Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
                         job, index, DateTime.Now));
                 }
 
@@ -194,14 +194,14 @@ namespace Status.Services
                 // Check if the shutdown flag is set, exit method
                 if (StaticClass.ShutdownFlag == true)
                 {
-                    StaticClass.Log(String.Format("\nShutdown InputJobsScanThread CheckForUnfinishedInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
+                    StaticClass.Log(string.Format("\nShutdown InputJobsScanThread CheckForUnfinishedInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
 
                 // Check if the pause flag is set, then wait for reset
                 if (StaticClass.PauseFlag == true)
                 {
-                    StaticClass.Log(String.Format("InputJobsScanThread CheckForUnfinishedInputJobs2 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
+                    StaticClass.Log(string.Format("InputJobsScanThread CheckForUnfinishedInputJobs2 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
                     do
                     {
                         Thread.Yield();
@@ -247,7 +247,7 @@ namespace Status.Services
                 {
                     string directory = iniData.InputDir + @"\" + job;
 
-                    StaticClass.Log(String.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                    StaticClass.Log(string.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                     // Reset Input job file scan flag
                     StaticClass.InputFileScanComplete[job] = false;
@@ -283,7 +283,7 @@ namespace Status.Services
             StaticClass.Log("Input Job Time Stamp           : " + jobXmlData.TimeStamp);
             StaticClass.Log("Input Job Xml File             : " + jobXmlData.XmlFileName);
 
-            StaticClass.Log(String.Format("Started Input Job {0} executing Slot {1} at {2:HH:mm:ss.fff}",
+            StaticClass.Log(string.Format("Started Input Job {0} executing Slot {1} at {2:HH:mm:ss.fff}",
                 jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
             // Create a thread to run the job, and then start the thread
