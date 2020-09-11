@@ -173,6 +173,24 @@ namespace Status.Services
             StaticClass.NumberOfProcessingFilesNeeded.Clear();
             StaticClass.NumberOfJobsExecuting = 0;
             StaticClass.JobPortIndex = 0;
+
+            // Make sure threads are shut down
+            StaticClass.InputJobsScanThreadHandle.Abort();
+            StaticClass.ProcessingFileWatcherThreadHandle.Abort();
+            StaticClass.ProcessingJobsScanThreadHandle.Abort();
+            StaticClass.DirectoryWatcherThreadHandle.Abort();
+            StaticClass.InputFileWatcherThreadHandle.Abort();
+            StaticClass.JobRunThreadHandle.Abort();
+            StaticClass.TcpListenerThreadHandle.Abort();
+
+            // Set all thread handles to null
+            StaticClass.InputJobsScanThreadHandle= null;
+            StaticClass.ProcessingFileWatcherThreadHandle= null;
+            StaticClass.ProcessingJobsScanThreadHandle= null;
+            StaticClass.DirectoryWatcherThreadHandle= null;
+            StaticClass.InputFileWatcherThreadHandle= null;
+            StaticClass.JobRunThreadHandle= null;
+            StaticClass.TcpListenerThreadHandle= null;
         }
 
         /// <summary>

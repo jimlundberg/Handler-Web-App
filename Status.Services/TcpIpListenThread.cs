@@ -52,19 +52,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Start TCP/IP scan process
-        /// </summary>
-        /// <param name="iniData"></param>
-        /// <param name="monitorData"></param>
-        /// <param name="statusData"></param>
-        public void StartTcpIpScanProcess(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
-        {
-            // Start TCP/IP thread
-            TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData);
-            tcpIp.ThreadProc();
-        }
-
-        /// <summary>
         /// TCP/IP process complete callback
         /// </summary>
         /// <param name="e"></param>

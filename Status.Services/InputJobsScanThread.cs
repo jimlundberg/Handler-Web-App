@@ -46,7 +46,7 @@ namespace Status.Services
             StaticClass.InputJobsScanThreadHandle = new Thread(() => CheckForUnfinishedInputJobs(IniData, StatusDataList));
             if (StaticClass.InputJobsScanThreadHandle == null)
             {
-                StaticClass.Logger.LogError("InputJobsScanThread thread failed to instantiate");
+                StaticClass.Logger.LogError("InputJobsScanThread InputJobsScanThreadHandle thread failed to instantiate");
             }
             StaticClass.InputJobsScanThreadHandle.Start();
         }

@@ -65,7 +65,7 @@ namespace Status.Services
 
             if (StaticClass.ProcessingJobsScanThreadHandle == null)
             {
-                StaticClass.Logger.LogError("ProcessingJobsScanThread thread failed to instantiate");
+                StaticClass.Logger.LogError("ProcessingJobsScanThread ProcessingJobsScanThreadHandle failed to instantiate");
             }
             StaticClass.ProcessingJobsScanThreadHandle.Start();
         }

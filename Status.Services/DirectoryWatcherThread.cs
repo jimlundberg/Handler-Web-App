@@ -45,7 +45,7 @@ namespace Status.Services
             StaticClass.DirectoryWatcherThreadHandle = new Thread(() => WatchDirectory(DirectoryName));
             if (StaticClass.DirectoryWatcherThreadHandle == null)
             {
-                StaticClass.Logger.LogError("DirectoryWatcherThread thread failed to instantiate");
+                StaticClass.Logger.LogError("DirectoryWatcherThread DirectoryWatcherThreadHandle thread failed to instantiate");
             }
             StaticClass.DirectoryWatcherThreadHandle.Start();
         }

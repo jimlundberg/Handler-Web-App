@@ -61,7 +61,7 @@ namespace Status.Services
 
             if (StaticClass.JobRunThreadHandle == null)
             {
-                StaticClass.Logger.LogError("JobRunThread thread failed to instantiate");
+                StaticClass.Logger.LogError("JobRunThread JobRunThreadHandle thread failed to instantiate");
             }
             StaticClass.JobRunThreadHandle.Start();
         }
@@ -288,12 +288,12 @@ namespace Status.Services
                 job, DateTime.Now));
 
             // Start the TCP/IP Communications thread before checking for Processing job files
-            TcpIpListenThread tcpIp = new TcpIpListenThread(iniData, monitorData, statusData);
-            if (tcpIp == null)
+            TcpIpListenThread tcpIpThread = new TcpIpListenThread(iniData, monitorData, statusData);
+            if (tcpIpThread == null)
             {
-                StaticClass.Logger.LogError("ProcessingFileWatcherThread tcpIp thread failed to instantiate");
+                StaticClass.Logger.LogError("ProcessingFileWatcherThread tcpIpThread failed to instantiate");
             }
-            tcpIp.ThreadProc();
+            tcpIpThread.ThreadProc();
 
             // Add entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);

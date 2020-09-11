@@ -72,7 +72,7 @@ namespace Status.Services
             StaticClass.InputFileWatcherThreadHandle = new Thread(() => WatchFiles(DirectoryName, IniData));
             if (StaticClass.InputFileWatcherThreadHandle == null)
             {
-                StaticClass.Logger.LogError("InputFileWatcherThread thread failed to instantiate");
+                StaticClass.Logger.LogError("InputFileWatcherThread InputFileWatcherThreadHandle thread failed to instantiate");
             }
             StaticClass.InputFileWatcherThreadHandle.Start();
         }
