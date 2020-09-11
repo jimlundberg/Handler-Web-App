@@ -18,7 +18,7 @@ namespace Status.Services
         private static List<StatusData> StatusData;
         public event EventHandler ProcessCompleted;
         private static readonly string Server = "127.0.0.1";
-        private static readonly string Message = "status";
+        private static readonly string StatusMessage = "status";
         private static int Port = 0;
 
         /// <summary>
@@ -156,22 +156,27 @@ namespace Status.Services
                     if (stream.CanWrite)
                     {
                         // Translate the passed message into ASCII and store it as a Byte array.
-                        Byte[] sendData = Encoding.ASCII.GetBytes(Message);
+                        Byte[] sendData = Encoding.ASCII.GetBytes(StatusMessage);
                         stream.Write(sendData, 0, sendData.Length);
 
                         StaticClass.Log(String.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
-                            Message, job, port, DateTime.Now));
+                            StatusMessage, job, port, DateTime.Now));
                     }
                     else
                     {
                         StaticClass.Log(String.Format("\nTCP/IP stream closed for Modeler Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));
+                      
+                        // Make sure to close TCP/IP socket
+                        stream.Close();
+                        client.Close();
+
+                        StaticClass.Log(String.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                            job, port, DateTime.Now));
 
                         // Set the TCP/IP Scan complete flag to signal the RunJob thread
                         StaticClass.TcpIpScanComplete[job] = true;
-
-                        // Make sure to close TCP/IP socket
-                        jobComplete = true;
+                        return;
                     }
 
                     // Check if TCP/IP stream is readable and data is available
