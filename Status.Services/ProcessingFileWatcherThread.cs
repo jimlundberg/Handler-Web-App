@@ -109,6 +109,9 @@ namespace Status.Services
                     StaticClass.Log(string.Format("Processing File Watcher detected Job {0} complete set of {1} files at {2:HH:mm:ss.fff}",
                         job, StaticClass.NumberOfProcessingFilesNeeded[job], DateTime.Now));
 
+                    // Short pause so that files from the network that are slow
+                    Thread.Sleep(StaticClass.WAIT_FOR_FILES_TO_COMPLETE);
+
                     // Signal the Run thread that the Processing Buffer files were found
                     StaticClass.ProcessingFileScanComplete[job] = true;
                 }
