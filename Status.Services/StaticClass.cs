@@ -180,28 +180,28 @@ namespace Status.Services
         /// <summary>
         /// Shut Down and Pause Check
         /// </summary>
-        /// <param name="job"></param>
+        /// <param name="location"></param>
         /// <returns>Shutdown or not</returns>
         public static bool ShutDownPauseCheck(string location)
         {
             // Output message of the shutdown flag is set
-            if (StaticClass.ShutdownFlag == true)
+            if (ShutdownFlag == true)
             {
-                StaticClass.Log(string.Format("\nShutdown {0} at {1:HH:mm:ss.fff}", location, DateTime.Now));
+                Log(string.Format("\nShutdown {0} at {1:HH:mm:ss.fff}", location, DateTime.Now));
 
                 // Shutdown confirmed
                 return true;
             }
 
             // Check if the pause flag is set, then wait for reset
-            if (StaticClass.PauseFlag == true)
+            if (PauseFlag == true)
             {
-                StaticClass.Log(string.Format("Handler in Pause mode in {0} at {1:HH:mm:ss.fff}", location, DateTime.Now));
+                Log(string.Format("Handler in Pause mode in {0} at {1:HH:mm:ss.fff}", location, DateTime.Now));
                 do
                 {
                     Thread.Yield();
                 }
-                while (StaticClass.PauseFlag == true);
+                while (PauseFlag == true);
             }
 
             // No shutdown
