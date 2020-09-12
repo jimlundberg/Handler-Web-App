@@ -197,7 +197,7 @@ namespace Status.Services
                     {
                         Thread.Yield();
 
-                        if (StaticClass.ShutDownPauseCheck("Run Job 1") == true)
+                        if (StaticClass.ShutDownPauseCheck("Run Job") == true)
                         {
                             StaticClass.Log(string.Format("\nShutdown RunJob Input Scan for Job {0} at {1:HH:mm:ss.fff}",
                                 job, DateTime.Now));
@@ -223,7 +223,7 @@ namespace Status.Services
             }
 
             // If the shutdown flag is set, exit method
-            if (StaticClass.ShutDownPauseCheck("Run Job 2") == true)
+            if (StaticClass.ShutDownPauseCheck("Run Job") == true)
             {
                 StaticClass.Log(string.Format("\nShutdown RunJob pre execution of Job {0} at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
@@ -326,7 +326,7 @@ namespace Status.Services
             {
                 Thread.Yield();
 
-                if (StaticClass.ShutDownPauseCheck("Run Job 3") == true)
+                if (StaticClass.ShutDownPauseCheck("Run Job") == true)
                 {
                     StaticClass.Log(string.Format("\nShutdown RunJob job complete scan for Job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
