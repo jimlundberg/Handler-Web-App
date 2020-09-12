@@ -113,7 +113,7 @@ namespace Status.Services
                     return;
                 }
 
-                StaticClass.Log(string.Format("\nConnected to TCP/IP for Job {0} on Port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
+                StaticClass.Log(string.Format("\nConnected to Modeler TCP/IP for Job {0} on Port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
                 bool jobComplete = false;
                 do
                 {
