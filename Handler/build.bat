@@ -34,7 +34,7 @@ copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\MixedTest.bat C:\S
 REM Delete the Handler bin directory build files after we are done with them...
 rmdir /Q /S C:\SSMCharacterizationHandler\Handler\Handler\Handler\bin
 rmdir /Q /S C:\SSMCharacterizationHandler\Handler\Handler\StatusModels\bin
-rmdir /Q /SC:\SSMCharacterizationHandler\Handler\Handler\Status.Services\bin
+rmdir /Q /S C:\SSMCharacterizationHandler\Handler\Handler\Status.Services\bin
 
 cd ..
 
