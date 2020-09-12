@@ -13,13 +13,18 @@ REM set buffer=ProcessingBuffer
 :RunTest
 
 SET JOB=1185840_202003250942
-echo Copying %JOB% .xml file
+echo Copying Job start files one at a time
 xcopy /S /F "test\%JOB%\*.xml" "%buffer%\%JOB%\*.xml"
 timeout 5
-echo Copying %JOB% other files
-xcopy /S /F "test\%JOB%\*.csv" "%buffer%\%JOB%\*.csv"
+xcopy /S /F "test\%JOB%\*mode0.csv" "%buffer%\%JOB%\*mode0.csv"
 timeout 5
-xcopy /S /F "test\%JOB%\*.tab" "%buffer%\%JOB%\*.tab"
+xcopy /S /F "test\%JOB%\*mode1.csv" "%buffer%\%JOB%\*mode1.csv"
+timeout 5
+xcopy /S /F "test\%JOB%\*mode2.csv" "%buffer%\%JOB%\*mode2.csv"
+timeout 5
+xcopy /S /F "test\%JOB%\*Cap_Template.tab" "%buffer%\%JOB%\*Cap_Template.tab"
+timeout 5
+xcopy /S /F "test\%JOB%\*Tune_Template.tab" "%buffer%\%JOB%\*Tune_Template.tab"
 
 timeout 10
 
