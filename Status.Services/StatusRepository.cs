@@ -158,22 +158,6 @@ namespace Status.Services
                 process.Value.Kill();
             }
 
-            // Clear the Dictionaries after Modeler shutdowns complete
-            StaticClass.ProcessHandles.Clear();
-            StaticClass.ProcessingJobsToRun.Clear();
-            StaticClass.ProcessHandles.Clear();
-            StaticClass.InputFileScanComplete.Clear();
-            StaticClass.InputJobScanComplete.Clear();
-            StaticClass.ProcessingFileScanComplete.Clear();
-            StaticClass.ProcessingJobScanComplete.Clear();
-            StaticClass.TcpIpScanComplete.Clear();
-            StaticClass.NumberOfInputFilesFound.Clear();
-            StaticClass.NumberOfInputFilesNeeded.Clear();
-            StaticClass.NumberOfProcessingFilesFound.Clear();
-            StaticClass.NumberOfProcessingFilesNeeded.Clear();
-            StaticClass.NumberOfJobsExecuting = 0;
-            StaticClass.JobPortIndex = 0;
-
             // Make sure threads are shut down
             StaticClass.InputJobsScanThreadHandle.Join();
             StaticClass.ProcessingFileWatcherThreadHandle.Join();
@@ -191,6 +175,22 @@ namespace Status.Services
             StaticClass.InputFileWatcherThreadHandle= null;
             StaticClass.JobRunThreadHandle= null;
             StaticClass.TcpListenerThreadHandle= null;
+
+            // Clear the Dictionaries after Modeler shutdowns complete
+            StaticClass.ProcessHandles.Clear();
+            StaticClass.ProcessingJobsToRun.Clear();
+            StaticClass.ProcessHandles.Clear();
+            StaticClass.InputFileScanComplete.Clear();
+            StaticClass.InputJobScanComplete.Clear();
+            StaticClass.ProcessingFileScanComplete.Clear();
+            StaticClass.ProcessingJobScanComplete.Clear();
+            StaticClass.TcpIpScanComplete.Clear();
+            StaticClass.NumberOfInputFilesFound.Clear();
+            StaticClass.NumberOfInputFilesNeeded.Clear();
+            StaticClass.NumberOfProcessingFilesFound.Clear();
+            StaticClass.NumberOfProcessingFilesNeeded.Clear();
+            StaticClass.NumberOfJobsExecuting = 0;
+            StaticClass.JobPortIndex = 0;
         }
 
         /// <summary>
