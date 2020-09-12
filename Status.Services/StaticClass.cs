@@ -18,6 +18,7 @@ namespace Status.Services
         public const int STARTING_TCP_IP_WAIT = 15000;
         public const int KILL_PROCESS_WAIT = 5000;
         public const int POST_PROCESS_WAIT = 5000;
+        public const int WAIT_FOR_FILES_TO_COMPLETE = 2500;
         public const int DISPLAY_PROCESS_DATA_WAIT = 45000;
         public const int DISPLAY_PROCESS_TITLE_WAIT = 1000;
         public const int SHUTDOWN_PROCESS_WAIT = 5000;

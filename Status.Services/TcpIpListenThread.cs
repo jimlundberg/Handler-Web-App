@@ -13,13 +13,13 @@ namespace Status.Services
     /// </summary>
     public class TcpIpListenThread
     {
-        private static IniFileData IniData;
-        private static StatusMonitorData MonitorData;
-        private static List<StatusData> StatusData;
+        private readonly IniFileData IniData;
+        private readonly StatusMonitorData MonitorData;
+        private readonly List<StatusData> StatusData;
         public event EventHandler ProcessCompleted;
         private static readonly string Server = "127.0.0.1";
         private static readonly string StatusMessage = "status";
-        private static int Port = 0;
+        private readonly int Port = 0;
 
         /// <summary>
         /// TCP/IP Listen thread default constructor
