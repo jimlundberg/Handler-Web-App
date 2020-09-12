@@ -77,10 +77,11 @@ namespace Status.Services
         /// Connect to TCP/IP Port 
         /// </summary>
         /// <param name="port"></param>
+        /// <param name="server"></param>
         /// <param name="iniData"></param>
         /// <param name="monitorData"></pram>
         /// <param name="statusData"></param>
-        public static void Connect(int port, string server, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
+        public void Connect(int port, string server, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
         {
             ModelerStepState ModelerCurrentStepState = ModelerStepState.NONE;
             string job = monitorData.Job;
