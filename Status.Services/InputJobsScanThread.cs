@@ -17,7 +17,6 @@ namespace Status.Services
         private readonly IniFileData IniData;
         private readonly List<StatusData> StatusDataList;
         private static readonly Object RemoveLock = new Object();
-        private static readonly Object ListLock = new Object();
 
         /// <summary>
         /// Current Input Jobs Scan thread default constructor
