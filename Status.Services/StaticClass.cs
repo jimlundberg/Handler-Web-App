@@ -17,6 +17,7 @@ namespace Status.Services
         public const int TCP_IP_STARTUP_WAIT = 60000;
         public const int STARTING_TCP_IP_WAIT = 15000;
         public const int KILL_PROCESS_WAIT = 5000;
+        public const int POST_PROCESS_WAIT = 5000;
         public const int DISPLAY_PROCESS_DATA_WAIT = 45000;
         public const int DISPLAY_PROCESS_TITLE_WAIT = 1000;
         public const int SHUTDOWN_PROCESS_WAIT = 5000;
@@ -174,6 +175,37 @@ namespace Status.Services
                     FileHandling.DeleteDirectory(dir);
                 }
             }
+        }
+
+        /// <summary>
+        /// Shut Down and Pause Check
+        /// </summary>
+        /// <param name="job"></param>
+        /// <returns>Shutdown or not</returns>
+        public static bool ShutDownPauseCheck(string location)
+        {
+            // Output message of the shutdown flag is set
+            if (StaticClass.ShutdownFlag == true)
+            {
+                StaticClass.Log(string.Format("\nShutdown {0} at {1:HH:mm:ss.fff}", location, DateTime.Now));
+
+                // Shutdown confirmed
+                return true;
+            }
+
+            // Check if the pause flag is set, then wait for reset
+            if (StaticClass.PauseFlag == true)
+            {
+                StaticClass.Log(string.Format("Handler in Pause mode in {0} at {1:HH:mm:ss.fff}", location, DateTime.Now));
+                do
+                {
+                    Thread.Yield();
+                }
+                while (StaticClass.PauseFlag == true);
+            }
+
+            // No shutdown
+            return false;
         }
     }
 }

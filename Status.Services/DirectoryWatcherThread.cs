@@ -126,21 +126,10 @@ namespace Status.Services
                 do
                 {
                     // Check if the shutdown flag is set, exit method
-                    if (StaticClass.ShutdownFlag == true)
+                    if (StaticClass.ShutDownPauseCheck("WatchDirectory") == true)
                     {
                         StaticClass.Log(string.Format("\nShutdown DirectoryWatcherThread WatchDirectory at {0:HH:mm:ss.fff}", DateTime.Now));
                         return;
-                    }
-
-                    // Check if the pause flag is set, then wait for reset
-                    if (StaticClass.PauseFlag == true)
-                    {
-                        StaticClass.Log(string.Format("DirectoryWatcherThread WatchDirectory is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
-                        do
-                        {
-                            Thread.Yield();
-                        }
-                        while (StaticClass.PauseFlag == true);
                     }
 
                     Thread.Yield();

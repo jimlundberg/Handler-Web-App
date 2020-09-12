@@ -197,22 +197,11 @@ namespace Status.Services
                     {
                         Thread.Yield();
 
-                        if (StaticClass.ShutdownFlag == true)
+                        if (StaticClass.ShutDownPauseCheck("Run Job 1") == true)
                         {
                             StaticClass.Log(string.Format("\nShutdown RunJob Input Scan for Job {0} at {1:HH:mm:ss.fff}",
                                 job, DateTime.Now));
                             return;
-                        }
-
-                        // Check if the pause flag is set, then wait for reset
-                        if (StaticClass.PauseFlag == true)
-                        {
-                            StaticClass.Log(string.Format("JobRunThread RunJob1 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
-                            do
-                            {
-                                Thread.Yield();
-                            }
-                            while (StaticClass.PauseFlag == true);
                         }
                     }
                     while (StaticClass.InputFileScanComplete[job] == false);
@@ -234,7 +223,7 @@ namespace Status.Services
             }
 
             // If the shutdown flag is set, exit method
-            if (StaticClass.ShutdownFlag == true)
+            if (StaticClass.ShutDownPauseCheck("Run Job 2") == true)
             {
                 StaticClass.Log(string.Format("\nShutdown RunJob pre execution of Job {0} at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
@@ -337,22 +326,11 @@ namespace Status.Services
             {
                 Thread.Yield();
 
-                if (StaticClass.ShutdownFlag == true)
+                if (StaticClass.ShutDownPauseCheck("Run Job 3") == true)
                 {
                     StaticClass.Log(string.Format("\nShutdown RunJob job complete scan for Job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
                     return;
-                }
-
-                // Check if the pause flag is set, then wait for reset
-                if (StaticClass.PauseFlag == true)
-                {
-                    StaticClass.Log(string.Format("JobRunThread RunJob3 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
-                    do
-                    {
-                        Thread.Yield();
-                    }
-                    while (StaticClass.PauseFlag == true);
                 }
             }
             while (StaticClass.ProcessingJobScanComplete[job] == false);
@@ -360,7 +338,7 @@ namespace Status.Services
             // Add copy to archieve entry to status list
             StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START);
 
-            // Make sure Modeler Process is killed
+            // Make sure Modeler Process is stopped
             if (StaticClass.ProcessHandles[job] != null)
             {
                 StaticClass.ProcessHandles[job].Kill();

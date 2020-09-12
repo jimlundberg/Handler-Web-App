@@ -153,22 +153,12 @@ namespace Status.Services
                     OverallResultEntryFound = true;
                 }
 
-                if (StaticClass.ShutdownFlag == true)
+                // Check for shutdown or pause
+                if (StaticClass.ShutDownPauseCheck("Overall Result Entry Check") == true)
                 {
                     StaticClass.Log(string.Format("\nShutdown ProcessingFileWatcherThread OverallResultEntryCheck for file {0} at {1:HH:mm:ss.fff}",
                         directory, DateTime.Now));
                     return false;
-                }
-
-                // Check if the pause flag is set, then wait for reset
-                if (StaticClass.PauseFlag == true)
-                {
-                    StaticClass.Log(string.Format("ProcessingFileWatcherThread OverallResultEntryCheck is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
-                    do
-                    {
-                        Thread.Yield();
-                    }
-                    while (StaticClass.PauseFlag == true);
                 }
 
                 Thread.Yield();
@@ -233,23 +223,13 @@ namespace Status.Services
                 // Wait for Processing file scan to Complete with a full set of job output files
                 do
                 {
-                    if (StaticClass.ShutdownFlag == true)
+                    // Check for shutdown or pause
+                    if (StaticClass.ShutDownPauseCheck("Processing File Watcher Thread") == true)
                     {
                         StaticClass.Log(string.Format("\nShutdown ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
                             directory, DateTime.Now));
 
                         return;
-                    }
-
-                    // Check if the pause flag is set, then wait for reset
-                    if (StaticClass.PauseFlag == true)
-                    {
-                        StaticClass.Log(string.Format("ProcessingFileWatcherThread WatchFiles is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
-                        do
-                        {
-                            Thread.Yield();
-                        }
-                        while (StaticClass.PauseFlag == true);
                     }
 
                     Thread.Yield();
@@ -259,18 +239,26 @@ namespace Status.Services
                 // Check if the Processing Job Complete flag is still false or you get a shutdown error
                 if (StaticClass.ProcessingJobScanComplete[job] == false)
                 {
-                    Thread.Sleep(StaticClass.KILL_PROCESS_WAIT);
+                    // Wait to make sure the data.xml is done being handled
+                    Thread.Sleep(StaticClass.POST_PROCESS_WAIT);
 
                     // Wait for the data.xml file to contain a result
                     if (OverallResultEntryCheck(directory))
                     {
+                        // set the Processing of a Job scan complete flag
                         StaticClass.ProcessingJobScanComplete[job] = true;
+
+                        // Processing Thread Complete
+                        StaticClass.Log(string.Format("Processing File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
+                            directory, DateTime.Now));
+                    }
+                    else
+                    {
+                        // Show error and return
+                        StaticClass.Log(string.Format("Processing File could not confirm the OverallResult Entry for Job {0} at {1:HH:mm:ss.fff}",
+                            directory, DateTime.Now));
                     }
                 }
-
-                // Exiting thread message
-                StaticClass.Log(string.Format("Processing File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
-                    directory, DateTime.Now));
             }
         }
     }

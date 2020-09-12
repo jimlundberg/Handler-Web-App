@@ -177,22 +177,11 @@ namespace Status.Services
                 {
                     Thread.Yield();
 
-                    if (StaticClass.ShutdownFlag == true)
+                    if (StaticClass.ShutDownPauseCheck("WatchDirectory") == true)
                     {
                         StaticClass.Log(string.Format("\nShutdown InputFileWatcherThread WatchFiles watching {0} at {1:HH:mm:ss.fff}",
                             directory, DateTime.Now));
                         return;
-                    }
-
-                    // Check if the pause flag is set, then wait for reset
-                    if (StaticClass.PauseFlag == true)
-                    {
-                        StaticClass.Log(string.Format("InputFileWatcherThread WatchFiles is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
-                        do
-                        {
-                            Thread.Yield();
-                        }
-                        while (StaticClass.PauseFlag == true);
                     }
                 }
                 while (StaticClass.InputFileScanComplete[job] == false);

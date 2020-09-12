@@ -117,37 +117,35 @@ namespace Status.Services
                 bool jobComplete = false;
                 do
                 {
-                    if (StaticClass.ShutdownFlag == true)
+                    if (StaticClass.ShutDownPauseCheck(job) == true)
                     {
                         StaticClass.Log(string.Format("\nShutdown TcpIpListenThread prewrite for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));
 
-                        StaticClass.TcpIpScanComplete[job] = true;
-
                         // Make sure to close TCP/IP socket
-                        jobComplete = true;
-                    }
+                        stream.Close();
+                        client.Close();
 
-                    // Check if the pause flag is set, then wait for reset
-                    if (StaticClass.PauseFlag == true)
-                    {
-                        StaticClass.Log(string.Format("TcpIpListenThread Connect1 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
-                        do
-                        {
-                            Thread.Yield();
-                        }
-                        while (StaticClass.PauseFlag == true);
+                        StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                            job, port, DateTime.Now));
+
+                        // Set the TCP/IP Scan complete flag to signal the RunJob thread
+                        StaticClass.TcpIpScanComplete[job] = true;
+                        return;
                     }
 
                     // Check if the stream is writable, if not, exit
                     if (stream.CanWrite)
                     {
-                        // Translate the passed message into ASCII and store it as a Byte array.
-                        Byte[] sendData = Encoding.ASCII.GetBytes(StatusMessage);
-                        stream.Write(sendData, 0, sendData.Length);
+                        if (StaticClass.ShutDownPauseCheck(job) == false)
+                        {
+                            // Translate the passed message into ASCII and store it as a Byte array.
+                            Byte[] sendData = Encoding.ASCII.GetBytes(StatusMessage);
+                            stream.Write(sendData, 0, sendData.Length);
 
-                        StaticClass.Log(string.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
-                            StatusMessage, job, port, DateTime.Now));
+                            StaticClass.Log(string.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
+                                StatusMessage, job, port, DateTime.Now));
+                        }
                     }
                     else
                     {
@@ -281,11 +279,15 @@ namespace Status.Services
                                 jobComplete = true;
                             }
 
-                            // Check if the shutdown flag is set, then exit method
-                            if (StaticClass.ShutdownFlag == true)
+                            // Check for shutdown or pause
+                            if (StaticClass.ShutDownPauseCheck("TCP/IP Connect") == true)
                             {
                                 StaticClass.Log(string.Format("\nShutdown TcpIpListenThread Connect for Job {0} in state {1} on Port {2} at {3:HH:mm:ss.fff}",
                                     job, ModelerCurrentStepState, port, DateTime.Now));
+
+                                // Make sure to close TCP/IP socket
+                                stream.Close();
+                                client.Close();
 
                                 StaticClass.TcpIpScanComplete[job] = true;
 
@@ -293,22 +295,12 @@ namespace Status.Services
                                 jobComplete = true;
                             }
 
-                            // Check if the pause flag is set, then wait for reset
-                            if (StaticClass.PauseFlag == true)
-                            {
-                                StaticClass.Log(string.Format("TcpIpListenThread Connect3 is in Pause mode in state {0} at {1:HH:mm:ss.fff}",
-                                    ModelerCurrentStepState, DateTime.Now));
-                                do
-                                {
-                                    Thread.Yield();
-                                }
-                                while (StaticClass.PauseFlag == true);
-                            }
-
+                            // Set the messge received flag to exit receive loop
                             messageReceived = true;
                         }
                         else
                         {
+                            // Wait 250 msec between 480 Data Available checks (2 min) CanRead is set for session
                             Thread.Sleep(StaticClass.READ_AVAILABLE_RETRY_DELAY);
                             tcpIpRetryCount++;
                         }

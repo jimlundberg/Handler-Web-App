@@ -175,13 +175,13 @@ namespace Status.Services
             StaticClass.JobPortIndex = 0;
 
             // Make sure threads are shut down
-            StaticClass.InputJobsScanThreadHandle.Abort();
-            StaticClass.ProcessingFileWatcherThreadHandle.Abort();
-            StaticClass.ProcessingJobsScanThreadHandle.Abort();
-            StaticClass.DirectoryWatcherThreadHandle.Abort();
-            StaticClass.InputFileWatcherThreadHandle.Abort();
-            StaticClass.JobRunThreadHandle.Abort();
-            StaticClass.TcpListenerThreadHandle.Abort();
+            StaticClass.InputJobsScanThreadHandle.Join();
+            StaticClass.ProcessingFileWatcherThreadHandle.Join();
+            StaticClass.ProcessingJobsScanThreadHandle.Join();
+            StaticClass.DirectoryWatcherThreadHandle.Join();
+            StaticClass.InputFileWatcherThreadHandle.Join();
+            StaticClass.JobRunThreadHandle.Join();
+            StaticClass.TcpListenerThreadHandle.Join();
 
             // Set all thread handles to null
             StaticClass.InputJobsScanThreadHandle= null;

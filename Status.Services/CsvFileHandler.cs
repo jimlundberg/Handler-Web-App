@@ -175,21 +175,10 @@ namespace Status.Services
                         statusDataTable.Add(rowStatusData);
 
                         // If the shutdown flag is set, exit method
-                        if (StaticClass.ShutdownFlag == true)
+                        if (StaticClass.ShutDownPauseCheck("ReadFromCsvFile") == true)
                         {
                             StaticClass.Log(string.Format("\nShutdown ReadFromCsvFile Job {0} row {1}", rowStatusData.Job, rowStatusData));
                             return null;
-                        }
-
-                        // Check if the pause flag is set, then wait for reset
-                        if (StaticClass.PauseFlag == true)
-                        {
-                            StaticClass.Log(string.Format("CsvFileHandler ReadFromCsvFile is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
-                            do
-                            {
-                                Thread.Yield();
-                            }
-                            while (StaticClass.PauseFlag == true);
                         }
                     }
                 }
@@ -319,22 +308,11 @@ namespace Status.Services
                         }
 
                         // If the shutdown flag is set, exit method
-                        if (StaticClass.ShutdownFlag == true)
+                        if (StaticClass.ShutDownPauseCheck("CheckLogFileHistory") == true)
                         {
                             StaticClass.Log(string.Format("\nShutdown CsvFileHandler Job {0} at {1:HH:mm:ss.fff}",
                                 job, DateTime.Now));
                             return;
-                        }
-
-                        // Check if the pause flag is set, then wait for reset
-                        if (StaticClass.PauseFlag == true)
-                        {
-                            StaticClass.Log(string.Format("CsvFileHandler CheckLogFileHistory is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
-                            do
-                            {
-                                Thread.Yield();
-                            }
-                            while (StaticClass.PauseFlag == true);
                         }
                     }
                 }

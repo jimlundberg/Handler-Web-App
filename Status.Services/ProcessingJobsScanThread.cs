@@ -158,22 +158,11 @@ namespace Status.Services
             // Run check loop until all unfinished Processing jobs are complete
             do
             {
-                // Check if the shutdown flag is set, exit method
-                if (StaticClass.ShutdownFlag == true)
+                // Check for shutdown or pause
+                if (StaticClass.ShutDownPauseCheck("Processing Jobs Scan Thread") == true)
                 {
                     StaticClass.Log(string.Format("\nShutdown ProcessingJobsScanThread CheckForUnfinishedProcessingJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
-                }
-
-                // Check if the pause flag is set, then wait for reset
-                if (StaticClass.PauseFlag == true)
-                {
-                    StaticClass.Log(string.Format("ProcessingJobsScanThread CheckForUnfinishedProcessingJobs is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
-                    do
-                    {
-                        Thread.Yield();
-                    }
-                    while (StaticClass.PauseFlag == true);
                 }
 
                 // Run any unfinished Processing jobs
