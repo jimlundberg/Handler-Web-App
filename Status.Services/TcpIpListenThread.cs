@@ -171,6 +171,21 @@ namespace Status.Services
                     bool messageReceived = false;
                     do
                     {
+                        if (StaticClass.ShutDownPauseCheck("TCP/IP Receive") == true)
+                        {
+                            StaticClass.Log(string.Format("\nShutdown TcpIpListenThread for Job {0} in state {1} on Port {2} at {3:HH:mm:ss.fff}",
+                                job, ModelerCurrentStepState, port, DateTime.Now));
+
+                            // Make sure to close TCP/IP socket
+                            stream.Close();
+                            client.Close();
+
+                            StaticClass.TcpIpScanComplete[job] = true;
+
+                            // Make sure to close TCP/IP socket
+                            jobComplete = true;
+                        }
+
                         if (stream.CanRead && stream.DataAvailable)
                         {
                             // Buffers to store the response
