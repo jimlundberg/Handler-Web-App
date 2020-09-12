@@ -27,16 +27,16 @@ No unfinished Input Jobs found...
 
 Started Watching for new Input Jobs...
 
-Input Directory Watcher added new Job 1185840_202003250942 to Input Job list index 1 at 16:23:31.722
+Input Directory Watcher added new Job 1185840_202003250942 to Input Job list index 1 at 17:28:48.636
 
 
-Starting Input Job C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942 at 16:23:32.315
+Starting Input Job C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942 at 17:28:51.183
 Input Job                      : 1185840_202003250942
 Input Job Directory            : C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942
 Input Job Serial Number        : 1185840
 Input Job Time Stamp           : 202003250942
 Input Job Xml File             : 75300037D00.xml
-Started Input Job 1185840_202003250942 executing Slot 1 at 16:23:32.343
+Started Input Job 1185840_202003250942 executing Slot 1 at 17:28:51.207
 Status: Job:1185840_202003250942 Job Status:JOB_STARTED Time Type:TIME_RECEIVED
 Unit Number                    : 3155301-029
 Modeler                        : 780200XXC00
@@ -48,48 +48,48 @@ Transfer File1                 : Cap.tab
 Transfer File2                 : Tune.tab
 Transfer File3                 : Data.xml
 Status: Job:1185840_202003250942 Job Status:MONITORING_INPUT Time Type:TIME_START
-Input File Watcher watching C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942 at 16:23:32.505
+Input File Watcher watching C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942 at 17:28:51.399
 
-Input File Watcher detected 1185840_202003250942_mode0.csv for Job 1185840_202003250942 file 2 of 6 at 16:23:36.223
-
-
-Input File Watcher detected 1185840_202003250942_mode1.csv for Job 1185840_202003250942 file 3 of 6 at 16:23:36.249
+Input File Watcher detected 1185840_202003250942_mode0.csv for Job 1185840_202003250942 file 2 of 6 at 17:28:53.279
 
 
-Input File Watcher detected 1185840_202003250942_mode2.csv for Job 1185840_202003250942 file 4 of 6 at 16:23:36.262
+Input File Watcher detected 1185840_202003250942_mode1.csv for Job 1185840_202003250942 file 3 of 6 at 17:28:53.309
 
 
-Input File Watcher detected Cap_template.tab for Job 1185840_202003250942 file 5 of 6 at 16:23:36.327
+Input File Watcher detected 1185840_202003250942_mode2.csv for Job 1185840_202003250942 file 4 of 6 at 17:28:53.343
 
 
-Input File Watcher detected Tune_template.tab for Job 1185840_202003250942 file 6 of 6 at 16:23:36.342
+Input File Watcher detected Cap_template.tab for Job 1185840_202003250942 file 5 of 6 at 17:28:53.417
 
-Input File Watcher detected Job 1185840_202003250942 complete set of 6 files at 16:23:36.345
-Input File Watcher thread completed the scan for Job 1185840_202003250942 at 16:23:36.347
-Finished Input file scan for Job C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942 at 16:23:36.347
+
+Input File Watcher detected Tune_template.tab for Job 1185840_202003250942 file 6 of 6 at 17:28:53.432
+
+Input File Watcher detected Job 1185840_202003250942 complete set of 6 files at 17:28:53.436
+Finished Input file scan for Job C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942 at 17:28:53.441
+Input File Watcher thread completed the scan for Job 1185840_202003250942 at 17:28:53.441
 Status: Job:1185840_202003250942 Job Status:COPYING_TO_PROCESSING Time Type:TIME_START
 CopyFolderContents from C:\SSMCharacterizationHandler\Input Buffer\1185840_202003250942 -> C:\SSMCharacterizationHandler\ProcessingBuffer\1185840_202003250942
 Status: Job:1185840_202003250942 Job Status:EXECUTING Time Type:TIME_START
-Starting Job 1185840_202003250942 with Modeler 780200XXC00 on Port 3000 with 4 CPU's at 16:23:36.484
+Starting Job 1185840_202003250942 with Modeler 780200XXC00 on Port 3000 with 4 CPU's at 17:28:53.575
 C:\SSMCharacterizationHandler\Application\Modelers\780200XXC00\780200XXC00.exe -d C:\SSMCharacterizationHandler\ProcessingBuffer\1185840_202003250942 -s 3000 -p 4
-Starting file monitoring for Job 1185840_202003250942 Processing Buffer output files at 16:23:38.123
-Starting TCP/IP monitoring for Job 1185840_202003250942 at 16:23:38.135
+Starting file monitoring for Job 1185840_202003250942 Processing Buffer output files at 17:28:55.265
+Starting TCP/IP monitoring for Job 1185840_202003250942 at 17:28:55.278
 Status: Job:1185840_202003250942 Job Status:MONITORING_PROCESSING Time Type:TIME_START
-Processing File Watcher watching C:\SSMCharacterizationHandler\ProcessingBuffer\1185840_202003250942 at 16:23:38.152
+Processing File Watcher watching C:\SSMCharacterizationHandler\ProcessingBuffer\1185840_202003250942 at 17:28:55.297
 
-Processing File Watcher detected Data.xml for Job 1185840_202003250942 file 7 of 13 at 16:23:42.680
-
-
-Input Directory Watcher added new Job 1307106_202002181307 to Input Job list index 1 at 16:23:46.259
+Processing File Watcher detected Data.xml for Job 1185840_202003250942 file 7 of 13 at 17:28:59.896
 
 
-Starting Input Job C:\SSMCharacterizationHandler\Input Buffer\1307106_202002181307 at 16:23:47.360
+Input Directory Watcher added new Job 1307106_202002181307 to Input Job list index 1 at 17:29:03.215
+
+
+Starting Input Job C:\SSMCharacterizationHandler\Input Buffer\1307106_202002181307 at 17:29:06.224
 Input Job                      : 1307106_202002181307
 Input Job Directory            : C:\SSMCharacterizationHandler\Input Buffer\1307106_202002181307
 Input Job Serial Number        : 1307106
 Input Job Time Stamp           : 202002181307
 Input Job Xml File             : 75300037D00.xml
-Started Input Job 1307106_202002181307 executing Slot 2 at 16:23:47.389
+Started Input Job 1307106_202002181307 executing Slot 2 at 17:29:06.251
 Status: Job:1307106_202002181307 Job Status:JOB_STARTED Time Type:TIME_RECEIVED
 Unit Number                    : 3155301-029
 Modeler                        : 780200XXC00
@@ -101,31 +101,31 @@ Transfer File1                 : Cap.tab
 Transfer File2                 : Tune.tab
 Transfer File3                 : Data.xml
 Status: Job:1307106_202002181307 Job Status:MONITORING_INPUT Time Type:TIME_START
-Input File Watcher thread completed the scan for Job 1307106_202002181307 at 16:23:47.528
-Finished Input file scan for Job C:\SSMCharacterizationHandler\Input Buffer\1307106_202002181307 at 16:23:47.530
+Input File Watcher thread completed the scan for Job 1307106_202002181307 at 17:29:06.379
+Finished Input file scan for Job C:\SSMCharacterizationHandler\Input Buffer\1307106_202002181307 at 17:29:06.382
 Status: Job:1307106_202002181307 Job Status:COPYING_TO_PROCESSING Time Type:TIME_START
 CopyFolderContents from C:\SSMCharacterizationHandler\Input Buffer\1307106_202002181307 -> C:\SSMCharacterizationHandler\ProcessingBuffer\1307106_202002181307
 Status: Job:1307106_202002181307 Job Status:EXECUTING Time Type:TIME_START
-Starting Job 1307106_202002181307 with Modeler 780200XXC00 on Port 3001 with 4 CPU's at 16:23:47.659
+Starting Job 1307106_202002181307 with Modeler 780200XXC00 on Port 3001 with 4 CPU's at 17:29:06.507
 C:\SSMCharacterizationHandler\Application\Modelers\780200XXC00\780200XXC00.exe -d C:\SSMCharacterizationHandler\ProcessingBuffer\1307106_202002181307 -s 3001 -p 4
-Starting file monitoring for Job 1307106_202002181307 Processing Buffer output files at 16:23:48.764
-Starting TCP/IP monitoring for Job 1307106_202002181307 at 16:23:48.773
-Processing File Watcher watching C:\SSMCharacterizationHandler\ProcessingBuffer\1307106_202002181307 at 16:23:48.787
+Starting file monitoring for Job 1307106_202002181307 Processing Buffer output files at 17:29:07.603
+Starting TCP/IP monitoring for Job 1307106_202002181307 at 17:29:07.609
 Status: Job:1307106_202002181307 Job Status:MONITORING_PROCESSING Time Type:TIME_START
+Processing File Watcher watching C:\SSMCharacterizationHandler\ProcessingBuffer\1307106_202002181307 at 17:29:07.623
 
-Processing File Watcher detected Data.xml for Job 1307106_202002181307 file 7 of 13 at 16:23:53.473
-
-
-Input Directory Watcher added new Job 1178350_202006030856 to Input Job list index 1 at 16:23:56.300
+Processing File Watcher detected Data.xml for Job 1307106_202002181307 file 7 of 13 at 17:29:12.213
 
 
-Starting Input Job C:\SSMCharacterizationHandler\Input Buffer\1178350_202006030856 at 16:23:57.408
+Input Directory Watcher added new Job 1178350_202006030856 to Input Job list index 1 at 17:29:13.223
+
+
+Starting Input Job C:\SSMCharacterizationHandler\Input Buffer\1178350_202006030856 at 17:29:16.266
 Input Job                      : 1178350_202006030856
 Input Job Directory            : C:\SSMCharacterizationHandler\Input Buffer\1178350_202006030856
 Input Job Serial Number        : 1178350
 Input Job Time Stamp           : 202006030856
 Input Job Xml File             : 75300037D00.xml
-Started Input Job 1178350_202006030856 executing Slot 3 at 16:23:57.434
+Started Input Job 1178350_202006030856 executing Slot 3 at 17:29:16.287
 Status: Job:1178350_202006030856 Job Status:JOB_STARTED Time Type:TIME_RECEIVED
 Unit Number                    : 3155301-029
 Modeler                        : 780200XXC00
@@ -137,31 +137,31 @@ Transfer File1                 : Cap.tab
 Transfer File2                 : Tune.tab
 Transfer File3                 : Data.xml
 Status: Job:1178350_202006030856 Job Status:MONITORING_INPUT Time Type:TIME_START
-Input File Watcher thread completed the scan for Job 1178350_202006030856 at 16:23:57.553
-Finished Input file scan for Job C:\SSMCharacterizationHandler\Input Buffer\1178350_202006030856 at 16:23:57.556
+Input File Watcher thread completed the scan for Job 1178350_202006030856 at 17:29:16.412
+Finished Input file scan for Job C:\SSMCharacterizationHandler\Input Buffer\1178350_202006030856 at 17:29:16.419
 Status: Job:1178350_202006030856 Job Status:COPYING_TO_PROCESSING Time Type:TIME_START
 CopyFolderContents from C:\SSMCharacterizationHandler\Input Buffer\1178350_202006030856 -> C:\SSMCharacterizationHandler\ProcessingBuffer\1178350_202006030856
 Status: Job:1178350_202006030856 Job Status:EXECUTING Time Type:TIME_START
-Starting Job 1178350_202006030856 with Modeler 780200XXC00 on Port 3002 with 4 CPU's at 16:23:57.672
+Starting Job 1178350_202006030856 with Modeler 780200XXC00 on Port 3002 with 4 CPU's at 17:29:16.549
 C:\SSMCharacterizationHandler\Application\Modelers\780200XXC00\780200XXC00.exe -d C:\SSMCharacterizationHandler\ProcessingBuffer\1178350_202006030856 -s 3002 -p 4
-Starting file monitoring for Job 1178350_202006030856 Processing Buffer output files at 16:23:58.776
-Starting TCP/IP monitoring for Job 1178350_202006030856 at 16:23:58.781
-Processing File Watcher watching C:\SSMCharacterizationHandler\ProcessingBuffer\1178350_202006030856 at 16:23:58.794
+Starting file monitoring for Job 1178350_202006030856 Processing Buffer output files at 17:29:17.656
+Starting TCP/IP monitoring for Job 1178350_202006030856 at 17:29:17.664
+Processing File Watcher watching C:\SSMCharacterizationHandler\ProcessingBuffer\1178350_202006030856 at 17:29:17.680
 Status: Job:1178350_202006030856 Job Status:MONITORING_PROCESSING Time Type:TIME_START
 
-Processing File Watcher detected Data.xml for Job 1178350_202006030856 file 7 of 13 at 16:24:03.475
+Processing File Watcher detected Data.xml for Job 1178350_202006030856 file 7 of 13 at 17:29:22.227
 
 
-Input Directory Watcher added new Job 1202740_202006110832 to Input Job list index 1 at 16:24:06.269
+Input Directory Watcher added new Job 1202740_202006110832 to Input Job list index 1 at 17:29:23.192
 
 
-Starting Input Job C:\SSMCharacterizationHandler\Input Buffer\1202740_202006110832 at 16:24:07.455
+Starting Input Job C:\SSMCharacterizationHandler\Input Buffer\1202740_202006110832 at 17:29:26.302
 Input Job                      : 1202740_202006110832
 Input Job Directory            : C:\SSMCharacterizationHandler\Input Buffer\1202740_202006110832
 Input Job Serial Number        : 1202740
 Input Job Time Stamp           : 202006110832
 Input Job Xml File             : 75300037D00.xml
-Started Input Job 1202740_202006110832 executing Slot 4 at 16:24:07.480
+Started Input Job 1202740_202006110832 executing Slot 4 at 17:29:26.322
 Status: Job:1202740_202006110832 Job Status:JOB_STARTED Time Type:TIME_RECEIVED
 Unit Number                    : 3155301-029
 Modeler                        : 780200XXC00
@@ -173,51 +173,51 @@ Transfer File1                 : Cap.tab
 Transfer File2                 : Tune.tab
 Transfer File3                 : Data.xml
 Status: Job:1202740_202006110832 Job Status:MONITORING_INPUT Time Type:TIME_START
-Input File Watcher watching C:\SSMCharacterizationHandler\Input Buffer\1202740_202006110832 at 16:24:07.644
+Input File Watcher watching C:\SSMCharacterizationHandler\Input Buffer\1202740_202006110832 at 17:29:26.445
 
-Input File Watcher detected 1202740_202006110832_mode0.csv for Job 1202740_202006110832 file 2 of 6 at 16:24:11.276
-
-
-Input File Watcher detected 1202740_202006110832_mode1.csv for Job 1202740_202006110832 file 3 of 6 at 16:24:11.309
+Input File Watcher detected 1202740_202006110832_mode0.csv for Job 1202740_202006110832 file 2 of 6 at 17:29:28.233
 
 
-Input File Watcher detected 1202740_202006110832_mode2.csv for Job 1202740_202006110832 file 4 of 6 at 16:24:11.327
+Input File Watcher detected 1202740_202006110832_mode1.csv for Job 1202740_202006110832 file 3 of 6 at 17:29:28.274
 
 
-Input File Watcher detected Cap_template.tab for Job 1202740_202006110832 file 5 of 6 at 16:24:11.425
+Input File Watcher detected 1202740_202006110832_mode2.csv for Job 1202740_202006110832 file 4 of 6 at 17:29:28.298
 
 
-Input File Watcher detected Tune_template.tab for Job 1202740_202006110832 file 6 of 6 at 16:24:11.446
+Input File Watcher detected Cap_template.tab for Job 1202740_202006110832 file 5 of 6 at 17:29:28.389
 
-Input File Watcher detected Job 1202740_202006110832 complete set of 6 files at 16:24:11.449
-Finished Input file scan for Job C:\SSMCharacterizationHandler\Input Buffer\1202740_202006110832 at 16:24:11.459
-Input File Watcher thread completed the scan for Job 1202740_202006110832 at 16:24:11.460
+
+Input File Watcher detected Tune_template.tab for Job 1202740_202006110832 file 6 of 6 at 17:29:28.407
+
+Input File Watcher detected Job 1202740_202006110832 complete set of 6 files at 17:29:28.413
+Finished Input file scan for Job C:\SSMCharacterizationHandler\Input Buffer\1202740_202006110832 at 17:29:28.419
+Input File Watcher thread completed the scan for Job 1202740_202006110832 at 17:29:28.419
 Status: Job:1202740_202006110832 Job Status:COPYING_TO_PROCESSING Time Type:TIME_START
 CopyFolderContents from C:\SSMCharacterizationHandler\Input Buffer\1202740_202006110832 -> C:\SSMCharacterizationHandler\ProcessingBuffer\1202740_202006110832
 Status: Job:1202740_202006110832 Job Status:EXECUTING Time Type:TIME_START
-Starting Job 1202740_202006110832 with Modeler 780200XXC00 on Port 3003 with 4 CPU's at 16:24:11.615
+Starting Job 1202740_202006110832 with Modeler 780200XXC00 on Port 3003 with 4 CPU's at 17:29:28.556
 C:\SSMCharacterizationHandler\Application\Modelers\780200XXC00\780200XXC00.exe -d C:\SSMCharacterizationHandler\ProcessingBuffer\1202740_202006110832 -s 3003 -p 4
-Starting file monitoring for Job 1202740_202006110832 Processing Buffer output files at 16:24:12.727
-Starting TCP/IP monitoring for Job 1202740_202006110832 at 16:24:12.780
-Processing File Watcher watching C:\SSMCharacterizationHandler\ProcessingBuffer\1202740_202006110832 at 16:24:12.810
+Starting file monitoring for Job 1202740_202006110832 Processing Buffer output files at 17:29:29.644
+Starting TCP/IP monitoring for Job 1202740_202006110832 at 17:29:29.667
 Status: Job:1202740_202006110832 Job Status:MONITORING_PROCESSING Time Type:TIME_START
+Processing File Watcher watching C:\SSMCharacterizationHandler\ProcessingBuffer\1202740_202006110832 at 17:29:29.682
 
-Processing File Watcher detected Data.xml for Job 1202740_202006110832 file 7 of 13 at 16:24:17.459
+Processing File Watcher detected Data.xml for Job 1202740_202006110832 file 7 of 13 at 17:29:34.308
 
 
-Input Directory Watcher added new Job 1185841_202005070801 to Input Job list index 1 at 16:24:21.291
+Input Directory Watcher added new Job 1185841_202005070801 to Input Job list index 1 at 17:29:38.238
 
 
 Job 1185840_202003250942 Modeler execution process data:
 ProcessName                    : 780200XXC00
-StartTime                      : 9/11/2020 4:23:37 PM
+StartTime                      : 9/11/2020 5:28:54 PM
 MainWindowTitle                : C:\SSMCharacterizationHandler\Application\Modelers\780200XXC00\780200XXC00.exe
 MainModule                     : System.Diagnostics.ProcessModule (780200XXC00.exe)
 StartInfo                      : System.Diagnostics.ProcessStartInfo
 GetType                        : System.Diagnostics.Process
-MainWindowHandle               : 788770
-Handle                         : 3140
-Id                             : 37688
+MainWindowHandle               : 22940590
+Handle                         : 3100
+Id                             : 29892
 PriorityClass                  : Normal
 Basepriority                   : 8
 PriorityBoostEnabled           : True
@@ -227,27 +227,27 @@ HandleCount                    : 281
 MaxWorkingSet                  : 1413120
 MinWorkingSet                  : 204800
 NonpagedSystemMemorySize64     : 21136
-PeakVirtualMemorySize64        : 2203891101696
+PeakVirtualMemorySize64        : 2203891113984
 PagedSystemMemorySize64        : 223744
-PrivateMemorySize64            : 8663040
-VirtualMemorySize64            : 2203891101696
-NonpagedSystemMemorySize64     : 8663040
-WorkingSet64                   : 21389312
-PeakWorkingSet64               : 21393408
-PrivilegedProcessorTime        : 00:00:00.2656250
-TotalProcessorTime             : 00:00:00.4843750
+PrivateMemorySize64            : 8577024
+VirtualMemorySize64            : 2203891113984
+NonpagedSystemMemorySize64     : 8577024
+WorkingSet64                   : 21327872
+PeakWorkingSet64               : 21331968
+PrivilegedProcessorTime        : 00:00:00.2812500
+TotalProcessorTime             : 00:00:00.5000000
 UserProcessorTime              : 00:00:00.2187500
 
 Job 1307106_202002181307 Modeler execution process data:
 ProcessName                    : 780200XXC00
-StartTime                      : 9/11/2020 4:23:47 PM
+StartTime                      : 9/11/2020 5:29:06 PM
 MainWindowTitle                : C:\SSMCharacterizationHandler\Application\Modelers\780200XXC00\780200XXC00.exe
 MainModule                     : System.Diagnostics.ProcessModule (780200XXC00.exe)
 StartInfo                      : System.Diagnostics.ProcessStartInfo
 GetType                        : System.Diagnostics.Process
-MainWindowHandle               : 12585522
-Handle                         : 3256
-Id                             : 24300
+MainWindowHandle               : 5376244
+Handle                         : 3220
+Id                             : 26128
 PriorityClass                  : Normal
 Basepriority                   : 8
 PriorityBoostEnabled           : True
@@ -256,204 +256,25 @@ ProcessorAffinity              : 4095
 HandleCount                    : 281
 MaxWorkingSet                  : 1413120
 MinWorkingSet                  : 204800
-NonpagedSystemMemorySize64     : 21000
-PeakVirtualMemorySize64        : 2203889762304
-PagedSystemMemorySize64        : 223744
-PrivateMemorySize64            : 8593408
-VirtualMemorySize64            : 2203889500160
-NonpagedSystemMemorySize64     : 8593408
-WorkingSet64                   : 21458944
-PeakWorkingSet64               : 21463040
-PrivilegedProcessorTime        : 00:00:00.2500000
-TotalProcessorTime             : 00:00:00.5781250
-UserProcessorTime              : 00:00:00.3281250
+NonpagedSystemMemorySize64     : 21136
+PeakVirtualMemorySize64        : 2203891339264
+PagedSystemMemorySize64        : 223728
+PrivateMemorySize64            : 8605696
+VirtualMemorySize64            : 2203891077120
+NonpagedSystemMemorySize64     : 8605696
+WorkingSet64                   : 21434368
+PeakWorkingSet64               : 21438464
+PrivilegedProcessorTime        : 00:00:00.2656250
+TotalProcessorTime             : 00:00:00.5312500
+UserProcessorTime              : 00:00:00.2656250
 
-Input Directory Watcher added new Job 1202741_202003101418 to Input Job list index 2 at 16:24:36.232
+Input Directory Watcher added new Job 1202741_202003101418 to Input Job list index 2 at 17:29:53.253
 
 
-Starting TCP/IP Scan for Job 1185840_202003250942 on Port 3000 at 16:24:38.191
+Starting TCP/IP Scan for Job 1185840_202003250942 on Port 3000 at 17:29:55.318
 Status: Job:1185840_202003250942 Job Status:MONITORING_TCPIP Time Type:TIME_START
 
-Connected to TCP/IP for Job 1185840_202003250942 on Port 3000 at 16:24:38.207
+Connected to TCP/IP for Job 1185840_202003250942 on Port 3000 at 17:29:55.331
 
-Sending status msg to Modeler for Job 1185840_202003250942 on Port 3000 at 16:24:38.213
-Received: Step 1 in process. from Job 1185840_202003250942 on Port 3000 at 16:24:39.468
-
-Job 1178350_202006030856 Modeler execution process data:
-ProcessName                    : 780200XXC00
-StartTime                      : 9/11/2020 4:23:57 PM
-MainWindowTitle                : C:\SSMCharacterizationHandler\Application\Modelers\780200XXC00\780200XXC00.exe
-MainModule                     : System.Diagnostics.ProcessModule (780200XXC00.exe)
-StartInfo                      : System.Diagnostics.ProcessStartInfo
-GetType                        : System.Diagnostics.Process
-MainWindowHandle               : 919830
-Handle                         : 3316
-Id                             : 19864
-PriorityClass                  : Normal
-Basepriority                   : 8
-PriorityBoostEnabled           : True
-Responding                     : True
-ProcessorAffinity              : 4095
-HandleCount                    : 281
-MaxWorkingSet                  : 1413120
-MinWorkingSet                  : 204800
-NonpagedSystemMemorySize64     : 21136
-PeakVirtualMemorySize64        : 2203891101696
-PagedSystemMemorySize64        : 223728
-PrivateMemorySize64            : 8617984
-VirtualMemorySize64            : 2203891101696
-NonpagedSystemMemorySize64     : 8617984
-WorkingSet64                   : 21536768
-PeakWorkingSet64               : 21540864
-PrivilegedProcessorTime        : 00:00:00.2343750
-TotalProcessorTime             : 00:00:00.5625000
-UserProcessorTime              : 00:00:00.3281250
-
-Input Directory Watcher added new Job 1178352_202005050818 to Input Job list index 3 at 16:24:46.253
-
-
-Starting TCP/IP Scan for Job 1307106_202002181307 on Port 3001 at 16:24:48.823
-Status: Job:1307106_202002181307 Job Status:MONITORING_TCPIP Time Type:TIME_START
-
-Connected to TCP/IP for Job 1307106_202002181307 on Port 3001 at 16:24:48.833
-
-Sending status msg to Modeler for Job 1307106_202002181307 on Port 3001 at 16:24:48.835
-Received: Step 1 in process. from Job 1307106_202002181307 on Port 3001 at 16:24:50.091
-
-Sending status msg to Modeler for Job 1185840_202003250942 on Port 3000 at 16:24:54.479
-Received: Step 2 in process. from Job 1185840_202003250942 on Port 3000 at 16:24:55.486
-
-Job 1202740_202006110832 Modeler execution process data:
-ProcessName                    : 780200XXC00
-StartTime                      : 9/11/2020 4:24:11 PM
-MainWindowTitle                : C:\SSMCharacterizationHandler\Application\Modelers\780200XXC00\780200XXC00.exe
-MainModule                     : System.Diagnostics.ProcessModule (780200XXC00.exe)
-StartInfo                      : System.Diagnostics.ProcessStartInfo
-GetType                        : System.Diagnostics.Process
-MainWindowHandle               : 1706770
-Handle                         : 2956
-Id                             : 10380
-PriorityClass                  : Normal
-Basepriority                   : 8
-PriorityBoostEnabled           : True
-Responding                     : True
-ProcessorAffinity              : 4095
-HandleCount                    : 281
-MaxWorkingSet                  : 1413120
-MinWorkingSet                  : 204800
-NonpagedSystemMemorySize64     : 21136
-PeakVirtualMemorySize64        : 2203891085312
-PagedSystemMemorySize64        : 223728
-PrivateMemorySize64            : 8634368
-VirtualMemorySize64            : 2203891085312
-NonpagedSystemMemorySize64     : 8634368
-WorkingSet64                   : 21426176
-PeakWorkingSet64               : 21430272
-PrivilegedProcessorTime        : 00:00:00.2656250
-TotalProcessorTime             : 00:00:00.5625000
-UserProcessorTime              : 00:00:00.2968750
-
-Starting TCP/IP Scan for Job 1178350_202006030856 on Port 3002 at 16:24:58.812
-Status: Job:1178350_202006030856 Job Status:MONITORING_TCPIP Time Type:TIME_START
-
-Connected to TCP/IP for Job 1178350_202006030856 on Port 3002 at 16:24:58.822
-
-Sending status msg to Modeler for Job 1178350_202006030856 on Port 3002 at 16:24:58.825
-Received: Step 1 in process. from Job 1178350_202006030856 on Port 3002 at 16:25:00.080
-
-Input Directory Watcher added new Job 1278061_202006301109 to Input Job list index 4 at 16:25:01.289
-
-
-Sending status msg to Modeler for Job 1307106_202002181307 on Port 3001 at 16:25:05.116
-
-Sending status msg to Modeler for Job 1185840_202003250942 on Port 3000 at 16:25:05.508
-Received: Step 2 in process. from Job 1307106_202002181307 on Port 3001 at 16:25:06.125
-
-Processing File Watcher detected 1185840_202003250942_step1.mat for Job 1185840_202003250942 file 8 of 13 at 16:25:06.511
-
-Received: Step 3 in process. from Job 1185840_202003250942 on Port 3000 at 16:25:06.519
-
-Input Directory Watcher added new Job 1610789_201911281057 to Input Job list index 5 at 16:25:11.260
-
-
-Starting TCP/IP Scan for Job 1202740_202006110832 on Port 3003 at 16:25:12.856
-Status: Job:1202740_202006110832 Job Status:MONITORING_TCPIP Time Type:TIME_START
-
-Connected to TCP/IP for Job 1202740_202006110832 on Port 3003 at 16:25:12.867
-
-Sending status msg to Modeler for Job 1202740_202006110832 on Port 3003 at 16:25:12.882
-Received: Step 1 in process. from Job 1202740_202006110832 on Port 3003 at 16:25:13.897
-
-Sending status msg to Modeler for Job 1185840_202003250942 on Port 3000 at 16:25:14.027
-
-Processing File Watcher detected 1185840_202003250942_step2.mat for Job 1185840_202003250942 file 9 of 13 at 16:25:15.030
-
-
-Sending status msg to Modeler for Job 1178350_202006030856 on Port 3002 at 16:25:15.085
-Received: Step 4 in process. from Job 1185840_202003250942 on Port 3000 at 16:25:15.285
-Received: Step 2 in process. from Job 1178350_202006030856 on Port 3002 at 16:25:16.090
-
-Sending status msg to Modeler for Job 1307106_202002181307 on Port 3001 at 16:25:16.131
-
-Processing File Watcher detected 1307106_202002181307_step1.mat for Job 1307106_202002181307 file 8 of 13 at 16:25:17.152
-
-Received: Step 3 in process. from Job 1307106_202002181307 on Port 3001 at 16:25:17.389
-
-Sending status msg to Modeler for Job 1185840_202003250942 on Port 3000 at 16:25:20.299
-
-Processing File Watcher detected 1185840_202003250942_step3.mat for Job 1185840_202003250942 file 10 of 13 at 16:25:21.302
-
-Received: Step 5 in process. from Job 1185840_202003250942 on Port 3000 at 16:25:21.568
-
-Sending status msg to Modeler for Job 1185840_202003250942 on Port 3000 at 16:25:24.073
-
-Sending status msg to Modeler for Job 1307106_202002181307 on Port 3001 at 16:25:24.895
-
-Processing File Watcher detected EEPROM_variables_1185840_202003250942.mat for Job 1185840_202003250942 file 11 of 13 at 16:25:25.114
-
-Received: Step 6 in process. from Job 1185840_202003250942 on Port 3000 at 16:25:25.354
-
-Sending status msg to Modeler for Job 1185840_202003250942 on Port 3000 at 16:25:25.607
-
-Processing File Watcher detected 1307106_202002181307_step2.mat for Job 1307106_202002181307 file 9 of 13 at 16:25:25.897
-
-
-Sending status msg to Modeler for Job 1178350_202006030856 on Port 3002 at 16:25:26.097
-Received: Step 4 in process. from Job 1307106_202002181307 on Port 3001 at 16:25:26.150
-
-Processing File Watcher detected CAP.tab for Job 1185840_202003250942 file 12 of 13 at 16:25:26.627
-
-
-Processing File Watcher detected TUNE.tab for Job 1185840_202003250942 file 13 of 13 at 16:25:26.651
-
-Processing File Watcher detected Job 1185840_202003250942 complete set of 13 files at 16:25:26.654
-Received: Whole process done, socket closed. from Job 1185840_202003250942 on Port 3000 at 16:25:26.865
-TCP/IP for Job 1185840_202003250942 on Port 3000 received Modeler process done at 16:25:26.867
-Closed TCP/IP Socket for Job 1185840_202003250942 on Port 3000 at 16:25:26.876
-
-Processing File Watcher detected 1178350_202006030856_step1.mat for Job 1178350_202006030856 file 8 of 13 at 16:25:27.164
-
-Received: Step 3 in process. from Job 1178350_202006030856 on Port 3002 at 16:25:27.355
-
-Sending status msg to Modeler for Job 1202740_202006110832 on Port 3003 at 16:25:28.903
-Received: Step 2 in process. from Job 1202740_202006110832 on Port 3003 at 16:25:29.907
-
-Shutdown InputJobsScanThread CheckForUnfinishedInputJobs at 16:25:30.770
-
-Shutdown RunJob job complete scan for Job 1307106_202002181307 at 16:25:30.770
-
-Shutdown RunJob job complete scan for Job 1185840_202003250942 at 16:25:30.770
-
-Shutdown DirectoryWatcherThread WatchDirectory at 16:25:30.770
-
-Shutdown ProcessingFileWatcherThread watching C:\SSMCharacterizationHandler\ProcessingBuffer\1307106_202002181307 at 16:25:30.770
-
-Shutdown RunJob job complete scan for Job 1178350_202006030856 at 16:25:30.770
-
-Shutdown ProcessingFileWatcherThread watching C:\SSMCharacterizationHandler\ProcessingBuffer\1178350_202006030856 at 16:25:30.770
-
-Shutdown RunJob job complete scan for Job 1202740_202006110832 at 16:25:30.770
-
-Shutdown ProcessingFileWatcherThread watching C:\SSMCharacterizationHandler\ProcessingBuffer\1202740_202006110832 at 16:25:30.770
-
-Shutdown TcpIpListenThread prewrite for Job 1307106_202002181307 on Port 3001 at 16:25:31.154
+Sending status msg to Modeler for Job 1185840_202003250942 on Port 3000 at 17:29:55.339
+Received: Step 1 in process. from Job 1185840_202003250942 on Port 3000 at 17:29:56.347
