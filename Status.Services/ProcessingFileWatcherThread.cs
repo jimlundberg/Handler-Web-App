@@ -239,28 +239,24 @@ namespace Status.Services
                 }
                 while ((StaticClass.ProcessingFileScanComplete[job] == false) || (StaticClass.TcpIpScanComplete[job] == false));
 
-                // Check if the Processing Job Complete flag is still false or you get a shutdown error
-                if (StaticClass.ProcessingJobScanComplete[job] == false)
+                // Wait to make sure the data.xml is done being handled
+                Thread.Sleep(StaticClass.POST_PROCESS_WAIT);
+
+                // Wait for the data.xml file to contain a result
+                if (OverallResultEntryCheck(directory))
                 {
-                    // Wait to make sure the data.xml is done being handled
-                    Thread.Sleep(StaticClass.POST_PROCESS_WAIT);
+                    // set the Processing of a Job scan complete flag
+                    StaticClass.ProcessingJobScanComplete[job] = true;
 
-                    // Wait for the data.xml file to contain a result
-                    if (OverallResultEntryCheck(directory))
-                    {
-                        // set the Processing of a Job scan complete flag
-                        StaticClass.ProcessingJobScanComplete[job] = true;
-
-                        // Processing Thread Complete
-                        StaticClass.Log(string.Format("Processing File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
-                            directory, DateTime.Now));
-                    }
-                    else
-                    {
-                        // Show error and return
-                        StaticClass.Log(string.Format("Processing File could not confirm the OverallResult Entry for Job {0} at {1:HH:mm:ss.fff}",
-                            directory, DateTime.Now));
-                    }
+                    // Processing Thread Complete
+                    StaticClass.Log(string.Format("Processing File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
+                        directory, DateTime.Now));
+                }
+                else
+                {
+                    // Show error and return
+                    StaticClass.Log(string.Format("Processing File could not confirm the OverallResult Entry for Job {0} at {1:HH:mm:ss.fff}",
+                        directory, DateTime.Now));
                 }
             }
         }

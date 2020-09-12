@@ -171,21 +171,6 @@ namespace Status.Services
                     bool messageReceived = false;
                     do
                     {
-                        if (StaticClass.ShutDownPauseCheck("TCP/IP Receive") == true)
-                        {
-                            StaticClass.Log(string.Format("\nShutdown TcpIpListenThread for Job {0} in state {1} on Port {2} at {3:HH:mm:ss.fff}",
-                                job, ModelerCurrentStepState, port, DateTime.Now));
-
-                            // Make sure to close TCP/IP socket
-                            stream.Close();
-                            client.Close();
-
-                            StaticClass.TcpIpScanComplete[job] = true;
-
-                            // Make sure to close TCP/IP socket
-                            jobComplete = true;
-                        }
-
                         if (stream.CanRead && stream.DataAvailable)
                         {
                             // Buffers to store the response
@@ -296,9 +281,9 @@ namespace Status.Services
                             }
 
                             // Check for shutdown or pause
-                            if (StaticClass.ShutDownPauseCheck("TCP/IP Connect") == true)
+                            if (StaticClass.ShutDownPauseCheck("TCP/IP Receive") == true)
                             {
-                                StaticClass.Log(string.Format("\nShutdown TcpIpListenThread Connect for Job {0} in state {1} on Port {2} at {3:HH:mm:ss.fff}",
+                                StaticClass.Log(string.Format("\nShutdown TcpIpListenThread for Job {0} in state {1} on Port {2} at {3:HH:mm:ss.fff}",
                                     job, ModelerCurrentStepState, port, DateTime.Now));
 
                                 // Make sure to close TCP/IP socket
@@ -319,6 +304,21 @@ namespace Status.Services
                             // Wait 250 msec between 480 Data Available checks (2 min) CanRead is set for session
                             Thread.Sleep(StaticClass.READ_AVAILABLE_RETRY_DELAY);
                             tcpIpRetryCount++;
+                        }
+
+                        if (StaticClass.ShutDownPauseCheck("TCP/IP Receive") == true)
+                        {
+                            StaticClass.Log(string.Format("\nShutdown TcpIpListenThread for Job {0} in state {1} on Port {2} at {3:HH:mm:ss.fff}",
+                                job, ModelerCurrentStepState, port, DateTime.Now));
+
+                            // Make sure to close TCP/IP socket
+                            stream.Close();
+                            client.Close();
+
+                            StaticClass.TcpIpScanComplete[job] = true;
+
+                            // Make sure to close TCP/IP socket
+                            jobComplete = true;
                         }
                     }
                     while ((tcpIpRetryCount < StaticClass.NUM_TCP_IP_RETRIES) && (messageReceived == false));
