@@ -169,7 +169,6 @@ namespace Status.Services
                     int adjustableSleepTime = StaticClass.STARTING_TCP_IP_WAIT;
                     int tcpIpRetryCount = 0;
                     bool messageReceived = false;
-                    tcpIpRetryCount = 0;
                     do
                     {
                         if (stream.CanRead && stream.DataAvailable)
