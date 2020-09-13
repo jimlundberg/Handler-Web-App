@@ -156,9 +156,15 @@ namespace Status.Services
                 {
                     if (fileService.CanRead && fileService.CanWrite)
                     {
-                        Log(string.Format("\nThe file {0} is available at {1:HH:mm:ss.fff}\n", fileName, DateTime.Now));
+                        Log(string.Format("File {0} is available at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
                         return true;
                     }
+                }
+
+                // Check for shutdown or pause
+                if (StaticClass.ShutDownPauseCheck("IsFileReady") == true)
+                {
+                    return false;
                 }
 
                 Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
