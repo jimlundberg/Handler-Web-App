@@ -148,11 +148,9 @@ namespace Status.Services
         public static bool IsFileReady(string fileName)
         {
             // Check if a file is available
-            using (var fs = File.Open(fileName, FileMode.Open))
+            using (var fileService = File.Open(fileName, FileMode.Open))
             {
-                var canRead = fs.CanRead;
-                var canWrite = fs.CanWrite;
-                if (canRead && canWrite)
+                if (fileService.CanRead && fileService.CanWrite)
                 {
                     Log(string.Format("\nThe file {0} is available at {1:HH:mm:ss.fff}\n", fileName, DateTime.Now));
                     return true;
