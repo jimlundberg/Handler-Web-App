@@ -135,7 +135,7 @@ namespace Status.Services
         /// <returns></returns>
         public bool OverallResultEntryCheck(string dataXmlFileName)
         {
-            int numRetries = 0;
+            int numOfRetries = 0;
             do
             {
                 // Check for data.xml file to be ready
@@ -161,7 +161,7 @@ namespace Status.Services
                     Thread.Yield();
                 }
             }
-            while (numRetries < StaticClass.NUM_RESULTS_ENTRY_RETRIES);
+            while (numOfRetries++ < StaticClass.NUM_RESULTS_ENTRY_RETRIES);
 
             StaticClass.Log(string.Format("\nFile {0} found not available at {1:HH:mm:ss.fff}\n", dataXmlFileName, DateTime.Now));
             return false;
