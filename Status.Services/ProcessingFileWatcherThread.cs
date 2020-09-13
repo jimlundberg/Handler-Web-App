@@ -131,46 +131,40 @@ namespace Status.Services
         /// <summary>
         /// Check if the Modeler has deposited the OverallResult entry in the job data.xml file
         /// </summary>
-        /// <param name="directory"></param>
+        /// <param name="dataXmlFileName"></param>
         /// <returns></returns>
-        public bool OverallResultEntryCheck(string directory)
+        public bool OverallResultEntryCheck(string dataXmlFileName)
         {
-            bool OverallResultEntryFound = false;
-            int numberOfRetries = 0;
+            int numRetries = 0;
             do
             {
-                string dataXmlFileName = directory + @"\" + "Data.xml";
-
-                // Wait for data.xml file to be ready
-                int numOfRetries = 0;
-                do
+                // Check for data.xml file to be ready
+                if (StaticClass.IsFileReady(dataXmlFileName))
                 {
-                    Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
-                }
-                while ((StaticClass.IsFileReady(dataXmlFileName) == false) && (numOfRetries < StaticClass.NUM_XML_ACCESS_RETRIES));
+                    // Check if the OverallResult node exists
+                    XmlDocument dataXmlDoc = new XmlDocument();
+                    dataXmlDoc.Load(dataXmlFileName);
+                    XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
+                    if (OverallResult != null)
+                    {
+                        return true;
+                    }
 
-                // Check if the OverallResult node exists
-                XmlDocument dataXmlDoc = new XmlDocument();
-                dataXmlDoc.Load(dataXmlFileName);
-                XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
-                if (OverallResult != null)
-                {
-                    OverallResultEntryFound = true;
-                }
+                    // Check for shutdown or pause
+                    if (StaticClass.ShutDownPauseCheck("Overall Result Entry Check") == true)
+                    {
+                        StaticClass.Log(string.Format("\nShutdown ProcessingFileWatcherThread OverallResultEntryCheck for file {0} at {1:HH:mm:ss.fff}",
+                            dataXmlFileName, DateTime.Now));
+                        return false;
+                    }
 
-                // Check for shutdown or pause
-                if (StaticClass.ShutDownPauseCheck("Overall Result Entry Check") == true)
-                {
-                    StaticClass.Log(string.Format("\nShutdown ProcessingFileWatcherThread OverallResultEntryCheck for file {0} at {1:HH:mm:ss.fff}",
-                        directory, DateTime.Now));
-                    return false;
+                    Thread.Yield();
                 }
-
-                Thread.Yield();
             }
-            while ((OverallResultEntryFound == false) && (numberOfRetries < StaticClass.NUM_XML_ACCESS_RETRIES));
+            while (numRetries < StaticClass.NUM_RESULTS_ENTRY_RETRIES);
 
-            return OverallResultEntryFound;
+            StaticClass.Log(string.Format("\nFile {0} found not available at {1:HH:mm:ss.fff}\n", dataXmlFileName, DateTime.Now));
+            return false;
         }
 
         /// <summary>
@@ -245,7 +239,8 @@ namespace Status.Services
                 Thread.Sleep(StaticClass.POST_PROCESS_WAIT);
 
                 // Wait for the data.xml file to contain a result
-                if (OverallResultEntryCheck(directory))
+                string dataXmlFileName = directory + @"\" + "data.xml";
+                if (OverallResultEntryCheck(dataXmlFileName))
                 {
                     // Processing Thread Complete
                     StaticClass.Log(string.Format("Processing File Watcher thread completed Processing watch for Job {0} at {1:HH:mm:ss.fff}",

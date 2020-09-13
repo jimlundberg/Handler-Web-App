@@ -115,60 +115,61 @@ namespace Status.Services
 
             // Wait for Job xml file to be ready
             string jobXmlFileName = xmlJobDirectory + @"\" + jobXmlData.XmlFileName;
-            int numOfRetries = 0;
-            do
+            if (StaticClass.IsFileReady(jobXmlFileName))
             {
-                Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
+                // Read Job xml file and get the top node
+                XmlDocument jobXmlDoc = new XmlDocument();
+                jobXmlDoc.Load(jobXmlFileName);
+
+                XmlElement root = jobXmlDoc.DocumentElement;
+                string TopNode = root.LocalName;
+
+                // Get nodes for the number of files and names of files to transfer from Job .xml file
+                XmlNode UnitNumberdNode = jobXmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/listitem/value");
+                XmlNode ConsumedNode = jobXmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Consumed");
+                XmlNode ProducedNode = jobXmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Produced");
+                XmlNode TransferedNode = jobXmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Transfered");
+                XmlNode ModelerNode = jobXmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
+
+                // Assign then increment port number for this Job
+                monitorData.JobPortNumber = iniData.StartPort + StaticClass.JobPortIndex++;
+
+                // Get the modeler and number of files to transfer
+                int NumFilesToTransfer = 0;
+                monitorData.UnitNumber = UnitNumberdNode.InnerText;
+                monitorData.Modeler = ModelerNode.InnerText;
+                monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
+                monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
+                if (TransferedNode != null)
+                {
+                    NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
+                }
+                monitorData.NumFilesToTransfer = NumFilesToTransfer;
+
+                // Get the modeler and number of files to transfer
+                StaticClass.Log($"Unit Number                    : {monitorData.UnitNumber}");
+                StaticClass.Log($"Modeler                        : {monitorData.Modeler}");
+                StaticClass.Log($"Num Files Consumed             : {monitorData.NumFilesConsumed}");
+                StaticClass.Log($"Num Files Produced             : {monitorData.NumFilesProduced}");
+                StaticClass.Log($"Num Files To Transfer          : {monitorData.NumFilesToTransfer}");
+                StaticClass.Log($"Job Port Number                : {monitorData.JobPortNumber}");
+
+                // Create the Transfered file list from the Xml file entries
+                monitorData.TransferedFileList = new List<string>(NumFilesToTransfer);
+                List<XmlNode> TransFeredFileXml = new List<XmlNode>();
+                monitorData.TransferedFileList = new List<string>();
+                for (int i = 1; i < NumFilesToTransfer + 1; i++)
+                {
+                    string transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
+                    XmlNode TransferedFileXml = jobXmlDoc.DocumentElement.SelectSingleNode(transferFileNodeName);
+                    monitorData.TransferedFileList.Add(TransferedFileXml.InnerText);
+                    StaticClass.Log(string.Format("Transfer File{0}                 : {1}", i, TransferedFileXml.InnerText));
+                }
             }
-            while ((StaticClass.IsFileReady(jobXmlFileName) == false) && (numOfRetries < StaticClass.NUM_XML_ACCESS_RETRIES));
-
-            // Read Job xml file and get the top node
-            XmlDocument jobXmlDoc = new XmlDocument();
-            jobXmlDoc.Load(jobXmlFileName);
-
-            XmlElement root = jobXmlDoc.DocumentElement;
-            string TopNode = root.LocalName;
-
-            // Get nodes for the number of files and names of files to transfer from Job .xml file
-            XmlNode UnitNumberdNode = jobXmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/listitem/value");
-            XmlNode ConsumedNode = jobXmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Consumed");
-            XmlNode ProducedNode = jobXmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Produced");
-            XmlNode TransferedNode = jobXmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Transfered");
-            XmlNode ModelerNode = jobXmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
-
-            // Assign then increment port number for this Job
-            monitorData.JobPortNumber = iniData.StartPort + StaticClass.JobPortIndex++;
-
-            // Get the modeler and number of files to transfer
-            int NumFilesToTransfer = 0;
-            monitorData.UnitNumber = UnitNumberdNode.InnerText;
-            monitorData.Modeler = ModelerNode.InnerText;
-            monitorData.NumFilesConsumed = Convert.ToInt32(ConsumedNode.InnerText);
-            monitorData.NumFilesProduced = Convert.ToInt32(ProducedNode.InnerText);
-            if (TransferedNode != null)
+            else
             {
-                NumFilesToTransfer = Convert.ToInt32(TransferedNode.InnerText);
-            }
-            monitorData.NumFilesToTransfer = NumFilesToTransfer;
-
-            // Get the modeler and number of files to transfer
-            StaticClass.Log($"Unit Number                    : {monitorData.UnitNumber}");
-            StaticClass.Log($"Modeler                        : {monitorData.Modeler}");
-            StaticClass.Log($"Num Files Consumed             : {monitorData.NumFilesConsumed}");
-            StaticClass.Log($"Num Files Produced             : {monitorData.NumFilesProduced}");
-            StaticClass.Log($"Num Files To Transfer          : {monitorData.NumFilesToTransfer}");
-            StaticClass.Log($"Job Port Number                : {monitorData.JobPortNumber}");
-
-            // Create the Transfered file list from the Xml file entries
-            monitorData.TransferedFileList = new List<string>(NumFilesToTransfer);
-            List<XmlNode> TransFeredFileXml = new List<XmlNode>();
-            monitorData.TransferedFileList = new List<string>();
-            for (int i = 1; i < NumFilesToTransfer + 1; i++)
-            {
-                string transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
-                XmlNode TransferedFileXml = jobXmlDoc.DocumentElement.SelectSingleNode(transferFileNodeName);
-                monitorData.TransferedFileList.Add(TransferedFileXml.InnerText);
-                StaticClass.Log(string.Format("Transfer File{0}                 : {1}", i, TransferedFileXml.InnerText));
+                StaticClass.Log(string.Format("\nFile {0} found not available at {1:HH:mm:ss.fff}\n", jobXmlFileName, DateTime.Now));
+                return;
             }
 
             // If this job comes from the Input directory, run the Input job check and start job if found
@@ -348,76 +349,74 @@ namespace Status.Services
 
             // Wait for data.xml file to be ready
             string dataXmlFileName = processingBufferDirectory + @"\" + job + @"\" + "data.xml";
-            numOfRetries = 0;
-            do
+            if (StaticClass.IsFileReady(dataXmlFileName))
             {
-                Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
-            }
-            while ((StaticClass.IsFileReady(dataXmlFileName) == false) && (numOfRetries < StaticClass.NUM_XML_ACCESS_RETRIES));
-
-            // Get the pass or fail data from the data.xml OverallResult result node
-            XmlDocument dataXmlDoc = new XmlDocument();
-            dataXmlDoc.Load(dataXmlFileName);
-            XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
-            string passFail = "Fail";
-            if (OverallResult != null)
-            {
-                passFail = OverallResult.InnerText;
-            }
-
-            string repositoryJobDirectoryName = repositoryDirectory + @"\" + job;
-            if ((OverallResult != null) && (passFail == "Pass"))
-            {
-                string finishedJobDirectoryName = finishedDirectory + @"\" + monitorData.JobSerialNumber;
-
-                // If the Finished directory does not exist, create it
-                if (!Directory.Exists(finishedJobDirectoryName))
+                // Get the pass or fail data from the data.xml OverallResult result node
+                XmlDocument dataXmlDoc = new XmlDocument();
+                dataXmlDoc.Load(dataXmlFileName);
+                XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
+                string passFail = "Fail";
+                if (OverallResult != null)
                 {
-                    Directory.CreateDirectory(finishedJobDirectoryName);
+                    passFail = OverallResult.InnerText;
                 }
 
-                // Copy the Transfered files to the Finished directory 
-                foreach (string file in monitorData.TransferedFileList)
+                string repositoryJobDirectoryName = repositoryDirectory + @"\" + job;
+                if ((OverallResult != null) && (passFail == "Pass"))
                 {
-                    FileHandling.CopyFile(processingBufferJobDir + @"\" + file, finishedJobDirectoryName + @"\" + file);
-                }
+                    // Move Processing Buffer Files to the Repository directory when passed
+                    FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
 
-                // Move Processing Buffer Files to the Repository directory when passed
-                FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
-            }
-            else // Send files to the Error Buffer and repository
-            {
-                string errorJobDirectoryName = errorDirectory + @"\" + monitorData.JobSerialNumber;
-
-                // If the Error directory does not exist, create it
-                if (!Directory.Exists(errorJobDirectoryName))
-                {
-                    Directory.CreateDirectory(errorJobDirectoryName);
-                }
-
-                // Copy the Transfered files to the Error directory 
-                foreach (string file in monitorData.TransferedFileList)
-                {
-                    if (File.Exists(processingBufferJobDir + @"\" + file))
+                    // If the Finished directory does not exist, create it
+                    string finishedJobDirectoryName = finishedDirectory + @"\" + monitorData.JobSerialNumber;
+                    if (!Directory.Exists(finishedJobDirectoryName))
                     {
-                        FileHandling.CopyFile(processingBufferJobDir + @"\" + file, errorJobDirectoryName + @"\" + file);
+                        Directory.CreateDirectory(finishedJobDirectoryName);
+                    }
+
+                    // Copy the Transfered files to the Finished directory 
+                    foreach (string file in monitorData.TransferedFileList)
+                    {
+                        FileHandling.CopyFile(processingBufferJobDir + @"\" + file, finishedJobDirectoryName + @"\" + file);
+                    }
+                }
+                else // Send files to the Error Buffer and repository
+                {
+                    // Move Processing Buffer Files to the Repository directory when failed
+                    FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
+
+                    // If the Error directory does not exist, create it
+                    string errorJobDirectoryName = errorDirectory + @"\" + monitorData.JobSerialNumber;
+                    if (!Directory.Exists(errorJobDirectoryName))
+                    {
+                        Directory.CreateDirectory(errorJobDirectoryName);
+                    }
+
+                    // Copy the Transfered files to the Error directory 
+                    foreach (string file in monitorData.TransferedFileList)
+                    {
+                        if (File.Exists(processingBufferJobDir + @"\" + file))
+                        {
+                            FileHandling.CopyFile(processingBufferJobDir + @"\" + file, errorJobDirectoryName + @"\" + file);
+                        }
                     }
                 }
 
-                // Move Processing Buffer Files to the Repository directory when failed
-                FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
+                // Add entry to status list
+                StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
+
+                // Show Job Complete message
+                TimeSpan timeSpan = DateTime.Now - StaticClass.JobStartTime[job];
+                StaticClass.Log(string.Format("Job {0} Complete taking {1:hh\\:mm\\:ss}. Decrementing Job count to {2} at {3:HH:mm:ss.fff}",
+                    job, timeSpan, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now));
+
+                // Decrement the number of Jobs executing in one place!
+                StaticClass.NumberOfJobsExecuting--;
             }
-
-            // Add entry to status list
-            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
-
-            // Show Job Complete message
-            TimeSpan timeSpan = DateTime.Now - StaticClass.JobStartTime[job];
-            StaticClass.Log(string.Format("Job {0} Complete taking {1:hh\\:mm\\:ss}. Decrementing Job count to {2} at {3:HH:mm:ss.fff}",
-                job, timeSpan, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now));
-
-            // Decrement the number of Jobs executing in one place!
-            StaticClass.NumberOfJobsExecuting--;
+            else
+            {
+                StaticClass.Log(string.Format("\nFile {0} found not available at {1:HH:mm:ss.fff}\n", dataXmlFileName, DateTime.Now));
+            }
         }
     }
 }

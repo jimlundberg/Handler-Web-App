@@ -23,9 +23,10 @@ namespace Status.Services
         public const int DISPLAY_PROCESS_TITLE_WAIT = 1000;
         public const int SHUTDOWN_PROCESS_WAIT = 5000;
         public const int READ_AVAILABLE_RETRY_DELAY = 250;
-        public const int FILE_WAIT_DELAY = 10;
+        public const int FILE_WAIT_DELAY = 50;
         public const int NUM_TCP_IP_RETRIES = 480;
         public const int NUM_XML_ACCESS_RETRIES = 100;
+        public const int NUM_RESULTS_ENTRY_RETRIES = 100;
 
         public static double MaxJobTimeLimitSeconds = 0.0;
         public static int ScanWaitTime = 0;
@@ -147,17 +148,24 @@ namespace Status.Services
         /// <returns>Returns if file is ready to access</returns>
         public static bool IsFileReady(string fileName)
         {
-            // Check if a file is available
-            using (var fileService = File.Open(fileName, FileMode.Open))
+            int numOfRetries = 0;
+            do
             {
-                if (fileService.CanRead && fileService.CanWrite)
+                // Check that a file is both readable and writeable
+                using (var fileService = File.Open(fileName, FileMode.Open))
                 {
-                    Log(string.Format("\nThe file {0} is available at {1:HH:mm:ss.fff}\n", fileName, DateTime.Now));
-                    return true;
+                    if (fileService.CanRead && fileService.CanWrite)
+                    {
+                        Log(string.Format("\nThe file {0} is available at {1:HH:mm:ss.fff}\n", fileName, DateTime.Now));
+                        return true;
+                    }
                 }
 
-                return false;
+                Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
             }
+            while (numOfRetries < StaticClass.NUM_XML_ACCESS_RETRIES);
+
+            return false;
         }
 
         /// <summary>
