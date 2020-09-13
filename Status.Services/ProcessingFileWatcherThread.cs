@@ -163,7 +163,8 @@ namespace Status.Services
             }
             while (numOfRetries++ < StaticClass.NUM_RESULTS_ENTRY_RETRIES);
 
-            StaticClass.Log(string.Format("File {0} was not available after 100 retries at {1:HH:mm:ss.fff}", dataXmlFileName, DateTime.Now));
+            StaticClass.Log(string.Format("File {0} did not have Overall Result entry even after {1} retries at {2:HH:mm:ss.fff}",
+                dataXmlFileName, StaticClass.NUM_RESULTS_ENTRY_RETRIES, DateTime.Now));
             return false;
         }
 
