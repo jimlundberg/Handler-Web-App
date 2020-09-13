@@ -25,6 +25,7 @@ namespace Status.Services
         public const int READ_AVAILABLE_RETRY_DELAY = 250;
         public const int FILE_WAIT_DELAY = 10;
         public const int NUM_TCP_IP_RETRIES = 480;
+        public const int NUM_OVERALL_RESULT_RETRIES = 100;
 
         public static double MaxJobTimeLimitSeconds = 0.0;
         public static int ScanWaitTime = 0;

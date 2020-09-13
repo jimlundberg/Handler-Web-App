@@ -118,7 +118,7 @@ namespace Status.Services
                 bool jobComplete = false;
                 do
                 {
-                    if (StaticClass.ShutDownPauseCheck(job) == true)
+                    if (StaticClass.ShutDownPauseCheck("TCP/IP") == true)
                     {
                         StaticClass.Log(string.Format("\nShutdown TcpIpListenThread prewrite for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));

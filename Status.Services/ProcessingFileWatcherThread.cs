@@ -136,11 +136,11 @@ namespace Status.Services
         public bool OverallResultEntryCheck(string directory)
         {
             bool OverallResultEntryFound = false;
+            int numberOfRetries = 0;
             do
             {
-                string dataXmlFile = directory + @"\" + "Data.xml";
-
                 // Wait for data.xml file to be ready
+                string dataXmlFile = directory + @"\" + "Data.xml";
                 do
                 {
                     Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
@@ -166,7 +166,7 @@ namespace Status.Services
 
                 Thread.Yield();
             }
-            while (OverallResultEntryFound == false);
+            while ((OverallResultEntryFound == false) && (numberOfRetries < StaticClass.NUM_OVERALL_RESULT_RETRIES));
 
             return OverallResultEntryFound;
         }
@@ -245,19 +245,19 @@ namespace Status.Services
                 // Wait for the data.xml file to contain a result
                 if (OverallResultEntryCheck(directory))
                 {
-                    // set the Processing of a Job scan complete flag
-                    StaticClass.ProcessingJobScanComplete[job] = true;
-
                     // Processing Thread Complete
-                    StaticClass.Log(string.Format("Processing File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(string.Format("Processing File Watcher completed Processing watch for Job {0} at {1:HH:mm:ss.fff}",
                         directory, DateTime.Now));
                 }
                 else
                 {
                     // Show error and return
-                    StaticClass.Log(string.Format("Processing File could not confirm the OverallResult Entry for Job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(string.Format("Processing File Watcher could not confirm the OverallResult Entry for Job {0} at {1:HH:mm:ss.fff}",
                         directory, DateTime.Now));
                 }
+
+                // set the Processing of a Job scan complete flag
+                StaticClass.ProcessingJobScanComplete[job] = true;
             }
         }
     }
