@@ -154,7 +154,7 @@ namespace Status.Services
                 var canWrite = fs.CanWrite;
                 if (canRead && canWrite)
                 {
-                    Log(string.Format("The file {0} is available at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
+                    Log(string.Format("\nThe file {0} is available at {1:HH:mm:ss.fff}\n", fileName, DateTime.Now));
                     return true;
                 }
 
