@@ -364,9 +364,6 @@ namespace Status.Services
                 string repositoryJobDirectoryName = repositoryDirectory + @"\" + job;
                 if ((OverallResult != null) && (passFail == "Pass"))
                 {
-                    // Move Processing Buffer Files to the Repository directory when passed
-                    FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
-
                     // If the Finished directory does not exist, create it
                     string finishedJobDirectoryName = finishedDirectory + @"\" + monitorData.JobSerialNumber;
                     if (!Directory.Exists(finishedJobDirectoryName))
@@ -379,12 +376,12 @@ namespace Status.Services
                     {
                         FileHandling.CopyFile(processingBufferJobDir + @"\" + file, finishedJobDirectoryName + @"\" + file);
                     }
+
+                    // Move Processing Buffer Files to the Repository directory when passed
+                    FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
                 }
                 else // Send files to the Error Buffer and repository
                 {
-                    // Move Processing Buffer Files to the Repository directory when failed
-                    FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
-
                     // If the Error directory does not exist, create it
                     string errorJobDirectoryName = errorDirectory + @"\" + monitorData.JobSerialNumber;
                     if (!Directory.Exists(errorJobDirectoryName))
@@ -400,6 +397,9 @@ namespace Status.Services
                             FileHandling.CopyFile(processingBufferJobDir + @"\" + file, errorJobDirectoryName + @"\" + file);
                         }
                     }
+
+                    // Move Processing Buffer Files to the Repository directory when failed
+                    FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
                 }
 
                 // Add entry to status list
