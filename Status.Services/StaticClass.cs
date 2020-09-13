@@ -156,6 +156,7 @@ namespace Status.Services
                 {
                     if (fileService.CanRead && fileService.CanWrite)
                     {
+                        Log(string.Format("File {0} is available at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
                         return true;
                     }
                 }
