@@ -23,10 +23,10 @@ namespace Status.Services
         public const int DISPLAY_PROCESS_TITLE_WAIT = 1000;
         public const int SHUTDOWN_PROCESS_WAIT = 5000;
         public const int READ_AVAILABLE_RETRY_DELAY = 250;
-        public const int FILE_WAIT_DELAY = 250;
+        public const int FILE_WAIT_DELAY = 1000;
         public const int NUM_TCP_IP_RETRIES = 480;
         public const int NUM_XML_ACCESS_RETRIES = 100;
-        public const int NUM_RESULTS_ENTRY_RETRIES = 100;
+        public const int NUM_RESULTS_ENTRY_RETRIES = 60;
 
         public static double MaxJobTimeLimitSeconds = 0.0;
         public static int ScanWaitTime = 0;
@@ -169,7 +169,7 @@ namespace Status.Services
 
                 Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
             }
-            while (numOfRetries < StaticClass.NUM_XML_ACCESS_RETRIES);
+            while (numOfRetries++ < StaticClass.NUM_XML_ACCESS_RETRIES);
 
             return false;
         }
