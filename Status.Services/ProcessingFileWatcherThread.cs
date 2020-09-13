@@ -139,17 +139,19 @@ namespace Status.Services
             int numberOfRetries = 0;
             do
             {
+                string dataXmlFileName = directory + @"\" + "Data.xml";
+
                 // Wait for data.xml file to be ready
-                string dataXmlFile = directory + @"\" + "Data.xml";
+                int numOfRetries = 0;
                 do
                 {
                     Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
                 }
-                while (StaticClass.IsFileReady(dataXmlFile) == false);
+                while ((StaticClass.IsFileReady(dataXmlFileName) == false) && (numOfRetries < StaticClass.NUM_XML_ACCESS_RETRIES));
 
                 // Check if the OverallResult node exists
                 XmlDocument dataXmlDoc = new XmlDocument();
-                dataXmlDoc.Load(dataXmlFile);
+                dataXmlDoc.Load(dataXmlFileName);
                 XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
                 if (OverallResult != null)
                 {
@@ -166,7 +168,7 @@ namespace Status.Services
 
                 Thread.Yield();
             }
-            while ((OverallResultEntryFound == false) && (numberOfRetries < StaticClass.NUM_OVERALL_RESULT_RETRIES));
+            while ((OverallResultEntryFound == false) && (numberOfRetries < StaticClass.NUM_XML_ACCESS_RETRIES));
 
             return OverallResultEntryFound;
         }
@@ -246,13 +248,13 @@ namespace Status.Services
                 if (OverallResultEntryCheck(directory))
                 {
                     // Processing Thread Complete
-                    StaticClass.Log(string.Format("Processing File Watcher completed Processing watch for Job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(string.Format("Processing File Watcher thread completed Processing watch for Job {0} at {1:HH:mm:ss.fff}",
                         directory, DateTime.Now));
                 }
                 else
                 {
                     // Show error and return
-                    StaticClass.Log(string.Format("Processing File Watcher could not confirm the OverallResult Entry for Job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(string.Format("Processing File could not confirm the OverallResult Entry for Job {0} at {1:HH:mm:ss.fff}",
                         directory, DateTime.Now));
                 }
 

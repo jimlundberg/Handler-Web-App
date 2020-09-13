@@ -25,7 +25,7 @@ namespace Status.Services
         public const int READ_AVAILABLE_RETRY_DELAY = 250;
         public const int FILE_WAIT_DELAY = 10;
         public const int NUM_TCP_IP_RETRIES = 480;
-        public const int NUM_OVERALL_RESULT_RETRIES = 100;
+        public const int NUM_XML_ACCESS_RETRIES = 100;
 
         public static double MaxJobTimeLimitSeconds = 0.0;
         public static int ScanWaitTime = 0;
@@ -147,17 +147,17 @@ namespace Status.Services
         /// <returns>Returns if file is ready to access</returns>
         public static bool IsFileReady(string fileName)
         {
-            try
+            // Check if a file is available
+            using (var fs = File.Open(fileName, FileMode.Open))
             {
-                using (File.OpenWrite(fileName))
+                var canRead = fs.CanRead;
+                var canWrite = fs.CanWrite;
+                if (canRead && canWrite)
                 {
                     return true;
                 }
-            }
-            catch (IOException e)
-            {
-                var errorCode = Marshal.GetHRForException(e) & ((1 << 16) - 1);
-                return errorCode == 32 || errorCode == 33;
+
+                return false;
             }
         }
 

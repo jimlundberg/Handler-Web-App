@@ -115,11 +115,12 @@ namespace Status.Services
 
             // Wait for Job xml file to be ready
             string jobXmlFileName = xmlJobDirectory + @"\" + jobXmlData.XmlFileName;
+            int numOfRetries = 0;
             do
             {
                 Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
             }
-            while (StaticClass.IsFileReady(jobXmlFileName) == false);
+            while ((StaticClass.IsFileReady(jobXmlFileName) == false) && (numOfRetries < StaticClass.NUM_XML_ACCESS_RETRIES));
 
             // Read Job xml file and get the top node
             XmlDocument jobXmlDoc = new XmlDocument();
@@ -345,13 +346,14 @@ namespace Status.Services
                 Thread.Sleep(StaticClass.KILL_PROCESS_WAIT);
             }
 
-            // Check and open the data.xml file
+            // Wait for data.xml file to be ready
             string dataXmlFileName = processingBufferDirectory + @"\" + job + @"\" + "data.xml";
+            numOfRetries = 0;
             do
             {
                 Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
             }
-            while (StaticClass.IsFileReady(dataXmlFileName) == false);
+            while ((StaticClass.IsFileReady(dataXmlFileName) == false) && (numOfRetries < StaticClass.NUM_XML_ACCESS_RETRIES));
 
             // Get the pass or fail data from the data.xml OverallResult result node
             XmlDocument dataXmlDoc = new XmlDocument();
