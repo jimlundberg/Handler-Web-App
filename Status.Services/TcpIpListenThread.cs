@@ -115,18 +115,17 @@ namespace Status.Services
                     return;
                 }
 
-                // set the Security protocol
+                // Set the Security protocol
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
+                // Show connection and start sending messages
                 StaticClass.Log(string.Format("Connected to Modeler TCP/IP for Job {0} on Port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
                 bool jobComplete = false;
                 do
                 {
-                    if (StaticClass.ShutDownPauseCheck("TCP/IP") == true)
+                    // Loop shutdown/Pause check
+                    if (StaticClass.ShutDownPauseCheck("TCP/IP Connect") == true)
                     {
-                        StaticClass.Log(string.Format("\nShutdown TcpIpListenThread prewrite for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
-                            job, port, DateTime.Now));
-
                         // Make sure to close TCP/IP socket
                         stream.Close();
                         client.Close();

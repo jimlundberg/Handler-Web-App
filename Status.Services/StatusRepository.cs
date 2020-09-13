@@ -117,6 +117,13 @@ namespace Status.Services
         {
             StaticClass.ShutdownFlag = false;
 
+            StaticClass.Logger.LogInformation("Information");
+            StaticClass.Logger.LogCritical("Critical");
+            StaticClass.Logger.LogError("Error");
+            StaticClass.Logger.LogDebug("Debug");
+            StaticClass.Logger.LogWarning("Warning");
+            StaticClass.Logger.LogTrace("Trace");
+
             // Check for pause state and reset it if the Start button is pressed when in Pause mode
             if (StaticClass.PauseFlag == true)
             {
