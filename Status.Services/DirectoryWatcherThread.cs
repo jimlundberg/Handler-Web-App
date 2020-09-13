@@ -125,16 +125,9 @@ namespace Status.Services
                 // Scan Input directory forever
                 do
                 {
-                    // Check if the shutdown flag is set, exit method
-                    if (StaticClass.ShutDownPauseCheck("WatchDirectory") == true)
-                    {
-                        StaticClass.Log(string.Format("\nShutdown DirectoryWatcherThread WatchDirectory at {0:HH:mm:ss.fff}", DateTime.Now));
-                        return;
-                    }
-
                     Thread.Yield();
                 }
-                while (true);
+                while (StaticClass.ShutDownPauseCheck("Directory Watcher") == false);
             }
         }
     }
