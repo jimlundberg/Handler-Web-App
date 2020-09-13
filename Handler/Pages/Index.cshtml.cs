@@ -14,14 +14,9 @@ namespace Handler.Pages
     public class IndexModel : PageModel
     {
         /// <summary>
-        /// ILogger member
-        /// </summary>
-        public readonly ILogger<IndexModel> Logger;
-
-        /// <summary>
         /// status data
         /// </summary>
-        public IEnumerable<StatusData> statusData { get; set; }
+        public IEnumerable<StatusData> StatusData { get; set; }
 
         /// <summary>
         /// Monitor Data Repository
@@ -71,7 +66,7 @@ namespace Handler.Pages
         /// <param name="monitorDataRepository"></param>
         public IndexModel(IStatusRepository monitorDataRepository)
         {
-            this.MonitorDataRepository = monitorDataRepository;
+            MonitorDataRepository = monitorDataRepository;
         }
 
         private void SetButtonState(ButtonPress buttonPress)
@@ -146,7 +141,7 @@ namespace Handler.Pages
             {
                 SetButtonState(ButtonPress.Start);
             }
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+            StatusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
                 
         /// <summary>
@@ -155,7 +150,7 @@ namespace Handler.Pages
         public void OnPostHomeButton()
         {
             SetButtonState(ButtonPress.Home);
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+            StatusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 
         /// <summary>
@@ -165,7 +160,7 @@ namespace Handler.Pages
         {
             SetButtonState(ButtonPress.Start);
             MonitorDataRepository.StartMonitorProcess();
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+            StatusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 
         /// <summary>
@@ -174,7 +169,7 @@ namespace Handler.Pages
         public void OnPostRefreshButton()
         {
             SetButtonState(ButtonPress.Refresh);
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+            StatusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
 
         /// <summary>
@@ -201,7 +196,7 @@ namespace Handler.Pages
         public void OnPostHistoryButton()
         {
             SetButtonState(ButtonPress.History);
-            statusData = (IEnumerable<StatusData>)MonitorDataRepository.GetHistoryData();
+            StatusData = (IEnumerable<StatusData>)MonitorDataRepository.GetHistoryData();
         }
     }
 }
