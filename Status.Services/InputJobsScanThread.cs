@@ -76,13 +76,13 @@ namespace Status.Services
             // Wait while scanning for unfinished Processing jobs
             do
             {
-                Thread.Yield();
-
                 if (StaticClass.ShutDownPauseCheck("CheckForUnfinishedInputJobs") == true)
                 {
                     StaticClass.Log(string.Format("\nShutdown InputJobsScanThread CheckForUnfinishedInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
+
+                Thread.Yield();
             }
             while (StaticClass.UnfinishedProcessingJobsScanComplete == false);
 

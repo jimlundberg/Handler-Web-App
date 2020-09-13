@@ -197,14 +197,14 @@ namespace Status.Services
                     // Wait for Input file scan to complete
                     do
                     {
-                        Thread.Yield();
-
                         if (StaticClass.ShutDownPauseCheck("Run Job") == true)
                         {
                             StaticClass.Log(string.Format("\nShutdown RunJob Input Scan for Job {0} at {1:HH:mm:ss.fff}",
                                 job, DateTime.Now));
                             return;
                         }
+
+                        Thread.Yield();
                     }
                     while (StaticClass.InputFileScanComplete[job] == false);
 
@@ -230,17 +230,6 @@ namespace Status.Services
                 StaticClass.Log(string.Format("\nShutdown RunJob pre execution of Job {0} at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
                 return;
-            }
-
-            // Check if the pause flag is set, then wait for reset
-            if (StaticClass.PauseFlag == true)
-            {
-                StaticClass.Log(string.Format("JobRunThread RunJob2 is in Pause mode at {0:HH:mm:ss.fff}", DateTime.Now));
-                do
-                {
-                    Thread.Yield();
-                }
-                while (StaticClass.PauseFlag == true);
             }
 
             // Add entry to status list
@@ -326,14 +315,14 @@ namespace Status.Services
             // Wait for the Processing job scan complete which includes TCP/IP
             do
             {
-                Thread.Yield();
-
                 if (StaticClass.ShutDownPauseCheck("Run Job") == true)
                 {
                     StaticClass.Log(string.Format("\nShutdown RunJob job complete scan for Job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
                     return;
                 }
+
+                Thread.Yield();
             }
             while (StaticClass.ProcessingJobScanComplete[job] == false);
 

@@ -227,7 +227,6 @@ namespace Status.Services
                     {
                         StaticClass.Log(string.Format("\nShutdown ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
                             directory, DateTime.Now));
-
                         return;
                     }
 
