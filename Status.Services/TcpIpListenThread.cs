@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Status.Models;
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -126,9 +127,31 @@ namespace Status.Services
                     {
                         if (StaticClass.ShutDownPauseCheck(job) == false)
                         {
-                            // Translate the passed message into ASCII and store it as a Byte array.
-                            Byte[] sendData = Encoding.ASCII.GetBytes(StatusMessage);
-                            stream.Write(sendData, 0, sendData.Length);
+                            try
+                            {
+                                // Translate the passed message into ASCII and store it as a Byte array.
+                                Byte[] sendData = Encoding.ASCII.GetBytes(StatusMessage);
+                                stream.Write(sendData, 0, sendData.Length);
+                            }
+                            catch (IOException e)
+                            {
+                                // Make sure to close TCP/IP socket
+                                stream.Close();
+                                client.Close();
+
+                                StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} because of Exception {2} at {3:HH:mm:ss.fff}",
+                                    job, port, e, DateTime.Now));
+
+                                // Signal job complete if exception happend in Step 5 or 6
+                                if ((ModelerCurrentStepState == ModelerStepState.STEP_5) ||
+                                    (ModelerCurrentStepState == ModelerStepState.STEP_6))
+                                {
+                                    // Set the TCP/IP Scan complete flag to signal the RunJob thread
+                                    StaticClass.TcpIpScanComplete[job] = true;
+                                }
+
+                                return;
+                            }
 
                             StaticClass.Log(string.Format("\nSending {0} msg to Modeler for Job {1} on Port {2} at {3:HH:mm:ss.fff}",
                                 StatusMessage, job, port, DateTime.Now));
