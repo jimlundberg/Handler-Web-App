@@ -59,7 +59,7 @@ namespace Status.Services
 
             if (tooBig)
             {
-                StaticClass.Log("\nProcess log file too big. Reducing 10%...\n");
+                StaticClass.Log("\nProcess log.txt file too big. Reducing 10%...\n");
                 lock (FileLock)
                 {
                     // Remove old data from log file

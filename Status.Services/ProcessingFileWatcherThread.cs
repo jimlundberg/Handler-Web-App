@@ -167,7 +167,7 @@ namespace Status.Services
             // Quick check to see if the directory is already full
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
-                StaticClass.Log(string.Format("Processing File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Processing File Watcher completed the scan for Job {0} at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
 
                 // Signal the Run thread that the Processing files were found
@@ -228,13 +228,7 @@ namespace Status.Services
                 if (OverallResultEntryCheck(dataXmlFileName))
                 {
                     // Processing Thread Complete
-                    StaticClass.Log(string.Format("Processing File Watcher thread completed Processing watch for Job {0} at {1:HH:mm:ss.fff}",
-                        directory, DateTime.Now));
-                }
-                else
-                {
-                    // Show error and return
-                    StaticClass.Log(string.Format("Processing File could not confirm the OverallResult Entry for Job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(string.Format("Processing File Watcher completed Processing watch for Job {0} at {1:HH:mm:ss.fff}",
                         directory, DateTime.Now));
                 }
 

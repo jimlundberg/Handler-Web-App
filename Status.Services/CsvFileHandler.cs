@@ -420,7 +420,7 @@ namespace ReadWriteCsvFile
         public bool ReadRow(CsvRow row)
         {
             row.LineText = ReadLine();
-            if (String.IsNullOrEmpty(row.LineText))
+            if (string.IsNullOrEmpty(row.LineText))
             {
                 return false;
             }

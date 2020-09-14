@@ -84,7 +84,7 @@ namespace Status.Services
                 }
             }
 
-            StaticClass.Log(string.Format("CopyFolderContents from {0} -> {1}", sourcePath, destinationPath));
+            StaticClass.Log(string.Format("Copied Directory {0} -> {1}", sourcePath, destinationPath));
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace Status.Services
                 Source.CopyTo(targetFile);
             }
 
-            StaticClass.Log(string.Format("Copied {0} -> {1}", sourceFile, targetFile));
+            StaticClass.Log(string.Format("Copied File {0} -> {1}", sourceFile, targetFile));
         }
 
         /// <summary>

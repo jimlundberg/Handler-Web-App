@@ -152,8 +152,6 @@ namespace Status.Services
                 {
                     if (StaticClass.ShutDownPauseCheck("Run Job") == true)
                     {
-                        StaticClass.Log(string.Format("\nShutdown RunJob Input Scan for Job {0} at {1:HH:mm:ss.fff}",
-                            job, DateTime.Now));
                         return;
                     }
 
@@ -183,9 +181,6 @@ namespace Status.Services
         /// <param name="modelerProcess"></param>
         public void DisplayProcessInfo(string job, Process modelerProcess)
         {
-            // Wait 45 seconds for Modeler to get started before reading it's information
-            Thread.Sleep(StaticClass.DISPLAY_PROCESS_DATA_WAIT);
-
             // Display Modeler Executable information
             StaticClass.Log($"\nJob {job} Modeler execution process data:");
             StaticClass.Log($"ProcessName                    : {modelerProcess.ProcessName}");
@@ -330,16 +325,13 @@ namespace Status.Services
             // If the shutdown flag is set, exit method
             if (StaticClass.ShutDownPauseCheck("Run Job") == true)
             {
-                StaticClass.Log(string.Format("\nShutdown RunJob pre execution of Job {0} at {1:HH:mm:ss.fff}",
-                    job, DateTime.Now));
                 return;
             }
 
             // Add entry to status list
             StaticClass.StatusDataEntry(job, JobStatus.EXECUTING, JobType.TIME_START);
 
-            StaticClass.Log(
-                string.Format("Starting Job {0} with Modeler {1} on Port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
+            StaticClass.Log(string.Format("Starting Job {0} with Modeler {1} on Port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
                 job, monitorData.Modeler, monitorData.JobPortNumber, StaticClass.IniData.CPUCores, DateTime.Now));
 
             // Execute Modeler using the command line generator
@@ -374,6 +366,9 @@ namespace Status.Services
             // Add entry to status list
             StaticClass.StatusDataEntry(job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
 
+            // Wait 45 seconds for Modeler to get started before reading it's information
+            Thread.Sleep(StaticClass.DISPLAY_PROCESS_DATA_WAIT);
+
             // Display the Modeler Process information
             DisplayProcessInfo(job, modelerProcess);
 
@@ -382,8 +377,7 @@ namespace Status.Services
             {
                 if (StaticClass.ShutDownPauseCheck("Run Job") == true)
                 {
-                    StaticClass.Log(
-                        string.Format("\nShutdown RunJob job complete scan for Job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(string.Format("\nShutdown RunJob job complete scan for Job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
                     return;
                 }
@@ -414,8 +408,7 @@ namespace Status.Services
 
                 // Show Job Complete message
                 TimeSpan timeSpan = DateTime.Now - StaticClass.JobStartTime[job];
-                StaticClass.Log(
-                    string.Format("Job {0} Complete taking {1:hh\\:mm\\:ss}. Decrementing Job count to {2} at {3:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Job {0} Complete taking {1:hh\\:mm\\:ss}. Decrementing Job count to {2} at {3:HH:mm:ss.fff}",
                     job, timeSpan, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now));
 
                 // Decrement the number of Jobs executing in one place!

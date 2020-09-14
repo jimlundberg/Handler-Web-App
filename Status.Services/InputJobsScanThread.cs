@@ -71,7 +71,6 @@ namespace Status.Services
             {
                 if (StaticClass.ShutDownPauseCheck("CheckForUnfinishedInputJobs") == true)
                 {
-                    StaticClass.Log(string.Format("\nShutdown InputJobsScanThread CheckForUnfinishedInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
 
@@ -159,7 +158,7 @@ namespace Status.Services
                         StaticClass.Logger.LogError("InputJobScanThread Add Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
                     }
 
-                    StaticClass.Log(string.Format("\nUnfinished Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
+                    StaticClass.Log(string.Format("Unfinished Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
                         job, index, DateTime.Now));
                 }
 
@@ -175,7 +174,6 @@ namespace Status.Services
                 // Check if the shutdown flag is set, exit method
                 if (StaticClass.ShutDownPauseCheck("CheckForUnfinishedInputJobs") == true)
                 {
-                    StaticClass.Log(string.Format("\nShutdown InputJobsScanThread CheckForUnfinishedInputJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
 
@@ -196,7 +194,7 @@ namespace Status.Services
             if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
             {
                 int index = 0;
-                string job = String.Empty;
+                string job = string.Empty;
                 Task AddTask = Task.Run(() =>
                 {
                     if (StaticClass.InputJobsToRun.Count > 0)
@@ -213,7 +211,7 @@ namespace Status.Services
                     StaticClass.Logger.LogError("InputJobScanThread Run Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
                 }
 
-                if (job != String.Empty)
+                if (job != string.Empty)
                 {
                     string directory = StaticClass.IniData.InputDir + @"\" + job;
 

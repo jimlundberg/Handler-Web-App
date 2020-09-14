@@ -144,7 +144,6 @@ namespace Status.Services
                 // Check for shutdown or pause
                 if (StaticClass.ShutDownPauseCheck("Processing Jobs Scan Thread") == true)
                 {
-                    StaticClass.Log(string.Format("\nShutdown ProcessingJobsScanThread CheckForUnfinishedProcessingJobs at {0:HH:mm:ss.fff}", DateTime.Now));
                     return;
                 }
 

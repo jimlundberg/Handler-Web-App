@@ -124,7 +124,7 @@ namespace Status.Services
             if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {
                 // Exiting thread message
-                StaticClass.Log(string.Format("Input File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Input File Watcher completed the scan for Job {0} at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
 
                 // Signal the Run thread that the Input files were found
@@ -165,10 +165,8 @@ namespace Status.Services
                 // Wait for Input file scan to Complete with a full set of job output files
                 do
                 {
-                    if (StaticClass.ShutDownPauseCheck("WatchDirectory") == true)
+                    if (StaticClass.ShutDownPauseCheck("InputFileWatcherThread") == true)
                     {
-                        StaticClass.Log(string.Format("\nShutdown InputFileWatcherThread WatchFiles watching {0} at {1:HH:mm:ss.fff}",
-                            directory, DateTime.Now));
                         return;
                     }
 
@@ -180,7 +178,7 @@ namespace Status.Services
                 StaticClass.InputJobScanComplete[job] = true;
 
                 // Exiting thread message
-                StaticClass.Log(string.Format("Input File Watcher thread completed the scan for Job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Input File Watcher completed scan for Job {0} at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
             }
         }

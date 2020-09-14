@@ -53,7 +53,7 @@ namespace Status.Services
         public static volatile bool UnfinishedProcessingJobsScanComplete = false;
         
         // Processing Jobs List
-		public static List<string> ProcessingJobsToRun = new List<String>();
+		public static List<string> ProcessingJobsToRun = new List<string>();
 
         // Job state tracking
         public static Dictionary<string, DateTime> JobStartTime = new Dictionary<string, DateTime>();

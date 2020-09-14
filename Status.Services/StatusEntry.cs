@@ -57,7 +57,7 @@ namespace Status.Services
             StaticClass.StatusDataList.Add(entry);
 
             // Output to Console also
-            StaticClass.Log(string.Format("Status: Job:{0} Job Status:{1} Time Type:{2}",
+            StaticClass.Log(string.Format("Status: Job: {0} Job Status: {1} Time Type: {2}",
                 job, status, timeSlot.ToString()));
         }
     }
