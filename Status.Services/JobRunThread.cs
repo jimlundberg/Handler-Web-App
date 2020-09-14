@@ -61,43 +61,15 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Run a job from Input or Processing Buffers
+        /// Get the data from the Job xml file
         /// </summary>
-        /// <param name="dirScanType"></param>
         /// <param name="jobXmlData"></param>
-        public void RunJob(JobXmlData jobXmlData, DirectoryScanType dirScanType)
+        /// <param name="monitorData"></param>
+        /// <returns></returns>
+        public StatusMonitorData GetJobXmlData(JobXmlData jobXmlData, StatusMonitorData monitorData)
         {
-            // Increment number of Jobs executing in only one place!
-            StaticClass.NumberOfJobsExecuting++;
-
-            // Create the Job Run common strings
-            string job = jobXmlData.Job;
-            string xmlJobDirectory = jobXmlData.JobDirectory;
-            string processingBufferDirectory = StaticClass.IniData.ProcessingDir;
-            string processingBufferJobDir = processingBufferDirectory + @"\" + job;
-            string repositoryDirectory = StaticClass.IniData.RepositoryDir;
-            string finishedDirectory = StaticClass.IniData.FinishedDir;
-            string errorDirectory = StaticClass.IniData.ErrorDir;
-
-            // Set the job start time
-            StaticClass.JobStartTime[job] = DateTime.Now;
-
-            // Create new status monitor data and fill it in with the job xml data
-            StatusMonitorData monitorData = new StatusMonitorData
-            {
-                Job = job,
-                JobDirectory = xmlJobDirectory,
-                StartTime = DateTime.Now,
-                JobSerialNumber = jobXmlData.JobSerialNumber,
-                TimeStamp = jobXmlData.TimeStamp,
-                XmlFileName = jobXmlData.XmlFileName
-            };
-
-            // Add initial entry to status list
-            StaticClass.StatusDataEntry(job, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED);
-
             // Wait for Job xml file to be ready
-            string jobXmlFileName = xmlJobDirectory + @"\" + jobXmlData.XmlFileName;
+            string jobXmlFileName = jobXmlData.JobDirectory + @"\" + jobXmlData.XmlFileName;
             if (StaticClass.IsFileReady(jobXmlFileName))
             {
                 // Read Job xml file and get the top node
@@ -139,8 +111,6 @@ namespace Status.Services
 
                 // Create the Transfered file list from the Xml file entries
                 monitorData.TransferedFileList = new List<string>(NumFilesToTransfer);
-                List<XmlNode> TransFeredFileXml = new List<XmlNode>();
-                monitorData.TransferedFileList = new List<string>();
                 for (int i = 1; i < NumFilesToTransfer + 1; i++)
                 {
                     string transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
@@ -151,113 +121,68 @@ namespace Status.Services
             }
             else
             {
-                StaticClass.Log(string.Format("\nFile {0} found not available at {1:HH:mm:ss.fff}\n", jobXmlFileName, DateTime.Now));
-                return;
+                StaticClass.Logger.LogError("File {0} is not available at {1:HH:mm:ss.fff}\n", jobXmlFileName, DateTime.Now);
             }
 
-            // If this job comes from the Input directory, run the Input job check and start job if found
-            if (dirScanType == DirectoryScanType.INPUT_BUFFER)
-            {
-                // Add initial entry to status list
-                StaticClass.StatusDataEntry(job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
+            return monitorData;
+        }
 
-                // Monitor the Input Buffer job directory until it has the total number of consumed files
-                string inputBufferJobDir = StaticClass.IniData.InputDir;
-                int numberOfFilesNeeded = monitorData.NumFilesConsumed;
-                if (Directory.Exists(inputBufferJobDir))
+        public void RunInputBufferScan(string directory, string job, StatusMonitorData monitorData)
+        {
+            // Add initial entry to status list
+            StaticClass.StatusDataEntry(job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
+
+            // Monitor the Input Buffer job directory until it has the total number of consumed files
+            string inputBufferJobDir = StaticClass.IniData.InputDir;
+            int numberOfFilesNeeded = monitorData.NumFilesConsumed;
+            if (Directory.Exists(inputBufferJobDir))
+            {
+                string inputJobFileDir = inputBufferJobDir + @"\" + job;
+
+                // Register with the File Watcher class event and start its thread
+                InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(inputJobFileDir, numberOfFilesNeeded);
+                if (inputFileWatch == null)
                 {
-                    string inputJobFileDir = inputBufferJobDir + @"\" + job;
-
-                    // Register with the File Watcher class event and start its thread
-                    InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(inputJobFileDir, numberOfFilesNeeded);
-                    if (inputFileWatch == null)
-                    {
-                        StaticClass.Logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
-                    }
-                    inputFileWatch.ThreadProc();
-
-                    // Wait for Input file scan to complete
-                    do
-                    {
-                        if (StaticClass.ShutDownPauseCheck("Run Job") == true)
-                        {
-                            StaticClass.Log(string.Format("\nShutdown RunJob Input Scan for Job {0} at {1:HH:mm:ss.fff}",
-                                job, DateTime.Now));
-                            return;
-                        }
-
-                        Thread.Yield();
-                    }
-                    while (StaticClass.InputFileScanComplete[job] == false);
-
-                    StaticClass.Log(string.Format("Finished Input file scan for Job {0} at {1:HH:mm:ss.fff}",
-                        inputJobFileDir, DateTime.Now));
-
-                    // Add copying entry to status list
-                    StaticClass.StatusDataEntry(job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
-
-                    // Move files from Input directory to the Processing directory, creating it first if needed
-                    FileHandling.CopyFolderContents(inputJobFileDir, processingBufferJobDir, true, true);
+                    StaticClass.Logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
                 }
-                else
+                inputFileWatch.ThreadProc();
+
+                // Wait for Input file scan to complete
+                do
                 {
-                    StaticClass.Logger.LogError("Could not find Input Buffer Directory");
-                    throw new InvalidOperationException("Could not find Input Buffer Directory");
+                    if (StaticClass.ShutDownPauseCheck("Run Job") == true)
+                    {
+                        StaticClass.Log(string.Format("\nShutdown RunJob Input Scan for Job {0} at {1:HH:mm:ss.fff}",
+                            job, DateTime.Now));
+                        return;
+                    }
+
+                    Thread.Yield();
                 }
-            }
+                while (StaticClass.InputFileScanComplete[job] == false);
 
-            // If the shutdown flag is set, exit method
-            if (StaticClass.ShutDownPauseCheck("Run Job") == true)
+                StaticClass.Log(string.Format("Finished Input file scan for Job {0} at {1:HH:mm:ss.fff}",
+                    inputJobFileDir, DateTime.Now));
+
+                // Add copying entry to status list
+                StaticClass.StatusDataEntry(job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
+
+                // Move files from Input directory to the Processing directory, creating it first if needed
+                FileHandling.CopyFolderContents(inputJobFileDir, directory, true, true);
+            }
+            else
             {
-                StaticClass.Log(string.Format("\nShutdown RunJob pre execution of Job {0} at {1:HH:mm:ss.fff}",
-                    job, DateTime.Now));
-                return;
+                StaticClass.Logger.LogError("Could not find Input Buffer Directory");
+                throw new InvalidOperationException("Could not find Input Buffer Directory");
             }
+        }
 
-            // Add entry to status list
-            StaticClass.StatusDataEntry(job, JobStatus.EXECUTING, JobType.TIME_START);
-
-            StaticClass.Log(string.Format("Starting Job {0} with Modeler {1} on Port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
-                job, monitorData.Modeler, monitorData.JobPortNumber, StaticClass.IniData.CPUCores, DateTime.Now));
-
-            // Execute Modeler using the command line generator
-            string executable = StaticClass.IniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe";
-            string processingBuffer = processingBufferJobDir;
-            int port = monitorData.JobPortNumber;
-            int cpuCores = StaticClass.IniData.CPUCores;
-            CommandLineGenerator cmdLineGenerator = new CommandLineGenerator(executable, processingBuffer, port, cpuCores);
-            if (cmdLineGenerator == null)
-            {
-                StaticClass.Logger.LogError("JobRunThread cmdLineGenerator failed to instantiate");
-            }
-            Process modelerProcess = cmdLineGenerator.ExecuteCommand(job);
-
-            // Monitor for complete set of files in the Processing Buffer
-            StaticClass.Log(string.Format("Starting file monitoring for Job {0} Processing Buffer output files at {1:HH:mm:ss.fff}",
-                job, DateTime.Now));
-
-            // Register with the Processing File Watcher class and start its thread
-            ProcessingFileWatcherThread processingFileWatcher = new ProcessingFileWatcherThread(processingBufferJobDir, monitorData);
-            if (processingFileWatcher == null)
-            {
-                StaticClass.Logger.LogError("JobRunThread ProcessingFileWatch failed to instantiate");
-            }
-            processingFileWatcher.ThreadProc();
-
-            // Monitor for complete set of files in the Processing Buffer
-            StaticClass.Log(string.Format("Starting TCP/IP monitoring for Job {0} at {1:HH:mm:ss.fff}",job, DateTime.Now));
-
-            // Start the TCP/IP Communications thread before checking for Processing job files
-            TcpIpListenThread tcpIpThread = new TcpIpListenThread(monitorData);
-            if (tcpIpThread == null)
-            {
-                StaticClass.Logger.LogError("ProcessingFileWatcherThread tcpIpThread failed to instantiate");
-            }
-            tcpIpThread.ThreadProc();
-
-            // Add entry to status list
-            StaticClass.StatusDataEntry(job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
-
+        /// <summary>
+        /// Display the Modeler Process information
+        /// </summary>
+        /// <param name="modelerProcess"></param>
+        public void DisplayProcessInfo(string job, Process modelerProcess)
+        {
             // Wait 45 seconds for Modeler to get started before reading it's information
             Thread.Sleep(StaticClass.DISPLAY_PROCESS_DATA_WAIT);
 
@@ -291,13 +216,174 @@ namespace Status.Services
             StaticClass.Log($"PrivilegedProcessorTime        : {modelerProcess.PrivilegedProcessorTime}");
             StaticClass.Log($"TotalProcessorTime             : {modelerProcess.TotalProcessorTime}");
             StaticClass.Log($"UserProcessorTime              : {modelerProcess.UserProcessorTime}");
+        }
+
+        /// <summary>
+        /// Run the Job Completion file and directory handling
+        /// </summary>
+        /// <param name="job"></param>
+        /// <param name="monitorData"></param>
+        public void RunJobCompletion(string job, StatusMonitorData monitorData)
+        {
+            string repositoryDirectory = StaticClass.IniData.RepositoryDir;
+            string finishedDirectory = StaticClass.IniData.FinishedDir;
+            string errorDirectory = StaticClass.IniData.ErrorDir;
+            string processingBufferJobDir = StaticClass.IniData.ProcessingDir + @"\" + job;
+            string dataXmlFileName = StaticClass.IniData.ProcessingDir + @"\" + job + @"\" + "data.xml";
+
+            // Get the pass or fail data from the data.xml OverallResult result node
+            XmlDocument dataXmlDoc = new XmlDocument();
+            dataXmlDoc.Load(dataXmlFileName);
+            XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
+            string passFail = "Fail";
+            if (OverallResult != null)
+            {
+                passFail = OverallResult.InnerText;
+            }
+
+            string repositoryJobDirectoryName = repositoryDirectory + @"\" + job;
+            if ((OverallResult != null) && (passFail == "Pass"))
+            {
+                // If the Finished directory does not exist, create it
+                string finishedJobDirectoryName = finishedDirectory + @"\" + monitorData.JobSerialNumber;
+                if (!Directory.Exists(finishedJobDirectoryName))
+                {
+                    Directory.CreateDirectory(finishedJobDirectoryName);
+                }
+
+                // Copy the Transfered files to the Finished directory 
+                foreach (string file in monitorData.TransferedFileList)
+                {
+                    FileHandling.CopyFile(processingBufferJobDir + @"\" + file,
+                                          finishedJobDirectoryName + @"\" + file);
+                }
+
+                // Move Processing Buffer Files to the Repository directory when passed
+                FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
+            }
+            else // Send files to the Error Buffer and repository
+            {
+                // If the Error directory does not exist, create it
+                string errorJobDirectoryName = errorDirectory + @"\" + monitorData.JobSerialNumber;
+                if (!Directory.Exists(errorJobDirectoryName))
+                {
+                    Directory.CreateDirectory(errorJobDirectoryName);
+                }
+
+                // Copy the Transfered files to the Error directory 
+                foreach (string file in monitorData.TransferedFileList)
+                {
+                    if (File.Exists(processingBufferJobDir + @"\" + file))
+                    {
+                        FileHandling.CopyFile(processingBufferJobDir + @"\" + file, 
+                                              errorJobDirectoryName + @"\" + file);
+                    }
+                }
+
+                // Move Processing Buffer Files to the Repository directory when failed
+                FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
+            }
+        }
+
+        /// <summary>
+        /// Run a job from Input or Processing Buffers
+        /// </summary>
+        /// <param name="dirScanType"></param>
+        /// <param name="jobXmlData"></param>
+        public void RunJob(JobXmlData jobXmlData, DirectoryScanType dirScanType)
+        {
+            // Increment number of Jobs executing in only one place!
+            StaticClass.NumberOfJobsExecuting++;
+
+            // Create the Job Run common strings
+            string job = jobXmlData.Job;
+            string xmlJobDirectory = jobXmlData.JobDirectory;
+            string processingBufferDirectory = StaticClass.IniData.ProcessingDir;
+            string processingBufferJobDir = processingBufferDirectory + @"\" + job;
+
+            // Set the job start time
+            StaticClass.JobStartTime[job] = DateTime.Now;
+
+            // Create new status monitor data and fill it in with the job xml data
+            StatusMonitorData monitorData = new StatusMonitorData
+            {
+                Job = job,
+                JobDirectory = xmlJobDirectory,
+                StartTime = DateTime.Now,
+                JobSerialNumber = jobXmlData.JobSerialNumber,
+                TimeStamp = jobXmlData.TimeStamp,
+                XmlFileName = jobXmlData.XmlFileName
+            };
+
+            // Add initial entry to status list
+            StaticClass.StatusDataEntry(job, JobStatus.JOB_STARTED, JobType.TIME_RECEIVED);
+
+            // Get the Job xml data
+            monitorData = GetJobXmlData(jobXmlData, monitorData);
+
+            // If this job comes from the Input directory, run the Input job check and start job
+            if (dirScanType == DirectoryScanType.INPUT_BUFFER)
+            {
+                RunInputBufferScan(processingBufferJobDir, job, monitorData);
+            }
+
+            // If the shutdown flag is set, exit method
+            if (StaticClass.ShutDownPauseCheck("Run Job") == true)
+            {
+                StaticClass.Log(string.Format("\nShutdown RunJob pre execution of Job {0} at {1:HH:mm:ss.fff}",
+                    job, DateTime.Now));
+                return;
+            }
+
+            // Add entry to status list
+            StaticClass.StatusDataEntry(job, JobStatus.EXECUTING, JobType.TIME_START);
+
+            StaticClass.Log(
+                string.Format("Starting Job {0} with Modeler {1} on Port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
+                job, monitorData.Modeler, monitorData.JobPortNumber, StaticClass.IniData.CPUCores, DateTime.Now));
+
+            // Execute Modeler using the command line generator
+            string executable = StaticClass.IniData.ModelerRootDir + @"\" + monitorData.Modeler + @"\" + monitorData.Modeler + ".exe";
+            string processingBuffer = processingBufferJobDir;
+            int port = monitorData.JobPortNumber;
+            int cpuCores = StaticClass.IniData.CPUCores;
+            CommandLineGenerator cmdLineGenerator = new CommandLineGenerator(
+                executable, processingBuffer, port, cpuCores);
+            if (cmdLineGenerator == null)
+            {
+                StaticClass.Logger.LogError("JobRunThread cmdLineGenerator failed to instantiate");
+            }
+            Process modelerProcess = cmdLineGenerator.ExecuteCommand(job);
+
+            // Register with the Processing File Watcher class and start its thread
+            ProcessingFileWatcherThread processingFileWatcher = new ProcessingFileWatcherThread(processingBufferJobDir, monitorData);
+            if (processingFileWatcher == null)
+            {
+                StaticClass.Logger.LogError("JobRunThread ProcessingFileWatch failed to instantiate");
+            }
+            processingFileWatcher.ThreadProc();
+
+            // Start the TCP/IP Communications thread before checking for Processing job files
+            TcpIpListenThread tcpIpThread = new TcpIpListenThread(monitorData);
+            if (tcpIpThread == null)
+            {
+                StaticClass.Logger.LogError("ProcessingFileWatcherThread tcpIpThread failed to instantiate");
+            }
+            tcpIpThread.ThreadProc();
+
+            // Add entry to status list
+            StaticClass.StatusDataEntry(job, JobStatus.MONITORING_PROCESSING, JobType.TIME_START);
+
+            // Display the Modeler Process information
+            DisplayProcessInfo(job, modelerProcess);
 
             // Wait for the Processing job scan complete which includes TCP/IP
             do
             {
                 if (StaticClass.ShutDownPauseCheck("Run Job") == true)
                 {
-                    StaticClass.Log(string.Format("\nShutdown RunJob job complete scan for Job {0} at {1:HH:mm:ss.fff}",
+                    StaticClass.Log(
+                        string.Format("\nShutdown RunJob job complete scan for Job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
                     return;
                 }
@@ -320,71 +406,20 @@ namespace Status.Services
             string dataXmlFileName = processingBufferDirectory + @"\" + job + @"\" + "data.xml";
             if (StaticClass.IsFileReady(dataXmlFileName))
             {
-                // Get the pass or fail data from the data.xml OverallResult result node
-                XmlDocument dataXmlDoc = new XmlDocument();
-                dataXmlDoc.Load(dataXmlFileName);
-                XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
-                string passFail = "Fail";
-                if (OverallResult != null)
-                {
-                    passFail = OverallResult.InnerText;
-                }
-
-                string repositoryJobDirectoryName = repositoryDirectory + @"\" + job;
-                if ((OverallResult != null) && (passFail == "Pass"))
-                {
-                    // If the Finished directory does not exist, create it
-                    string finishedJobDirectoryName = finishedDirectory + @"\" + monitorData.JobSerialNumber;
-                    if (!Directory.Exists(finishedJobDirectoryName))
-                    {
-                        Directory.CreateDirectory(finishedJobDirectoryName);
-                    }
-
-                    // Copy the Transfered files to the Finished directory 
-                    foreach (string file in monitorData.TransferedFileList)
-                    {
-                        FileHandling.CopyFile(processingBufferJobDir + @"\" + file, finishedJobDirectoryName + @"\" + file);
-                    }
-
-                    // Move Processing Buffer Files to the Repository directory when passed
-                    FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
-                }
-                else // Send files to the Error Buffer and repository
-                {
-                    // If the Error directory does not exist, create it
-                    string errorJobDirectoryName = errorDirectory + @"\" + monitorData.JobSerialNumber;
-                    if (!Directory.Exists(errorJobDirectoryName))
-                    {
-                        Directory.CreateDirectory(errorJobDirectoryName);
-                    }
-
-                    // Copy the Transfered files to the Error directory 
-                    foreach (string file in monitorData.TransferedFileList)
-                    {
-                        if (File.Exists(processingBufferJobDir + @"\" + file))
-                        {
-                            FileHandling.CopyFile(processingBufferJobDir + @"\" + file, errorJobDirectoryName + @"\" + file);
-                        }
-                    }
-
-                    // Move Processing Buffer Files to the Repository directory when failed
-                    FileHandling.CopyFolderContents(processingBufferJobDir, repositoryJobDirectoryName, true, true);
-                }
+                // Run the Job Complete handler
+                RunJobCompletion(job, monitorData);
 
                 // Add entry to status list
                 StaticClass.StatusDataEntry(job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
 
                 // Show Job Complete message
                 TimeSpan timeSpan = DateTime.Now - StaticClass.JobStartTime[job];
-                StaticClass.Log(string.Format("Job {0} Complete taking {1:hh\\:mm\\:ss}. Decrementing Job count to {2} at {3:HH:mm:ss.fff}",
+                StaticClass.Log(
+                    string.Format("Job {0} Complete taking {1:hh\\:mm\\:ss}. Decrementing Job count to {2} at {3:HH:mm:ss.fff}",
                     job, timeSpan, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now));
 
                 // Decrement the number of Jobs executing in one place!
                 StaticClass.NumberOfJobsExecuting--;
-            }
-            else
-            {
-                StaticClass.Log(string.Format("\nFile {0} found not available at {1:HH:mm:ss.fff}\n", dataXmlFileName, DateTime.Now));
             }
         }
     }
