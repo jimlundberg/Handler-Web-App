@@ -40,9 +40,9 @@ namespace Status.Services
 
             lock (FileLock)
             {
-                using (var stream = new FileStream(LogFileName, FileMode.Append))
+                using (FileStream stream = new FileStream(LogFileName, FileMode.Append))
                 {
-                    using (var writer = new StreamWriter(stream))
+                    using (StreamWriter writer = new StreamWriter(stream))
                     {
                         // Check file size before writing
                         if (stream.Position < MaxFileSize)
@@ -78,7 +78,7 @@ namespace Status.Services
                             stream.Position = 0;
                             memoryStream.CopyTo(stream);
 
-                            using (var writer = new StreamWriter(stream))
+                            using (StreamWriter writer = new StreamWriter(stream))
                             {
                                 writer.WriteLine(text);
                             }

@@ -153,7 +153,7 @@ namespace Status.Services
             do
             {
                 // Check that a file is both readable and writeable
-                using (var fileService = File.Open(fileName, FileMode.Open))
+                using (FileStream fileService = File.Open(fileName, FileMode.Open))
                 {
                     if (fileService.CanRead && fileService.CanWrite)
                     {

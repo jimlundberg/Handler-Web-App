@@ -78,7 +78,7 @@ namespace Status.Services
             {
                 lock (FileLock)
                 {
-                    var dirInfo = new DirectoryInfo(sourceDI.FullName);
+                    DirectoryInfo dirInfo = new DirectoryInfo(sourceDI.FullName);
                     dirInfo.Attributes |= FileAttributes.Normal;
                     sourceDI.Delete();
                 }

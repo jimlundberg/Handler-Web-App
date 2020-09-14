@@ -24,7 +24,18 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Get the local Config.ini file data in the working directory
+        /// Ini configuration method
+        /// </summary>
+        /// <param name="IniFileName"></param>
+        /// <returns></returns>
+        private static IniFileHandler IniConfigMethod(string IniFileName)
+        {
+            // Get information from the Config.ini file
+            return new IniFileHandler(IniFileName);
+        }
+
+        /// <summary>
+        /// Get the Config.ini file data from the working directory
         /// </summary>
         public void GetIniFileData()
         {
@@ -36,8 +47,7 @@ namespace Status.Services
                 throw new InvalidOperationException("Config.ini file does not exist in the Handler directory");
             }
 
-            // Get information from the Config.ini file
-            var IniParser = new IniFileHandler(IniFileName);
+            IniFileHandler IniParser = IniConfigMethod(IniFileName);
             StaticClass.IniData.IniFileName = IniFileName;
             StaticClass.IniData.InputDir = IniParser.Read("Paths", "Input");
             StaticClass.IniData.ProcessingDir = IniParser.Read("Paths", "Processing");
@@ -50,19 +60,19 @@ namespace Status.Services
             StaticClass.IniData.StartPort = int.Parse(IniParser.Read("Process", "StartPort"));
             StaticClass.IniData.StatusLogFile = IniParser.Read("Process", "StatusLogFile");
             StaticClass.IniData.ProcessLogFile = IniParser.Read("Process", "ProcessLogFile");
-            
+
             string scanWaitTime = IniParser.Read("Process", "ScanWaitTime");
             StaticClass.IniData.ScanWaitTime = int.Parse(scanWaitTime.Substring(0, scanWaitTime.IndexOf("#")));
-            
+
             string timeLimitString = IniParser.Read("Process", "MaxJobTimeLimit");
             StaticClass.IniData.MaxJobTimeLimit = double.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
-            
+
             string logFileHistoryLimit = IniParser.Read("Process", "LogFileHistoryLimit");
             StaticClass.IniData.LogFileHistoryLimit = int.Parse(logFileHistoryLimit.Substring(0, logFileHistoryLimit.IndexOf("#")));
-            
+
             string inputBufferTimeLimit = IniParser.Read("Process", "InputbufferTimeLimit");
             StaticClass.IniData.InputBufferTimeLimit = int.Parse(inputBufferTimeLimit.Substring(0, inputBufferTimeLimit.IndexOf("#")));
-            
+
             string logFileMaxSize = IniParser.Read("Process", "logFileMaxSize");
             StaticClass.IniData.LogFileMaxSize = int.Parse(logFileMaxSize.Substring(0, logFileMaxSize.IndexOf("#")));
 
