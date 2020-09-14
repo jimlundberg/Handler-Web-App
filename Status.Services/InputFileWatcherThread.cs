@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Status.Models;
 using System;
 using System.IO;
 using System.Security.Permissions;
@@ -12,9 +11,7 @@ namespace Status.Services
     /// </summary>
     public class InputFileWatcherThread
     {
-        private readonly IniFileData IniData;
         private readonly string DirectoryName;
-        private readonly string Job;
         public event EventHandler ProcessCompleted;
 
         /// <summary>
@@ -22,21 +19,20 @@ namespace Status.Services
         /// </summary>
         /// <param name="directory"></param>
         /// <param name="numberOfFilesNeeded"></param>
-        /// <param name="iniData"></param>
-        public InputFileWatcherThread(string directory, int numberOfFilesNeeded, IniFileData iniData)
+        public InputFileWatcherThread(string directory, int numberOfFilesNeeded)
         {
             DirectoryName = directory;
-            IniData = iniData;
-            Job = directory.Replace(iniData.InputDir, "").Remove(0, 1);
             DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
             if (InputJobInfo == null)
             {
                 StaticClass.Logger.LogError("InputFileWatcherThread InputJobInfo failed to instantiate");
             }
-            StaticClass.NumberOfInputFilesFound[Job] = InputJobInfo.GetFiles().Length;
-            StaticClass.NumberOfInputFilesNeeded[Job] = numberOfFilesNeeded;
-            StaticClass.InputFileScanComplete[Job] = false;
-            StaticClass.InputJobScanComplete[Job] = false;
+
+            string job = directory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
+            StaticClass.NumberOfInputFilesFound[job] = InputJobInfo.GetFiles().Length;
+            StaticClass.NumberOfInputFilesNeeded[job] = numberOfFilesNeeded;
+            StaticClass.InputFileScanComplete[job] = false;
+            StaticClass.InputJobScanComplete[job] = false;
         }
 
         /// <summary>
@@ -61,7 +57,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.InputFileWatcherThreadHandle = new Thread(() => WatchFiles(DirectoryName, IniData));
+            StaticClass.InputFileWatcherThreadHandle = new Thread(() => WatchFiles(DirectoryName));
             if (StaticClass.InputFileWatcherThreadHandle == null)
             {
                 StaticClass.Logger.LogError("InputFileWatcherThread InputFileWatcherThreadHandle thread failed to instantiate");
@@ -77,7 +73,7 @@ namespace Status.Services
         public void OnCreated(object source, FileSystemEventArgs e)
         {
             string fullDirectory = e.FullPath;
-            string jobDirectory = fullDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
+            string jobDirectory = fullDirectory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
             string jobFile = jobDirectory.Substring(jobDirectory.LastIndexOf('\\') + 1);
             string job = jobDirectory.Substring(0, jobDirectory.LastIndexOf('\\'));         
 
@@ -119,12 +115,11 @@ namespace Status.Services
         /// Monitor a Directory for a selected number of files with a timeout
         /// </summary>
         /// <param name="directory"></param>
-        /// <param name="iniData"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-        public void WatchFiles(string directory, IniFileData iniData)
+        public void WatchFiles(string directory)
         {
             // Get job name from directory name
-            string job = directory.Replace(iniData.InputDir, "").Remove(0, 1);
+            string job = directory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
 
             if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
             {

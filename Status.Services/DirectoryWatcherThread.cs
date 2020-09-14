@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Status.Models;
 using System;
 using System.IO;
 using System.Security.Permissions;
@@ -13,19 +12,12 @@ namespace Status.Services
     /// </summary>
     public class DirectoryWatcherThread
     {
-        private readonly string DirectoryName;
-        private readonly IniFileData IniData;
         public event EventHandler ProcessCompleted;
 
         /// <summary>
         /// New Jobs directory Scan Thread constructor receiving data buffers
         /// </summary>
-        /// <param name="iniData"></param>
-        public DirectoryWatcherThread(IniFileData iniData)
-        {
-            DirectoryName = iniData.InputDir;
-            IniData = iniData;
-        }
+        public DirectoryWatcherThread() { }
 
         /// <summary>
         /// Directory Watcher thread default destructor
@@ -49,7 +41,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.DirectoryWatcherThreadHandle = new Thread(() => WatchDirectory(DirectoryName));
+            StaticClass.DirectoryWatcherThreadHandle = new Thread(() => WatchDirectory());
             if (StaticClass.DirectoryWatcherThreadHandle == null)
             {
                 StaticClass.Logger.LogError("DirectoryWatcherThread DirectoryWatcherThreadHandle thread failed to instantiate");
@@ -66,7 +58,7 @@ namespace Status.Services
         public void OnCreated(object source, FileSystemEventArgs e)
         {
             string jobDirectory = e.FullPath;
-            string job = jobDirectory.Replace(IniData.InputDir, "").Remove(0, 1);
+            string job = jobDirectory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
             int index = 0;
 
             Task AddTask = Task.Run(() =>
@@ -75,7 +67,7 @@ namespace Status.Services
                 StaticClass.InputJobsToRun.Add(index, job);
             });
 
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(50);
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_JOB_DELAY);
             if (!AddTask.Wait(timeSpan))
             {
                 StaticClass.Logger.LogError("DirectoryWatcherThread Add Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
@@ -96,11 +88,10 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Scan selected directory for created directories
+        /// Watch selected directory for new directories created
         /// </summary>
-        /// <param name="directory"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-        public void WatchDirectory(string directory)
+        public void WatchDirectory()
         {
             // Create a new FileSystemWatcher and set its properties
             using (FileSystemWatcher watcher = new FileSystemWatcher())
@@ -115,8 +106,8 @@ namespace Status.Services
                     NotifyFilters.DirectoryName |
                     NotifyFilters.CreationTime;
 
-                // Set the Path to scan for directories
-                watcher.Path = directory;
+                // Set the Input Buffre as path to watch for new directory additions
+                watcher.Path = StaticClass.IniData.InputDir;
 
                 // Watch for any directories names added
                 watcher.Filter = "*.*";

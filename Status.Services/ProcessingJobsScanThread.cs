@@ -13,20 +13,14 @@ namespace Status.Services
     /// </summary>
     public class ProcessingJobsScanThread
     {
-        private readonly IniFileData IniData;
-        private readonly List<StatusData> StatusDataList;
         public event EventHandler ProcessCompleted;
         private static readonly Object RemoveLock = new Object();
 
         /// <summary>
         /// Old Jobs Scan Thread constructor receiving data buffers
         /// </summary>
-        /// <param name="iniData"></param>
-        /// <param name="statusData"></param>
-        public ProcessingJobsScanThread(IniFileData iniData, List<StatusData> statusData)
+        public ProcessingJobsScanThread()
         {
-            IniData = iniData;
-            StatusDataList = statusData;
             StaticClass.UnfinishedProcessingJobsScanComplete = false;
         }
 
@@ -52,8 +46,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.ProcessingJobsScanThreadHandle = new Thread(() =>
-                CheckForUnfinishedProcessingJobs(IniData, StatusDataList));
+            StaticClass.ProcessingJobsScanThreadHandle = new Thread(() => CheckForUnfinishedProcessingJobs());
 
             if (StaticClass.ProcessingJobsScanThreadHandle == null)
             {
@@ -65,12 +58,10 @@ namespace Status.Services
         /// <summary>
         /// Method to scan for unfinished jobs in the Processing Buffer
         /// </summary>
-        /// <param name="iniData"></param>
-        /// <param name="statusData"></param>
-        public void CheckForUnfinishedProcessingJobs(IniFileData iniData, List<StatusData> statusData)
+        public void CheckForUnfinishedProcessingJobs()
         {
             // Register with the Processing Buffer Jobs completion event and start its thread
-            DirectoryInfo processingDirectoryInfo = new DirectoryInfo(iniData.ProcessingDir);
+            DirectoryInfo processingDirectoryInfo = new DirectoryInfo(StaticClass.IniData.ProcessingDir);
             if (processingDirectoryInfo == null)
             {
                 StaticClass.Logger.LogError("ProcessingJobsScanThread processingDirectoryInfo failed to instantiate");
@@ -97,10 +88,10 @@ namespace Status.Services
             // Start the jobs in the directory list found for the Processing Buffer
             foreach (DirectoryInfo dirInfo in processingDirectoryInfoList.Reverse<DirectoryInfo>())
             {
-                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
                 {
                     string directory = dirInfo.ToString();
-                    string job = directory.ToString().Replace(IniData.ProcessingDir, "").Remove(0, 1);
+                    string job = directory.ToString().Replace(StaticClass.IniData.ProcessingDir, "").Remove(0, 1);
 
                     StaticClass.Log(string.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
@@ -117,7 +108,7 @@ namespace Status.Services
                     StaticClass.ProcessingFileScanComplete[job] = false;
 
                     // Start a Processing Buffer Job
-                    StartProcessingJob(directory, iniData, statusData);
+                    StartProcessingJob(directory);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
@@ -136,7 +127,7 @@ namespace Status.Services
             foreach (DirectoryInfo dirInfo in processingDirectoryInfoList)
             {
                 string directory = dirInfo.ToString();
-                string job = directory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+                string job = directory.Replace(StaticClass.IniData.ProcessingDir, "").Remove(0, 1);
                 StaticClass.ProcessingJobsToRun.Add(job);
 
                 int index = StaticClass.ProcessingJobsToRun.IndexOf(job);
@@ -158,7 +149,9 @@ namespace Status.Services
                 }
 
                 // Run any unfinished Processing jobs
-                RunUnfinishedProcessingJobs(IniData, StatusDataList);
+                RunUnfinishedProcessingJobs();
+
+                Thread.Yield();
             }
             while (StaticClass.ProcessingJobsToRun.Count > 0);
 
@@ -169,16 +162,14 @@ namespace Status.Services
         /// <summary>
         /// Check for unfinished processing jobs after one completes
         /// </summary>
-        /// <param name="iniData"></param>
-        /// <param name="statusData"></param>
-        public void RunUnfinishedProcessingJobs(IniFileData iniData, List<StatusData> statusData)
+        public void RunUnfinishedProcessingJobs()
         {
             // Start Processing jobs currently waiting
             foreach (string job in StaticClass.ProcessingJobsToRun.Reverse<string>())
             {
-                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
                 {
-                    string directory = iniData.ProcessingDir + @"\" + job;
+                    string directory = StaticClass.IniData.ProcessingDir + @"\" + job;
 
                     StaticClass.Log(string.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
@@ -196,7 +187,7 @@ namespace Status.Services
                     StaticClass.ProcessingJobScanComplete[job] = false;
 
                     // Start a Processing Buffer Job
-                    StartProcessingJob(directory, iniData, statusData);
+                    StartProcessingJob(directory);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
@@ -208,9 +199,7 @@ namespace Status.Services
         /// Start a Processing directory job
         /// </summary>
         /// <param name="directory"></param>
-        /// <param name="iniData"></param>
-        /// <param name="statusData"></param>
-        public void StartProcessingJob(string directory, IniFileData iniData, List<StatusData> statusData)
+        public void StartProcessingJob(string directory)
         {
             // Delete the data.xml file in the Processing directory if found
             string dataXmlFile = directory + @"\" + "data.xml";
@@ -220,7 +209,7 @@ namespace Status.Services
             }
 
             // Get data found in job Xml file
-            JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(directory, iniData, DirectoryScanType.PROCESSING_BUFFER);
+            JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(directory, DirectoryScanType.PROCESSING_BUFFER);
             if (jobXmlData == null)
             {
                 StaticClass.Logger.LogError("ProcessingJobsScanThread GetJobXmlData failed");
@@ -237,7 +226,7 @@ namespace Status.Services
                 jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
             // Create a thread to run the job, and then start the thread
-            JobRunThread jobRunThread = new JobRunThread(DirectoryScanType.PROCESSING_BUFFER, jobXmlData, iniData, statusData);
+            JobRunThread jobRunThread = new JobRunThread(jobXmlData, DirectoryScanType.PROCESSING_BUFFER);
             if (jobRunThread == null)
             {
                 StaticClass.Logger.LogError("ProcessingJobsScanThread jobRunThread failed to instantiate");

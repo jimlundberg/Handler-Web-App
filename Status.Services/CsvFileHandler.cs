@@ -1,11 +1,10 @@
-﻿using System;
-using System.IO;
-using Status.Models;
-using System.Collections.Generic;
-using System.Threading;
-using Microsoft.Extensions.Logging;
-using System.Text;
+﻿using Microsoft.Extensions.Logging;
 using ReadWriteCsvFile;
+using Status.Models;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 namespace Status.Services
 {
@@ -34,9 +33,9 @@ namespace Status.Services
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
         /// <param name="statusLogFile"></param>
-        public void WriteToCsvFile(string job, JobStatus status, JobType timeSlot, string statusLogFile)
+        public void WriteToCsvFile(string job, JobStatus status, JobType timeSlot)
         {
-            using (StreamWriter writer = File.AppendText(statusLogFile))
+            using (StreamWriter writer = File.AppendText(StaticClass.IniData.StatusLogFile))
             {
                 DateTime timeReceived = new DateTime();
                 if (timeReceived == null)
@@ -80,12 +79,11 @@ namespace Status.Services
         /// <summary>
         /// Read Status Data from CSV File 
         /// </summary>
-        /// <param name="iniData"></param>
         /// <returns>Status List from CSV</returns>
-        public List<StatusData> ReadFromCsvFile(IniFileData iniData)
+        public List<StatusData> ReadFromCsvFile()
         {
             List<StatusData> statusDataTable = new List<StatusData>();
-            string statusLogFile = iniData.StatusLogFile;
+            string statusLogFile = StaticClass.IniData.StatusLogFile;
 
             if (File.Exists(statusLogFile) == true)
             {
@@ -201,11 +199,10 @@ namespace Status.Services
         /// <summary>
         /// Read, delete old data and rewrite Log File
         /// </summary>
-        /// <param name="iniData"></param>
-        public void CheckLogFileHistory(IniFileData iniData)
+        public void CheckLogFileHistory()
         {
             List<StatusData> statusDataTable = new List<StatusData>();
-            string logFileName = iniData.StatusLogFile;
+            string logFileName = StaticClass.IniData.StatusLogFile;
 
             if (File.Exists(logFileName) == true)
             {
@@ -278,7 +275,7 @@ namespace Status.Services
                             
                         // Check Time Received if older than history limit
                         DateTime timeReceived = Convert.ToDateTime(rowData[2]);
-                        if ((timeReceived < DateTime.Now.AddDays(-iniData.LogFileHistoryLimit)) && (timeReceived != DateTime.MinValue))
+                        if ((timeReceived < DateTime.Now.AddDays(-StaticClass.IniData.LogFileHistoryLimit)) && (timeReceived != DateTime.MinValue))
                         {
                             oldRecord = true;
                         }
@@ -289,7 +286,7 @@ namespace Status.Services
 
                         // Check Time Started if older than history limit
                         DateTime timeStarted = Convert.ToDateTime(rowData[3]);
-                        if ((timeStarted < DateTime.Now.AddDays(-iniData.LogFileHistoryLimit)) && (timeStarted != DateTime.MinValue))
+                        if ((timeStarted < DateTime.Now.AddDays(-StaticClass.IniData.LogFileHistoryLimit)) && (timeStarted != DateTime.MinValue))
                         {
                             oldRecord = true;
                         }
@@ -300,7 +297,7 @@ namespace Status.Services
 
                         // Check Time Complete if older than history limit
                         DateTime timeCompleted = Convert.ToDateTime(rowData[4]);
-                        if ((timeCompleted < DateTime.Now.AddDays(-iniData.LogFileHistoryLimit)) && (timeStarted != DateTime.MinValue))
+                        if ((timeCompleted < DateTime.Now.AddDays(-StaticClass.IniData.LogFileHistoryLimit)) && (timeStarted != DateTime.MinValue))
                         {
                             oldRecord = true;
                         }
@@ -318,8 +315,6 @@ namespace Status.Services
                         // If the shutdown flag is set, exit method
                         if (StaticClass.ShutDownPauseCheck("CheckLogFileHistory") == true)
                         {
-                            StaticClass.Log(string.Format("\nShutdown CsvFileHandler Job {0} at {1:HH:mm:ss.fff}",
-                                job, DateTime.Now));
                             return;
                         }
                     }
@@ -362,8 +357,16 @@ namespace ReadWriteCsvFile
     /// </summary>
     public class CsvFileWriter : StreamWriter
     {
+        /// <summary>
+        /// CSV FIle Writer Constructor
+        /// </summary>
+        /// <param name="stream"></param>
         public CsvFileWriter(Stream stream) : base(stream) { }
 
+        /// <summary>
+        /// CSV File Writer Constructor
+        /// </summary>
+        /// <param name="filename"></param>
         public CsvFileWriter(string filename) : base(filename) { }
 
         /// <summary>

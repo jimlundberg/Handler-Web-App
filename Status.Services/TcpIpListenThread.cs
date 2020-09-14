@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Status.Models;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -14,9 +13,7 @@ namespace Status.Services
     /// </summary>
     public class TcpIpListenThread
     {
-        private readonly IniFileData IniData;
         private readonly StatusMonitorData MonitorData;
-        private readonly List<StatusData> StatusData;
         public event EventHandler ProcessCompleted;
         private static readonly string Server = "127.0.0.1";
         private static readonly string StatusMessage = "status";
@@ -25,15 +22,11 @@ namespace Status.Services
         /// <summary>
         /// Job Tcp/IP thread 
         /// </summary>
-        /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
-        /// <param name="statusData"></param>
-        public TcpIpListenThread(IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
+        public TcpIpListenThread(StatusMonitorData monitorData)
         {
             Port = monitorData.JobPortNumber;
-            IniData = iniData;
             MonitorData = monitorData;
-            StatusData = statusData;
         }
 
         /// <summary>
@@ -58,7 +51,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.TcpListenerThreadHandle = new Thread(() => Connect(Port, Server, IniData, MonitorData, StatusData));
+            StaticClass.TcpListenerThreadHandle = new Thread(() => Connect(Port, Server, MonitorData));
             if (StaticClass.TcpListenerThreadHandle == null)
             {
                 StaticClass.Logger.LogError("TcpIpListenThread TcpListenerThreadHandle failed to instantiate");
@@ -71,10 +64,8 @@ namespace Status.Services
         /// </summary>
         /// <param name="port"></param>
         /// <param name="server"></param>
-        /// <param name="iniData"></param>
         /// <param name="monitorData"></pram>
-        /// <param name="statusData"></param>
-        public void Connect(int port, string server, IniFileData iniData, StatusMonitorData monitorData, List<StatusData> statusData)
+        public void Connect(int port, string server, StatusMonitorData monitorData)
         {
             ModelerStepState ModelerCurrentStepState = ModelerStepState.NONE;
             string job = monitorData.Job;
@@ -86,7 +77,7 @@ namespace Status.Services
                 job, port, DateTime.Now));
 
             // Log starting TCP/IP monitoring entry
-            StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
+            StaticClass.StatusDataEntry(job, JobStatus.MONITORING_TCPIP, JobType.TIME_START);
 
             try
             {
@@ -260,7 +251,7 @@ namespace Status.Services
                                     ModelerCurrentStepState, job, DateTime.Now));
 
                                 // Create job Timeout status
-                                StaticClass.StatusDataEntry(statusData, job, iniData, JobStatus.JOB_TIMEOUT, JobType.TIME_START);
+                                StaticClass.StatusDataEntry(job, JobStatus.JOB_TIMEOUT, JobType.TIME_START);
 
                                 // Set all flags to complete job Process
                                 StaticClass.ProcessingJobScanComplete[job] = true;

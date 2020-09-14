@@ -14,6 +14,7 @@ namespace Status.Services
     /// </summary>
     public static class StaticClass
 	{
+        // Common definitions
         public const int TCP_IP_STARTUP_WAIT = 60000;
         public const int STARTING_TCP_IP_WAIT = 15000;
         public const int KILL_PROCESS_WAIT = 5000;
@@ -24,16 +25,20 @@ namespace Status.Services
         public const int SHUTDOWN_PROCESS_WAIT = 5000;
         public const int READ_AVAILABLE_RETRY_DELAY = 250;
         public const int FILE_WAIT_DELAY = 250;
+        public const int ADD_TASK_DELAY = 150;
+        public const int ADD_JOB_DELAY = 50;
         public const int NUM_TCP_IP_RETRIES = 480;
         public const int NUM_XML_ACCESS_RETRIES = 50;
         public const int NUM_RESULTS_ENTRY_RETRIES = 40;
 
+        // Common counters
         public static double MaxJobTimeLimitSeconds = 0.0;
         public static int ScanWaitTime = 0;
 		public static int NumberOfJobsExecuting = 0;
 		public static int JobPortIndex = 0;
 		public static int LogFileSizeLimit = 0;
 
+        // Thread handles
         public static Thread InputJobsScanThreadHandle;
         public static Thread ProcessingFileWatcherThreadHandle;
         public static Thread ProcessingJobsScanThreadHandle;
@@ -42,12 +47,15 @@ namespace Status.Services
         public static Thread JobRunThreadHandle;
         public static Thread TcpListenerThreadHandle;
 
+        // Global flags
         public static volatile bool ShutdownFlag = false;
         public static volatile bool PauseFlag = false;
         public static volatile bool UnfinishedProcessingJobsScanComplete = false;
         
+        // Processing Jobs List
 		public static List<string> ProcessingJobsToRun = new List<String>();
 
+        // Job and file tracking
         public static Dictionary<string, DateTime> JobStartTime = new Dictionary<string, DateTime>();
         public static Dictionary<string, bool> InputFileScanComplete = new Dictionary<string, bool>();
         public static Dictionary<string, bool> InputJobScanComplete = new Dictionary<string, bool>();
@@ -55,19 +63,23 @@ namespace Status.Services
         public static Dictionary<string, bool> ProcessingJobScanComplete = new Dictionary<string, bool>();
         public static Dictionary<string, bool> TcpIpScanComplete = new Dictionary<string, bool>();
 
+        // File number tracking
 		public static Dictionary<string, int> NumberOfInputFilesFound = new Dictionary<string, int>();
 		public static Dictionary<string, int> NumberOfInputFilesNeeded = new Dictionary<string, int>();
 		public static Dictionary<string, int> NumberOfProcessingFilesFound = new Dictionary<string, int>();
 		public static Dictionary<string, int> NumberOfProcessingFilesNeeded = new Dictionary<string, int>();
 
+        // Modeler process handle list
 		public static Dictionary<string, Process> ProcessHandles = new Dictionary<string, Process>();
 
+        // Common objects
         internal static LoggingToFile FileLoggerObject;
         internal static Logger<IStatusRepository> Logger;
         internal static SynchronizedCache InputJobsToRun = new SynchronizedCache();
         internal static CsvFileHandler CsvFileHandlerHandle = new CsvFileHandler();
         internal static StatusEntry StatusEntryHandle = new StatusEntry();
-        internal static List<StatusData> StatusDataListHandle = new List<StatusData>();
+        internal static List<StatusData> StatusDataList = new List<StatusData>();
+        internal static IniFileData IniData = new IniFileData();
 
         /// <summary>
         /// Global log to file method
@@ -82,19 +94,16 @@ namespace Status.Services
         /// <summary>
         /// Status Data Entry Method
         /// </summary>
-        /// <param name="statusList"></param>
         /// <param name="job"></param>
-        /// <param name="iniData"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
-        public static void StatusDataEntry(List<StatusData> statusList, string job,
-            IniFileData iniData, JobStatus status, JobType timeSlot)
+        public static void StatusDataEntry(string job, JobStatus status, JobType timeSlot)
         {
             // Write to the Status accumulator
-            StaticClass.StatusEntryHandle.ListStatus(statusList, job, status, timeSlot);
+            StaticClass.StatusEntryHandle.ListStatus(job, status, timeSlot);
 
             // Write new status to the log file
-            StaticClass.CsvFileHandlerHandle.WriteToCsvFile(job, status, timeSlot, iniData.StatusLogFile);
+            StaticClass.CsvFileHandlerHandle.WriteToCsvFile(job, status, timeSlot);
         }
 
         /// <summary>
@@ -104,10 +113,10 @@ namespace Status.Services
         /// <param name="iniData"></param>
         /// <param name="scanType"></param>
         /// <returns>Job xml data</returns>
-        public static JobXmlData GetJobXmlFileInfo(string directory, IniFileData iniData, DirectoryScanType scanType)
+        public static JobXmlData GetJobXmlFileInfo(string directory, DirectoryScanType scanType)
         {
             JobXmlData jobScanXmlData = new JobXmlData();
-            string baseDirectory = (scanType == DirectoryScanType.INPUT_BUFFER) ? iniData.InputDir : iniData.ProcessingDir;
+            string baseDirectory = (scanType == DirectoryScanType.INPUT_BUFFER) ? IniData.InputDir : IniData.ProcessingDir;
             string job = directory.Replace(baseDirectory, "").Remove(0, 1);
             jobScanXmlData.Job = job;
             jobScanXmlData.JobDirectory = directory;
@@ -170,15 +179,14 @@ namespace Status.Services
         /// <summary>
         /// Check the Input Buffer for directories that are older than the time limit
         /// </summary>
-        /// <param name="iniData"></param>
-        public static void CheckForInputBufferTimeLimits(IniFileData iniData)
+        public static void CheckForInputBufferTimeLimits()
         {
-            string[] directories = Directory.GetDirectories(iniData.InputDir);
+            string[] directories = Directory.GetDirectories(IniData.InputDir);
             foreach (string dir in directories)
             {
                 // Get the current directory list and delete the ones beyond the time limit
                 DirectoryInfo dirInfo = new DirectoryInfo(dir);
-                if (dirInfo.LastWriteTime < DateTime.Now.AddDays(-iniData.InputBufferTimeLimit))
+                if (dirInfo.LastWriteTime < DateTime.Now.AddDays(-IniData.InputBufferTimeLimit))
                 {
                     FileHandling.DeleteDirectory(dir);
                 }

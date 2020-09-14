@@ -14,20 +14,12 @@ namespace Status.Services
     /// </summary>
     public class InputJobsScanThread
     {
-        private readonly IniFileData IniData;
-        private readonly List<StatusData> StatusDataList;
         private static readonly Object RemoveLock = new Object();
 
         /// <summary>
         /// New jobs Scan thread
         /// </summary>
-        /// <param name="iniData"></param>
-        /// <param name="statusData"></param>
-        public InputJobsScanThread(IniFileData iniData, List<StatusData> statusData)
-        {
-            IniData = iniData;
-            StatusDataList = statusData;
-        }
+        public InputJobsScanThread() { }
 
         /// <summary>
         /// A Thread procedure that scans for new jobs
@@ -35,9 +27,9 @@ namespace Status.Services
         public void ThreadProc()
         {
             // Check for expired Input jobs
-            StaticClass.CheckForInputBufferTimeLimits(IniData);
+            StaticClass.CheckForInputBufferTimeLimits();
 
-            StaticClass.InputJobsScanThreadHandle = new Thread(() => CheckForUnfinishedInputJobs(IniData, StatusDataList));
+            StaticClass.InputJobsScanThreadHandle = new Thread(() => CheckForUnfinishedInputJobs());
             if (StaticClass.InputJobsScanThreadHandle == null)
             {
                 StaticClass.Logger.LogError("InputJobsScanThread InputJobsScanThreadHandle thread failed to instantiate");
@@ -48,12 +40,10 @@ namespace Status.Services
         /// <summary>
         /// Method to scan for unfinished jobs in the Input Buffer
         /// </summary>
-        /// <param name="iniFileData"></param>
-        /// <param name="statusData"></param>
-        public void CheckForUnfinishedInputJobs(IniFileData iniData, List<StatusData> statusData)
+        public void CheckForUnfinishedInputJobs()
         {
             // Start the Directory Watcher class to scan for new Input Buffer jobs
-            DirectoryWatcherThread dirWatch = new DirectoryWatcherThread(iniData);
+            DirectoryWatcherThread dirWatch = new DirectoryWatcherThread();
             if (dirWatch == null)
             {
                 StaticClass.Logger.LogError("InputJobsScanThread dirWatch failed to instantiate");
@@ -61,7 +51,7 @@ namespace Status.Services
             dirWatch.ThreadProc();
 
             // Register with the Processing Buffer Jobs check completion event and start its thread
-            ProcessingJobsScanThread unfinishedProcessingJobs = new ProcessingJobsScanThread(iniData, statusData);
+            ProcessingJobsScanThread unfinishedProcessingJobs = new ProcessingJobsScanThread();
             if (unfinishedProcessingJobs == null)
             {
                 StaticClass.Logger.LogError("InputJobsScanThread currentProcessingJobs failed to instantiate");
@@ -83,7 +73,7 @@ namespace Status.Services
 
             StaticClass.Log("\nChecking for unfinished Input Jobs...");
 
-            DirectoryInfo InputDirectoryInfo = new DirectoryInfo(iniData.InputDir);
+            DirectoryInfo InputDirectoryInfo = new DirectoryInfo(StaticClass.IniData.InputDir);
             if (InputDirectoryInfo == null)
             {
                 StaticClass.Logger.LogError("InputJobsScanThread InputDirectoryInfo failed to instantiate");
@@ -108,10 +98,10 @@ namespace Status.Services
             // Start the jobs in the directory list found for the Input Buffer
             foreach (DirectoryInfo dirInfo in inputDirectoryInfoList.Reverse<DirectoryInfo>())
             {
-                if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+                if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
                 {
                     string directory = dirInfo.ToString();
-                    string job = directory.ToString().Replace(IniData.InputDir, "").Remove(0, 1);
+                    string job = directory.ToString().Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
 
                     StaticClass.Log(string.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
@@ -128,7 +118,7 @@ namespace Status.Services
                     StaticClass.InputFileScanComplete[job] = false;
 
                     // Start an Input Buffer Job
-                    StartInputJob(directory, iniData, statusData);
+                    StartInputJob(directory);
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);
@@ -146,7 +136,7 @@ namespace Status.Services
                 foreach (DirectoryInfo dirInfo in inputDirectoryInfoList)
                 {
                     string directory = dirInfo.ToString();
-                    string job = directory.Replace(IniData.InputDir, "").Remove(0, 1);
+                    string job = directory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
                     int index = 0;
 
                     Task AddTask = Task.Run(() =>
@@ -155,7 +145,7 @@ namespace Status.Services
                         StaticClass.InputJobsToRun.Add(index, job);
                     });
 
-                    TimeSpan timeSpan = TimeSpan.FromMilliseconds(150);
+                    TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_TASK_DELAY);
                     if (!AddTask.Wait(timeSpan))
                     {
                         StaticClass.Logger.LogError("InputJobScanThread Add Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
@@ -182,7 +172,9 @@ namespace Status.Services
                 }
 
                 // Run any unfinished input jobs
-                RunInputJobsFound(IniData, StatusDataList);
+                RunInputJobsFound();
+
+                Thread.Yield();
             }
             while (true);
         }
@@ -190,12 +182,10 @@ namespace Status.Services
         /// <summary>
         /// Check for unfinished Input Buffer jobs
         /// </summary>
-        /// <param name="iniData"></param>
-        /// <param name="statusData"></param>
-        public void RunInputJobsFound(IniFileData iniData, List<StatusData> statusData)
+        public void RunInputJobsFound()
         {
             // Check if there are unfinished Input jobs waiting to run
-            if (StaticClass.NumberOfJobsExecuting < iniData.ExecutionLimit)
+            if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
             {
                 int index = 0;
                 string job = String.Empty;
@@ -209,7 +199,7 @@ namespace Status.Services
                     }
                 });
 
-                TimeSpan timeSpan = TimeSpan.FromMilliseconds(150);
+                TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_TASK_DELAY);
                 if (!AddTask.Wait(timeSpan))
                 {
                     StaticClass.Logger.LogError("InputJobScanThread Run Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
@@ -217,7 +207,7 @@ namespace Status.Services
 
                 if (job != String.Empty)
                 {
-                    string directory = iniData.InputDir + @"\" + job;
+                    string directory = StaticClass.IniData.InputDir + @"\" + job;
 
                     StaticClass.Log(string.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
@@ -225,7 +215,7 @@ namespace Status.Services
                     StaticClass.InputFileScanComplete[job] = false;
 
                     // Start an Input Buffer Job
-                    StartInputJob(directory, iniData, statusData);
+                    StartInputJob(directory);
                 }
 
                 // Throttle the Job startups
@@ -237,12 +227,10 @@ namespace Status.Services
         /// Method to start new jobs from the Input Buffer 
         /// </summary>
         /// <param name="directory"></param>
-        /// <param name="iniData"></param>
-        /// <param name="statusData"></param>
-        public void StartInputJob(string directory, IniFileData iniData, List<StatusData> statusData)
+        public void StartInputJob(string directory)
         {
             // Get data found in Job xml file
-            JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(directory, iniData, DirectoryScanType.INPUT_BUFFER);
+            JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(directory, DirectoryScanType.INPUT_BUFFER);
             if (jobXmlData == null)
             {
                 StaticClass.Logger.LogError("InputJobsScanThread GetJobXmlData failed");
@@ -259,7 +247,7 @@ namespace Status.Services
                 jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
             // Create a thread to run the job, and then start the thread
-            JobRunThread jobRunThread = new JobRunThread(DirectoryScanType.INPUT_BUFFER, jobXmlData, iniData, statusData);
+            JobRunThread jobRunThread = new JobRunThread(jobXmlData, DirectoryScanType.INPUT_BUFFER);
             if (jobRunThread == null)
             {
                 StaticClass.Logger.LogError("InputJobsScanThread jobRunThread failed to instantiate");

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Status.Models;
 using System;
-using System.Collections.Generic;
 
 namespace Status.Services
 {
@@ -26,11 +25,10 @@ namespace Status.Services
         /// <summary>
         /// Log a Status and write to csv file
         /// </summary>
-        /// <param name="statusList"></param>
         /// <param name="job"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
-        public void ListStatus(List<StatusData> statusList, string job, JobStatus status, JobType timeSlot)
+        public void ListStatus(string job, JobStatus status, JobType timeSlot)
         {
             StatusData entry = new StatusData();
             if (entry == null)
@@ -56,7 +54,7 @@ namespace Status.Services
             }
 
             // Add entry to status data list
-            statusList.Add(entry);
+            StaticClass.StatusDataList.Add(entry);
 
             // Output to Console also
             StaticClass.Log(string.Format("Status: Job:{0} Job Status:{1} Time Type:{2}",

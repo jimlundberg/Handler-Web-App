@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Status.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Permissions;
 using System.Threading;
@@ -14,7 +13,6 @@ namespace Status.Services
     /// </summary>
     public class ProcessingFileWatcherThread
     {
-        private readonly IniFileData IniData;
         private readonly string DirectoryName;
         private readonly string Job;
         public event EventHandler ProcessCompleted;
@@ -23,15 +21,11 @@ namespace Status.Services
         /// Processing directory file watcher thread
         /// </summary>
         /// <param name="directory"></param>
-        /// <param name="numberOfFilesNeeded"></param>
-        /// <param name="iniData"></param>
         /// <param name="monitorData"></param>
-        /// <param name="statusData"></param>
-        public ProcessingFileWatcherThread(string directory, StatusMonitorData monitorData, IniFileData iniData)
+        public ProcessingFileWatcherThread(string directory, StatusMonitorData monitorData)
         {
             DirectoryName = directory;
-            IniData = iniData;
-            Job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
+            Job = directory.Replace(StaticClass.IniData.ProcessingDir, "").Remove(0, 1);
             DirectoryInfo ProcessingJobInfo = new DirectoryInfo(directory);
             if (ProcessingJobInfo == null)
             {
@@ -66,7 +60,7 @@ namespace Status.Services
         /// </summary>
         public void ThreadProc()
         {
-            StaticClass.ProcessingFileWatcherThreadHandle = new Thread(() => WatchFiles(DirectoryName, IniData));
+            StaticClass.ProcessingFileWatcherThreadHandle = new Thread(() => WatchFiles(DirectoryName));
             if (StaticClass.ProcessingFileWatcherThreadHandle == null)
             {
                 StaticClass.Logger.LogError("ProcessingFileWatcherThread thread failed to instantiate");
@@ -82,7 +76,7 @@ namespace Status.Services
         public void OnCreated(object source, FileSystemEventArgs e)
         {
             string fullDirectory = e.FullPath;
-            string jobDirectory = fullDirectory.Replace(IniData.ProcessingDir, "").Remove(0, 1);
+            string jobDirectory = fullDirectory.Replace(StaticClass.IniData.ProcessingDir, "").Remove(0, 1);
             string jobFile = jobDirectory.Substring(jobDirectory.LastIndexOf('\\') + 1);
             string job = jobDirectory.Substring(0, jobDirectory.LastIndexOf('\\'));
 
@@ -164,12 +158,11 @@ namespace Status.Services
         /// Monitor a directory for a complete set of Processing files for a job 
         /// </summary>
         /// <param name="directory"></param>
-        /// <param name="iniData"></param>
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-        public void WatchFiles(string directory, IniFileData iniData)
+        public void WatchFiles(string directory)
         {
             // Get job name from directory name
-            string job = directory.Replace(iniData.ProcessingDir, "").Remove(0, 1);
+            string job = directory.Replace(StaticClass.IniData.ProcessingDir, "").Remove(0, 1);
 
             // Quick check to see if the directory is already full
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])

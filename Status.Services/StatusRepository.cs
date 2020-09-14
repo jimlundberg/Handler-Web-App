@@ -15,9 +15,6 @@ namespace Status.Services
     /// </summary>
     public class StatusRepository : IStatusRepository
     {
-        private readonly IniFileData IniData = new IniFileData();
-        private readonly List<StatusData> StatusDataList = new List<StatusData>();
-
         /// <summary>
         /// StatusRepository contructor
         /// </summary>
@@ -41,60 +38,60 @@ namespace Status.Services
 
             // Get information from the Config.ini file
             var IniParser = new IniFileHandler(IniFileName);
-            IniData.IniFileName = IniFileName;
-            IniData.InputDir = IniParser.Read("Paths", "Input");
-            IniData.ProcessingDir = IniParser.Read("Paths", "Processing");
-            IniData.RepositoryDir = IniParser.Read("Paths", "Repository");
-            IniData.FinishedDir = IniParser.Read("Paths", "Finished");
-            IniData.ErrorDir = IniParser.Read("Paths", "Error");
-            IniData.ModelerRootDir = IniParser.Read("Paths", "ModelerRootDir");
-            IniData.CPUCores = int.Parse(IniParser.Read("Process", "CPUCores"));
-            IniData.ExecutionLimit = int.Parse(IniParser.Read("Process", "ExecutionLimit"));
-            IniData.StartPort = int.Parse(IniParser.Read("Process", "StartPort"));
-            IniData.StatusLogFile = IniParser.Read("Process", "StatusLogFile");
-            IniData.ProcessLogFile = IniParser.Read("Process", "ProcessLogFile");
+            StaticClass.IniData.IniFileName = IniFileName;
+            StaticClass.IniData.InputDir = IniParser.Read("Paths", "Input");
+            StaticClass.IniData.ProcessingDir = IniParser.Read("Paths", "Processing");
+            StaticClass.IniData.RepositoryDir = IniParser.Read("Paths", "Repository");
+            StaticClass.IniData.FinishedDir = IniParser.Read("Paths", "Finished");
+            StaticClass.IniData.ErrorDir = IniParser.Read("Paths", "Error");
+            StaticClass.IniData.ModelerRootDir = IniParser.Read("Paths", "ModelerRootDir");
+            StaticClass.IniData.CPUCores = int.Parse(IniParser.Read("Process", "CPUCores"));
+            StaticClass.IniData.ExecutionLimit = int.Parse(IniParser.Read("Process", "ExecutionLimit"));
+            StaticClass.IniData.StartPort = int.Parse(IniParser.Read("Process", "StartPort"));
+            StaticClass.IniData.StatusLogFile = IniParser.Read("Process", "StatusLogFile");
+            StaticClass.IniData.ProcessLogFile = IniParser.Read("Process", "ProcessLogFile");
             
             string scanWaitTime = IniParser.Read("Process", "ScanWaitTime");
-            IniData.ScanWaitTime = int.Parse(scanWaitTime.Substring(0, scanWaitTime.IndexOf("#")));
+            StaticClass.IniData.ScanWaitTime = int.Parse(scanWaitTime.Substring(0, scanWaitTime.IndexOf("#")));
             
             string timeLimitString = IniParser.Read("Process", "MaxJobTimeLimit");
-            IniData.MaxJobTimeLimit = double.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
+            StaticClass.IniData.MaxJobTimeLimit = double.Parse(timeLimitString.Substring(0, timeLimitString.IndexOf("#")));
             
             string logFileHistoryLimit = IniParser.Read("Process", "LogFileHistoryLimit");
-            IniData.LogFileHistoryLimit = int.Parse(logFileHistoryLimit.Substring(0, logFileHistoryLimit.IndexOf("#")));
+            StaticClass.IniData.LogFileHistoryLimit = int.Parse(logFileHistoryLimit.Substring(0, logFileHistoryLimit.IndexOf("#")));
             
             string inputBufferTimeLimit = IniParser.Read("Process", "InputbufferTimeLimit");
-            IniData.InputBufferTimeLimit = int.Parse(inputBufferTimeLimit.Substring(0, inputBufferTimeLimit.IndexOf("#")));
+            StaticClass.IniData.InputBufferTimeLimit = int.Parse(inputBufferTimeLimit.Substring(0, inputBufferTimeLimit.IndexOf("#")));
             
             string logFileMaxSize = IniParser.Read("Process", "logFileMaxSize");
-            IniData.LogFileMaxSize = int.Parse(logFileMaxSize.Substring(0, logFileMaxSize.IndexOf("#")));
+            StaticClass.IniData.LogFileMaxSize = int.Parse(logFileMaxSize.Substring(0, logFileMaxSize.IndexOf("#")));
 
             // Set the static class data needed for global use
-            StaticClass.ScanWaitTime = IniData.ScanWaitTime;
-            StaticClass.LogFileSizeLimit = IniData.LogFileMaxSize;
-            StaticClass.MaxJobTimeLimitSeconds = IniData.MaxJobTimeLimit * 60.0 * 60.0;
+            StaticClass.ScanWaitTime = StaticClass.IniData.ScanWaitTime;
+            StaticClass.LogFileSizeLimit = StaticClass.IniData.LogFileMaxSize;
+            StaticClass.MaxJobTimeLimitSeconds = StaticClass.IniData.MaxJobTimeLimit * 60.0 * 60.0;
 
             // Set the file logging object handle only once here
-            LoggingToFile loggingToFile = new LoggingToFile(IniData.ProcessLogFile);
+            LoggingToFile loggingToFile = new LoggingToFile(StaticClass.IniData.ProcessLogFile);
             StaticClass.FileLoggerObject = loggingToFile;
 
             // Output the Data.ini informatino found
             StaticClass.Log($"\nConfig.ini data found:\n");
-            StaticClass.Log($"Input Dir                      : {IniData.InputDir}");
-            StaticClass.Log($"Processing Dir                 : {IniData.ProcessingDir}");
-            StaticClass.Log($"Repository Dir                 : {IniData.RepositoryDir}");
-            StaticClass.Log($"Finished Dir                   : {IniData.FinishedDir}");
-            StaticClass.Log($"Error Dir                      : {IniData.ErrorDir}");
-            StaticClass.Log($"Modeler Root Dir               : {IniData.ModelerRootDir}");
-            StaticClass.Log($"Status Log File                : {IniData.StatusLogFile}");
-            StaticClass.Log($"Process Log File               : {IniData.ProcessLogFile}");
-            StaticClass.Log($"CPU Cores                      : {IniData.CPUCores} Cores");
-            StaticClass.Log($"Execution Limit                : {IniData.ExecutionLimit} Jobs");
-            StaticClass.Log($"Start Port                     : {IniData.StartPort}");
-            StaticClass.Log($"Scan Wait Time                 : {IniData.ScanWaitTime} Miliseconds");
-            StaticClass.Log($"Max Job Time Limit             : {IniData.MaxJobTimeLimit} Hours");
-            StaticClass.Log($"Log File History Limit         : {IniData.LogFileHistoryLimit} Days");
-            StaticClass.Log($"Log File Max Size              : {IniData.LogFileMaxSize} Megabytes");
+            StaticClass.Log($"Input Dir                      : {StaticClass.IniData.InputDir}");
+            StaticClass.Log($"Processing Dir                 : {StaticClass.IniData.ProcessingDir}");
+            StaticClass.Log($"Repository Dir                 : {StaticClass.IniData.RepositoryDir}");
+            StaticClass.Log($"Finished Dir                   : {StaticClass.IniData.FinishedDir}");
+            StaticClass.Log($"Error Dir                      : {StaticClass.IniData.ErrorDir}");
+            StaticClass.Log($"Modeler Root Dir               : {StaticClass.IniData.ModelerRootDir}");
+            StaticClass.Log($"Status Log File                : {StaticClass.IniData.StatusLogFile}");
+            StaticClass.Log($"Process Log File               : {StaticClass.IniData.ProcessLogFile}");
+            StaticClass.Log($"CPU Cores                      : {StaticClass.IniData.CPUCores} Cores");
+            StaticClass.Log($"Execution Limit                : {StaticClass.IniData.ExecutionLimit} Jobs");
+            StaticClass.Log($"Start Port                     : {StaticClass.IniData.StartPort}");
+            StaticClass.Log($"Scan Wait Time                 : {StaticClass.IniData.ScanWaitTime} Miliseconds");
+            StaticClass.Log($"Max Job Time Limit             : {StaticClass.IniData.MaxJobTimeLimit} Hours");
+            StaticClass.Log($"Log File History Limit         : {StaticClass.IniData.LogFileHistoryLimit} Days");
+            StaticClass.Log($"Log File Max Size              : {StaticClass.IniData.LogFileMaxSize} Megabytes");
         }
 
         /// <summary>
@@ -102,7 +99,7 @@ namespace Status.Services
         /// </summary>
         public void CheckLogFileHistory()
         {
-            StaticClass.CsvFileHandlerHandle.CheckLogFileHistory(IniData);
+            StaticClass.CsvFileHandlerHandle.CheckLogFileHistory();
         }
 
         /// <summary>
@@ -121,7 +118,7 @@ namespace Status.Services
             else
             {
                 // Start Modeler job Processing thread
-                InputJobsScanThread newJobsScanThread = new InputJobsScanThread(IniData, StatusDataList);
+                InputJobsScanThread newJobsScanThread = new InputJobsScanThread();
                 if (newJobsScanThread == null)
                 {
                     StaticClass.Logger.LogError("StartMonitorProcess newJobsScanThread failed to instantiate");
@@ -194,7 +191,7 @@ namespace Status.Services
         /// <returns>Status Data List</returns>
         public IEnumerable<StatusData> GetJobStatus()
         {
-            return StatusDataList;
+            return StaticClass.StatusDataList;
         }
 
         /// <summary>
@@ -204,10 +201,7 @@ namespace Status.Services
         public IEnumerable<StatusData> GetHistoryData()
         {
             // Read data from the CSV file
-            StaticClass.StatusDataListHandle = StaticClass.CsvFileHandlerHandle.ReadFromCsvFile(IniData);
-
-            // Return data read
-            return StaticClass.StatusDataListHandle;
+            return (StaticClass.CsvFileHandlerHandle.ReadFromCsvFile());
         }
     }
 }
