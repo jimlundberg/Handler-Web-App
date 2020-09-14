@@ -17,14 +17,13 @@ namespace Status.Services
     {
         private readonly IniFileData IniData = new IniFileData();
         private readonly List<StatusData> StatusDataList = new List<StatusData>();
-        private readonly ILogger<IStatusRepository> Logger;
 
         /// <summary>
         /// StatusRepository contructor
         /// </summary>
         public StatusRepository(ILogger<IStatusRepository> logger)
         {
-            Logger = logger;
+            StaticClass.Logger = (Logger<IStatusRepository>)logger;
         }
 
         /// <summary>
@@ -32,12 +31,6 @@ namespace Status.Services
         /// </summary>
         public void GetIniFileData()
         {
-            Logger.LogCritical("Critical");
-            Logger.LogError("Error");
-            Logger.LogWarning("Warning");
-            Logger.LogTrace("Trace");
-            Logger.LogInformation("Information");
-
             // Check that Config.ini file exists
             string IniFileName = "Config.ini";
             if (File.Exists(IniFileName) == false)

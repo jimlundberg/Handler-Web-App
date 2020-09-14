@@ -63,7 +63,7 @@ namespace Status.Services
 		public static Dictionary<string, Process> ProcessHandles = new Dictionary<string, Process>();
 
         internal static LoggingToFile FileLoggerObject;
-        internal static ILogger<StatusRepository> Logger;
+        internal static Logger<IStatusRepository> Logger;
         internal static SynchronizedCache InputJobsToRun = new SynchronizedCache();
 
         /// <summary>
