@@ -13,11 +13,12 @@ namespace Status.Services
         private static readonly Object FileLock = new Object();
 
         /// <summary>
-        /// Default logging To file constructor
+        /// Logging to file constructor with file name 
         /// </summary>
-        public LoggingToFile()
+        /// <param name="logFileName"></param>
+        public LoggingToFile(string logFileName)
         {
-            StaticClass.Logger.LogInformation("LoggingToFile default cestructor called");
+            LogFileName = logFileName;
         }
 
         /// <summary>
@@ -26,15 +27,6 @@ namespace Status.Services
         ~LoggingToFile()
         {
             StaticClass.Logger.LogInformation("LoggingToFile default destructor called");
-        }
-
-        /// <summary>
-        /// Logging to file constructor with file name 
-        /// </summary>
-        /// <param name="logFileName"></param>
-        public LoggingToFile(string logFileName)
-        {
-            LogFileName = logFileName;
         }
 
         /// <summary>

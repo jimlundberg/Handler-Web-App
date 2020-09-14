@@ -36,7 +36,7 @@ namespace Status.Services
             if (File.Exists(IniFileName) == false)
             {
                 StaticClass.Logger.LogCritical("Missing Config.ini file");
-                throw new System.InvalidOperationException("Config.ini file does not exist in the Handler directory");
+                throw new InvalidOperationException("Config.ini file does not exist in the Handler directory");
             }
 
             // Get information from the Config.ini file

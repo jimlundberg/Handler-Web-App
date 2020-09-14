@@ -19,11 +19,6 @@ namespace Status.Services
         private static readonly Object RemoveLock = new Object();
 
         /// <summary>
-        /// Current Input Jobs Scan thread default constructor
-        /// </summary>
-        public InputJobsScanThread() { }
-
-        /// <summary>
         /// New jobs Scan thread
         /// </summary>
         /// <param name="iniData"></param>

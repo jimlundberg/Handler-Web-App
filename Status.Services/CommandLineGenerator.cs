@@ -33,6 +33,14 @@ namespace Status.Services
         }
 
         /// <summary>
+        /// Command Line Generator default destructor
+        /// </summary>
+        ~CommandLineGenerator()
+        {
+            StaticClass.Logger.LogInformation("CommandLineGenerator default destructor called");
+        }
+
+        /// <summary>
         /// Execute the Modeler command line 
         /// </summary>
         /// <param name="job"></param>

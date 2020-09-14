@@ -16,7 +16,6 @@ namespace Status.Services
         private readonly string DirectoryName;
         private readonly IniFileData IniData;
         public event EventHandler ProcessCompleted;
-        private static readonly Object ListLock = new Object();
 
         /// <summary>
         /// New Jobs directory Scan Thread constructor receiving data buffers
@@ -26,6 +25,14 @@ namespace Status.Services
         {
             DirectoryName = iniData.InputDir;
             IniData = iniData;
+        }
+
+        /// <summary>
+        /// Directory Watcher thread default destructor
+        /// </summary>
+        ~DirectoryWatcherThread()
+        {
+            StaticClass.Logger.LogInformation("DirectoryWatcherThread default destructor called");
         }
 
         /// <summary>

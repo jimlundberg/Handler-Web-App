@@ -20,22 +20,6 @@ namespace Status.Services
         public event EventHandler ProcessCompleted;
 
         /// <summary>
-        /// Current Processing File Watcher thread default constructor
-        /// </summary>
-        public ProcessingFileWatcherThread()
-        {
-            StaticClass.Logger.LogInformation("ProcessingFileWatcherThread default constructor called");
-        }
-
-        /// <summary>
-        /// Current Processing File Watcher thread default destructor
-        /// </summary>
-        ~ProcessingFileWatcherThread()
-        {
-            StaticClass.Logger.LogInformation("ProcessingFileWatcherThread default destructor called");
-        }
-
-        /// <summary>
         /// Processing directory file watcher thread
         /// </summary>
         /// <param name="directory"></param>
@@ -58,6 +42,14 @@ namespace Status.Services
             StaticClass.TcpIpScanComplete[Job] = false;
             StaticClass.ProcessingFileScanComplete[Job] = false;
             StaticClass.ProcessingJobScanComplete[Job] = false;
+        }
+
+        /// <summary>
+        /// Current Processing File Watcher thread default destructor
+        /// </summary>
+        ~ProcessingFileWatcherThread()
+        {
+            StaticClass.Logger.LogInformation("ProcessingFileWatcherThread default destructor called");
         }
 
         /// <summary>

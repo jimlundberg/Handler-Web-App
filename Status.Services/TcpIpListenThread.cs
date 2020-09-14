@@ -23,22 +23,6 @@ namespace Status.Services
         private readonly int Port = 0;
 
         /// <summary>
-        /// TCP/IP Listen thread default constructor
-        /// </summary>
-        public TcpIpListenThread()
-        {
-            StaticClass.Logger.LogInformation("TcpIpListenThread default constructor called");
-        }
-
-        /// <summary>
-        /// TCP/IP Listen thread default destructor
-        /// </summary>
-        ~TcpIpListenThread()
-        {
-            StaticClass.Logger.LogInformation("TcpIpListenThread default destructor called");
-        }
-
-        /// <summary>
         /// Job Tcp/IP thread 
         /// </summary>
         /// <param name="iniData"></param>
@@ -50,6 +34,14 @@ namespace Status.Services
             IniData = iniData;
             MonitorData = monitorData;
             StatusData = statusData;
+        }
+
+        /// <summary>
+        /// TCP/IP Listen thread default destructor
+        /// </summary>
+        ~TcpIpListenThread()
+        {
+            StaticClass.Logger.LogInformation("TcpIpListenThread default destructor called");
         }
 
         /// <summary>

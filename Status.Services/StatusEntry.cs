@@ -13,10 +13,7 @@ namespace Status.Services
         /// <summary>
         /// Status Entry default constructor
         /// </summary>
-        public StatusEntry()
-        {
-            StaticClass.Logger.LogInformation("StatusEntry default constructor called");
-        }
+        public StatusEntry() { }
 
         /// <summary>
         /// Status Entry thread default destructor
