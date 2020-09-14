@@ -52,6 +52,14 @@ namespace Status.Services
         }
 
         /// <summary>
+        /// Ini File Handler default destructor
+        /// </summary>
+        ~IniFileHandler()
+        {
+            StaticClass.Logger.LogInformation("IniFileHandler default destructor called");
+        }
+
+        /// <summary>
         /// Read section
         /// </summary>
         /// <param name="Section"></param>
