@@ -13,27 +13,21 @@ namespace Handler.Pages
     /// </summary>
     public class IndexModel : PageModel
     {
-        /// <summary>
-        /// status data
-        /// </summary>
         public IEnumerable<StatusData> StatusData { get; set; }
-        private readonly ILogger<IndexModel> _logger;
+        private readonly ILogger<IndexModel> Logger;
+        private readonly IStatusRepository MonitorDataRepository;
+        private static bool firstTime = true;
 
         /// <summary>
         /// Index Model CTOR
         /// </summary>
         /// <param name="monitorDataRepository"></param>
+        /// <param name="logger"></param>
         public IndexModel(IStatusRepository monitorDataRepository, ILogger<IndexModel> logger)
         {
             MonitorDataRepository = monitorDataRepository;
-            _logger = logger;
+            Logger = logger;
         }
-
-        /// <summary>
-        /// Monitor Data Repository
-        /// </summary>
-        private readonly IStatusRepository MonitorDataRepository;
-        private static bool firstTime = true;
 
         /// <summary>
         /// Button Press
@@ -74,8 +68,8 @@ namespace Handler.Pages
         private void SetButtonState(ButtonPress buttonPress)
         {
             // Watch the following settings.  Because disabled=disabled we have to invert the intuitive logic upside down.
-            Boolean bsDisabled = true;
-            Boolean bsEnabled = false;
+            bool bsDisabled = true;
+            bool bsEnabled = false;
             ViewData["bsStartDisabled"] = bsEnabled;
             ViewData["bsRefreshDisabled"] = bsEnabled;
             ViewData["bsPauseDisabled"] = bsEnabled;
@@ -143,7 +137,12 @@ namespace Handler.Pages
             {
                 SetButtonState(ButtonPress.Start);
             }
-            StatusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+
+            StatusData = MonitorDataRepository.GetJobStatus().Reverse();
+            if (StatusData == null)
+            {
+                Logger.LogError("OnPostHistoryButton StatusData return null");
+            }
         }
 
         /// <summary>
@@ -152,7 +151,11 @@ namespace Handler.Pages
         public void OnPostHomeButton()
         {
             SetButtonState(ButtonPress.Home);
-            StatusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+            StatusData = MonitorDataRepository.GetJobStatus().Reverse();
+            if (StatusData == null)
+            {
+                Logger.LogError("OnPostHistoryButton StatusData return null");
+            }
         }
 
         /// <summary>
@@ -162,7 +165,11 @@ namespace Handler.Pages
         {
             SetButtonState(ButtonPress.Start);
             MonitorDataRepository.StartMonitorProcess();
-            StatusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+            StatusData = MonitorDataRepository.GetJobStatus().Reverse();
+            if (StatusData == null)
+            {
+                Logger.LogError("OnPostHistoryButton StatusData return null");
+            }
         }
 
         /// <summary>
@@ -171,7 +178,11 @@ namespace Handler.Pages
         public void OnPostRefreshButton()
         {
             SetButtonState(ButtonPress.Refresh);
-            StatusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
+            StatusData = MonitorDataRepository.GetJobStatus().Reverse();
+            if (StatusData == null)
+            {
+                Logger.LogError("OnPostHistoryButton StatusData return null");
+            }
         }
 
         /// <summary>
@@ -198,7 +209,11 @@ namespace Handler.Pages
         public void OnPostHistoryButton()
         {
             SetButtonState(ButtonPress.History);
-            StatusData = (IEnumerable<StatusData>)MonitorDataRepository.GetHistoryData();
+            StatusData = MonitorDataRepository.GetHistoryData();
+            if (StatusData == null)
+            {
+                Logger.LogError("OnPostHistoryButton StatusData return null");
+            }
         }
     }
 }

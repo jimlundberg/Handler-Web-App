@@ -61,20 +61,25 @@ namespace Status.Services
             string job = jobDirectory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
             int index = 0;
 
-            Task AddTask = Task.Run(() =>
+            // Do Shutdown Pause check
+            if (StaticClass.ShutDownPauseCheck("Directory Watcher OnCreated") == false)
             {
-                index = StaticClass.InputJobsToRun.Count + 1;
-                StaticClass.InputJobsToRun.Add(index, job);
-            });
+                // Loop shutdown/Pause check
+                Task AddTask = Task.Run(() =>
+                {
+                    index = StaticClass.InputJobsToRun.Count + 1;
+                    StaticClass.InputJobsToRun.Add(index, job);
+                });
 
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_JOB_DELAY);
-            if (!AddTask.Wait(timeSpan))
-            {
-                StaticClass.Logger.LogError("DirectoryWatcherThread Add Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
+                TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_JOB_DELAY);
+                if (!AddTask.Wait(timeSpan))
+                {
+                    StaticClass.Logger.LogError("DirectoryWatcherThread Add Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
+                }
+
+                StaticClass.Log(string.Format("\nInput Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",
+                    job, index, DateTime.Now));
             }
-
-            StaticClass.Log(string.Format("\nInput Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",
-                job, index, DateTime.Now));
         }
 
         /// <summary>

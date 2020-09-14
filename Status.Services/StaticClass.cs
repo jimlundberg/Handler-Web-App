@@ -29,7 +29,7 @@ namespace Status.Services
         public const int ADD_JOB_DELAY = 50;
         public const int NUM_TCP_IP_RETRIES = 480;
         public const int NUM_XML_ACCESS_RETRIES = 50;
-        public const int NUM_RESULTS_ENTRY_RETRIES = 40;
+        public const int NUM_RESULTS_ENTRY_RETRIES = 50;
 
         // Common counters
         public static double MaxJobTimeLimitSeconds = 0.0;
