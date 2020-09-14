@@ -15,6 +15,7 @@ namespace Status.Services
     {
         public event EventHandler ProcessCompleted;
         private static readonly Object RemoveLock = new Object();
+        public readonly List<string> ProcessingJobsToRun = new List<string>();
 
         /// <summary>
         /// Old Jobs Scan Thread constructor receiving data buffers
@@ -128,9 +129,9 @@ namespace Status.Services
             {
                 string directory = dirInfo.ToString();
                 string job = directory.Replace(StaticClass.IniData.ProcessingDir, "").Remove(0, 1);
-                StaticClass.ProcessingJobsToRun.Add(job);
+                ProcessingJobsToRun.Add(job);
 
-                int index = StaticClass.ProcessingJobsToRun.IndexOf(job);
+                int index = ProcessingJobsToRun.IndexOf(job);
                 StaticClass.Log(string.Format("\nUnfinished Processing jobs check added new Job {0} to Processing Job List index {1} at {2:HH:mm:ss.fff}",
                     job, index, DateTime.Now));
             }
@@ -152,7 +153,7 @@ namespace Status.Services
 
                 Thread.Yield();
             }
-            while (StaticClass.ProcessingJobsToRun.Count > 0);
+            while (ProcessingJobsToRun.Count > 0);
 
             // Scan of the Processing Buffer jobs is complete
             StaticClass.UnfinishedProcessingJobsScanComplete = true;
@@ -164,7 +165,7 @@ namespace Status.Services
         public void RunUnfinishedProcessingJobs()
         {
             // Start Processing jobs currently waiting
-            foreach (string job in StaticClass.ProcessingJobsToRun.Reverse<string>())
+            foreach (string job in ProcessingJobsToRun.Reverse<string>())
             {
                 if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
                 {
@@ -175,7 +176,7 @@ namespace Status.Services
                     // Remove job run from Processing Job list
                     lock (RemoveLock)
                     {
-                        if (StaticClass.ProcessingJobsToRun.Remove(job) == false)
+                        if (ProcessingJobsToRun.Remove(job) == false)
                         {
                             StaticClass.Logger.LogError("ProcessingJobsScanThread failed to remove Job {0} from Processing Job list", job);
                         }
