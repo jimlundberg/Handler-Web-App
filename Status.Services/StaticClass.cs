@@ -55,7 +55,7 @@ namespace Status.Services
         // Processing Jobs List
 		public static List<string> ProcessingJobsToRun = new List<String>();
 
-        // Job and file tracking
+        // Job state tracking
         public static Dictionary<string, DateTime> JobStartTime = new Dictionary<string, DateTime>();
         public static Dictionary<string, bool> InputFileScanComplete = new Dictionary<string, bool>();
         public static Dictionary<string, bool> InputJobScanComplete = new Dictionary<string, bool>();
@@ -63,7 +63,7 @@ namespace Status.Services
         public static Dictionary<string, bool> ProcessingJobScanComplete = new Dictionary<string, bool>();
         public static Dictionary<string, bool> TcpIpScanComplete = new Dictionary<string, bool>();
 
-        // File number tracking
+        // Job number of files tracking
 		public static Dictionary<string, int> NumberOfInputFilesFound = new Dictionary<string, int>();
 		public static Dictionary<string, int> NumberOfInputFilesNeeded = new Dictionary<string, int>();
 		public static Dictionary<string, int> NumberOfProcessingFilesFound = new Dictionary<string, int>();
