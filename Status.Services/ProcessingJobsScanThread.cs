@@ -15,7 +15,7 @@ namespace Status.Services
     {
         public event EventHandler ProcessCompleted;
         private static readonly Object RemoveLock = new Object();
-        public readonly List<string> ProcessingJobsToRun = new List<string>();
+        private readonly List<string> ProcessingJobsToRun = new List<string>();
 
         /// <summary>
         /// Old Jobs Scan Thread constructor receiving data buffers
