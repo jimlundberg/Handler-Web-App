@@ -346,9 +346,6 @@ namespace Status.Services
             }
             catch (SocketException e)
             {
-                StaticClass.Log(string.Format("SocketException {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
-                    e, job, port, ModelerCurrentStepState, DateTime.Now));
-
                 StaticClass.Logger.LogError(string.Format("SocketException {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
                     e, job, port, ModelerCurrentStepState, DateTime.Now));
             }
