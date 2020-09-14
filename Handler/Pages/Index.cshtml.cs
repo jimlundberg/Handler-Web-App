@@ -13,6 +13,9 @@ namespace Handler.Pages
     /// </summary>
     public class IndexModel : PageModel
     {
+        /// <summary>
+        /// Status Data
+        /// </summary>
         public IEnumerable<StatusData> StatusData { get; set; }
         private readonly ILogger<IndexModel> Logger;
         private readonly IStatusRepository MonitorDataRepository;
