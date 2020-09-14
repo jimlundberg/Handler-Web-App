@@ -67,6 +67,7 @@ namespace Status.Services
         internal static SynchronizedCache InputJobsToRun = new SynchronizedCache();
         internal static CsvFileHandler CsvFileHandlerHandle = new CsvFileHandler();
         internal static StatusEntry StatusEntryHandle = new StatusEntry();
+        internal static List<StatusData> StatusDataListHandle = new List<StatusData>();
 
         /// <summary>
         /// Global log to file method

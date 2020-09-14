@@ -102,7 +102,7 @@ namespace Status.Services
         /// </summary>
         public void CheckLogFileHistory()
         {
-            StaticClass.CsvFileHandler.CheckLogFileHistory(IniData);
+            StaticClass.CsvFileHandlerHandle.CheckLogFileHistory(IniData);
         }
 
         /// <summary>
@@ -203,17 +203,11 @@ namespace Status.Services
         /// <returns>History Status Data List</returns>
         public IEnumerable<StatusData> GetHistoryData()
         {
-            List<StatusData> StatusDataList = new List<StatusData>();
-            if (StatusDataList == null)
-            {
-                StaticClass.Logger.LogError("StatusRepository StatusList failed to instantiate");
-            }
-
             // Read data from the CSV file
-            StatusDataList = StaticClass.CsvFileHandler.ReadFromCsvFile(IniData);
+            StaticClass.StatusDataListHandle = StaticClass.CsvFileHandlerHandle.ReadFromCsvFile(IniData);
 
             // Return data read
-            return StatusDataList;
+            return StaticClass.StatusDataListHandle;
         }
     }
 }

@@ -14,9 +14,6 @@ namespace Status.Services
     /// </summary>
     public class CsvFileHandler
     {
-        private static readonly object padlock = new object();
-        private static CsvFileHandler instance = null;
-
         /// <summary>
         /// CSV File Handler default Constructor
         /// </summary>
