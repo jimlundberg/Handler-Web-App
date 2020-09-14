@@ -65,7 +65,8 @@ namespace Status.Services
         internal static LoggingToFile FileLoggerObject;
         internal static Logger<IStatusRepository> Logger;
         internal static SynchronizedCache InputJobsToRun = new SynchronizedCache();
-        internal static CsvFileHandler CsvFileHandler = new CsvFileHandler();
+        internal static CsvFileHandler CsvFileHandlerHandle = new CsvFileHandler();
+        internal static StatusEntry StatusEntryHandle = new StatusEntry();
 
         /// <summary>
         /// Global log to file method
@@ -91,15 +92,10 @@ namespace Status.Services
             string statusLogFile = iniData.StatusLogFile;
 
             // Write to the Status accumulator
-            StatusEntry statusData = new StatusEntry();
-            if (statusData == null)
-            {
-                StaticClass.Logger.LogError("StaticClass statusData failed to instantiate");
-            }
-            statusData.ListStatus(statusList, job, status, timeSlot);
+            StaticClass.StatusEntryHandle.ListStatus(statusList, job, status, timeSlot);
 
             // Write new status to the log file
-            StaticClass.CsvFileHandler.WriteToCsvFile(job, status, timeSlot, statusLogFile);
+            StaticClass.CsvFileHandlerHandle.WriteToCsvFile(job, status, timeSlot, statusLogFile);
         }
 
         /// <summary>
