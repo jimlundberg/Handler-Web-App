@@ -17,19 +17,26 @@ namespace Status.Services
     {
         private readonly IniFileData IniData = new IniFileData();
         private readonly List<StatusData> StatusDataList = new List<StatusData>();
+        private readonly ILogger<IStatusRepository> Logger;
 
         /// <summary>
         /// StatusRepository contructor
         /// </summary>
-        public StatusRepository() { }
+        public StatusRepository(ILogger<IStatusRepository> logger)
+        {
+            Logger = logger;
+        }
 
         /// <summary>
         /// Get the local Config.ini file data in the working directory
         /// </summary>
         public void GetIniFileData()
         {
-            // Create the logger object handle straightaway
-            StaticClass.Logger = new LoggerFactory().CreateLogger<StatusRepository>();
+            Logger.LogCritical("Critical");
+            Logger.LogError("Error");
+            Logger.LogWarning("Warning");
+            Logger.LogTrace("Trace");
+            Logger.LogInformation("Information");
 
             // Check that Config.ini file exists
             string IniFileName = "Config.ini";

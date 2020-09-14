@@ -17,6 +17,17 @@ namespace Handler.Pages
         /// status data
         /// </summary>
         public IEnumerable<StatusData> StatusData { get; set; }
+        private readonly ILogger<IndexModel> _logger;
+
+        /// <summary>
+        /// Index Model CTOR
+        /// </summary>
+        /// <param name="monitorDataRepository"></param>
+        public IndexModel(IStatusRepository monitorDataRepository, ILogger<IndexModel> logger)
+        {
+            MonitorDataRepository = monitorDataRepository;
+            _logger = logger;
+        }
 
         /// <summary>
         /// Monitor Data Repository
@@ -60,15 +71,6 @@ namespace Handler.Pages
             History = 6 
         };
          
-        /// <summary>
-        /// Index Model CTOR
-        /// </summary>
-        /// <param name="monitorDataRepository"></param>
-        public IndexModel(IStatusRepository monitorDataRepository)
-        {
-            MonitorDataRepository = monitorDataRepository;
-        }
-
         private void SetButtonState(ButtonPress buttonPress)
         {
             // Watch the following settings.  Because disabled=disabled we have to invert the intuitive logic upside down.
@@ -130,7 +132,7 @@ namespace Handler.Pages
         /// </summary>
         public void OnGet()
         {
-            SetButtonState(ButtonPress.Home);            
+            SetButtonState(ButtonPress.Home);
             if (firstTime)
             {
                 MonitorDataRepository.GetIniFileData();
@@ -143,7 +145,7 @@ namespace Handler.Pages
             }
             StatusData = (IEnumerable<StatusData>)MonitorDataRepository.GetJobStatus().Reverse();
         }
-                
+
         /// <summary>
         /// On Post Home Button
         /// </summary>
