@@ -89,13 +89,11 @@ namespace Status.Services
         public static void StatusDataEntry(List<StatusData> statusList, string job,
             IniFileData iniData, JobStatus status, JobType timeSlot)
         {
-            string statusLogFile = iniData.StatusLogFile;
-
             // Write to the Status accumulator
             StaticClass.StatusEntryHandle.ListStatus(statusList, job, status, timeSlot);
 
             // Write new status to the log file
-            StaticClass.CsvFileHandlerHandle.WriteToCsvFile(job, status, timeSlot, statusLogFile);
+            StaticClass.CsvFileHandlerHandle.WriteToCsvFile(job, status, timeSlot, iniData.StatusLogFile);
         }
 
         /// <summary>
