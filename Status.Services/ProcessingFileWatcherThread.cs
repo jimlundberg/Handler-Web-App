@@ -139,8 +139,6 @@ namespace Status.Services
                     // Check for shutdown or pause
                     if (StaticClass.ShutDownPauseCheck("Overall Result Entry Check") == true)
                     {
-                        StaticClass.Log(string.Format("\nShutdown ProcessingFileWatcherThread OverallResultEntryCheck for file {0} at {1:HH:mm:ss.fff}",
-                            dataXmlFileName, DateTime.Now));
                         return false;
                     }
 
@@ -211,8 +209,6 @@ namespace Status.Services
                     // Check for shutdown or pause
                     if (StaticClass.ShutDownPauseCheck("Processing File Watcher Thread") == true)
                     {
-                        StaticClass.Log(string.Format("\nShutdown ProcessingFileWatcherThread watching {0} at {1:HH:mm:ss.fff}",
-                            directory, DateTime.Now));
                         return;
                     }
 

@@ -183,7 +183,6 @@ namespace Status.Services
                         // If the shutdown flag is set, exit method
                         if (StaticClass.ShutDownPauseCheck("ReadFromCsvFile") == true)
                         {
-                            StaticClass.Log(string.Format("\nShutdown ReadFromCsvFile Job {0} row {1}", rowStatusData.Job, rowStatusData));
                             return null;
                         }
                     }

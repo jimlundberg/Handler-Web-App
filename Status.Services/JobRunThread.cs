@@ -377,8 +377,6 @@ namespace Status.Services
             {
                 if (StaticClass.ShutDownPauseCheck("Run Job") == true)
                 {
-                    StaticClass.Log(string.Format("\nShutdown RunJob job complete scan for Job {0} at {1:HH:mm:ss.fff}",
-                        job, DateTime.Now));
                     return;
                 }
 
