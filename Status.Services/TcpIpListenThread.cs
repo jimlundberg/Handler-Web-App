@@ -99,9 +99,6 @@ namespace Status.Services
                     return;
                 }
 
-                // Set the Security protocol
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-
                 // Show connection and start sending messages
                 StaticClass.Log(string.Format("Connected to Modeler TCP/IP for Job {0} on Port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
                 bool jobComplete = false;
