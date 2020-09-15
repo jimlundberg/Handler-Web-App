@@ -159,14 +159,11 @@ namespace Status.Services
                     }
                     else
                     {
-                        StaticClass.Log(string.Format("\nTCP/IP stream closed for Modeler Job {0} on Port {1} at {2:HH:mm:ss.fff}",
-                            job, port, DateTime.Now));
-                      
                         // Make sure to close TCP/IP socket
                         stream.Close();
                         client.Close();
 
-                        StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                        StaticClass.Log(string.Format("\nTCP/IP stream closed for Modeler Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));
 
                         // Set the TCP/IP Scan complete flag to signal the RunJob thread
@@ -225,14 +222,14 @@ namespace Status.Services
                                     break;
 
                                 case "Whole process done, socket closed.":
-                                    ModelerCurrentStepState = ModelerStepState.STEP_COMPLETE;
+                                    // Make sure to close TCP/IP socket
+                                    stream.Close();
+                                    client.Close();
 
                                     StaticClass.Log(string.Format("TCP/IP for Job {0} on Port {1} received Modeler process done at {2:HH:mm:ss.fff}",
                                         job, port, DateTime.Now));
 
-                                    // Make sure to close TCP/IP socket
-                                    stream.Close();
-                                    client.Close();
+                                    ModelerCurrentStepState = ModelerStepState.STEP_COMPLETE;
 
                                     StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                                         job, port, DateTime.Now));
@@ -250,14 +247,14 @@ namespace Status.Services
                             // Backup check of the process complete string, even if it is concatenated with another string
                             if (responseData.Contains("Whole process done, socket closed."))
                             {
-                                ModelerCurrentStepState = ModelerStepState.STEP_COMPLETE;
+                                // Make sure to close TCP/IP socket
+                                stream.Close();
+                                client.Close();
 
                                 StaticClass.Log(string.Format("TCP/IP for Job {0} on Port {1} received Modeler process complete at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
 
-                                // Make sure to close TCP/IP socket
-                                stream.Close();
-                                client.Close();
+                                ModelerCurrentStepState = ModelerStepState.STEP_COMPLETE;
 
                                 StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                                     job, port, DateTime.Now));
@@ -292,17 +289,12 @@ namespace Status.Services
                             // Check for shutdown or pause
                             if (StaticClass.ShutDownPauseCheck("TCP/IP Receive") == true)
                             {
-                                StaticClass.Log(string.Format("\nShutdown TcpIpListenThread for Job {0} in state {1} on Port {2} at {3:HH:mm:ss.fff}",
-                                    job, ModelerCurrentStepState, port, DateTime.Now));
-
                                 // Make sure to close TCP/IP socket
                                 stream.Close();
                                 client.Close();
 
                                 StaticClass.TcpIpScanComplete[job] = true;
-
-                                // Make sure to close TCP/IP socket
-                                jobComplete = true;
+                                return;
                             }
 
                             // Set the messge received flag to exit receive loop
@@ -317,17 +309,15 @@ namespace Status.Services
 
                         if (StaticClass.ShutDownPauseCheck("TCP/IP Receive") == true)
                         {
-                            StaticClass.Log(string.Format("\nShutdown TcpIpListenThread for Job {0} in state {1} on Port {2} at {3:HH:mm:ss.fff}",
-                                job, ModelerCurrentStepState, port, DateTime.Now));
-
                             // Make sure to close TCP/IP socket
                             stream.Close();
                             client.Close();
 
-                            StaticClass.TcpIpScanComplete[job] = true;
+                            StaticClass.Log(string.Format("\nShutdown TcpIpListenThread for Job {0} in state {1} on Port {2} at {3:HH:mm:ss.fff}",
+                                job, ModelerCurrentStepState, port, DateTime.Now));
 
-                            // Make sure to close TCP/IP socket
-                            jobComplete = true;
+                            StaticClass.TcpIpScanComplete[job] = true;
+                            return;
                         }
                     }
                     while ((tcpIpRetryCount < StaticClass.NUM_TCP_IP_RETRIES) && (messageReceived == false));
