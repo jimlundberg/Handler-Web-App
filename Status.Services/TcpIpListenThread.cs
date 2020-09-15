@@ -129,8 +129,8 @@ namespace Status.Services
                         {
                             try
                             {
-                                // Translate the passed message into ASCII and send it as a Byte array
-                                Byte[] sendData = Encoding.ASCII.GetBytes(StatusMessage);
+                                // Translate the passed message into ASCII and send it as a byte array
+                                byte[] sendData = Encoding.ASCII.GetBytes(StatusMessage);
                                 stream.Write(sendData, 0, sendData.Length);
                             }
                             catch (IOException e)
@@ -183,7 +183,7 @@ namespace Status.Services
                         if (stream.CanRead && stream.DataAvailable)
                         {
                             // Buffers to store the response
-                            Byte[] recvData = new Byte[256];
+                            byte[] recvData = new byte[256];
                             string responseData = string.Empty;
                             int bytes = stream.Read(recvData, 0, recvData.Length);
                             responseData = Encoding.ASCII.GetString(recvData, 0, bytes);
