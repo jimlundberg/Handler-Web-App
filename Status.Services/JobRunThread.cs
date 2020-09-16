@@ -424,9 +424,6 @@ namespace Status.Services
             }
             while ((StaticClass.ProcessingJobScanComplete[job] == false) && (StaticClass.JobShutdownFlag[job] == false));
 
-            // Wait to make sure the data.xml is done being handled
-            Thread.Sleep(StaticClass.POST_PROCESS_WAIT);
-
             // Make sure Modeler Process is stopped
             if (StaticClass.ProcessHandles[job] != null)
             {
@@ -455,6 +452,9 @@ namespace Status.Services
                         job, DateTime.Now));
                 }
             }
+
+            // Wait to make sure the data.xml is done being handled
+            Thread.Sleep(StaticClass.POST_PROCESS_WAIT);
 
             // Run the Job Complete handler
             RunJobFileProcessing(job, monitorData);
