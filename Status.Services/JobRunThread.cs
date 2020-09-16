@@ -444,7 +444,12 @@ namespace Status.Services
             {
                 // Wait for the data.xml file to contain a result
                 string dataXmlFileName = processingBufferJobDir + @"\" + "data.xml";
-                if (OverallResultEntryCheck(dataXmlFileName) == false)
+                if (OverallResultEntryCheck(dataXmlFileName) == true)
+                {
+                    StaticClass.Log(string.Format("Overall Results check confirmed for Job {0} at {1:HH:mm:ss.fff}",
+                        job, DateTime.Now));
+                }
+                else
                 {
                     StaticClass.Log(string.Format("Overall Results check failed for Job {0} at {1:HH:mm:ss.fff}",
                         job, DateTime.Now));
