@@ -94,8 +94,7 @@ namespace Status.Services
                 if (stream == null)
                 {
                     StaticClass.Logger.LogError("TcpIp Connection stream handle was not gotten from client");
-
-                    StaticClass.TcpIpScanComplete[job] = true;
+                    StaticClass.JobShutdownFlag[job] = true;
                     return;
                 }
 
@@ -115,8 +114,8 @@ namespace Status.Services
                         StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));
 
-                        // Set the TCP/IP Scan complete flag to signal the RunJob thread
-                        StaticClass.TcpIpScanComplete[job] = true;
+                        // Set the shutdown flag to signal the RunJob thread
+                        StaticClass.JobShutdownFlag[job] = true;
                         return;
                     }
 
@@ -148,6 +147,11 @@ namespace Status.Services
                                     // Set the TCP/IP Scan complete flag to signal the RunJob thread
                                     StaticClass.TcpIpScanComplete[job] = true;
                                 }
+                                else
+                                {
+                                    // Set the Shutdown flag to signal the RunJob thread
+                                    StaticClass.JobShutdownFlag[job] = true;
+                                }
 
                                 return;
                             }
@@ -165,8 +169,8 @@ namespace Status.Services
                         StaticClass.Log(string.Format("\nTCP/IP stream closed for Modeler Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));
 
-                        // Set the TCP/IP Scan complete flag to signal the RunJob thread
-                        StaticClass.TcpIpScanComplete[job] = true;
+                        // Set the Shutdown flag to signal the RunJob thread
+                        StaticClass.JobShutdownFlag[job] = true;
                         return;
                     }
 
@@ -276,21 +280,19 @@ namespace Status.Services
                                 StaticClass.Log(string.Format("Job Execution Timeout for Job {0} in state {1} at {2:HH:mm:ss.fff}",
                                     job, ModelerCurrentStepState, DateTime.Now));
 
+                                // Make sure to close TCP/IP socket
+                                stream.Close();
+                                client.Close();
+
+                                StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                                    job, port, DateTime.Now));
+
                                 // Create job Timeout status
                                 StaticClass.StatusDataEntry(job, JobStatus.JOB_TIMEOUT, JobType.TIME_START);
 
-                                // Set flags to complete job Process
+                                // Set the Shutdown flag to signal the RunJob thread
                                 StaticClass.JobShutdownFlag[job] = true;
-                                StaticClass.ProcessingJobScanComplete[job] = true;
-                                StaticClass.TcpIpScanComplete[job] = true;
-                                StaticClass.ProcessingFileScanComplete[job] = true;
-
-                                // Wait a sec then shutdown the Modeler after job timeout
-                                StaticClass.ProcessHandles[job].Kill();
-                                Thread.Sleep(StaticClass.KILL_PROCESS_WAIT);
-
-                                // Make sure to close TCP/IP socket
-                                jobComplete = true;
+                                return;
                             }
 
                             // Check for shutdown or pause
@@ -300,7 +302,8 @@ namespace Status.Services
                                 stream.Close();
                                 client.Close();
 
-                                StaticClass.TcpIpScanComplete[job] = true;
+                                // Set the Shutdown flag to signal the RunJob thread
+                                StaticClass.JobShutdownFlag[job] = true;
                                 return;
                             }
 
@@ -312,19 +315,6 @@ namespace Status.Services
                             // Wait 250 msec between 480 Data Available checks (2 min) CanRead is set for session
                             Thread.Sleep(StaticClass.READ_AVAILABLE_RETRY_DELAY);
                             tcpIpRetryCount++;
-                        }
-
-                        if (StaticClass.ShutDownPauseCheck("TCP/IP Receive") == true)
-                        {
-                            // Make sure to close TCP/IP socket
-                            stream.Close();
-                            client.Close();
-
-                            StaticClass.Log(string.Format("\nShutdown TcpIpListenThread for Job {0} in state {1} on Port {2} at {3:HH:mm:ss.fff}",
-                                job, ModelerCurrentStepState, port, DateTime.Now));
-
-                            StaticClass.TcpIpScanComplete[job] = true;
-                            return;
                         }
                     }
                     while ((tcpIpRetryCount < StaticClass.NUM_TCP_IP_RETRIES) && (messageReceived == false));

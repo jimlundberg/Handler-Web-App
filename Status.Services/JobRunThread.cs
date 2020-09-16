@@ -412,7 +412,7 @@ namespace Status.Services
             // Display the Modeler Process information
             DisplayProcessInfo(job, modelerProcess);
 
-            // Wait for the Processing job scan complete which includes TCP/IP
+            // Wait for the Processing job scan complete or shut down
             do
             {
                 if (StaticClass.ShutDownPauseCheck("Run Job") == true)
@@ -422,7 +422,7 @@ namespace Status.Services
 
                 Thread.Yield();
             }
-            while (StaticClass.ProcessingJobScanComplete[job] == false);
+            while ((StaticClass.ProcessingJobScanComplete[job] == false) || (StaticClass.JobShutdownFlag[job] == true));
 
             // Wait to make sure the data.xml is done being handled
             Thread.Sleep(StaticClass.POST_PROCESS_WAIT);
