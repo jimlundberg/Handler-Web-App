@@ -241,7 +241,7 @@ namespace Status.Services
                         return false;
                     }
 
-                    Thread.Yield();
+                    Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
                 }
             }
             while (numOfRetries++ < StaticClass.NUM_RESULTS_ENTRY_RETRIES);
