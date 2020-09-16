@@ -214,17 +214,57 @@ namespace Status.Services
         }
 
         /// <summary>
+        /// Check if the Modeler has deposited the OverallResult entry in the job data.xml file
+        /// </summary>
+        /// <param name="dataXmlFileName"></param>
+        /// <returns></returns>
+        public bool OverallResultEntryCheck(string dataXmlFileName)
+        {
+            int numOfRetries = 0;
+            do
+            {
+                // Check for data.xml file to be ready
+                if (StaticClass.IsFileReady(dataXmlFileName))
+                {
+                    // Check if the OverallResult node exists
+                    XmlDocument dataXmlDoc = new XmlDocument();
+                    dataXmlDoc.Load(dataXmlFileName);
+                    XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
+                    if (OverallResult != null)
+                    {
+                        return true;
+                    }
+
+                    // Check for shutdown or pause
+                    if (StaticClass.ShutDownPauseCheck("Overall Result Entry Check") == true)
+                    {
+                        return false;
+                    }
+
+                    Thread.Yield();
+                }
+            }
+            while (numOfRetries++ < StaticClass.NUM_RESULTS_ENTRY_RETRIES);
+
+            StaticClass.Log(string.Format("File {0} did not have Overall Result entry even after {1} retries at {2:HH:mm:ss.fff}",
+                dataXmlFileName, StaticClass.NUM_RESULTS_ENTRY_RETRIES, DateTime.Now));
+            return false;
+        }
+
+        /// <summary>
         /// Run the Job Completion file and directory handling
         /// </summary>
         /// <param name="job"></param>
         /// <param name="monitorData"></param>
-        public void RunJobCompletion(string job, StatusMonitorData monitorData)
+        public void RunJobFileProcessing(string job, StatusMonitorData monitorData)
         {
             string repositoryDirectory = StaticClass.IniData.RepositoryDir;
             string finishedDirectory = StaticClass.IniData.FinishedDir;
             string errorDirectory = StaticClass.IniData.ErrorDir;
             string processingBufferJobDir = StaticClass.IniData.ProcessingDir + @"\" + job;
             string dataXmlFileName = StaticClass.IniData.ProcessingDir + @"\" + job + @"\" + "data.xml";
+
+            StaticClass.StatusDataEntry(job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START);
 
             // Get the pass or fail data from the data.xml OverallResult result node
             XmlDocument dataXmlDoc = new XmlDocument();
@@ -384,34 +424,43 @@ namespace Status.Services
             }
             while (StaticClass.ProcessingJobScanComplete[job] == false);
 
-            // Add copy to archieve entry to status list
-            StaticClass.StatusDataEntry(job, JobStatus.COPYING_TO_ARCHIVE, JobType.TIME_START);
+            // Wait to make sure the data.xml is done being handled
+            Thread.Sleep(StaticClass.POST_PROCESS_WAIT);
 
             // Make sure Modeler Process is stopped
             if (StaticClass.ProcessHandles[job] != null)
             {
+                StaticClass.Log(string.Format("Shutting down Modeler for Job {0} at {1:HH:mm:ss.fff}",
+                    job, DateTime.Now));
+
                 StaticClass.ProcessHandles[job].Kill();
                 Thread.Sleep(StaticClass.KILL_PROCESS_WAIT);
             }
 
-            // Wait for data.xml file to be ready
-            string dataXmlFileName = processingBufferDirectory + @"\" + job + @"\" + "data.xml";
-            if (StaticClass.IsFileReady(dataXmlFileName))
+            // Add entry to status list
+            StaticClass.StatusDataEntry(job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
+
+            if (StaticClass.JobShutdownFlag[job] == false)
             {
-                // Run the Job Complete handler
-                RunJobCompletion(job, monitorData);
-
-                // Add entry to status list
-                StaticClass.StatusDataEntry(job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
-
-                // Show Job Complete message
-                TimeSpan timeSpan = DateTime.Now - StaticClass.JobStartTime[job];
-                StaticClass.Log(string.Format("Job {0} Complete taking {1:hh\\:mm\\:ss}. Decrementing Job count to {2} at {3:HH:mm:ss.fff}",
-                    job, timeSpan, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now));
-
-                // Decrement the number of Jobs executing in one place!
-                StaticClass.NumberOfJobsExecuting--;
+                // Wait for the data.xml file to contain a result
+                string dataXmlFileName = processingBufferJobDir + @"\" + "data.xml";
+                if (OverallResultEntryCheck(dataXmlFileName) == false)
+                {
+                    StaticClass.Log(string.Format("Overall Results check failed for Job {0} at {1:HH:mm:ss.fff}",
+                        job, DateTime.Now));
+                }
             }
+
+            // Run the Job Complete handler
+            RunJobFileProcessing(job, monitorData);
+
+            // Decrement the number of Jobs executing in one place!
+            StaticClass.NumberOfJobsExecuting--;
+
+            // Show Job Complete message
+            TimeSpan timeSpan = DateTime.Now - StaticClass.JobStartTime[job];
+            StaticClass.Log(string.Format("Job {0} Complete taking {1:hh\\:mm\\:ss}. Decrementing Job count to {2} at {3:HH:mm:ss.fff}",
+                job, timeSpan, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now));
         }
     }
 }

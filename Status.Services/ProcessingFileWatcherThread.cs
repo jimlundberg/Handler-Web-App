@@ -115,44 +115,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Check if the Modeler has deposited the OverallResult entry in the job data.xml file
-        /// </summary>
-        /// <param name="dataXmlFileName"></param>
-        /// <returns></returns>
-        public bool OverallResultEntryCheck(string dataXmlFileName)
-        {
-            int numOfRetries = 0;
-            do
-            {
-                // Check for data.xml file to be ready
-                if (StaticClass.IsFileReady(dataXmlFileName))
-                {
-                    // Check if the OverallResult node exists
-                    XmlDocument dataXmlDoc = new XmlDocument();
-                    dataXmlDoc.Load(dataXmlFileName);
-                    XmlNode OverallResult = dataXmlDoc.DocumentElement.SelectSingleNode("/Data/OverallResult/result");
-                    if (OverallResult != null)
-                    {
-                        return true;
-                    }
-
-                    // Check for shutdown or pause
-                    if (StaticClass.ShutDownPauseCheck("Overall Result Entry Check") == true)
-                    {
-                        return false;
-                    }
-
-                    Thread.Yield();
-                }
-            }
-            while (numOfRetries++ < StaticClass.NUM_RESULTS_ENTRY_RETRIES);
-
-            StaticClass.Log(string.Format("File {0} did not have Overall Result entry even after {1} retries at {2:HH:mm:ss.fff}",
-                dataXmlFileName, StaticClass.NUM_RESULTS_ENTRY_RETRIES, DateTime.Now));
-            return false;
-        }
-
-        /// <summary>
         /// Monitor a directory for a complete set of Processing files for a job 
         /// </summary>
         /// <param name="directory"></param>
@@ -215,18 +177,6 @@ namespace Status.Services
                     Thread.Yield();
                 }
                 while ((StaticClass.ProcessingFileScanComplete[job] == false) || (StaticClass.TcpIpScanComplete[job] == false));
-
-                // Wait to make sure the data.xml is done being handled
-                Thread.Sleep(StaticClass.POST_PROCESS_WAIT);
-
-                // Wait for the data.xml file to contain a result
-                string dataXmlFileName = directory + @"\" + "data.xml";
-                if (OverallResultEntryCheck(dataXmlFileName))
-                {
-                    // Processing Thread Complete
-                    StaticClass.Log(string.Format("Processing File Watcher completed Processing watch for Job {0} at {1:HH:mm:ss.fff}",
-                        directory, DateTime.Now));
-                }
 
                 // set the Processing of a Job scan complete flag
                 StaticClass.ProcessingJobScanComplete[job] = true;

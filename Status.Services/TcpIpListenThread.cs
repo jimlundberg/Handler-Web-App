@@ -264,13 +264,14 @@ namespace Status.Services
                             // Check for Job timeout
                             if ((DateTime.Now - monitorData.StartTime).TotalSeconds > StaticClass.MaxJobTimeLimitSeconds)
                             {
-                                StaticClass.Log(string.Format("Job Timeout for Job {0} in state {1} at {2:HH:mm:ss.fff}",
-                                    ModelerCurrentStepState, job, DateTime.Now));
+                                StaticClass.Log(string.Format("Job Execution Timeout for Job {0} in state {1} at {2:HH:mm:ss.fff}",
+                                    job, ModelerCurrentStepState, DateTime.Now));
 
                                 // Create job Timeout status
                                 StaticClass.StatusDataEntry(job, JobStatus.JOB_TIMEOUT, JobType.TIME_START);
 
-                                // Set all flags to complete job Process
+                                // Set flags to complete job Process
+                                StaticClass.JobShutdownFlag[job] = true;
                                 StaticClass.ProcessingJobScanComplete[job] = true;
                                 StaticClass.TcpIpScanComplete[job] = true;
                                 StaticClass.ProcessingFileScanComplete[job] = true;

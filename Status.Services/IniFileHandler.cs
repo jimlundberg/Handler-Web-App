@@ -42,7 +42,7 @@ namespace Status.Services
         /// set ini path name
         /// </summary>
         /// <param name="IniPath"></param>
-        public IniFileHandler(string IniPath = null)
+        public IniFileHandler(string IniPath)
         {
             Path = new FileInfo(IniPath ?? EXE + ".ini").FullName;
             if (Path == null)

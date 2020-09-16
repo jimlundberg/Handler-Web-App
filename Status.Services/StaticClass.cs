@@ -28,7 +28,7 @@ namespace Status.Services
         public const int ADD_TASK_DELAY = 150;
         public const int ADD_JOB_DELAY = 50;
         public const int NUM_TCP_IP_RETRIES = 480;
-        public const int NUM_XML_ACCESS_RETRIES = 50;
+        public const int NUM_XML_ACCESS_RETRIES = 100;
         public const int NUM_RESULTS_ENTRY_RETRIES = 100;
 
         // Common counters
@@ -58,6 +58,7 @@ namespace Status.Services
         public static Dictionary<string, bool> InputJobScanComplete = new Dictionary<string, bool>();
         public static Dictionary<string, bool> ProcessingFileScanComplete = new Dictionary<string, bool>();
         public static Dictionary<string, bool> ProcessingJobScanComplete = new Dictionary<string, bool>();
+        public static Dictionary<string, bool> JobShutdownFlag = new Dictionary<string, bool>();
         public static Dictionary<string, bool> TcpIpScanComplete = new Dictionary<string, bool>();
 
         // Job number of files tracking
@@ -148,15 +149,23 @@ namespace Status.Services
             int numOfRetries = 0;
             do
             {
-                // Check that a file is both readable and writeable
-                using (FileStream fileService = File.Open(fileName, FileMode.Open))
+                try
                 {
-                    if (fileService.CanRead && fileService.CanWrite)
+                    // Check that a file is both readable and writeable
+                    using (FileStream fileService = File.Open(fileName, FileMode.Open))
                     {
-                        Log(string.Format("File {0} is available at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
-                        Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
-                        return true;
+                        if (fileService.CanRead && fileService.CanWrite)
+                        {
+                            Log(string.Format("File {0} is available at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
+                            Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
+                            return true;
+                        }
                     }
+                }
+                catch (IOException e)
+                {
+                    StaticClass.Log(string.Format("File {0} Not accessable Exception {1} at {2:HH:mm:ss.fff}",
+                        fileName, e, DateTime.Now));
                 }
 
                 // Check for shutdown or pause

@@ -24,17 +24,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Ini configuration method
-        /// </summary>
-        /// <param name="IniFileName"></param>
-        /// <returns></returns>
-        private static IniFileHandler IniConfigMethod(string IniFileName)
-        {
-            // Get information from the Config.ini file
-            return new IniFileHandler(IniFileName);
-        }
-
-        /// <summary>
         /// Get the Config.ini file data from the working directory
         /// </summary>
         public void GetIniFileData()
@@ -47,7 +36,7 @@ namespace Status.Services
                 throw new InvalidOperationException("Config.ini file does not exist in the Handler directory");
             }
 
-            IniFileHandler IniParser = IniConfigMethod(IniFileName);
+            IniFileHandler IniParser = new IniFileHandler(IniFileName);
             StaticClass.IniData.IniFileName = IniFileName;
             StaticClass.IniData.InputDir = IniParser.Read("Paths", "Input");
             StaticClass.IniData.ProcessingDir = IniParser.Read("Paths", "Processing");
