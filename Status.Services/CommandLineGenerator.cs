@@ -67,7 +67,7 @@ namespace Status.Services
                 StaticClass.Logger.LogError("CommandLineGeneratorThread ModelerProcess failes to instantiate");
             }
 
-            // Set Process Priority to high
+            // Set Process Priority
             ModelerProcess.PriorityClass = ProcessPriorityClass.Normal;
 
             // Store process handle to use for stopping

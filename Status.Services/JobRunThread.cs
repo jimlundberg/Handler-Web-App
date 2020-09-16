@@ -422,7 +422,7 @@ namespace Status.Services
 
                 Thread.Yield();
             }
-            while ((StaticClass.ProcessingJobScanComplete[job] == false) || (StaticClass.JobShutdownFlag[job] == true));
+            while ((StaticClass.ProcessingJobScanComplete[job] == false) && (StaticClass.JobShutdownFlag[job] == false));
 
             // Wait to make sure the data.xml is done being handled
             Thread.Sleep(StaticClass.POST_PROCESS_WAIT);

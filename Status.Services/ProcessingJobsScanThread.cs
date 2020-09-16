@@ -48,7 +48,6 @@ namespace Status.Services
         public void ThreadProc()
         {
             StaticClass.ProcessingJobsScanThreadHandle = new Thread(() => CheckForUnfinishedProcessingJobs());
-
             if (StaticClass.ProcessingJobsScanThreadHandle == null)
             {
                 StaticClass.Logger.LogError("ProcessingJobsScanThread ProcessingJobsScanThreadHandle failed to instantiate");
