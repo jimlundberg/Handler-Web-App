@@ -102,6 +102,7 @@ namespace Status.Services
                 // Show connection and start sending messages
                 StaticClass.Log(string.Format("Connected to Modeler TCP/IP for Job {0} on Port {1} at {2:HH:mm:ss.fff}", job, port, DateTime.Now));
                 bool jobComplete = false;
+                int numRequestSent = 0;
                 do
                 {
                     // Loop shutdown/Pause check
@@ -129,6 +130,7 @@ namespace Status.Services
                                 // Translate the passed message into ASCII and send it as a byte array
                                 byte[] sendData = Encoding.ASCII.GetBytes(StatusMessage);
                                 stream.Write(sendData, 0, sendData.Length);
+                                numRequestSent++;
                             }
                             catch (IOException e)
                             {
@@ -190,7 +192,14 @@ namespace Status.Services
                             {
                                 case "Step 1 in process.":
                                     ModelerCurrentStepState = ModelerStepState.STEP_1;
-                                    adjustableSleepTime = 15000;
+                                    if (numRequestSent < StaticClass.NUM_REQUESTS_TILL_TCPIP_SLOWDOWN)
+                                    {
+                                        adjustableSleepTime = 15000;
+                                    }
+                                    else
+                                    {
+                                        adjustableSleepTime = 60000;
+                                    }
                                     break;
 
                                 case "Step 2 in process.":

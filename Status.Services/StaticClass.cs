@@ -30,6 +30,7 @@ namespace Status.Services
         public const int NUM_TCP_IP_RETRIES = 480;
         public const int NUM_XML_ACCESS_RETRIES = 100;
         public const int NUM_RESULTS_ENTRY_RETRIES = 100;
+        public const int NUM_REQUESTS_TILL_TCPIP_SLOWDOWN = 10;
 
         // Common counters
         public static double MaxJobTimeLimitSeconds = 0.0;
