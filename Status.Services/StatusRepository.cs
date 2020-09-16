@@ -175,6 +175,7 @@ namespace Status.Services
             StaticClass.ProcessingFileScanComplete.Clear();
             StaticClass.ProcessingJobScanComplete.Clear();
             StaticClass.TcpIpScanComplete.Clear();
+            StaticClass.JobShutdownFlag.Clear();
             StaticClass.NumberOfInputFilesFound.Clear();
             StaticClass.NumberOfInputFilesNeeded.Clear();
             StaticClass.NumberOfProcessingFilesFound.Clear();

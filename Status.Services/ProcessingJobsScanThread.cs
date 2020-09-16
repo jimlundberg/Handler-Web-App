@@ -185,6 +185,7 @@ namespace Status.Services
                     // Reset Processing job and file scan flags
                     StaticClass.ProcessingFileScanComplete[job] = false;
                     StaticClass.ProcessingJobScanComplete[job] = false;
+                    StaticClass.JobShutdownFlag[Job] = false;
 
                     // Start a Processing Buffer Job
                     StartProcessingJob(directory);

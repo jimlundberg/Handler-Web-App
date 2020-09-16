@@ -36,6 +36,7 @@ namespace Status.Services
             StaticClass.TcpIpScanComplete[Job] = false;
             StaticClass.ProcessingFileScanComplete[Job] = false;
             StaticClass.ProcessingJobScanComplete[Job] = false;
+            StaticClass.JobShutdownFlag[Job] = false;
         }
 
         /// <summary>
