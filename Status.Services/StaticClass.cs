@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace Status.Services
@@ -17,19 +16,18 @@ namespace Status.Services
         // Common definitions
         public const int TCP_IP_STARTUP_WAIT = 60000;
         public const int STARTING_TCP_IP_WAIT = 15000;
-        public const int KILL_PROCESS_WAIT = 10000;
         public const int POST_PROCESS_WAIT = 5000;
         public const int WAIT_FOR_FILES_TO_COMPLETE = 2500;
         public const int DISPLAY_PROCESS_DATA_WAIT = 45000;
         public const int DISPLAY_PROCESS_TITLE_WAIT = 1000;
         public const int SHUTDOWN_PROCESS_WAIT = 5000;
-        public const int READ_AVAILABLE_RETRY_DELAY = 1000;
+        public const int READ_AVAILABLE_RETRY_DELAY = 2500;
         public const int FILE_WAIT_DELAY = 1000;
         public const int ADD_TASK_DELAY = 150;
         public const int ADD_JOB_DELAY = 50;
         public const int NUM_TCP_IP_RETRIES = 480;
         public const int NUM_XML_ACCESS_RETRIES = 100;
-        public const int NUM_RESULTS_ENTRY_RETRIES = 50;
+        public const int NUM_RESULTS_ENTRY_RETRIES = 24;
         public const int NUM_REQUESTS_TILL_TCPIP_SLOWDOWN = 5;
 
         // Common counters

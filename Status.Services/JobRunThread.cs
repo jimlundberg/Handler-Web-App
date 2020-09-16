@@ -424,21 +424,14 @@ namespace Status.Services
             }
             while ((StaticClass.ProcessingJobScanComplete[job] == false) && (StaticClass.JobShutdownFlag[job] == false));
 
-            // Make sure Modeler Process is stopped
-            if (StaticClass.ProcessHandles[job] != null)
-            {
-                StaticClass.Log(string.Format("Shutting down Modeler Executable for Job {0} at {1:HH:mm:ss.fff}",
-                    job, DateTime.Now));
-
-                StaticClass.ProcessHandles[job].Kill();
-                Thread.Sleep(StaticClass.KILL_PROCESS_WAIT);
-            }
-
-            // Add entry to status list
+           // Add entry to status list
             StaticClass.StatusDataEntry(job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
 
             if (StaticClass.JobShutdownFlag[job] == false)
             {
+                // Wait to make sure the data.xml is done being handled
+                Thread.Sleep(StaticClass.POST_PROCESS_WAIT);
+
                 // Wait for the data.xml file to contain a result
                 string dataXmlFileName = processingBufferJobDir + @"\" + "data.xml";
                 if (OverallResultEntryCheck(dataXmlFileName) == true)
@@ -453,7 +446,16 @@ namespace Status.Services
                 }
             }
 
-            // Wait to make sure the data.xml is done being handled
+            // Make sure Modeler Process is stopped
+            if (StaticClass.ProcessHandles[job] != null)
+            {
+                StaticClass.Log(string.Format("Shutting down Modeler Executable for Job {0} at {1:HH:mm:ss.fff}",
+                    job, DateTime.Now));
+
+                StaticClass.ProcessHandles[job].Kill();
+            }
+
+            // Wait to make sure the job files are ready to being handled
             Thread.Sleep(StaticClass.POST_PROCESS_WAIT);
 
             // Run the Job Complete handler
