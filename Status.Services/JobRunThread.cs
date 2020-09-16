@@ -430,7 +430,7 @@ namespace Status.Services
             // Make sure Modeler Process is stopped
             if (StaticClass.ProcessHandles[job] != null)
             {
-                StaticClass.Log(string.Format("Shutting down Modeler for Job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Shutting down Modeler Executable for Job {0} at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
 
                 StaticClass.ProcessHandles[job].Kill();
@@ -454,13 +454,13 @@ namespace Status.Services
             // Run the Job Complete handler
             RunJobFileProcessing(job, monitorData);
 
-            // Decrement the number of Jobs executing in one place!
-            StaticClass.NumberOfJobsExecuting--;
-
             // Show Job Complete message
             TimeSpan timeSpan = DateTime.Now - StaticClass.JobStartTime[job];
             StaticClass.Log(string.Format("Job {0} Complete taking {1:hh\\:mm\\:ss}. Decrementing Job count to {2} at {3:HH:mm:ss.fff}",
                 job, timeSpan, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now));
+
+            // Decrement the number of Jobs executing in one place!
+            StaticClass.NumberOfJobsExecuting--;
         }
     }
 }
