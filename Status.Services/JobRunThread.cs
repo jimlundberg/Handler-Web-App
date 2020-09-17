@@ -424,9 +424,6 @@ namespace Status.Services
             }
             while ((StaticClass.ProcessingJobScanComplete[job] == false) && (StaticClass.JobShutdownFlag[job] == false));
 
-           // Add entry to status list
-            StaticClass.StatusDataEntry(job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
-
             if (StaticClass.JobShutdownFlag[job] == false)
             {
                 // Wait to make sure the data.xml is done being handled
@@ -460,6 +457,9 @@ namespace Status.Services
 
             // Run the Job Complete handler
             RunJobFileProcessing(job, monitorData);
+
+            // Add entry to status list
+            StaticClass.StatusDataEntry(job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
 
             // Show Job Complete message
             TimeSpan timeSpan = DateTime.Now - StaticClass.JobStartTime[job];
