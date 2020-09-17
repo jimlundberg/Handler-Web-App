@@ -26,14 +26,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Input File Scan thread default destructor
-        /// </summary>
-        ~ProcessingJobsScanThread()
-        {
-            //StaticClass.Logger.LogInformation("ProcessingJobsScanThread default destructor called");
-        }
-
-        /// <summary>
         /// On Process Completed event callback
         /// </summary>
         /// <param name="e"></param>

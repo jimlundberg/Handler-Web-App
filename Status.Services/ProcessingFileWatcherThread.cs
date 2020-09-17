@@ -40,14 +40,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Current Processing File Watcher thread default destructor
-        /// </summary>
-        ~ProcessingFileWatcherThread()
-        {
-            //StaticClass.Logger.LogInformation("ProcessingFileWatcherThread default destructor called");
-        }
-
-        /// <summary>
         /// Process complete callback
         /// </summary>
         /// <param name="e"></param>

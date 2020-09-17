@@ -22,14 +22,6 @@ namespace Status.Services
         public InputJobsScanThread() { }
 
         /// <summary>
-        /// Input Jobs Scan thread default destructor
-        /// </summary>
-        ~InputJobsScanThread()
-        {
-            //StaticClass.Logger.LogInformation("InputJobsScanThread default destructor called");
-        }
-
-        /// <summary>
         /// A Thread procedure that scans for new jobs
         /// </summary>
         public void ThreadProc()

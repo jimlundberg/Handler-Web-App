@@ -30,14 +30,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Job Run thread default destructor
-        /// </summary>
-        ~JobRunThread()
-        {
-            //StaticClass.Logger.LogInformation("JobRunThread default destructor called");
-        }
-
-        /// <summary>
         /// The thread procedure for running a job
         /// </summary>
         public void ThreadProc()

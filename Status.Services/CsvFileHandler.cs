@@ -19,14 +19,6 @@ namespace Status.Services
         public CsvFileHandler() { }
 
         /// <summary>
-        /// CSV File Handler default destructor
-        /// </summary>
-        ~CsvFileHandler()
-        {
-            //StaticClass.Logger.LogInformation("CsvFileHandler default destructor called");
-        }
-
-        /// <summary>
         /// Write Status data to the designated log file
         /// </summary>
         /// <param name="job"></param>

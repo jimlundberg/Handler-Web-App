@@ -36,14 +36,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Current Input File Watcher thread default destructor
-        /// </summary>
-        ~InputFileWatcherThread()
-        {
-            //StaticClass.Logger.LogInformation("InputFileWatcherThread default destructor called");
-        }
-
-        /// <summary>
         /// Input File watcher Callback
         /// </summary>
         /// <param name="e"></param>

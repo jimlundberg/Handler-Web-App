@@ -22,14 +22,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Default logging To file destructor
-        /// </summary>
-        ~LoggingToFile()
-        {
-            //StaticClass.Logger.LogInformation("LoggingToFile default destructor called");
-        }
-
-        /// <summary>
         /// Write to Log File
         /// </summary>
         /// <param name="text"></param>

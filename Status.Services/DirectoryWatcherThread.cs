@@ -20,14 +20,6 @@ namespace Status.Services
         public DirectoryWatcherThread() { }
 
         /// <summary>
-        /// Directory Watcher thread default destructor
-        /// </summary>
-        ~DirectoryWatcherThread()
-        {
-            //StaticClass.Logger.LogInformation("DirectoryWatcherThread default destructor called");
-        }
-
-        /// <summary>
         /// On Process Completed event callback
         /// </summary>
         /// <param name="e"></param>

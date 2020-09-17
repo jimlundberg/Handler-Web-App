@@ -31,14 +31,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// TCP/IP Listen thread default destructor
-        /// </summary>
-        ~TcpIpListenThread()
-        {
-            //StaticClass.Logger.LogInformation("TcpIpListenThread default destructor called");
-        }
-
-        /// <summary>
         /// TCP/IP process complete callback
         /// </summary>
         /// <param name="e"></param>

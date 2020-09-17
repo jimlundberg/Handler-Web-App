@@ -15,14 +15,6 @@ namespace Status.Services
         public StatusEntry() { }
 
         /// <summary>
-        /// Status Entry thread default destructor
-        /// </summary>
-        ~StatusEntry()
-        {
-            //StaticClass.Logger.LogInformation("StatusEntry default destructor called");
-        }
-
-        /// <summary>
         /// Log a Status and write to csv file
         /// </summary>
         /// <param name="job"></param>
