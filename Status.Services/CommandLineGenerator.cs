@@ -36,7 +36,7 @@ namespace Status.Services
         /// </summary>
         ~CommandLineGenerator()
         {
-            StaticClass.Logger.LogInformation("CommandLineGenerator default destructor called");
+            //StaticClass.Logger.LogInformation("CommandLineGenerator default destructor called");
         }
 
         /// <summary>

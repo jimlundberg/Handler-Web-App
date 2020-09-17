@@ -40,7 +40,7 @@ namespace Status.Services
         /// </summary>
         ~InputFileWatcherThread()
         {
-            StaticClass.Logger.LogInformation("InputFileWatcherThread default destructor called");
+            //StaticClass.Logger.LogInformation("InputFileWatcherThread default destructor called");
         }
 
         /// <summary>

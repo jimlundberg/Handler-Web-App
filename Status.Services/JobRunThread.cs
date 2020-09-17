@@ -34,7 +34,7 @@ namespace Status.Services
         /// </summary>
         ~JobRunThread()
         {
-            StaticClass.Logger.LogInformation("JobRunThread default destructor called");
+            //StaticClass.Logger.LogInformation("JobRunThread default destructor called");
         }
 
         /// <summary>

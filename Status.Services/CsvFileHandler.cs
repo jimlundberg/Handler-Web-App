@@ -23,7 +23,7 @@ namespace Status.Services
         /// </summary>
         ~CsvFileHandler()
         {
-            StaticClass.Logger.LogInformation("CsvFileHandler default destructor called");
+            //StaticClass.Logger.LogInformation("CsvFileHandler default destructor called");
         }
 
         /// <summary>

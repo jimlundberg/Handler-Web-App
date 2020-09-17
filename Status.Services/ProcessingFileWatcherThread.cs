@@ -44,7 +44,7 @@ namespace Status.Services
         /// </summary>
         ~ProcessingFileWatcherThread()
         {
-            StaticClass.Logger.LogInformation("ProcessingFileWatcherThread default destructor called");
+            //StaticClass.Logger.LogInformation("ProcessingFileWatcherThread default destructor called");
         }
 
         /// <summary>

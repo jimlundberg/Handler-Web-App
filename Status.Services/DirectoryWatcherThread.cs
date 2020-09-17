@@ -24,7 +24,7 @@ namespace Status.Services
         /// </summary>
         ~DirectoryWatcherThread()
         {
-            StaticClass.Logger.LogInformation("DirectoryWatcherThread default destructor called");
+            //StaticClass.Logger.LogInformation("DirectoryWatcherThread default destructor called");
         }
 
         /// <summary>

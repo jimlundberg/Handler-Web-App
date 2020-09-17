@@ -26,7 +26,7 @@ namespace Status.Services
         /// </summary>
         ~InputJobsScanThread()
         {
-            StaticClass.Logger.LogInformation("InputJobsScanThread default destructor called");
+            //StaticClass.Logger.LogInformation("InputJobsScanThread default destructor called");
         }
 
         /// <summary>

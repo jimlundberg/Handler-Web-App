@@ -30,7 +30,7 @@ namespace Status.Services
         /// </summary>
         ~ProcessingJobsScanThread()
         {
-            StaticClass.Logger.LogInformation("ProcessingJobsScanThread default destructor called");
+            //StaticClass.Logger.LogInformation("ProcessingJobsScanThread default destructor called");
         }
 
         /// <summary>

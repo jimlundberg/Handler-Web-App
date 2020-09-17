@@ -19,7 +19,7 @@ namespace Status.Services
         /// </summary>
         ~StatusEntry()
         {
-            StaticClass.Logger.LogInformation("StatusEntry default destructor called");
+            //StaticClass.Logger.LogInformation("StatusEntry default destructor called");
         }
 
         /// <summary>

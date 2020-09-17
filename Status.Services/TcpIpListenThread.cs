@@ -35,7 +35,7 @@ namespace Status.Services
         /// </summary>
         ~TcpIpListenThread()
         {
-            StaticClass.Logger.LogInformation("TcpIpListenThread default destructor called");
+            //StaticClass.Logger.LogInformation("TcpIpListenThread default destructor called");
         }
 
         /// <summary>
