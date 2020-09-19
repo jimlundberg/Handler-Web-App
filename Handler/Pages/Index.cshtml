@@ -37,8 +37,20 @@
     </div>
 }
 
-<script type="text/javascript">
-    var table = $('#jobGrid').DataTable({
-        fixedHeader: true
-    });
-</script>
+@if ((string)@ViewData["PageName"] == "Start" || (string)@ViewData["PageName"] == "Refresh")
+{
+    <script type="text/javascript">
+        var table = $('#jobGrid').DataTable({
+            fixedHeader: true,
+            sort = false
+        });
+    </script>
+}
+else
+{
+    <script type="text/javascript">
+        var table = $('#jobGrid').DataTable({
+            fixedHeader: true
+        });
+    </script>
+}
