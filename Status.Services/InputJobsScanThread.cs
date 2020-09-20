@@ -113,6 +113,9 @@ namespace Status.Services
                         }
                     }
 
+                    StaticClass.Log(string.Format("Input Directory Watcher removed Job {0} from directory list at {1:HH:mm:ss.fff}",
+                        job, DateTime.Now));
+
                     // Reset Input file scan flag
                     StaticClass.InputFileScanComplete[job] = false;
 
@@ -194,13 +197,16 @@ namespace Status.Services
                         index = StaticClass.InputJobsToRun.Count;
                         job = StaticClass.InputJobsToRun.Read(index);
                         StaticClass.InputJobsToRun.Delete(index);
+
+                        StaticClass.Log(string.Format("Input Directory Watcher removed Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                            job, index, DateTime.Now));
                     }
                 });
 
-                TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_TASK_DELAY);
+                TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_TASK_DELAY);
                 if (!AddTask.Wait(timeSpan))
                 {
-                    StaticClass.Logger.LogError("InputJobScanThread Run Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
+                    StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
                 }
 
                 if (job != string.Empty)
@@ -214,10 +220,10 @@ namespace Status.Services
 
                     // Start an Input Buffer Job
                     StartInputJob(directory);
-                }
 
-                // Throttle the Job startups
-                Thread.Sleep(StaticClass.ScanWaitTime);
+                    // Throttle the Job startups
+                    Thread.Sleep(StaticClass.ScanWaitTime);
+                }
             }
         }
 

@@ -1,23 +1,22 @@
 ﻿@page
 @model IndexModel
-@{
-    Layout = "Shared/_Layout";
-    ViewData["Title"] = "Handler Web App";
-}
+@{ Layout = "Shared/_Layout";
+                ViewData["Title"] = "Handler Web App"; }
 
 @if ((string)@ViewData["PageName"] == "Start" || (string)@ViewData["PageName"] == "Refresh")
 {
-    <meta http-equiv="refresh" content="5">
-}
+<meta http-equiv="refresh" content="2">}
 
-@section Scripts {
+@section Scripts
+{
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/datatables.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 }
 
-@section menu {
+@section menu
+{
     <div class="btn-group" role="group">
         <form method="post">
             <input class="btn btn-primary" type="submit" value="Home" asp-page-handler="HomeButton" />
@@ -32,25 +31,22 @@
 
 @if ((string)@ViewData["PageName"] != "Home")
 {
-    <div class="center">
-        @await Html.PartialAsync("_JobGrid.cshtml", Model)
-    </div>
-}
+<div class="center">
+    @await Html.PartialAsync("_JobGrid.cshtml", Model)
+</div>}
 
 @if ((string)@ViewData["PageName"] == "Start" || (string)@ViewData["PageName"] == "Refresh")
 {
-    <script type="text/javascript">
-        var table = $('#jobGrid').DataTable({
-            fixedHeader: true,
-            sort = false
-        });
-    </script>
-}
-else
-{
-    <script type="text/javascript">
-        var table = $('#jobGrid').DataTable({
-            fixedHeader: true
-        });
-    </script>
-}
+<script type="text/javascript">
+    var table = $('#jobGrid').DataTable({
+        fixedHeader: true,
+        sort: false
+    });
+</script> }
+            else
+            {
+<script type="text/javascript">
+    var table = $('#jobGrid').DataTable({
+        fixedHeader: true
+    });
+</script>}

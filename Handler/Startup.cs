@@ -34,6 +34,7 @@ namespace Handler
         {
             services.AddRazorPages();
             services.AddSingleton<IStatusRepository, StatusRepository>();
+            services.AddResponseCaching();
         }
 
         /// <summary>
@@ -53,6 +54,7 @@ namespace Handler
                 app.UseHsts();
             }
 
+            app.UseResponseCaching();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();

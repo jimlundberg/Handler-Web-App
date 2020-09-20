@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Security.Permissions;
 using System.Threading;
@@ -53,6 +54,18 @@ namespace Status.Services
             string job = jobDirectory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
             int index = 0;
 
+            // Check Input Buffer Job directory to see if it is ready if adding the first jobs
+            if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
+            {
+                StaticClass.Log(string.Format("\nInput Directory Watcher checking new Job {0} at {1:HH:mm:ss.fff}",
+                    job, DateTime.Now));
+
+                // Wait some for the directory creation and file copies to complete
+                Thread.Sleep(StaticClass.DIRECTORY_RECEIVE_WAIT);
+
+                StaticClass.CheckJobDirectoryComplete(jobDirectory);
+            }
+
             // Do Shutdown Pause check
             if (StaticClass.ShutDownPauseCheck("Directory Watcher OnCreated") == false)
             {
@@ -61,6 +74,9 @@ namespace Status.Services
                 {
                     index = StaticClass.InputJobsToRun.Count + 1;
                     StaticClass.InputJobsToRun.Add(index, job);
+
+                    StaticClass.Log(string.Format("\nInput Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}",
+                        job, index, DateTime.Now));
                 });
 
                 TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_JOB_DELAY);
@@ -68,9 +84,6 @@ namespace Status.Services
                 {
                     StaticClass.Logger.LogError("DirectoryWatcherThread Add Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
                 }
-
-                StaticClass.Log(string.Format("\nInput Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}\n",
-                    job, index, DateTime.Now));
             }
         }
 

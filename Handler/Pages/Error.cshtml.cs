@@ -8,7 +8,8 @@ namespace Handler.Pages
     /// <summary>
     /// Error Model Class
     /// </summary>
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "impactlevel", "pii" })]
+
     public class ErrorModel : PageModel
     {
         /// <summary>

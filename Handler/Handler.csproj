@@ -9,7 +9,7 @@
     <Authors>Jim Lundberg</Authors>
     <Description>Handles the Modeler throughput</Description>
     <Copyright>2020 Advanced Energy</Copyright>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x64</Platforms>
     <UserSecretsId>59ca0c47-63b9-4238-b036-db167c4fd3e8</UserSecretsId>
   </PropertyGroup>
 

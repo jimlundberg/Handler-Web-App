@@ -17,16 +17,20 @@ namespace Status.Services
         public const int TCP_IP_STARTUP_WAIT = 60000;
         public const int STARTING_TCP_IP_WAIT = 15000;
         public const int POST_PROCESS_WAIT = 10000;
+        public const int DIRECTORY_RECEIVE_WAIT = 7500;
+        public const int FILE_RECEIVE_WAIT = 1000;
         public const int WAIT_FOR_FILES_TO_COMPLETE = 2500;
         public const int DISPLAY_PROCESS_DATA_WAIT = 45000;
         public const int DISPLAY_PROCESS_TITLE_WAIT = 1000;
         public const int SHUTDOWN_PROCESS_WAIT = 5000;
         public const int READ_AVAILABLE_RETRY_DELAY = 2500;
         public const int FILE_WAIT_DELAY = 2500;
-        public const int ADD_TASK_DELAY = 150;
-        public const int ADD_JOB_DELAY = 150;
+        public const int ADD_TASK_DELAY = 300;
+        public const int DELETE_TASK_DELAY = 400;
+        public const int ADD_JOB_DELAY = 1000;
         public const int NUM_TCP_IP_RETRIES = 480;
         public const int NUM_XML_ACCESS_RETRIES = 100;
+        public const int NUM_FILE_RECEIVE_RETRIES = 100;
         public const int NUM_RESULTS_ENTRY_RETRIES = 50;
         public const int NUM_REQUESTS_TILL_TCPIP_SLOWDOWN = 5;
 
@@ -143,7 +147,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="fileName"></param>
         /// <returns>Returns if file is ready to access</returns>
-        public static bool IsFileReady(string fileName)
+        public static bool CheckFileReady(string fileName)
         {
             int numOfRetries = 0;
             do
@@ -160,10 +164,9 @@ namespace Status.Services
                         }
                     }
                 }
-                catch (IOException e)
+                catch (UnauthorizedAccessException e)
                 {
-                    StaticClass.Log(string.Format("File {0} Not accessable Exception {1} at {2:HH:mm:ss.fff}",
-                        fileName, e, DateTime.Now));
+                    Log(string.Format("File {0} not available exception {1} at {2:HH:mm:ss.fff}", fileName, e, DateTime.Now));
                 }
 
                 // Check for shutdown or pause
@@ -177,6 +180,68 @@ namespace Status.Services
             while (numOfRetries++ < StaticClass.NUM_XML_ACCESS_RETRIES);
 
             return false;
+        }
+
+        /// <summary>
+        /// Returns when a file is ready to access
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <returns>Returns if file is ready to access</returns>
+        public static bool CheckDirectoryReady(string directory)
+        {
+            // Get directory info
+            DirectoryInfo dirInfo = new DirectoryInfo(directory);
+            try
+            {
+                // If GetDirectories works then is accessible
+                DirectoryInfo[] dirs = dirInfo.GetDirectories();
+                if (dirs != null)
+                {
+                    return true;
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return false;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Check Job Directory is complete
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <returns></returns>
+        public static bool CheckJobDirectoryComplete(string directory)
+        {
+            Dictionary<string, bool> files = new Dictionary<string, bool>();
+            bool filesAreReady = false;
+            if (CheckDirectoryReady(directory))
+            {
+                string[] directoryList = Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories);
+                int numRetries = 0;
+                do
+                {
+                    if (directoryList.Length == 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        foreach (string file in directoryList)
+                        {
+                            files.Add(file, CheckFileReady(file));
+                        }
+
+                        // Check that all files are accessable
+                        filesAreReady = files.ContainsValue(true);
+                    }
+                }
+                while ((filesAreReady == false) && (numRetries < NUM_FILE_RECEIVE_RETRIES));
+            }
+
+            return filesAreReady;
         }
 
         /// <summary>

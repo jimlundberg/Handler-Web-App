@@ -96,6 +96,9 @@ namespace Status.Services
                         }
                     }
 
+                    StaticClass.Log(string.Format("Processing Directory Watcher removed Job {0} from directory list at {1:HH:mm:ss.fff}",
+                        job, DateTime.Now));
+
                     // Reset Processing file scan flag
                     StaticClass.ProcessingFileScanComplete[job] = false;
 
@@ -123,7 +126,7 @@ namespace Status.Services
                 ProcessingJobsToRun.Add(job);
 
                 int index = ProcessingJobsToRun.IndexOf(job);
-                StaticClass.Log(string.Format("\nUnfinished Processing jobs check added new Job {0} to Processing Job List index {1} at {2:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Unfinished Processing jobs check added new Job {0} to Processing Job List index {1} at {2:HH:mm:ss.fff}",
                     job, index, DateTime.Now));
             }
 
@@ -173,6 +176,9 @@ namespace Status.Services
                         }
                     }
 
+                    StaticClass.Log(string.Format("Processing Directory Watcher removed Job {0} from Job list at {1:HH:mm:ss.fff}",
+                        job, DateTime.Now));
+
                     // Reset Processing job and file scan flags
                     StaticClass.ProcessingFileScanComplete[job] = false;
                     StaticClass.ProcessingJobScanComplete[job] = false;
@@ -214,7 +220,7 @@ namespace Status.Services
             StaticClass.Log("Processing Job Time Stamp      : " + jobXmlData.TimeStamp);
             StaticClass.Log("Processing Job Xml File        : " + jobXmlData.XmlFileName);
 
-            StaticClass.Log(string.Format("Starting Processing directory Job {0} Executing Slot {1} at {2:HH:mm:ss.fff}",
+            StaticClass.Log(string.Format("\nStarting Processing directory Job {0} Executing Slot {1} at {2:HH:mm:ss.fff}",
                 jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
             // Create a thread to run the job, and then start the thread
