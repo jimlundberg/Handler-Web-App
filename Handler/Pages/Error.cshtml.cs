@@ -10,9 +10,6 @@ namespace Handler.Pages
     /// </summary>
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "impactlevel", "pii" })]
 
-    /// <summary>
-    /// Error Model Class
-    /// </summary>
     public class ErrorModel : PageModel
     {
         /// <summary>
