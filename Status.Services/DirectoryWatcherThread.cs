@@ -68,7 +68,7 @@ namespace Status.Services
             // Do Shutdown Pause check
             if (StaticClass.ShutDownPauseCheck("Directory Watcher OnCreated") == false)
             {
-                // Loop shutdown/Pause check
+                // Add job to Input Job list
                 Task AddTask = Task.Run(() =>
                 {
                     index = StaticClass.InputJobsToRun.Count + 1;
@@ -78,6 +78,7 @@ namespace Status.Services
                         job, index, DateTime.Now));
                 });
 
+                // Wait for Job add to finish
                 TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_JOB_DELAY);
                 if (!AddTask.Wait(timeSpan))
                 {

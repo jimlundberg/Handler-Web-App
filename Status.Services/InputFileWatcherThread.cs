@@ -45,7 +45,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Thread procedure to run Input job files watcher
+        /// Thread procedure to run Input Job files watcher
         /// </summary>
         public void ThreadProc()
         {

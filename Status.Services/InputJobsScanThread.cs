@@ -194,12 +194,10 @@ namespace Status.Services
                 {
                     if (StaticClass.InputJobsToRun.Count > 0)
                     {
+                        // Get a Job from the Input Jobs List
                         index = StaticClass.InputJobsToRun.Count;
                         job = StaticClass.InputJobsToRun.Read(index);
                         StaticClass.InputJobsToRun.Delete(index);
-
-                        StaticClass.Log(string.Format("Input Directory Watcher removed Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
-                            job, index, DateTime.Now));
                     }
                 });
 
@@ -220,6 +218,9 @@ namespace Status.Services
 
                     // Start an Input Buffer Job
                     StartInputJob(directory);
+
+                    StaticClass.Log(string.Format("Input Directory Watcher removed Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                        job, index, DateTime.Now));
 
                     // Throttle the Job startups
                     Thread.Sleep(StaticClass.ScanWaitTime);

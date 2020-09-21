@@ -6,10 +6,13 @@ using System.Diagnostics;
 namespace Handler.Pages
 {
     /// <summary>
-    /// Error Model Class
+    /// Response Cache Configuration
     /// </summary>
     [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "impactlevel", "pii" })]
 
+    /// <summary>
+    /// Error Model Class
+    /// </summary>
     public class ErrorModel : PageModel
     {
         /// <summary>
