@@ -364,7 +364,7 @@ namespace Status.Services
             // Add entry to status list
             StaticClass.StatusDataEntry(job, JobStatus.EXECUTING, JobType.TIME_START);
 
-            StaticClass.Log(string.Format("\nStarting Job {0} with Modeler {1} on Port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
+            StaticClass.Log(string.Format("Starting Job {0} with Modeler {1} on Port {2} with {3} CPU's at {4:HH:mm:ss.fff}",
                 job, monitorData.Modeler, monitorData.JobPortNumber, StaticClass.IniData.CPUCores, DateTime.Now));
 
             // Execute Modeler using the command line generator
