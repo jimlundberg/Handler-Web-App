@@ -86,12 +86,16 @@ namespace Status.Services
                     // If Number of Input files is complete
                     if (StaticClass.NumberOfInputFilesFound[job] == StaticClass.NumberOfInputFilesNeeded[job])
                     {
-                        StaticClass.Log(string.Format("\nInput File Watcher detected Job {0} complete set of {1} files at {2:HH:mm:ss.fff}",
+                        StaticClass.Log(string.Format("Input File Watcher detected Job {0} complete set of {1} files at {2:HH:mm:ss.fff}",
                         job, StaticClass.NumberOfInputFilesNeeded[job], DateTime.Now));
 
                         // Signal the Run thread that the Input Buffer files were found
                         StaticClass.InputFileScanComplete[job] = true;
                     }
+                }
+                else
+                {
+                    StaticClass.Logger.LogError("File {0} is not available at {1:HH:mm:ss.fff}\n", fullDirectory, DateTime.Now);
                 }
             }
         }

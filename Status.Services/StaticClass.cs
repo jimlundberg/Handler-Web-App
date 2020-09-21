@@ -160,14 +160,12 @@ namespace Status.Services
                     {
                         if (fileService.CanRead && fileService.CanWrite)
                         {
-                            Log(string.Format("File {0} is available at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
                             return true;
                         }
                     }
                 }
-                catch (IOException e)
+                catch (IOException)
                 {
-                    Log(string.Format("File {0} not available exception {1} at {2:HH:mm:ss.fff}", fileName, e, DateTime.Now));
                     Thread.Sleep(StaticClass.FILE_READY_WAIT);
                 }
 
