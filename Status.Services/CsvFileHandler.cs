@@ -14,7 +14,7 @@ namespace Status.Services
     public class CsvFileHandler
     {
         /// <summary>
-        /// CSV File Handler default Constructor
+        /// CSV File Handler default constructor
         /// </summary>
         public CsvFileHandler() { }
 
@@ -24,7 +24,6 @@ namespace Status.Services
         /// <param name="job"></param>
         /// <param name="status"></param>
         /// <param name="timeSlot"></param>
-        /// <param name="statusLogFile"></param>
         public void WriteToCsvFile(string job, JobStatus status, JobType timeSlot)
         {
             using (StreamWriter writer = File.AppendText(StaticClass.IniData.StatusLogFile))
@@ -399,8 +398,16 @@ namespace ReadWriteCsvFile
     /// </summary>
     public class CsvFileReader : StreamReader
     {
+        /// <summary>
+        /// Csv File Reader constructor
+        /// </summary>
+        /// <param name="stream"></param>
         public CsvFileReader(Stream stream) : base(stream) { }
 
+        /// <summary>
+        /// CSV File Reader constructor
+        /// </summary>
+        /// <param name="filename"></param>
         public CsvFileReader(string filename) : base(filename) { }
 
         /// <summary>

@@ -119,6 +119,12 @@ namespace Status.Services
             return monitorData;
         }
 
+        /// <summary>
+        /// Run Input Buffer Scan
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <param name="job"></param>
+        /// <param name="monitorData"></param>
         public void RunInputBufferScan(string directory, string job, StatusMonitorData monitorData)
         {
             // Add initial entry to status list

@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Security.Permissions;
 using System.Threading;
-using System.Xml;
 
 namespace Status.Services
 {
