@@ -167,7 +167,6 @@ namespace Status.Services
                 }
                 catch (IOException)
                 {
-                    Log(string.Format("File {0} found not ready at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
                     Thread.Sleep(StaticClass.FILE_READY_WAIT);
                 }
 
