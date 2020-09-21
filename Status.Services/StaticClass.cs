@@ -17,7 +17,7 @@ namespace Status.Services
         public const int TCP_IP_STARTUP_WAIT = 60000;
         public const int STARTING_TCP_IP_WAIT = 15000;
         public const int POST_PROCESS_WAIT = 10000;
-        public const int DIRECTORY_RECEIVE_WAIT = 7500;
+        public const int DIRECTORY_RECEIVE_WAIT = 12000;
         public const int FILE_RECEIVE_WAIT = 1000;
         public const int WAIT_FOR_FILES_TO_COMPLETE = 2500;
         public const int DISPLAY_PROCESS_DATA_WAIT = 45000;
@@ -164,7 +164,7 @@ namespace Status.Services
                         }
                     }
                 }
-                catch (UnauthorizedAccessException e)
+                catch (IOException e)
                 {
                     Log(string.Format("File {0} not available exception {1} at {2:HH:mm:ss.fff}", fileName, e, DateTime.Now));
                 }
