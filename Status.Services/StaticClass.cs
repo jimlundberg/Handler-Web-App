@@ -25,6 +25,7 @@ namespace Status.Services
         public const int SHUTDOWN_PROCESS_WAIT = 5000;
         public const int READ_AVAILABLE_RETRY_DELAY = 2500;
         public const int FILE_WAIT_DELAY = 2500;
+        public const int FILE_READY_WAIT = 250;
         public const int ADD_TASK_DELAY = 300;
         public const int DELETE_TASK_DELAY = 400;
         public const int ADD_JOB_DELAY = 1000;
@@ -167,6 +168,7 @@ namespace Status.Services
                 catch (IOException e)
                 {
                     Log(string.Format("File {0} not available exception {1} at {2:HH:mm:ss.fff}", fileName, e, DateTime.Now));
+                    Thread.Sleep(StaticClass.FILE_READY_WAIT);
                 }
 
                 // Check for shutdown or pause
