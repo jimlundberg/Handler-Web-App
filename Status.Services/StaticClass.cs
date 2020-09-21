@@ -102,10 +102,10 @@ namespace Status.Services
         public static void StatusDataEntry(string job, JobStatus status, JobType timeSlot)
         {
             // Write to the Status accumulator
-            StaticClass.StatusEntryHandle.ListStatus(job, status, timeSlot);
+            StatusEntryHandle.ListStatus(job, status, timeSlot);
 
             // Write new status to the log file
-            StaticClass.CsvFileHandlerHandle.WriteToCsvFile(job, status, timeSlot);
+            CsvFileHandlerHandle.WriteToCsvFile(job, status, timeSlot);
         }
 
         /// <summary>
@@ -166,18 +166,18 @@ namespace Status.Services
                 }
                 catch (IOException)
                 {
-                    Thread.Sleep(StaticClass.FILE_READY_WAIT);
+                    Thread.Sleep(FILE_READY_WAIT);
                 }
 
                 // Check for shutdown or pause
-                if (StaticClass.ShutDownPauseCheck("IsFileReady") == true)
+                if (ShutDownPauseCheck("IsFileReady") == true)
                 {
                     return false;
                 }
 
                 Thread.Yield();
             }
-            while (numOfRetries++ < StaticClass.NUM_XML_ACCESS_RETRIES);
+            while (numOfRetries++ < NUM_XML_ACCESS_RETRIES);
 
             return false;
         }
