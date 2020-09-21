@@ -93,6 +93,10 @@ namespace Status.Services
                         StaticClass.InputFileScanComplete[job] = true;
                     }
                 }
+                else
+                {
+                    StaticClass.Logger.LogError("File {0} is not available at {1:HH:mm:ss.fff}\n", fullDirectory, DateTime.Now);
+                }
             }
         }
 

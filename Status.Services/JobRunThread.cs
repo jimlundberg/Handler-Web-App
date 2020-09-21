@@ -242,6 +242,10 @@ namespace Status.Services
 
                     Thread.Sleep(StaticClass.FILE_WAIT_DELAY);
                 }
+                else
+                {
+                    StaticClass.Logger.LogError("File {0} is not available at {1:HH:mm:ss.fff}\n", dataXmlFileName, DateTime.Now);
+                }
             }
             while (numOfRetries++ < StaticClass.NUM_RESULTS_ENTRY_RETRIES);
 
