@@ -23,7 +23,7 @@ namespace Status.Services
         public const int DISPLAY_PROCESS_DATA_WAIT = 45000;
         public const int DISPLAY_PROCESS_TITLE_WAIT = 1000;
         public const int SHUTDOWN_PROCESS_WAIT = 5000;
-        public const int READ_AVAILABLE_RETRY_DELAY = 2500;
+        public const int READ_AVAILABLE_RETRY_DELAY = 250;
         public const int FILE_WAIT_DELAY = 2500;
         public const int FILE_READY_WAIT = 250;
         public const int ADD_TASK_DELAY = 300;

@@ -131,9 +131,8 @@ namespace Status.Services
                                 StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} because of Exception {2} at {3:HH:mm:ss.fff}",
                                     job, port, e, DateTime.Now));
 
-                                // Signal job complete if exception happend in Step 5 or 6
-                                if ((ModelerCurrentStepState == ModelerStepState.STEP_5) ||
-                                    (ModelerCurrentStepState == ModelerStepState.STEP_6))
+                                // Signal job complete if exception happened in Step 6
+                                if (ModelerCurrentStepState == ModelerStepState.STEP_6)
                                 {
                                     // Set the TCP/IP Scan complete flag to signal the RunJob thread
                                     StaticClass.TcpIpScanComplete[job] = true;
