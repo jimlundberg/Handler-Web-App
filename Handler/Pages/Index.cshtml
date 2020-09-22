@@ -35,18 +35,10 @@
     @await Html.PartialAsync("_JobGrid.cshtml", Model)
 </div>}
 
-@if ((string)@ViewData["PageName"] == "Start" || (string)@ViewData["PageName"] == "Refresh")
+@if ((string)@ViewData["PageName"] == "History")
 {
-<script type="text/javascript">
-    var table = $('#jobGrid').DataTable({
-        fixedHeader: true,
-        sort: false
-    });
-</script> }
-            else
-            {
 <script type="text/javascript">
     var table = $('#jobGrid').DataTable({
         fixedHeader: true
     });
-</script>}
+</script> }
