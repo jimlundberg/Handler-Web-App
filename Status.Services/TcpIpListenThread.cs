@@ -134,6 +134,9 @@ namespace Status.Services
                                 // Signal job complete if exception happened in Step 6
                                 if (ModelerCurrentStepState == ModelerStepState.STEP_6)
                                 {
+                                    StaticClass.Log(string.Format("No Job Complete for Job {0} but it is in Step 6 on Port {1} at {2:HH:mm:ss.fff}",
+                                        job, port, DateTime.Now));
+
                                     // Set the TCP/IP Scan complete flag to signal the RunJob thread
                                     StaticClass.TcpIpScanComplete[job] = true;
                                 }
