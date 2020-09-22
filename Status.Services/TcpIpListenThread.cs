@@ -315,6 +315,7 @@ namespace Status.Services
                     }
                     while ((tcpIpRetryCount < StaticClass.NUM_TCP_IP_RETRIES) && (messageReceived == false));
 
+                    // Check if retry count exceeded
                     if (tcpIpRetryCount >= StaticClass.NUM_TCP_IP_RETRIES)
                     {
                         // Make sure to close TCP/IP socket
