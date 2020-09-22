@@ -22,27 +22,27 @@ SlowCopy "test\%JOB%\%JOB%_mode1.csv" "%buffer%\%JOB%\%JOB%_mode1.csv"
 timeout 5
 SlowCopy "test\%JOB%\%JOB%_mode2.csv" "%buffer%\%JOB%\%JOB%_mode2.csv"
 timeout 5
-SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
-timeout 5
 SlowCopy "test\%JOB%\Cap_Template.tab" "%buffer%\%JOB%\Cap_Template.tab"
 timeout 5
 SlowCopy "test\%JOB%\Tune_Template.tab" "%buffer%\%JOB%\Tune_Template.tab"
+timeout 5
+SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
 
 timeout 10
 
 SET JOB=1307106_202002181307
 echo Copying Job %JOB% files one at a time
-SlowCopy "test\%JOB%\75300037D00.xml" "%buffer%\%JOB%\75300037D00.xml"
-timeout 5
 SlowCopy "test\%JOB%\%JOB%_mode1.csv" "%buffer%\%JOB%\%JOB%_mode1.csv"
 timeout 5
 SlowCopy "test\%JOB%\%JOB%_mode2.csv" "%buffer%\%JOB%\%JOB%_mode2.csv"
 timeout 5
-SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
-timeout 5
 SlowCopy "test\%JOB%\Cap_Template.tab" "%buffer%\%JOB%\Cap_Template.tab"
 timeout 5
 SlowCopy "test\%JOB%\Tune_Template.tab" "%buffer%\%JOB%\Tune_Template.tab"
+timeout 5
+SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
+timeout 5
+SlowCopy "test\%JOB%\75300037D00.xml" "%buffer%\%JOB%\75300037D00.xml"
 
 timeout 10
 
@@ -54,11 +54,11 @@ SlowCopy "test\%JOB%\%JOB%_mode1.csv" "%buffer%\%JOB%\%JOB%_mode1.csv"
 timeout 5
 SlowCopy "test\%JOB%\%JOB%_mode2.csv" "%buffer%\%JOB%\%JOB%_mode2.csv"
 timeout 5
-SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
-timeout 5
 SlowCopy "test\%JOB%\Cap_Template.tab" "%buffer%\%JOB%\Cap_Template.tab"
 timeout 5
 SlowCopy "test\%JOB%\Tune_Template.tab" "%buffer%\%JOB%\Tune_Template.tab"
+timeout 5
+SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
 
 timeout 10
 
@@ -70,11 +70,11 @@ SlowCopy "test\%JOB%\%JOB%_mode1.csv" "%buffer%\%JOB%\%JOB%_mode1.csv"
 timeout 5
 SlowCopy "test\%JOB%\%JOB%_mode2.csv" "%buffer%\%JOB%\%JOB%_mode2.csv"
 timeout 5
-SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
-timeout 5
 SlowCopy "test\%JOB%\Cap_Template.tab" "%buffer%\%JOB%\Cap_Template.tab"
 timeout 5
 SlowCopy "test\%JOB%\Tune_Template.tab" "%buffer%\%JOB%\Tune_Template.tab"
+timeout 5
+SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
 
 timeout 10
 
@@ -86,11 +86,11 @@ SlowCopy "test\%JOB%\%JOB%_mode1.csv" "%buffer%\%JOB%\%JOB%_mode1.csv"
 timeout 5
 SlowCopy "test\%JOB%\%JOB%_mode2.csv" "%buffer%\%JOB%\%JOB%_mode2.csv"
 timeout 5
-SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
-timeout 5
 SlowCopy "test\%JOB%\Cap_Template.tab" "%buffer%\%JOB%\Cap_Template.tab"
 timeout 5
 SlowCopy "test\%JOB%\Tune_Template.tab" "%buffer%\%JOB%\Tune_Template.tab"
+timeout 5
+SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
 
 timeout 10
 
@@ -102,11 +102,11 @@ SlowCopy "test\%JOB%\%JOB%_mode1.csv" "%buffer%\%JOB%\%JOB%_mode1.csv"
 timeout 5
 SlowCopy "test\%JOB%\%JOB%_mode2.csv" "%buffer%\%JOB%\%JOB%_mode2.csv"
 timeout 5
-SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
-timeout 5
 SlowCopy "test\%JOB%\Cap_Template.tab" "%buffer%\%JOB%\Cap_Template.tab"
 timeout 5
 SlowCopy "test\%JOB%\Tune_Template.tab" "%buffer%\%JOB%\Tune_Template.tab"
+timeout 5
+SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
 
 timeout 10
 
@@ -118,11 +118,11 @@ SlowCopy "test\%JOB%\%JOB%_mode1.csv" "%buffer%\%JOB%\%JOB%_mode1.csv"
 timeout 5
 SlowCopy "test\%JOB%\%JOB%_mode2.csv" "%buffer%\%JOB%\%JOB%_mode2.csv"
 timeout 5
-SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
-timeout 5
 SlowCopy "test\%JOB%\Cap_Template.tab" "%buffer%\%JOB%\Cap_Template.tab"
 timeout 5
 SlowCopy "test\%JOB%\Tune_Template.tab" "%buffer%\%JOB%\Tune_Template.tab"
+timeout 5
+SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
 
 timeout 10
 
@@ -134,11 +134,11 @@ SlowCopy "test\%JOB%\%JOB%_mode1.csv" "%buffer%\%JOB%\%JOB%_mode1.csv"
 timeout 5
 SlowCopy "test\%JOB%\%JOB%_mode2.csv" "%buffer%\%JOB%\%JOB%_mode2.csv"
 timeout 5
-SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
-timeout 5
 SlowCopy "test\%JOB%\Cap_Template.tab" "%buffer%\%JOB%\Cap_Template.tab"
 timeout 5
 SlowCopy "test\%JOB%\Tune_Template.tab" "%buffer%\%JOB%\Tune_Template.tab"
+timeout 5
+SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
 
 timeout 10
 
@@ -150,10 +150,10 @@ SlowCopy "test\%JOB%\%JOB%_mode1.csv" "%buffer%\%JOB%\%JOB%_mode1.csv"
 timeout 5
 SlowCopy "test\%JOB%\%JOB%_mode2.csv" "%buffer%\%JOB%\%JOB%_mode2.csv"
 timeout 5
-SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
-timeout 5
 SlowCopy "test\%JOB%\Cap_Template.tab" "%buffer%\%JOB%\Cap_Template.tab"
 timeout 5
 SlowCopy "test\%JOB%\Tune_Template.tab" "%buffer%\%JOB%\Tune_Template.tab"
+timeout 5
+SlowCopy "test\%JOB%\%JOB%_mode0.csv" "%buffer%\%JOB%\%JOB%_mode0.csv"
 
 :End
