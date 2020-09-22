@@ -29,10 +29,10 @@ namespace Status.Services
         public const int ADD_TASK_DELAY = 300;
         public const int DELETE_TASK_DELAY = 400;
         public const int ADD_JOB_DELAY = 2000;
-        public const int NUM_TCP_IP_RETRIES = 480;
+        public const int NUM_TCP_IP_RETRIES = 240;
         public const int NUM_XML_ACCESS_RETRIES = 100;
         public const int NUM_FILE_RECEIVE_RETRIES = 100;
-        public const int NUM_RESULTS_ENTRY_RETRIES = 50;
+        public const int NUM_RESULTS_ENTRY_RETRIES = 100;
         public const int NUM_REQUESTS_TILL_TCPIP_SLOWDOWN = 5;
 
         // Common counters
@@ -160,12 +160,18 @@ namespace Status.Services
                     {
                         if (fileService.CanRead && fileService.CanWrite)
                         {
+                            StaticClass.Log(string.Format("File {0} ready at {1:HH:mm:ss.fff}",
+                                fileName, DateTime.Now));
+
                             return true;
                         }
                     }
                 }
                 catch (IOException)
                 {
+                    StaticClass.Log(string.Format("File {0} ready retry {1} at {2:HH:mm:ss.fff}",
+                        fileName, numOfRetries, DateTime.Now));
+
                     Thread.Sleep(FILE_READY_WAIT);
                 }
 
