@@ -156,7 +156,7 @@ namespace Status.Services
                         stream.Close();
                         client.Close();
 
-                        StaticClass.Log(string.Format("\nTCP/IP stream closed for Modeler Job {0} on Port {1} at {2:HH:mm:ss.fff}",
+                        StaticClass.Log(string.Format("\nTCP/IP stream can not be written to for Modeler Job {0} on Port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));
 
                         // Set the Shutdown flag to signal the RunJob thread
