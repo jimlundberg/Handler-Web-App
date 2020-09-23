@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿#define DEBUG_MODE
+
+using Microsoft.Extensions.Logging;
 using Status.Models;
 using System;
 using System.IO;
@@ -305,9 +307,10 @@ namespace Status.Services
                         }
                         else
                         {
-                            //StaticClass.Log(string.Format("TCP/IP retry {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
-                            //     tcpIpRetryCount, job, port, ModelerCurrentStepState, DateTime.Now));
-
+#if DEBUG_MODE
+                            StaticClass.Log(string.Format("TCP/IP retry {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
+                                 tcpIpRetryCount, job, port, ModelerCurrentStepState, DateTime.Now));
+#endif
                             // Wait 250 msec between 480 Data Available checks (2 min) CanRead is set for session
                             Thread.Sleep(StaticClass.READ_AVAILABLE_RETRY_DELAY);
                             tcpIpRetryCount++;
