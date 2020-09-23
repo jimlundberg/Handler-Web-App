@@ -1,6 +1,4 @@
-﻿#define DEBUG_MODE
-
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Status.Models;
 using System;
 using System.Collections.Generic;
@@ -162,7 +160,7 @@ namespace Status.Services
                     {
                         if (fileService.CanRead && fileService.CanWrite)
                         {
-#if DEBUG_MODE
+#if DEBUG
                             StaticClass.Log(string.Format("File {0} ready at {1:HH:mm:ss.fff}",
                                 fileName, DateTime.Now));
 #endif
@@ -172,7 +170,7 @@ namespace Status.Services
                 }
                 catch (IOException)
                 {
-#if DEBUG_MODE
+#if DEBUG
                     StaticClass.Log(string.Format("File {0} ready retry {1} at {2:HH:mm:ss.fff}",
                         fileName, numOfRetries, DateTime.Now));
 #endif

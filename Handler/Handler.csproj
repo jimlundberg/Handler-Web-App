@@ -23,6 +23,10 @@
     <DocumentationFile>C:\SSMCharacterizationHandler\Application\Handler\Handler\Handler.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="C:\SSMCharacterizationHandler\Handler\Config.ini" Link="Config.ini" />
     <None Include="C:\SSMCharacterizationHandler\MixedTest.bat" Link="MixedTest.bat" />

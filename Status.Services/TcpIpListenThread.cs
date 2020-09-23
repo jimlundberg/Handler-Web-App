@@ -1,6 +1,4 @@
-﻿#define DEBUG_MODE
-
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Status.Models;
 using System;
 using System.IO;
@@ -307,7 +305,7 @@ namespace Status.Services
                         }
                         else
                         {
-#if DEBUG_MODE
+#if DEBUG
                             StaticClass.Log(string.Format("TCP/IP retry {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
                                  tcpIpRetryCount, job, port, ModelerCurrentStepState, DateTime.Now));
 #endif
