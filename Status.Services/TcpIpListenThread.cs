@@ -305,8 +305,8 @@ namespace Status.Services
                         }
                         else
                         {
-                            //StaticClass.Log(string.Format("TCP/IP retry {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
-                            //     tcpIpRetryCount, job, port, ModelerCurrentStepState, DateTime.Now));
+                            StaticClass.Log(string.Format("TCP/IP retry {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
+                                 tcpIpRetryCount, job, port, ModelerCurrentStepState, DateTime.Now));
 
                             // Wait 250 msec between 480 Data Available checks (2 min) CanRead is set for session
                             Thread.Sleep(StaticClass.READ_AVAILABLE_RETRY_DELAY);
@@ -315,8 +315,8 @@ namespace Status.Services
                     }
                     while ((tcpIpRetryCount < StaticClass.NUM_TCP_IP_RETRIES) && (messageReceived == false));
 
-                    // Check if retry count exceeded
-                    if (tcpIpRetryCount >= StaticClass.NUM_TCP_IP_RETRIES)
+                    // Check if retry count exceeded in STEP_6 mode
+                    if ((tcpIpRetryCount >= StaticClass.NUM_TCP_IP_RETRIES) && (ModelerCurrentStepState == ModelerStepState.STEP_6))
                     {
                         // Make sure to close TCP/IP socket
                         stream.Close();
@@ -325,21 +325,11 @@ namespace Status.Services
                         StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} because Retry count exceeded {2} at {3:HH:mm:ss.fff}",
                             job, port, tcpIpRetryCount, DateTime.Now));
 
-                        // Signal job complete if exception happened in Step 6
-                        if (ModelerCurrentStepState == ModelerStepState.STEP_6)
-                        {
-                            StaticClass.Log(string.Format("No Job Complete received for Job {0} but it is in Step 6 so forcing complete on Port {1} at {2:HH:mm:ss.fff}",
-                                job, port, DateTime.Now));
+                        StaticClass.Log(string.Format("No Job Complete received for Job {0} but it is in Step 6 so forcing complete on Port {1} at {2:HH:mm:ss.fff}",
+                            job, port, DateTime.Now));
 
-                            // Set the TCP/IP Scan complete flag to signal the RunJob thread
-                            StaticClass.TcpIpScanComplete[job] = true;
-                        }
-                        else
-                        {
-                            // Set the Shutdown flag to signal the RunJob thread
-                            StaticClass.JobShutdownFlag[job] = true;
-                        }
-
+                        // Set the TCP/IP Scan complete flag to signal the RunJob thread
+                        StaticClass.TcpIpScanComplete[job] = true;
                         return;
                     }
 
