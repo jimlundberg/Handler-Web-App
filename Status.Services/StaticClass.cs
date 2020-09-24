@@ -161,8 +161,7 @@ namespace Status.Services
                         if (fileService.CanRead && fileService.CanWrite)
                         {
 #if DEBUG
-                            StaticClass.Log(string.Format("File {0} ready at {1:HH:mm:ss.fff}",
-                                fileName, DateTime.Now));
+                            Log(string.Format("File {0} ready at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
 #endif
                             return true;
                         }
@@ -171,8 +170,7 @@ namespace Status.Services
                 catch (IOException)
                 {
 #if DEBUG
-                    StaticClass.Log(string.Format("File {0} ready retry {1} at {2:HH:mm:ss.fff}",
-                        fileName, numOfRetries, DateTime.Now));
+                    Log(string.Format("File {0} ready retry {1} at {2:HH:mm:ss.fff}", fileName, numOfRetries, DateTime.Now));
 #endif
 
                     Thread.Sleep(FILE_READY_WAIT);

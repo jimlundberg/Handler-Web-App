@@ -21,10 +21,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <DocumentationFile>C:\SSMCharacterizationHandler\Application\Handler\Handler\Handler.xml</DocumentationFile>
+    <DefineConstants>TRACE;DEBUG;DEBUG_MODE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;DEBUG_MODE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
