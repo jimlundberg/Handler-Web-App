@@ -95,3 +95,11 @@ table, th, td {
     padding: 5px;
     text-size-adjust: 50%;
 }
+
+th {
+    font-size: 16px;
+}
+
+td {
+    font-size: 14px;
+}
