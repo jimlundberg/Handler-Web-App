@@ -113,7 +113,7 @@ namespace Status.Services
         /// Check if a Job directory is complete
         /// </summary>
         /// <param name="directory"></param>
-        /// <returns></returns>
+        /// <returns>Job Files Complete or not</returns>
         public static bool CheckIfJobFilesComplete(string directory)
         {
             // Check if the Job Xml file exists
@@ -125,7 +125,7 @@ namespace Status.Services
                 DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
                 if (InputJobInfo == null)
                 {
-                    StaticClass.Logger.LogError("InputFileWatcherThread InputJobInfo failed to instantiate");
+                    Logger.LogError("InputFileWatcherThread InputJobInfo failed to instantiate");
                 }
 
                 // Get and check the number of files
@@ -144,7 +144,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="directory"></param>
         /// <param name="scanType"></param>
-        /// <returns>Job xml data</returns>
+        /// <returns>Job Xml data</returns>
         public static JobXmlData GetJobXmlFileInfo(string directory, DirectoryScanType scanType)
         {
             JobXmlData jobScanXmlData = new JobXmlData();
@@ -178,7 +178,7 @@ namespace Status.Services
         /// Get the Status Monitor data using the Job xml file data
         /// </summary>
         /// <param name="jobXmlData"></param>
-        /// <returns></returns>
+        /// <returns>Status Monitor Data</returns>
         public static StatusMonitorData GetJobMonitorData(JobXmlData jobXmlData)
         {
             // Create the Job Run common strings
@@ -198,7 +198,7 @@ namespace Status.Services
 
             // Check if Job xml file is ready
             string jobXmlFileName = jobXmlData.JobDirectory + @"\" + jobXmlData.XmlFileName;
-            if (StaticClass.CheckFileReady(jobXmlFileName))
+            if (CheckFileReady(jobXmlFileName))
             {
                 // Read Job xml file and get the top node
                 XmlDocument jobXmlDoc = new XmlDocument();
@@ -215,7 +215,7 @@ namespace Status.Services
                 XmlNode ModelerNode = jobXmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Modeler");
 
                 // Assign then increment port number for this Job
-                monitorData.JobPortNumber = StaticClass.IniData.StartPort + StaticClass.JobPortIndex++;
+                monitorData.JobPortNumber = IniData.StartPort + JobPortIndex++;
 
                 // Get the modeler and number of files to transfer
                 int NumFilesToTransfer = 0;
@@ -230,12 +230,12 @@ namespace Status.Services
                 monitorData.NumFilesToTransfer = NumFilesToTransfer;
 
                 // Get the modeler and number of files to transfer
-                StaticClass.Log($"Unit Number                    : {monitorData.UnitNumber}");
-                StaticClass.Log($"Modeler                        : {monitorData.Modeler}");
-                StaticClass.Log($"Num Files Consumed             : {monitorData.NumFilesConsumed}");
-                StaticClass.Log($"Num Files Produced             : {monitorData.NumFilesProduced}");
-                StaticClass.Log($"Num Files To Transfer          : {monitorData.NumFilesToTransfer}");
-                StaticClass.Log($"Job Port Number                : {monitorData.JobPortNumber}");
+                Log($"Unit Number                    : {monitorData.UnitNumber}");
+                Log($"Modeler                        : {monitorData.Modeler}");
+                Log($"Num Files Consumed             : {monitorData.NumFilesConsumed}");
+                Log($"Num Files Produced             : {monitorData.NumFilesProduced}");
+                Log($"Num Files To Transfer          : {monitorData.NumFilesToTransfer}");
+                Log($"Job Port Number                : {monitorData.JobPortNumber}");
 
                 // Create the Transfered file list from the Xml file entries
                 monitorData.TransferedFileList = new List<string>(NumFilesToTransfer);
@@ -244,12 +244,12 @@ namespace Status.Services
                     string transferFileNodeName = ("/" + TopNode + "/FileConfiguration/Transfered" + i.ToString());
                     XmlNode TransferedFileXml = jobXmlDoc.DocumentElement.SelectSingleNode(transferFileNodeName);
                     monitorData.TransferedFileList.Add(TransferedFileXml.InnerText);
-                    StaticClass.Log(string.Format("Transfer File{0}                 : {1}", i, TransferedFileXml.InnerText));
+                    Log(string.Format("Transfer File{0}                 : {1}", i, TransferedFileXml.InnerText));
                 }
             }
             else
             {
-                StaticClass.Logger.LogError("File {0} is not available at {1:HH:mm:ss.fff}\n", jobXmlFileName, DateTime.Now);
+                Logger.LogError("File {0} is not available at {1:HH:mm:ss.fff}\n", jobXmlFileName, DateTime.Now);
             }
 
             return monitorData;
