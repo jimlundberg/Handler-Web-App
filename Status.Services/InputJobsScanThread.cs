@@ -103,7 +103,7 @@ namespace Status.Services
                     string job = directory.ToString().Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
 
                     // Check if the directory has a full set of Job files
-                    if (StaticClass.CheckIfJobFilesComplete(directory))
+                    if (StaticClass.CheckIfJobFilesComplete(directory) == true)
                     {
                         StaticClass.Log(string.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
@@ -194,27 +194,33 @@ namespace Status.Services
             {
                 int index = 0;
                 string job = string.Empty;
+                string directory = string.Empty;
                 Task AddTask = Task.Run(() =>
                 {
-                    if (StaticClass.InputJobsToRun.Count > 0)
+                    for (int i = 1; i < StaticClass.InputJobsToRun.Count + 1; i++)
                     {
                         // Get a Job from the Input Jobs List
                         index = StaticClass.InputJobsToRun.Count;
                         job = StaticClass.InputJobsToRun.Read(index);
-                        StaticClass.InputJobsToRun.Delete(index);
+                        directory = StaticClass.IniData.InputDir + @"\" + job;
+
+                        // Check if the Job directory has a full set of Job files
+                        if (StaticClass.CheckIfJobFilesComplete(directory) == true)
+                        {
+                            StaticClass.InputJobsToRun.Delete(index);
+                            break;
+                        }
                     }
                 });
 
-                TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_TASK_DELAY);
+                TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.CHECK_JOB_DELAY);
                 if (!AddTask.Wait(timeSpan))
                 {
-                    StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
+                    StaticClass.Logger.LogError("InputJobScanThread Check Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
                 }
 
                 if (job != string.Empty)
                 {
-                    string directory = StaticClass.IniData.InputDir + @"\" + job;
-
                     StaticClass.Log(string.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                     // Reset Input job file scan flag

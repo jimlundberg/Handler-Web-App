@@ -28,8 +28,8 @@ namespace Status.Services
         public const int FILE_WAIT_DELAY = 2500;
         public const int FILE_READY_WAIT = 250;
         public const int ADD_TASK_DELAY = 300;
-        public const int DELETE_TASK_DELAY = 2000;
         public const int ADD_JOB_DELAY = 2000;
+        public const int CHECK_JOB_DELAY = 3000;
         public const int NUM_TCP_IP_RETRIES = 240;
         public const int NUM_XML_ACCESS_RETRIES = 100;
         public const int NUM_FILE_RECEIVE_RETRIES = 100;
