@@ -102,28 +102,33 @@ namespace Status.Services
                     string directory = dirInfo.ToString();
                     string job = directory.ToString().Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
 
-                    StaticClass.Log(string.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
-
-                    // Remove job run from Input Job directory list
-                    lock (RemoveLock)
+                    // Check if the directory has a Job xml file
+                    string[] files = Directory.GetFiles(directory, "*.xml");
+                    if (files.Length > 0)
                     {
-                        if (inputDirectoryInfoList.Remove(dirInfo) == false)
+                        StaticClass.Log(string.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+
+                        // Remove job run from Input Job directory list
+                        lock (RemoveLock)
                         {
-                            StaticClass.Logger.LogError("InputJobsScanThread failed to remove Job {0} from Input Job list", job);
+                            if (inputDirectoryInfoList.Remove(dirInfo) == false)
+                            {
+                                StaticClass.Logger.LogError("InputJobsScanThread failed to remove Job {0} from Input Job list", job);
+                            }
                         }
+
+                        StaticClass.Log(string.Format("Input Directory Watcher removed Job {0} from directory list at {1:HH:mm:ss.fff}",
+                            job, DateTime.Now));
+
+                        // Reset Input file scan flag
+                        StaticClass.InputFileScanComplete[job] = false;
+
+                        // Start an Input Buffer Job
+                        StartInputJob(directory);
+
+                        // Throttle the Job startups
+                        Thread.Sleep(StaticClass.ScanWaitTime);
                     }
-
-                    StaticClass.Log(string.Format("Input Directory Watcher removed Job {0} from directory list at {1:HH:mm:ss.fff}",
-                        job, DateTime.Now));
-
-                    // Reset Input file scan flag
-                    StaticClass.InputFileScanComplete[job] = false;
-
-                    // Start an Input Buffer Job
-                    StartInputJob(directory);
-
-                    // Throttle the Job startups
-                    Thread.Sleep(StaticClass.ScanWaitTime);
                 }
             }
 
