@@ -18,7 +18,7 @@ namespace Status.Services
         public const int TCP_IP_STARTUP_WAIT = 60000;
         public const int STARTING_TCP_IP_WAIT = 15000;
         public const int POST_PROCESS_WAIT = 10000;
-        public const int DIRECTORY_RECEIVE_WAIT = 12000;
+        public const int DIRECTORY_RECEIVE_WAIT = 2000;
         public const int FILE_RECEIVE_WAIT = 1000;
         public const int WAIT_FOR_FILES_TO_COMPLETE = 2500;
         public const int DISPLAY_PROCESS_DATA_WAIT = 45000;
@@ -27,9 +27,9 @@ namespace Status.Services
         public const int READ_AVAILABLE_RETRY_DELAY = 250;
         public const int FILE_WAIT_DELAY = 2500;
         public const int FILE_READY_WAIT = 250;
-        public const int ADD_TASK_DELAY = 300;
         public const int ADD_JOB_DELAY = 1000;
-        public const int CHECK_JOB_DELAY = 1000;
+        public const int CHECK_JOB_DELAY = 2500;
+        public const int DELETE_JOB_DELAY = 1000;
         public const int NUM_TCP_IP_RETRIES = 240;
         public const int NUM_XML_ACCESS_RETRIES = 100;
         public const int NUM_FILE_RECEIVE_RETRIES = 100;
@@ -121,19 +121,30 @@ namespace Status.Services
             if (files.Length > 0)
             {
                 JobXmlData jobXmlData = GetJobXmlFileInfo(directory, DirectoryScanType.INPUT_BUFFER);
-                StatusMonitorData monitorData = GetJobMonitorData(jobXmlData);
-                DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
-                if (InputJobInfo == null)
+                string jobXmlFileName = jobXmlData.JobDirectory + @"\" + jobXmlData.XmlFileName;
+                if (CheckFileReady(jobXmlFileName))
                 {
-                    Logger.LogError("InputFileWatcherThread InputJobInfo failed to instantiate");
+                    // Read Job xml file and get the top node
+                    XmlDocument jobXmlDoc = new XmlDocument();
+                    jobXmlDoc.Load(jobXmlFileName);
+                    XmlElement root = jobXmlDoc.DocumentElement;
+                    string TopNode = root.LocalName;
+
+                    // Get nodes for the number of files and names of files to transfer from Job .xml file
+                    XmlNode ConsumedNode = jobXmlDoc.DocumentElement.SelectSingleNode("/" + TopNode + "/FileConfiguration/Consumed");
+                    int numberOfFilesNeeded = Convert.ToInt32(ConsumedNode.InnerText);
+
+                    // Get the current number of files
+                    DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
+                    if (InputJobInfo == null)
+                    {
+                        Logger.LogError("StaticClass InputJobInfo failed to instantiate");
+                    }
+                    int numberOfFilesFound = InputJobInfo.GetFiles().Length;
+
+                    // Return Job file start set complete or not
+                    return (numberOfFilesNeeded == numberOfFilesFound);
                 }
-
-                // Get and check the number of files
-                int numberOfFilesFound = InputJobInfo.GetFiles().Length;
-                int numberOfFilesNeeded = monitorData.NumFilesConsumed;
-
-                // Return file set complete or not
-                return (numberOfFilesNeeded == numberOfFilesFound);
             }
 
             return false;

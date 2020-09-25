@@ -62,7 +62,11 @@ namespace Status.Services
                 // Wait some for the directory creation and file copies to complete
                 Thread.Sleep(StaticClass.DIRECTORY_RECEIVE_WAIT);
 
-                StaticClass.CheckJobDirectoryComplete(jobDirectory);
+                if (StaticClass.CheckJobDirectoryComplete(jobDirectory) == false)
+                {
+                    StaticClass.Logger.LogWarning("\nInput Directory Watcher checking new Job {0} failed at {1:HH:mm:ss.fff}",
+                        job, DateTime.Now);
+                }
             }
 
             // Do Shutdown Pause check
