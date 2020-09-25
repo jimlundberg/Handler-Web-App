@@ -355,7 +355,7 @@ namespace Status.Services
                 {
                     if (directoryList.Length == 0)
                     {
-                        return true;
+                        return false;
                     }
                     else
                     {
