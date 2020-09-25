@@ -102,9 +102,8 @@ namespace Status.Services
                     string directory = dirInfo.ToString();
                     string job = directory.ToString().Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
 
-                    // Check if the directory has a Job xml file
-                    string[] files = Directory.GetFiles(directory, "*.xml");
-                    if (files.Length > 0)
+                    // Check if the directory has a full set of Job files
+                    if (StaticClass.CheckIfJobFilesComplete(directory))
                     {
                         StaticClass.Log(string.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
