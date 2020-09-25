@@ -192,48 +192,54 @@ namespace Status.Services
             // Check if there are unfinished Input jobs waiting to run
             if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
             {
-                int index = 0;
-                string job = string.Empty;
-                string directory = string.Empty;
-                Task AddTask = Task.Run(() =>
+                if (StaticClass.InputJobsToRun.Count > 0)
                 {
-                    for (int i = 1; i < StaticClass.InputJobsToRun.Count + 1; i++)
+                    int index = 0;
+                    string job = string.Empty;
+                    string directory = string.Empty;
+                    bool jobReady = false;
+                    Task AddTask = Task.Run(() =>
                     {
                         // Get a Job from the Input Jobs List
                         index = StaticClass.InputJobsToRun.Count;
-                        job = StaticClass.InputJobsToRun.Read(index);
-                        directory = StaticClass.IniData.InputDir + @"\" + job;
-
-                        // Check if the Job directory has a full set of Job files
-                        if (StaticClass.CheckIfJobFilesComplete(directory) == true)
+                        do
                         {
-                            StaticClass.InputJobsToRun.Delete(index);
-                            break;
+                            job = StaticClass.InputJobsToRun.Read(index);
+                            directory = StaticClass.IniData.InputDir + @"\" + job;
+
+                            // Check if the Job directory has a full set of Job files
+                            if (StaticClass.CheckIfJobFilesComplete(directory) == true)
+                            {
+                                StaticClass.InputJobsToRun.Delete(index);
+                                jobReady = true;
+                            }
+                            index--;
                         }
+                        while ((jobReady == false) && (index > 0));
+                    });
+
+                    TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.CHECK_JOB_DELAY);
+                    if (!AddTask.Wait(timeSpan))
+                    {
+                        StaticClass.Logger.LogError("InputJobScanThread Check Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
                     }
-                });
 
-                TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.CHECK_JOB_DELAY);
-                if (!AddTask.Wait(timeSpan))
-                {
-                    StaticClass.Logger.LogError("InputJobScanThread Check Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
-                }
+                    if (job != string.Empty)
+                    {
+                        StaticClass.Log(string.Format("Starting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
-                if (job != string.Empty)
-                {
-                    StaticClass.Log(string.Format("Starting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                        // Reset Input job file scan flag
+                        StaticClass.InputFileScanComplete[job] = false;
 
-                    // Reset Input job file scan flag
-                    StaticClass.InputFileScanComplete[job] = false;
+                        // Start an Input Buffer Job
+                        StartInputJob(directory);
 
-                    // Start an Input Buffer Job
-                    StartInputJob(directory);
+                        StaticClass.Log(string.Format("Input Directory Watcher removed Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                            job, index, DateTime.Now));
 
-                    StaticClass.Log(string.Format("Input Directory Watcher removed Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
-                        job, index, DateTime.Now));
-
-                    // Throttle the Job startups
-                    Thread.Sleep(StaticClass.ScanWaitTime);
+                        // Throttle the Job startups
+                        Thread.Sleep(StaticClass.ScanWaitTime);
+                    }
                 }
             }
         }

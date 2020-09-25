@@ -224,8 +224,7 @@ namespace Status.Services
                 // Copy the Transfered files to the Finished directory 
                 foreach (string file in monitorData.TransferedFileList)
                 {
-                    FileHandling.CopyFile(processingBufferJobDir + @"\" + file,
-                                          finishedJobDirectoryName + @"\" + file);
+                    FileHandling.CopyFile(processingBufferJobDir + @"\" + file, finishedJobDirectoryName + @"\" + file);
                 }
 
                 // Move Processing Buffer Files to the Repository directory when passed
@@ -245,8 +244,7 @@ namespace Status.Services
                 {
                     if (File.Exists(processingBufferJobDir + @"\" + file))
                     {
-                        FileHandling.CopyFile(processingBufferJobDir + @"\" + file, 
-                                              errorJobDirectoryName + @"\" + file);
+                        FileHandling.CopyFile(processingBufferJobDir + @"\" + file, errorJobDirectoryName + @"\" + file);
                     }
                 }
 
