@@ -196,7 +196,6 @@ namespace Status.Services
             {
                 // Walk through all jobs in the Input Job List
                 int index = 1;
-                int numJobsTried = 0;
                 do
                 {
                     Task ReadJobTask = Task.Run(() =>
@@ -228,40 +227,47 @@ namespace Status.Services
 
                                 StartInputJob(directory);
 
-                                Thread.Sleep(StaticClass.IniData.ScanWaitTime);
+                                Task deleteJobTask = Task.Run(() =>
+                                {
+                                    // Delete job being run next from the Input Jobs List
+                                    StaticClass.InputJobsToRun.Delete(index);
+                                });
+
+                                TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
+                                if (!deleteJobTask.Wait(deleteTimeSpan))
+                                {
+                                    StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
+                                        job, StaticClass.DELETE_JOB_DELAY, DateTime.Now);
+                                }
                             }
                             else
                             {
-                                numJobsTried++;
-                                if (numJobsTried < StaticClass.IniData.ExecutionLimit)
+                                if (index < StaticClass.IniData.ExecutionLimit)
+                                {
+                                    StaticClass.Log(string.Format("\nStarting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}", directory, index, DateTime.Now));
+                                    StartInputJob(directory);
+
+                                    Task deleteJobTask = Task.Run(() =>
+                                    {
+                                        // Delete job being run next from the Input Jobs List
+                                        StaticClass.InputJobsToRun.Delete(index);
+                                    });
+
+                                    TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
+                                    if (!deleteJobTask.Wait(deleteTimeSpan))
+                                    {
+                                        StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
+                                            job, StaticClass.DELETE_JOB_DELAY, DateTime.Now);
+                                    }
+                                }
+                                else
                                 {
                                     StaticClass.Log(string.Format("Input Directory skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
                                         job, index, DateTime.Now));
                                 }
-                                else
-                                {
-                                    StaticClass.Log(string.Format("\nStarting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}", directory, index, DateTime.Now));
 
-                                    StartInputJob(directory);
-
-                                    Thread.Sleep(StaticClass.IniData.ScanWaitTime);
-                                }
+                                Thread.Sleep(StaticClass.IniData.ScanWaitTime);
                             }
-
-                            Task deleteJobTask = Task.Run(() =>
-                            {
-                                // Delete job being run next from the Input Jobs List
-                                StaticClass.InputJobsToRun.Delete(index);
-                            });
-
-                            TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
-                            if (!deleteJobTask.Wait(deleteTimeSpan))
-                            {
-                                StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
-                                    job, StaticClass.DELETE_JOB_DELAY, DateTime.Now);
-                            }
-
-                            StaticClass.Log(string.Format("Deleted Input Job {0} index {1} at {2:HH:mm:ss.fff}", job, index, DateTime.Now));
                         }
                     }
                 }
