@@ -15,13 +15,13 @@ namespace Status.Services
     public static class StaticClass
 	{
         // Common definitions
-        public const int TCP_IP_STARTUP_WAIT = 60000;
+        public const int TCP_IP_STARTUP_WAIT = 30000; //60000;
         public const int STARTING_TCP_IP_WAIT = 15000;
         public const int POST_PROCESS_WAIT = 10000;
         public const int DIRECTORY_RECEIVE_WAIT = 250;
         public const int FILE_RECEIVE_WAIT = 1000;
         public const int WAIT_FOR_FILES_TO_COMPLETE = 2500;
-        public const int DISPLAY_PROCESS_DATA_WAIT = 45000;
+        public const int DISPLAY_PROCESS_DATA_WAIT = 10000; //45000;
         public const int DISPLAY_PROCESS_TITLE_WAIT = 1000;
         public const int SHUTDOWN_PROCESS_WAIT = 5000;
         public const int READ_AVAILABLE_RETRY_DELAY = 250;
@@ -283,7 +283,7 @@ namespace Status.Services
                     {
                         if (fileService.CanRead && fileService.CanWrite)
                         {
-#if DEBUG
+#if FALSE
                             Log(string.Format("File {0} ready at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
 #endif
                             return true;
@@ -292,7 +292,7 @@ namespace Status.Services
                 }
                 catch (IOException)
                 {
-#if DEBUG
+#if FALSE
                     Log(string.Format("File {0} ready retry {1} at {2:HH:mm:ss.fff}", fileName, numOfRetries, DateTime.Now));
 #endif
 

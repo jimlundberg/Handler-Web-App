@@ -224,51 +224,62 @@ namespace Status.Services
                             string directory = StaticClass.IniData.InputDir + @"\" + job;
                             if (StaticClass.CheckIfJobFilesComplete(directory))
                             {
-                                Task deleteJobTask = Task.Run(() =>
-                                {
-                                    // Get the next Job from the Input Jobs List
-                                    StaticClass.InputJobsToRun.Delete(index);
-                                });
-
-                                TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
-                                if (!deleteJobTask.Wait(deleteTimeSpan))
-                                {
-                                    StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
-                                        job, StaticClass.DELETE_JOB_DELAY, DateTime.Now);
-                                }
-
-
-                                // Reset Input job file scan flag
-                                StaticClass.InputFileScanComplete[job] = false;
-
                                 StaticClass.Log(string.Format("\nStarting Input Job {0} index {1} at {2:HH:mm:ss.fff}", directory, index, DateTime.Now));
 
-                                // Start an Input Buffer Job
                                 StartInputJob(directory);
 
-                                // Throttle job startups
                                 Thread.Sleep(StaticClass.IniData.ScanWaitTime);
                             }
                             else
                             {
-                                StaticClass.Log(string.Format("Input Directory Watcher skipping Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
-                                    job, index, DateTime.Now));
-
                                 numJobsTried++;
+                                if (numJobsTried < StaticClass.IniData.ExecutionLimit)
+                                {
+                                    StaticClass.Log(string.Format("Input Directory skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
+                                        job, index, DateTime.Now));
+                                }
+                                else
+                                {
+                                    StaticClass.Log(string.Format("\nStarting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}", directory, index, DateTime.Now));
+
+                                    StartInputJob(directory);
+
+                                    Thread.Sleep(StaticClass.IniData.ScanWaitTime);
+                                }
                             }
+
+                            Task deleteJobTask = Task.Run(() =>
+                            {
+                                // Delete job being run next from the Input Jobs List
+                                StaticClass.InputJobsToRun.Delete(index);
+                            });
+
+                            TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
+                            if (!deleteJobTask.Wait(deleteTimeSpan))
+                            {
+                                StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
+                                    job, StaticClass.DELETE_JOB_DELAY, DateTime.Now);
+                            }
+
+                            StaticClass.Log(string.Format("Deleted Input Job {0} index {1} at {2:HH:mm:ss.fff}", job, index, DateTime.Now));
                         }
                     }
                 }
-                while (index > 0);
+                while (index > 1);
             }
         }
 
         /// <summary>
-        /// Method to start new jobs from the Input Buffer 
+        /// Start Input Job
         /// </summary>
         /// <param name="directory"></param>
         public void StartInputJob(string directory)
         {
+            // Reset Input job file scan flag
+            string job = directory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
+
+            StaticClass.InputFileScanComplete[job] = false;
+
             // Get data found in Job xml file
             JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(directory, DirectoryScanType.INPUT_BUFFER);
             if (jobXmlData == null)

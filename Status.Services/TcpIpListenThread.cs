@@ -305,7 +305,7 @@ namespace Status.Services
                         }
                         else
                         {
-#if DEBUG
+#if FALSE
                             StaticClass.Log(string.Format("TCP/IP retry {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
                                  tcpIpRetryCount, job, port, ModelerCurrentStepState, DateTime.Now));
 #endif
