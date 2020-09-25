@@ -339,42 +339,6 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Check Job Directory is complete
-        /// </summary>
-        /// <param name="directory"></param>
-        /// <returns></returns>
-        public static bool CheckJobDirectoryComplete(string directory)
-        {
-            Dictionary<string, bool> files = new Dictionary<string, bool>();
-            bool filesAreReady = false;
-            if (CheckDirectoryReady(directory))
-            {
-                string[] directoryList = Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories);
-                int numRetries = 0;
-                do
-                {
-                    if (directoryList.Length == 0)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        foreach (string file in directoryList)
-                        {
-                            files.Add(file, CheckFileReady(file));
-                        }
-
-                        // Check that all files are accessable
-                        filesAreReady = files.ContainsValue(true);
-                    }
-                }
-                while ((filesAreReady == false) && (numRetries < NUM_FILE_RECEIVE_RETRIES));
-            }
-
-            return filesAreReady;
-        }
-
-        /// <summary>
         /// Check the Input Buffer for directories that are older than the time limit
         /// </summary>
         public static void CheckForInputBufferTimeLimits()

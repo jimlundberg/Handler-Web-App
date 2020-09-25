@@ -180,8 +180,7 @@ namespace Status.Services
                 // Run any unfinished input jobs
                 RunInputJobsFound();
 
-                // Wait between job scans
-                Thread.Sleep(StaticClass.IniData.ScanWaitTime);
+                Thread.Yield();
             }
             while (true);
         }
@@ -191,58 +190,76 @@ namespace Status.Services
         /// </summary>
         public void RunInputJobsFound()
         {
+            string job = string.Empty;
             // Check if there are unfinished Input jobs waiting to run
             if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
             {
-                string job = string.Empty;
+                // Walk through all jobs in the Input Job List
                 int index = 1;
-                Task ReadJobTask = Task.Run(() =>
+                int numJobsTried = 0;
+                do
                 {
-                    if (StaticClass.InputJobsToRun.Count > 0)
+                    Task ReadJobTask = Task.Run(() =>
                     {
-                        // Get the next Job from the Input Jobs List
-                        index = StaticClass.InputJobsToRun.Count;
-                        job = StaticClass.InputJobsToRun.Read(index);
-                    }
-                });
-
-                TimeSpan readJobtimeSpan = TimeSpan.FromMilliseconds(StaticClass.READ_JOB_DELAY);
-                if (!ReadJobTask.Wait(readJobtimeSpan))
-                {
-                    StaticClass.Logger.LogError("InputJobScanThread Read Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
-                        job, StaticClass.READ_JOB_DELAY, DateTime.Now);
-                }
-
-                if (job != string.Empty)
-                {
-                    string directory = StaticClass.IniData.InputDir + @"\" + job;
-                    if (StaticClass.CheckJobDirectoryComplete(directory))
-                    {
-                        Task deleteJobTask = Task.Run(() =>
+                        if (StaticClass.InputJobsToRun.Count > numJobsTried)
                         {
                             // Get the next Job from the Input Jobs List
-                            StaticClass.InputJobsToRun.Delete(index);
-                        });
-
-                        TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
-                        if (!deleteJobTask.Wait(deleteTimeSpan))
-                        {
-                            StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
-                                job, StaticClass.DELETE_JOB_DELAY, DateTime.Now);
+                            index = StaticClass.InputJobsToRun.Count - numJobsTried;
+                            job = StaticClass.InputJobsToRun.Read(index);
                         }
+                    });
 
-                        StaticClass.Log(string.Format("Input Directory Watcher removed Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
-                            job, index, DateTime.Now));
+                    TimeSpan readJobtimeSpan = TimeSpan.FromMilliseconds(StaticClass.READ_JOB_DELAY);
+                    if (!ReadJobTask.Wait(readJobtimeSpan))
+                    {
+                        StaticClass.Logger.LogError("InputJobScanThread Read Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
+                            job, StaticClass.READ_JOB_DELAY, DateTime.Now);
+                    }
 
-                        // Reset Input job file scan flag
-                        StaticClass.InputFileScanComplete[job] = false;
+                    if (job != string.Empty)
+                    {
+                        // Check if there are unfinished Input jobs waiting to run
+                        if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
+                        {
+                            string directory = StaticClass.IniData.InputDir + @"\" + job;
+                            if (StaticClass.CheckIfJobFilesComplete(directory))
+                            {
+                                Task deleteJobTask = Task.Run(() =>
+                                {
+                                    // Get the next Job from the Input Jobs List
+                                    StaticClass.InputJobsToRun.Delete(index);
+                                });
 
-                        StaticClass.Log(string.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                                TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
+                                if (!deleteJobTask.Wait(deleteTimeSpan))
+                                {
+                                    StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
+                                        job, StaticClass.DELETE_JOB_DELAY, DateTime.Now);
+                                }
 
-                        // Start an Input Buffer Job
-                        StartInputJob(directory);
+
+                                // Reset Input job file scan flag
+                                StaticClass.InputFileScanComplete[job] = false;
+
+                                StaticClass.Log(string.Format("\nStarting Input Job {0} index {1} at {2:HH:mm:ss.fff}", directory, index, DateTime.Now));
+
+                                // Start an Input Buffer Job
+                                StartInputJob(directory);
+
+                                // Throttle job startups
+                                Thread.Sleep(StaticClass.IniData.ScanWaitTime);
+                            }
+                            else
+                            {
+                                StaticClass.Log(string.Format("Input Directory Watcher skipping Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                                    job, index, DateTime.Now));
+
+                                numJobsTried++;
+                            }
+                        }
                     }
                 }
+                while (index > 0);
             }
         }
 
