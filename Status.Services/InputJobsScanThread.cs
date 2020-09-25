@@ -191,6 +191,9 @@ namespace Status.Services
         public void RunInputJobsFound()
         {
             string job = string.Empty;
+            int skipJobIndex = 0;
+            int tableSize = 0;
+
             // Check if there are unfinished Input jobs waiting to run
             if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
             {
@@ -200,10 +203,11 @@ namespace Status.Services
                 {
                     Task ReadJobTask = Task.Run(() =>
                     {
-                        if (StaticClass.InputJobsToRun.Count > numJobsTried)
+                        if (StaticClass.InputJobsToRun.Count > 0)
                         {
                             // Get the next Job from the Input Jobs List
-                            index = StaticClass.InputJobsToRun.Count - numJobsTried;
+                            tableSize = StaticClass.InputJobsToRun.Count;
+                            index = StaticClass.InputJobsToRun.Count - skipJobIndex;
                             job = StaticClass.InputJobsToRun.Read(index);
                         }
                     });
@@ -242,7 +246,12 @@ namespace Status.Services
                             }
                             else
                             {
-                                if (index < StaticClass.IniData.ExecutionLimit)
+                                if (++skipJobIndex < tableSize)
+                                {
+                                    StaticClass.Log(string.Format("Input Directory skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
+                                        job, index, DateTime.Now));
+                                }
+                                else
                                 {
                                     StaticClass.Log(string.Format("\nStarting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}", directory, index, DateTime.Now));
                                     StartInputJob(directory);
@@ -260,13 +269,6 @@ namespace Status.Services
                                             job, StaticClass.DELETE_JOB_DELAY, DateTime.Now);
                                     }
                                 }
-                                else
-                                {
-                                    StaticClass.Log(string.Format("Input Directory skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
-                                        job, index, DateTime.Now));
-                                }
-
-                                Thread.Sleep(StaticClass.IniData.ScanWaitTime);
                             }
                         }
                     }
