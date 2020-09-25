@@ -56,6 +56,11 @@ namespace Status.Services
             // Check Input Buffer Job directory to see if it is ready if adding the first jobs
             if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
             {
+                StaticClass.Log(string.Format("\nInput Directory Watcher checking new Job {0} at {1:HH:mm:ss.fff}",
+                    job, DateTime.Now));
+
+                Thread.Sleep(StaticClass.WAIT_FOR_FILES_TO_COMPLETE);
+
                 bool directoryReady = false;
                 do
                 {
