@@ -105,7 +105,7 @@ namespace Status.Services
                     // Check if the directory has a full set of Job files
                     if (StaticClass.CheckIfJobFilesComplete(directory) == true)
                     {
-                        StaticClass.Log(string.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                        StaticClass.Log(string.Format("Starting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                         // Remove job run from Input Job directory list
                         lock (RemoveLock)
@@ -221,7 +221,7 @@ namespace Status.Services
 
                 if (job != string.Empty)
                 {
-                    StaticClass.Log(string.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                    StaticClass.Log(string.Format("Starting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                     // Reset Input job file scan flag
                     StaticClass.InputFileScanComplete[job] = false;
