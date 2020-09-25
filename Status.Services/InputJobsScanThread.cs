@@ -157,7 +157,8 @@ namespace Status.Services
                     TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_JOB_DELAY);
                     if (!AddTask.Wait(timeSpan))
                     {
-                        StaticClass.Logger.LogError("InputJobScanThread Add Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
+                        StaticClass.Logger.LogError("InputJobScanThread Add Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
+                            job, StaticClass.ADD_JOB_DELAY, DateTime.Now);
                     }
                 }
 
@@ -193,28 +194,25 @@ namespace Status.Services
             if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
             {
                 string job = string.Empty;
+                string directory = string.Empty;
+                bool foundJobReady = false;
+                int index = 1;
+                
+                var tokenSource = new CancellationTokenSource();
+                CancellationToken cancelationToken = tokenSource.Token;
                 Task CheckTask = Task.Run(() =>
                 {
-                    for (int index = 1; index <= StaticClass.InputJobsToRun.Count; index++)
+                    for (index = 1; index <= StaticClass.InputJobsToRun.Count; index++)
                     {
                         // Get the next Job from the Input Jobs List
                         job = StaticClass.InputJobsToRun.Read(index);
-                        string directory = StaticClass.IniData.InputDir + @"\" + job;
+                        directory = StaticClass.IniData.InputDir + @"\" + job;
                         if (StaticClass.CheckJobDirectoryComplete(directory) == true)
                         {
                             // Get a Job from the Input Jobs List
                             StaticClass.InputJobsToRun.Delete(index);
-
-                            StaticClass.Log(string.Format("Input Directory Watcher removed Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
-                                job, index, DateTime.Now));
-
-                            StaticClass.Log(string.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
-
-                            // Reset Input job file scan flag
-                            StaticClass.InputFileScanComplete[job] = false;
-
-                            // Start an Input Buffer Job
-                            StartInputJob(directory);
+                            foundJobReady = true;
+                            cancelationToken.ThrowIfCancellationRequested();
                         }
                     }
                 });
@@ -222,7 +220,22 @@ namespace Status.Services
                 TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.CHECK_JOB_DELAY);
                 if (!CheckTask.Wait(timeSpan))
                 {
-                    StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
+                    StaticClass.Logger.LogError("InputJobScanThread Check Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
+                        job, StaticClass.CHECK_JOB_DELAY, DateTime.Now);
+                }
+
+                if (foundJobReady)
+                {
+                    StaticClass.Log(string.Format("Input Directory Watcher removed Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                        job, index, DateTime.Now));
+
+                    // Reset Input job file scan flag
+                    StaticClass.InputFileScanComplete[job] = false;
+
+                    StaticClass.Log(string.Format("\nStarting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+
+                    // Start an Input Buffer Job
+                    StartInputJob(directory);
                 }
             }
         }

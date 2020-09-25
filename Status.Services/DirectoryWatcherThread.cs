@@ -56,37 +56,34 @@ namespace Status.Services
             // Check Input Buffer Job directory to see if it is ready if adding the first jobs
             if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
             {
-                StaticClass.Log(string.Format("\nInput Directory Watcher checking new Job {0} at {1:HH:mm:ss.fff}",
-                    job, DateTime.Now));
-
-                // Wait some for the directory creation and file copies to complete
-                Thread.Sleep(StaticClass.DIRECTORY_RECEIVE_WAIT);
-
-                if (StaticClass.CheckJobDirectoryComplete(jobDirectory) == false)
+                bool directoryReady = false;
+                do
                 {
-                    StaticClass.Logger.LogWarning("\nInput Directory Watcher checking new Job {0} failed at {1:HH:mm:ss.fff}",
-                        job, DateTime.Now);
+                    directoryReady = StaticClass.CheckDirectoryReady(jobDirectory);
+                    Thread.Yield();
                 }
-            }
+                while (directoryReady == false);
 
-            // Do Shutdown Pause check
-            if (StaticClass.ShutDownPauseCheck("Directory Watcher OnCreated") == false)
-            {
-                // Add job to Input Job list
-                Task AddTask = Task.Run(() =>
+                // Do Shutdown Pause check
+                if (StaticClass.ShutDownPauseCheck("Directory Watcher OnCreated") == false)
                 {
-                    index = StaticClass.InputJobsToRun.Count + 1;
-                    StaticClass.InputJobsToRun.Add(index, job);
+                    // Add job to Input Job list
+                    Task AddTask = Task.Run(() =>
+                    {
+                        index = StaticClass.InputJobsToRun.Count + 1;
+                        StaticClass.InputJobsToRun.Add(index, job);
+                    });
+
+                    // Wait for Job add to finish
+                    TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_JOB_DELAY);
+                    if (!AddTask.Wait(timeSpan))
+                    {
+                        StaticClass.Logger.LogError("DirectoryWatcherThread Add Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
+                            job, StaticClass.ADD_JOB_DELAY, DateTime.Now);
+                    }
 
                     StaticClass.Log(string.Format("\nInput Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}",
                         job, index, DateTime.Now));
-                });
-
-                // Wait for Job add to finish
-                TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_JOB_DELAY);
-                if (!AddTask.Wait(timeSpan))
-                {
-                    StaticClass.Logger.LogError("DirectoryWatcherThread Add Job {0} timed out at {1:HH:mm:ss.fff}", job, DateTime.Now);
                 }
             }
         }

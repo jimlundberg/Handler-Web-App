@@ -18,7 +18,7 @@ namespace Status.Services
         public const int TCP_IP_STARTUP_WAIT = 60000;
         public const int STARTING_TCP_IP_WAIT = 15000;
         public const int POST_PROCESS_WAIT = 10000;
-        public const int DIRECTORY_RECEIVE_WAIT = 2000;
+        public const int DIRECTORY_RECEIVE_WAIT = 250;
         public const int FILE_RECEIVE_WAIT = 1000;
         public const int WAIT_FOR_FILES_TO_COMPLETE = 2500;
         public const int DISPLAY_PROCESS_DATA_WAIT = 45000;
@@ -27,9 +27,9 @@ namespace Status.Services
         public const int READ_AVAILABLE_RETRY_DELAY = 250;
         public const int FILE_WAIT_DELAY = 2500;
         public const int FILE_READY_WAIT = 250;
-        public const int ADD_JOB_DELAY = 1000;
+        public const int ADD_JOB_DELAY = 2000;
         public const int CHECK_JOB_DELAY = 2500;
-        public const int DELETE_JOB_DELAY = 1000;
+        public const int DELETE_JOB_DELAY = 2000;
         public const int NUM_TCP_IP_RETRIES = 240;
         public const int NUM_XML_ACCESS_RETRIES = 100;
         public const int NUM_FILE_RECEIVE_RETRIES = 100;
