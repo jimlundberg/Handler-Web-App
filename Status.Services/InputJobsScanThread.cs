@@ -244,7 +244,7 @@ namespace Status.Services
                                         job, StaticClass.DELETE_JOB_DELAY, DateTime.Now);
                                 }
                             }
-                            else
+                            else // Partial Job handling
                             {
                                 if (++skipJobIndex < tableSize)
                                 {

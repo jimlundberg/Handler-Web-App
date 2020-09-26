@@ -55,6 +55,13 @@ namespace Status.Services
 
             Thread.Sleep(StaticClass.WAIT_FOR_FILES_TO_COMPLETE);
 
+            // Check directory contents complete
+            if (StaticClass.CheckDirectoryReady(jobDirectory))
+            {
+                StaticClass.Logger.LogError("DirectoryWatcherThread Job {0} directory check failed at {1:HH:mm:ss.fff}",
+                    job, DateTime.Now);
+            }
+
             // Do Shutdown Pause check
             if (StaticClass.ShutDownPauseCheck("Directory Watcher OnCreated") == false)
             {
