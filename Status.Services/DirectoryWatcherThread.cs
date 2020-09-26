@@ -74,7 +74,7 @@ namespace Status.Services
                     index = StaticClass.InputJobsToRun.Count + 1;
                     StaticClass.InputJobsToRun.Add(index, job);
 
-                    StaticClass.Log(string.Format("\nInput Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}",
+                    StaticClass.Log(string.Format("Input Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}",
                         job, index, DateTime.Now));
                 });
 
