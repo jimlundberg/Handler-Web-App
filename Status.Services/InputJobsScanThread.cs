@@ -196,11 +196,11 @@ namespace Status.Services
             int tableSize = 0;
 
             // Check if there are unfinished Input jobs waiting to run
-            if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
+            int index = 1;
+            int retryCount = 0;
+            do
             {
-                // Walk through all jobs in the Input Job List
-                int index = 1;
-                do
+                if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
                 {
                     Task ReadJobTask = Task.Run(() =>
                     {
@@ -274,8 +274,8 @@ namespace Status.Services
                         }
                     }
                 }
-                while (index > 1);
             }
+            while ((index > 1) && (retryCount < StaticClass.NUM_JOB_CHECK_RETRIES));
         }
 
         /// <summary>

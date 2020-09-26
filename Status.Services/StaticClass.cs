@@ -30,6 +30,7 @@ namespace Status.Services
         public const int ADD_JOB_DELAY = 2000;
         public const int READ_JOB_DELAY = 3500;
         public const int DELETE_JOB_DELAY = 2000;
+        public const int NUM_JOB_CHECK_RETRIES = 10;
         public const int NUM_TCP_IP_RETRIES = 240;
         public const int NUM_XML_ACCESS_RETRIES = 100;
         public const int NUM_FILE_RECEIVE_RETRIES = 100;
