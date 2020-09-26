@@ -216,8 +216,8 @@ namespace Status.Services
                     TimeSpan readJobtimeSpan = TimeSpan.FromMilliseconds(StaticClass.READ_JOB_DELAY);
                     if (!ReadJobTask.Wait(readJobtimeSpan))
                     {
-                        StaticClass.Logger.LogError("InputJobScanThread Read Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
-                            job, StaticClass.READ_JOB_DELAY, DateTime.Now);
+                        StaticClass.Logger.LogError("InputJobScanThread Read Job {0} timed out adding as index {1} at {2} msec at {2:HH:mm:ss.fff}",
+                            job, index, StaticClass.READ_JOB_DELAY, DateTime.Now);
                     }
 
                     if (job != string.Empty)
@@ -266,8 +266,8 @@ namespace Status.Services
                                     TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
                                     if (!deleteJobTask.Wait(deleteTimeSpan))
                                     {
-                                        StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
-                                            job, StaticClass.DELETE_JOB_DELAY, DateTime.Now);
+                                        StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1} msec for index {2} at {3:HH:mm:ss.fff}",
+                                            job, StaticClass.DELETE_JOB_DELAY, index, DateTime.Now);
                                     }
                                 }
                             }
