@@ -180,7 +180,8 @@ namespace Status.Services
                 // Run any unfinished input jobs
                 RunInputJobsFound();
 
-                Thread.Yield();
+                // Throttle calling new Jobs Found handler
+                Thread.Sleep(StaticClass.IniData.ScanWaitTime);
             }
             while (true);
         }
