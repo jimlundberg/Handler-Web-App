@@ -116,10 +116,10 @@ namespace Status.Services
             // Get job name from directory name
             string job = directory.Replace(StaticClass.IniData.ProcessingDir, "").Remove(0, 1);
 
-            // Quick check to see if the directory is already full
+            // Check to see if the directory is already full
             if (StaticClass.NumberOfProcessingFilesFound[job] == StaticClass.NumberOfProcessingFilesNeeded[job])
             {
-                StaticClass.Log(string.Format("Processing File Watcher completed the scan for Job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Processing File Watcher detected Job {0} has complete file set at {1:HH:mm:ss.fff}",
                     job, DateTime.Now));
 
                 // Signal the Run thread that the Processing files were found
