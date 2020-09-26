@@ -53,7 +53,7 @@ namespace Status.Services
             string job = jobDirectory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
             int index = 0;
 
-            StaticClass.Log(string.Format("\nInput Directory Watcher checing new Job {0} for Input Job list at {1:HH:mm:ss.fff}",
+            StaticClass.Log(string.Format("\nInput Directory Watcher checking new Job {0} for Input Job list at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
 
             Thread.Sleep(StaticClass.WAIT_FOR_FILES_TO_COMPLETE);
