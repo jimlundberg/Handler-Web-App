@@ -53,6 +53,9 @@ namespace Status.Services
             string job = jobDirectory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
             int index = 0;
 
+            StaticClass.Log(string.Format("\nInput Directory Watcher checing new Job {0} for Input Job list at {1:HH:mm:ss.fff}",
+                job, DateTime.Now));
+
             Thread.Sleep(StaticClass.WAIT_FOR_FILES_TO_COMPLETE);
 
             // Check directory contents complete
@@ -70,6 +73,9 @@ namespace Status.Services
                 {
                     index = StaticClass.InputJobsToRun.Count + 1;
                     StaticClass.InputJobsToRun.Add(index, job);
+
+                    StaticClass.Log(string.Format("\nInput Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}",
+                        job, index, DateTime.Now));
                 });
 
                 // Wait for Job add to finish
@@ -79,9 +85,6 @@ namespace Status.Services
                     StaticClass.Logger.LogError("DirectoryWatcherThread Add Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
                         job, StaticClass.ADD_JOB_DELAY, DateTime.Now);
                 }
-
-                StaticClass.Log(string.Format("\nInput Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}",
-                    job, index, DateTime.Now));
             }
         }
 

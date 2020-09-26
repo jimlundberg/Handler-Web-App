@@ -323,16 +323,20 @@ namespace Status.Services
             DirectoryInfo dirInfo = new DirectoryInfo(directory);
             try
             {
-                // If GetDirectories works then is accessible
+                // If GetDirectories works then it is accessible
                 DirectoryInfo[] dirs = dirInfo.GetDirectories();
                 if (dirs != null)
                 {
+                    StaticClass.Log(string.Format("Directory {0} accessibility check passed at {1:HH:mm:ss.fff}",
+                        directory, DateTime.Now));
+
                     return true;
                 }
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException e)
             {
-                return false;
+                Logger.LogError("Directory {0} accessibility check failed with {1} at {2:HH:mm:ss.fff}",
+                    directory, e, DateTime.Now);
             }
 
             return false;
