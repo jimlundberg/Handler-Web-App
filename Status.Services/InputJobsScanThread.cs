@@ -267,11 +267,10 @@ namespace Status.Services
                 if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
                 {
                     string job = GetNextJobFromList(index, ref tableSize, ref skipJobTotal);
-                    string jobDirectory = StaticClass.IniData.InputDir + @"\" + job;
-
                     if (job != string.Empty)
                     {
                         // Check for complete jobs and run them first
+                        string jobDirectory = StaticClass.IniData.InputDir + @"\" + job;
                         if (StaticClass.CheckIfJobFilesComplete(jobDirectory))
                         {
                             StaticClass.Log(string.Format("\nStarting Input Job {0} index {1} at {2:HH:mm:ss.fff}",
