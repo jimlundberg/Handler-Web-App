@@ -89,7 +89,7 @@ namespace Status.Services
                 }
                 while (StaticClass.InputFileScanComplete[job] == false);
 
-                StaticClass.Log(string.Format("Finished Input file scan for Job {0} at {1:HH:mm:ss.fff}",
+                StaticClass.Log(string.Format("Finished Running Input file scan loop for Job {0} at {1:HH:mm:ss.fff}",
                     inputJobFileDir, DateTime.Now));
 
                 // Add copying entry to status list
