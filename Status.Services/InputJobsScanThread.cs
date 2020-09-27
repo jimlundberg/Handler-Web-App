@@ -217,8 +217,8 @@ namespace Status.Services
                     index = StaticClass.InputJobsToRun.Count - skipJobIndex;
                     job = StaticClass.InputJobsToRun.Read(index);
 
-                    StaticClass.Logger.LogError("InputJobScanThread next Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
-                        job, index, DateTime.Now);
+                    StaticClass.Log(string.Format("InputJobScanThread next Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                        job, index, DateTime.Now));
                 }
             });
 
@@ -247,8 +247,8 @@ namespace Status.Services
                 // Delete job being run next from the Input Jobs List
                 StaticClass.InputJobsToRun.Delete(index);
 
-                StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
-                    job, index, DateTime.Now);
+                StaticClass.Log(string.Format("InputJobScanThread Delete Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                    job, index, DateTime.Now));
             });
 
             TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
