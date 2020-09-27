@@ -273,10 +273,12 @@ namespace Status.Services
                         string jobDirectory = StaticClass.IniData.InputDir + @"\" + job;
                         if (StaticClass.CheckIfJobFilesComplete(jobDirectory))
                         {
+                            DeleteJobFromList(job, index);
+
                             StaticClass.Log(string.Format("\nStarting Input Job {0} index {1} at {2:HH:mm:ss.fff}",
                                 jobDirectory, index, DateTime.Now));
+
                             StartInputJob(jobDirectory);
-                            DeleteJobFromList(job, index);
                         }
                         else // Partial Job handling
                         {
@@ -288,10 +290,12 @@ namespace Status.Services
                             }
                             else
                             {
+                                DeleteJobFromList(job, index);
+
                                 StaticClass.Log(string.Format("\nStarting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}",
                                     jobDirectory, index, DateTime.Now));
+
                                 StartInputJob(jobDirectory);
-                                DeleteJobFromList(job, index);
                             }
                         }
                     }
