@@ -144,22 +144,7 @@ namespace Status.Services
                     string directory = dirInfo.ToString();
                     string job = directory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
                     int index = 0;
-
-                    Task AddTask = Task.Run(() =>
-                    {
-                        index = StaticClass.InputJobsToRun.Count + 1;
-                        StaticClass.InputJobsToRun.Add(index, job);
-
-                        StaticClass.Log(string.Format("Unfinished Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
-                            job, index, DateTime.Now));
-                    });
-
-                    TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_JOB_DELAY);
-                    if (!AddTask.Wait(timeSpan))
-                    {
-                        StaticClass.Logger.LogError("InputJobScanThread Add Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
-                            job, StaticClass.ADD_JOB_DELAY, DateTime.Now);
-                    }
+                    AddJobToList(job, index);
                 }
 
                 // Clear the Directory Info List after done with it
@@ -187,67 +172,122 @@ namespace Status.Services
         }
 
         /// <summary>
+        /// Add Job to Input Buffer Job list
+        /// </summary>
+        /// <param name="job"></param>
+        /// <param name="index"></param>
+        private void AddJobToList(string job, int index)
+        {
+            Task AddTask = Task.Run(() =>
+            {
+                index = StaticClass.InputJobsToRun.Count + 1;
+                StaticClass.InputJobsToRun.Add(index, job);
+
+                StaticClass.Log(string.Format("Unfinished Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
+                    job, index, DateTime.Now));
+            });
+
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_JOB_DELAY);
+            if (!AddTask.Wait(timeSpan))
+            {
+                StaticClass.Logger.LogError("InputJobScanThread Add Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
+                    job, StaticClass.ADD_JOB_DELAY, DateTime.Now);
+            }
+        }
+
+        /// <summary>
+        /// Get next Job from Input Buffer Job List
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="tableSizeRef"></param>
+        /// <param name="skipJobIndexRef"></param>
+        /// <returns></returns>
+        private string GetNextJobFromList(int index, ref int tableSizeRef, ref int skipJobIndexRef)
+        {
+            string job = string.Empty;
+            int tableSize = tableSizeRef;
+            int skipJobIndex = tableSizeRef;
+
+            Task ReadJobTask = Task.Run(() =>
+            {
+                if (StaticClass.InputJobsToRun.Count > 0)
+                {
+                    // Get the next Job from the Input Jobs List
+                    tableSize = StaticClass.InputJobsToRun.Count;
+                    index = StaticClass.InputJobsToRun.Count - skipJobIndex;
+                    job = StaticClass.InputJobsToRun.Read(index);
+                }
+            });
+
+            TimeSpan readJobtimeSpan = TimeSpan.FromMilliseconds(StaticClass.READ_JOB_DELAY);
+            if (!ReadJobTask.Wait(readJobtimeSpan))
+            {
+                StaticClass.Logger.LogError("InputJobScanThread Read Job {0} timed out adding as index {1} at {2} msec at {2:HH:mm:ss.fff}",
+                    job, index, StaticClass.READ_JOB_DELAY, DateTime.Now);
+            }
+
+            // Return parameters
+            tableSizeRef = tableSize;
+            skipJobIndexRef = skipJobIndex;
+            return job;
+        }
+
+        /// <summary>
+        /// Delete Job from Input Buffer Job List
+        /// </summary>
+        /// <param name="job"></param>
+        /// <param name="index"></param>
+        private void DeleteJobFromList(string job, int index)
+        {
+            Task deleteJobTask = Task.Run(() =>
+            {
+                // Delete job being run next from the Input Jobs List
+                StaticClass.InputJobsToRun.Delete(index);
+            });
+
+            TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
+            if (!deleteJobTask.Wait(deleteTimeSpan))
+            {
+                StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1} msec for index {2} at {3:HH:mm:ss.fff}",
+                    job, StaticClass.DELETE_JOB_DELAY, index, DateTime.Now);
+            }
+        }
+
+        /// <summary>
         /// Check for unfinished Input Buffer jobs
         /// </summary>
         public void RunInputJobsFound()
         {
             string job = string.Empty;
-            int skipJobIndex = 0;
+            int skipJobTotal = 0;
             int tableSize = 0;
 
             // Check if there are unfinished Input jobs waiting to run
             int index = 1;
-            int retryCount = 0;
+            int numOfRetries = 0;
             do
             {
                 if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
                 {
-                    Task ReadJobTask = Task.Run(() =>
-                    {
-                        if (StaticClass.InputJobsToRun.Count > 0)
-                        {
-                            // Get the next Job from the Input Jobs List
-                            tableSize = StaticClass.InputJobsToRun.Count;
-                            index = StaticClass.InputJobsToRun.Count - skipJobIndex;
-                            job = StaticClass.InputJobsToRun.Read(index);
-                        }
-                    });
-
-                    TimeSpan readJobtimeSpan = TimeSpan.FromMilliseconds(StaticClass.READ_JOB_DELAY);
-                    if (!ReadJobTask.Wait(readJobtimeSpan))
-                    {
-                        StaticClass.Logger.LogError("InputJobScanThread Read Job {0} timed out adding as index {1} at {2} msec at {2:HH:mm:ss.fff}",
-                            job, index, StaticClass.READ_JOB_DELAY, DateTime.Now);
-                    }
+                    job = GetNextJobFromList(index, ref tableSize, ref skipJobTotal);
 
                     if (job != string.Empty)
                     {
                         // Check if there are unfinished Input jobs waiting to run
                         if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
                         {
+                            // Check for complete jobs first
                             string directory = StaticClass.IniData.InputDir + @"\" + job;
                             if (StaticClass.CheckIfJobFilesComplete(directory))
                             {
                                 StaticClass.Log(string.Format("\nStarting Input Job {0} index {1} at {2:HH:mm:ss.fff}", directory, index, DateTime.Now));
-
                                 StartInputJob(directory);
-
-                                Task deleteJobTask = Task.Run(() =>
-                                {
-                                    // Delete job being run next from the Input Jobs List
-                                    StaticClass.InputJobsToRun.Delete(index);
-                                });
-
-                                TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
-                                if (!deleteJobTask.Wait(deleteTimeSpan))
-                                {
-                                    StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
-                                        job, StaticClass.DELETE_JOB_DELAY, DateTime.Now);
-                                }
+                                DeleteJobFromList(job, index);
                             }
                             else // Partial Job handling
                             {
-                                if (++skipJobIndex < tableSize)
+                                // Skip Job if there are more in the list
+                                if (++skipJobTotal < tableSize)
                                 {
                                     StaticClass.Log(string.Format("Input Directory skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
                                         job, index, DateTime.Now));
@@ -256,26 +296,14 @@ namespace Status.Services
                                 {
                                     StaticClass.Log(string.Format("\nStarting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}", directory, index, DateTime.Now));
                                     StartInputJob(directory);
-
-                                    Task deleteJobTask = Task.Run(() =>
-                                    {
-                                        // Delete job being run next from the Input Jobs List
-                                        StaticClass.InputJobsToRun.Delete(index);
-                                    });
-
-                                    TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
-                                    if (!deleteJobTask.Wait(deleteTimeSpan))
-                                    {
-                                        StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} timed out at {1} msec for index {2} at {3:HH:mm:ss.fff}",
-                                            job, StaticClass.DELETE_JOB_DELAY, index, DateTime.Now);
-                                    }
+                                    DeleteJobFromList(job, index);
                                 }
                             }
                         }
                     }
                 }
             }
-            while ((index > 1) && (retryCount < StaticClass.NUM_JOB_CHECK_RETRIES));
+            while ((index > 1) && (numOfRetries++ < StaticClass.NUM_JOB_CHECK_RETRIES));
         }
 
         /// <summary>

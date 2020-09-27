@@ -33,7 +33,6 @@ namespace Status.Services
         public const int NUM_JOB_CHECK_RETRIES = 10;
         public const int NUM_TCP_IP_RETRIES = 240;
         public const int NUM_XML_ACCESS_RETRIES = 100;
-        public const int NUM_FILE_RECEIVE_RETRIES = 100;
         public const int NUM_RESULTS_ENTRY_RETRIES = 100;
         public const int NUM_REQUESTS_TILL_TCPIP_SLOWDOWN = 5;
 
