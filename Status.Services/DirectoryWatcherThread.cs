@@ -85,6 +85,9 @@ namespace Status.Services
                 if (StaticClass.CheckDirectoryReady(jobDirectory) == true)
                 {
                     AddJobToList(job, index);
+                }
+                else
+                {
                     StaticClass.Logger.LogError("DirectoryWatcherThread Job {0} directory check failed at {1:HH:mm:ss.fff}",
                         job, DateTime.Now);
                 }
