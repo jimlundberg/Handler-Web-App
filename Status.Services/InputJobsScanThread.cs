@@ -216,6 +216,9 @@ namespace Status.Services
                     tableSize = StaticClass.InputJobsToRun.Count;
                     index = StaticClass.InputJobsToRun.Count - skipJobIndex;
                     job = StaticClass.InputJobsToRun.Read(index);
+
+                    StaticClass.Logger.LogError("InputJobScanThread next Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                        job, index, DateTime.Now);
                 }
             });
 
@@ -243,6 +246,9 @@ namespace Status.Services
             {
                 // Delete job being run next from the Input Jobs List
                 StaticClass.InputJobsToRun.Delete(index);
+
+                StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                    job, index, DateTime.Now);
             });
 
             TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
@@ -260,13 +266,13 @@ namespace Status.Services
         {
             // Check if there are unfinished Input jobs waiting to run
             int skipJobTotal = 0;
-            int tableSize = 0;
+            int jobListSize = 0;
             int index = 1;
             do
             {
                 if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
                 {
-                    string job = GetNextJobFromList(index, ref tableSize, ref skipJobTotal);
+                    string job = GetNextJobFromList(index, ref jobListSize, ref skipJobTotal);
                     if (job != string.Empty)
                     {
                         // Check for complete jobs and run them first
@@ -283,7 +289,7 @@ namespace Status.Services
                         else // Partial Job handling
                         {
                             // Skip Job if there are more in the list
-                            if (++skipJobTotal < tableSize)
+                            if (++skipJobTotal < jobListSize)
                             {
                                 StaticClass.Log(string.Format("Input Directory skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
                                     job, index, DateTime.Now));
