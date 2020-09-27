@@ -267,15 +267,16 @@ namespace Status.Services
                 if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
                 {
                     string job = GetNextJobFromList(index, ref tableSize, ref skipJobTotal);
+                    string jobDirectory = StaticClass.IniData.InputDir + @"\" + job;
+
                     if (job != string.Empty)
                     {
-                        // Check for complete jobs first
-                        string directory = StaticClass.IniData.InputDir + @"\" + job;
-                        if (StaticClass.CheckIfJobFilesComplete(directory))
+                        // Check for complete jobs and run them first
+                        if (StaticClass.CheckIfJobFilesComplete(jobDirectory))
                         {
                             StaticClass.Log(string.Format("\nStarting Input Job {0} index {1} at {2:HH:mm:ss.fff}",
-                                directory, index, DateTime.Now));
-                            StartInputJob(directory);
+                                jobDirectory, index, DateTime.Now));
+                            StartInputJob(jobDirectory);
                             DeleteJobFromList(job, index);
                         }
                         else // Partial Job handling
@@ -289,8 +290,8 @@ namespace Status.Services
                             else
                             {
                                 StaticClass.Log(string.Format("\nStarting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}",
-                                    directory, index, DateTime.Now));
-                                StartInputJob(directory);
+                                    jobDirectory, index, DateTime.Now));
+                                StartInputJob(jobDirectory);
                                 DeleteJobFromList(job, index);
                             }
                         }
