@@ -258,52 +258,46 @@ namespace Status.Services
         /// </summary>
         public void RunInputJobsFound()
         {
-            string job = string.Empty;
+            // Check if there are unfinished Input jobs waiting to run
             int skipJobTotal = 0;
             int tableSize = 0;
-
-            // Check if there are unfinished Input jobs waiting to run
             int index = 1;
-            int numOfRetries = 0;
             do
             {
                 if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
                 {
-                    job = GetNextJobFromList(index, ref tableSize, ref skipJobTotal);
-
+                    string job = GetNextJobFromList(index, ref tableSize, ref skipJobTotal);
                     if (job != string.Empty)
                     {
-                        // Check if there are unfinished Input jobs waiting to run
-                        if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
+                        // Check for complete jobs first
+                        string directory = StaticClass.IniData.InputDir + @"\" + job;
+                        if (StaticClass.CheckIfJobFilesComplete(directory))
                         {
-                            // Check for complete jobs first
-                            string directory = StaticClass.IniData.InputDir + @"\" + job;
-                            if (StaticClass.CheckIfJobFilesComplete(directory))
+                            StaticClass.Log(string.Format("\nStarting Input Job {0} index {1} at {2:HH:mm:ss.fff}",
+                                directory, index, DateTime.Now));
+                            StartInputJob(directory);
+                            DeleteJobFromList(job, index);
+                        }
+                        else // Partial Job handling
+                        {
+                            // Skip Job if there are more in the list
+                            if (++skipJobTotal < tableSize)
                             {
-                                StaticClass.Log(string.Format("\nStarting Input Job {0} index {1} at {2:HH:mm:ss.fff}", directory, index, DateTime.Now));
+                                StaticClass.Log(string.Format("Input Directory skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
+                                    job, index, DateTime.Now));
+                            }
+                            else
+                            {
+                                StaticClass.Log(string.Format("\nStarting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}",
+                                    directory, index, DateTime.Now));
                                 StartInputJob(directory);
                                 DeleteJobFromList(job, index);
-                            }
-                            else // Partial Job handling
-                            {
-                                // Skip Job if there are more in the list
-                                if (++skipJobTotal < tableSize)
-                                {
-                                    StaticClass.Log(string.Format("Input Directory skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
-                                        job, index, DateTime.Now));
-                                }
-                                else
-                                {
-                                    StaticClass.Log(string.Format("\nStarting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}", directory, index, DateTime.Now));
-                                    StartInputJob(directory);
-                                    DeleteJobFromList(job, index);
-                                }
                             }
                         }
                     }
                 }
             }
-            while ((index > 1) && (numOfRetries++ < StaticClass.NUM_JOB_CHECK_RETRIES));
+            while (index > 1);
         }
 
         /// <summary>
