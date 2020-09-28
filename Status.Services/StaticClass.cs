@@ -169,14 +169,31 @@ namespace Status.Services
         public static string GetJobFromList(int jobIndex)
         {
             string job = string.Empty;
+            int JobIndex = jobIndex;
             Task ReadJobTask = Task.Run(() =>
             {
                 if (InputJobsToRun.Count > 0)
                 {
-                    job = InputJobsToRun.Read(jobIndex);
+                    do
+                    {
+                        try
+                        {
+                            job = InputJobsToRun.Read(jobIndex);
 
-                    Log(string.Format("\nGot next Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
-                        job, jobIndex, DateTime.Now));
+                            Log(string.Format("\nGot next Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                                job, jobIndex, DateTime.Now));
+
+                            break;
+                        }
+                        catch (KeyNotFoundException)
+                        {
+                            JobIndex--;
+
+                            Logger.LogError("Get Job from list index {0} failed at {1:HH:mm:ss.fff}",
+                                jobIndex, DateTime.Now);
+                        }
+                    }
+                    while (JobIndex < TotalNumberOfJobs);
                 }
             });
 
