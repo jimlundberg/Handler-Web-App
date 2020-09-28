@@ -211,6 +211,12 @@ namespace Status.Services
                 StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} index {1} timed out at {2} msec at {3:HH:mm:ss.fff}",
                     job, jobIndex, StaticClass.DELETE_JOB_DELAY, DateTime.Now);
             }
+
+            TotalNumberOfJobs = GetTotalNumberOfJobs();
+            if (CurrentJobIndex < TotalNumberOfJobs)
+            {
+                CurrentJobIndex++;
+            }
         }
 
         /// <summary>
