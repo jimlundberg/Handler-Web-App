@@ -174,26 +174,20 @@ namespace Status.Services
             {
                 if (InputJobsToRun.Count > 0)
                 {
-                    do
+                    try
                     {
-                        try
-                        {
-                            job = InputJobsToRun.Read(jobIndex);
+                        job = InputJobsToRun.Read(jobIndex);
 
-                            Log(string.Format("\nGot next Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
-                                job, jobIndex, DateTime.Now));
-
-                            break;
-                        }
-                        catch (KeyNotFoundException)
-                        {
-                            JobIndex--;
-
-                            Logger.LogError("Get Job from list index {0} failed at {1:HH:mm:ss.fff}",
-                                jobIndex, DateTime.Now);
-                        }
+                        Log(string.Format("\nGot next Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                            job, jobIndex, DateTime.Now));
                     }
-                    while (JobIndex < TotalNumberOfJobs);
+                    catch (KeyNotFoundException)
+                    {
+                        CurrentJobIndex = 1;
+
+                        Logger.LogError("Get Job from list index {0} failed at {1:HH:mm:ss.fff}",
+                            jobIndex, DateTime.Now);
+                    }
                 }
             });
 
