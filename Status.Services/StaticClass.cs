@@ -201,11 +201,10 @@ namespace Status.Services
                 // Delete job being run next from the Input Jobs List
                 InputJobsToRun.Delete(jobIndex);
 
+                // If there are more jobs in the list, increment current Job index
                 if (CurrentJobIndex < LastJobIndex)
                 {
                     CurrentJobIndex++;
-                    Log(string.Format("***** Set CurrentJobIndex to {0} at {1:HH:mm:ss.fff}",
-                        CurrentJobIndex, DateTime.Now));
                 }
 
                 Log(string.Format("Deleted Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
