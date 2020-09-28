@@ -116,9 +116,6 @@ namespace Status.Services
 
 
         /// <summary>
-        /// Finds the last index and sets the global TotalNumberOfJobs
-        /// </summary>
-        /// <summary>
         /// Get total number of Jobs in the Input Buffer Job list
         /// </summary>
         public static int GetTotalNumberOfJobs()
@@ -126,14 +123,14 @@ namespace Status.Services
             int inputJobCount = 0;
             Task AddTask = Task.Run(() =>
             {
-                inputJobCount = StaticClass.InputJobsToRun.Count;
+                inputJobCount = InputJobsToRun.Count;
             });
 
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.GET_TOTAL_NUM_DELAY);
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_DELAY);
             if (!AddTask.Wait(timeSpan))
             {
-                StaticClass.Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
-                    StaticClass.GET_TOTAL_NUM_DELAY, DateTime.Now);
+                Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
+                    GET_TOTAL_NUM_DELAY, DateTime.Now);
             }
 
             return inputJobCount;
@@ -148,23 +145,23 @@ namespace Status.Services
         {
             Task AddTask = Task.Run(() =>
             {
-                int nextJobIndex = GetTotalNumberOfJobs() + 1;
-                StaticClass.InputJobsToRun.Add(nextJobIndex, job);
+                LastJobIndex = GetTotalNumberOfJobs() + 1;
+                InputJobsToRun.Add(LastJobIndex, job);
 
-                StaticClass.Log(string.Format("Unfinished Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
-                    job, nextJobIndex, DateTime.Now));
+                Log(string.Format("Unfinished Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
+                    job, LastJobIndex, DateTime.Now));
             });
 
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_JOB_DELAY);
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(ADD_JOB_DELAY);
             if (!AddTask.Wait(timeSpan))
             {
-                StaticClass.Logger.LogError("InputJobScanThread Add Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
-                    job, StaticClass.ADD_JOB_DELAY, DateTime.Now);
+                Logger.LogError("InputJobScanThread Add Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
+                    job, ADD_JOB_DELAY, DateTime.Now);
             }
         }
 
         /// <summary>
-        /// Get Job from the Synchronized Job list
+        /// Get Job from the selected list index
         /// </summary>
         /// <param name="jobIndex"></param>
         /// <returns>Job string</returns>
@@ -173,20 +170,20 @@ namespace Status.Services
             string job = string.Empty;
             Task ReadJobTask = Task.Run(() =>
             {
-                if (StaticClass.InputJobsToRun.Count > 0)
+                if (InputJobsToRun.Count > 0)
                 {
-                    job = StaticClass.InputJobsToRun.Read(jobIndex);
+                    job = InputJobsToRun.Read(jobIndex);
 
-                    StaticClass.Log(string.Format("\nGot next Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                    Log(string.Format("\nGot next Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
                         job, jobIndex, DateTime.Now));
                 }
             });
 
-            TimeSpan readJobtimeSpan = TimeSpan.FromMilliseconds(StaticClass.READ_JOB_DELAY);
+            TimeSpan readJobtimeSpan = TimeSpan.FromMilliseconds(READ_JOB_DELAY);
             if (!ReadJobTask.Wait(readJobtimeSpan))
             {
-                StaticClass.Logger.LogError("InputJobScanThread Read Job {0} timed out adding as index {1} at {2} msec at {2:HH:mm:ss.fff}",
-                    job, jobIndex, StaticClass.READ_JOB_DELAY, DateTime.Now);
+                Logger.LogError("InputJobScanThread Read Job {0} timed out adding as index {1} at {2} msec at {2:HH:mm:ss.fff}",
+                    job, jobIndex, READ_JOB_DELAY, DateTime.Now);
             }
 
             return job;
@@ -198,32 +195,28 @@ namespace Status.Services
         /// <param name="jobIndex"></param>
         public static void DeleteJobFromList(int jobIndex)
         {
-            string job = StaticClass.InputJobsToRun.Read(jobIndex);
+            string job = InputJobsToRun.Read(jobIndex);
             Task deleteJobTask = Task.Run(() =>
             {
                 // Delete job being run next from the Input Jobs List
-                StaticClass.InputJobsToRun.Delete(jobIndex);
+                InputJobsToRun.Delete(jobIndex);
 
                 if (CurrentJobIndex < LastJobIndex)
                 {
                     CurrentJobIndex++;
-                    StaticClass.Log(string.Format("***** Set CurrentJobIndex to {0} at {1:HH:mm:ss.fff}",
+                    Log(string.Format("***** Set CurrentJobIndex to {0} at {1:HH:mm:ss.fff}",
                         CurrentJobIndex, DateTime.Now));
                 }
-                else if (CurrentJobIndex == LastJobIndex)
-                {
-                    LastJobIndex = GetTotalNumberOfJobs() + 1;
-                }
 
-                StaticClass.Log(string.Format("Deleted Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                Log(string.Format("Deleted Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
                     job, jobIndex, DateTime.Now));
             });
 
-            TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
+            TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(DELETE_JOB_DELAY);
             if (!deleteJobTask.Wait(deleteTimeSpan))
             {
-                StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} index {1} timed out at {2} msec at {3:HH:mm:ss.fff}",
-                    job, jobIndex, StaticClass.DELETE_JOB_DELAY, DateTime.Now);
+                Logger.LogError("InputJobScanThread Delete Job {0} index {1} timed out at {2} msec at {3:HH:mm:ss.fff}",
+                    job, jobIndex, DELETE_JOB_DELAY, DateTime.Now);
             }
         }
 
