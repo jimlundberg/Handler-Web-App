@@ -45,8 +45,8 @@ namespace Status.Services
 		public static int JobPortIndex = 0;
 		public static int LogFileSizeLimit = 0;
         public static int TotalNumberOfJobs = 0;
-        public static int LastJobIndex = 1;
         public static int CurrentJobIndex = 1;
+        public static int LastJobIndex = 1;
 
         // Thread handles
         public static Thread InputJobsScanThreadHandle;

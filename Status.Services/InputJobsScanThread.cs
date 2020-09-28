@@ -218,7 +218,6 @@ namespace Status.Services
                 }
                 else
                 {
-                    StaticClass.Log(string.Format("\nResetting Current and Last indices at {0:HH:mm:ss.fff}", DateTime.Now));
                     StaticClass.CurrentJobIndex = 1;
                     StaticClass.LastJobIndex = 1;
                 }
