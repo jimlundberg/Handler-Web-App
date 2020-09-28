@@ -45,6 +45,7 @@ namespace Status.Services
 		public static int JobPortIndex = 0;
 		public static int LogFileSizeLimit = 0;
         public static int TotalNumberOfJobs = 0;
+        public static int LastJobIndex = 1;
         public static int CurrentJobIndex = 1;
 
         // Thread handles
@@ -115,14 +116,17 @@ namespace Status.Services
 
 
         /// <summary>
+        /// Finds the last index and sets the global TotalNumberOfJobs
+        /// </summary>
+        /// <summary>
         /// Get total number of Jobs in the Input Buffer Job list
         /// </summary>
         public static int GetTotalNumberOfJobs()
         {
-            int totalNumberOfJobs = 0;
+            int inputJobCount = 0;
             Task AddTask = Task.Run(() =>
             {
-                totalNumberOfJobs = StaticClass.InputJobsToRun.Count;
+                inputJobCount = StaticClass.InputJobsToRun.Count;
             });
 
             TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.GET_TOTAL_NUM_DELAY);
@@ -132,7 +136,7 @@ namespace Status.Services
                     StaticClass.GET_TOTAL_NUM_DELAY, DateTime.Now);
             }
 
-            return totalNumberOfJobs;
+            return inputJobCount;
         }
 
         /// <summary>
@@ -142,14 +146,13 @@ namespace Status.Services
         /// <returns></returns>
         public static void AddJobToList(string job)
         {
-            int jobIndex = 0;
             Task AddTask = Task.Run(() =>
             {
-                jobIndex = StaticClass.InputJobsToRun.Count + 1;
-                StaticClass.InputJobsToRun.Add(jobIndex, job);
+                int nextJobIndex = GetTotalNumberOfJobs() + 1;
+                StaticClass.InputJobsToRun.Add(nextJobIndex, job);
 
                 StaticClass.Log(string.Format("Unfinished Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
-                    job, jobIndex, DateTime.Now));
+                    job, nextJobIndex, DateTime.Now));
             });
 
             TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_JOB_DELAY);
@@ -201,11 +204,15 @@ namespace Status.Services
                 // Delete job being run next from the Input Jobs List
                 StaticClass.InputJobsToRun.Delete(jobIndex);
 
-                if (CurrentJobIndex < TotalNumberOfJobs)
+                if (CurrentJobIndex < LastJobIndex)
                 {
                     CurrentJobIndex++;
                     StaticClass.Log(string.Format("***** Set CurrentJobIndex to {0} at {1:HH:mm:ss.fff}",
                         CurrentJobIndex, DateTime.Now));
+                }
+                else if (CurrentJobIndex == LastJobIndex)
+                {
+                    LastJobIndex = GetTotalNumberOfJobs() + 1;
                 }
 
                 StaticClass.Log(string.Format("Deleted Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",

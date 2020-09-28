@@ -197,7 +197,7 @@ namespace Status.Services
                         else // Partial Job handling
                         {
                             // Skip Partial Job if there are more in the list
-                            if (StaticClass.CurrentJobIndex < StaticClass.TotalNumberOfJobs)
+                            if (StaticClass.CurrentJobIndex < StaticClass.LastJobIndex)
                             {
                                 StaticClass.Log(string.Format("Input Directory skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
                                     job, StaticClass.CurrentJobIndex, DateTime.Now));
