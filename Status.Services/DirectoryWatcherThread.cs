@@ -41,12 +41,12 @@ namespace Status.Services
             StaticClass.DirectoryWatcherThreadHandle.Start();
         }
 
-        public void AddJobToList(string job, int index)
+        public void AddJobToList(string job)
         {
             // Add job to Input Job list
             Task AddTask = Task.Run(() =>
             {
-                index = StaticClass.InputJobsToRun.Count + 1;
+                int index = StaticClass.InputJobsToRun.Count + 1;
                 StaticClass.InputJobsToRun.Add(index, job);
 
                 StaticClass.Log(string.Format("Input Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}",
@@ -72,7 +72,6 @@ namespace Status.Services
         {
             string jobDirectory = e.FullPath;
             string job = jobDirectory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
-            int index = 0;
 
             StaticClass.Log(string.Format("\nInput Directory Watcher checking new Job {0} for Input Job list at {1:HH:mm:ss.fff}",
                 job, DateTime.Now));
@@ -84,7 +83,7 @@ namespace Status.Services
                 // Check directory contents complete
                 if (StaticClass.CheckDirectoryReady(jobDirectory) == true)
                 {
-                    AddJobToList(job, index);
+                    AddJobToList(job);
                 }
                 else
                 {

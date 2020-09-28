@@ -153,7 +153,7 @@ namespace Status.Services
                                 StatusMessage, job, port, DateTime.Now));
                         }
                     }
-                    else
+                    else // Can not write to stream
                     {
                         // Make sure to close TCP/IP socket
                         stream.Close();
