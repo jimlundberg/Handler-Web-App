@@ -201,19 +201,16 @@ namespace Status.Services
                 // Delete job being run next from the Input Jobs List
                 StaticClass.InputJobsToRun.Delete(jobIndex);
 
-                StaticClass.Log(string.Format("Deleted Job {0} from Input Job list index {1} Num Jobs {2} Current Job index {3} at {4:HH:mm:ss.fff}",
-                    job, jobIndex, TotalNumberOfJobs, CurrentJobIndex, DateTime.Now));
+                StaticClass.Log(string.Format("Deleted Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                    job, jobIndex, DateTime.Now));
             });
 
             TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(StaticClass.DELETE_JOB_DELAY);
             if (!deleteJobTask.Wait(deleteTimeSpan))
             {
-                StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} index {1} timed out at {2} msec for index {3} at {3:HH:mm:ss.fff}",
-                    job, jobIndex, StaticClass.DELETE_JOB_DELAY, jobIndex, DateTime.Now);
+                StaticClass.Logger.LogError("InputJobScanThread Delete Job {0} index {1} timed out at {2} msec at {3:HH:mm:ss.fff}",
+                    job, jobIndex, StaticClass.DELETE_JOB_DELAY, DateTime.Now);
             }
-
-            // Increment Index after delete
-            StaticClass.CurrentJobIndex++;
         }
 
         /// <summary>
