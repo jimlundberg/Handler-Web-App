@@ -264,6 +264,7 @@ namespace Status.Services
                 // Delete job being run next from the Input Jobs List
                 StaticClass.InputJobsToRun.Delete(oneBasedIndex);
                 TotalNumberOfJobs--;
+                CurrentJobIndex++;
 
                 StaticClass.Log(string.Format("Deleted Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
                     job, oneBasedIndex, DateTime.Now));
@@ -324,7 +325,7 @@ namespace Status.Services
                     }
                 }
             }
-            while (CurrentJobIndex - 1 < TotalNumberOfJobs);
+            while (CurrentJobIndex < TotalNumberOfJobs);
         }
 
         /// <summary>
