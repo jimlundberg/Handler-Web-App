@@ -41,27 +41,6 @@ namespace Status.Services
             StaticClass.DirectoryWatcherThreadHandle.Start();
         }
 
-        public void AddJobToList(string job)
-        {
-            // Add job to Input Job list
-            Task AddTask = Task.Run(() =>
-            {
-                int index = StaticClass.InputJobsToRun.Count + 1;
-                StaticClass.InputJobsToRun.Add(index, job);
-
-                StaticClass.Log(string.Format("Input Directory Watcher added new Job {0} to Input Job list index {1} at {2:HH:mm:ss.fff}",
-                    job, index, DateTime.Now));
-            });
-
-            // Wait for Job add to finish
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(StaticClass.ADD_JOB_DELAY);
-            if (!AddTask.Wait(timeSpan))
-            {
-                StaticClass.Logger.LogError("DirectoryWatcherThread Add Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
-                    job, StaticClass.ADD_JOB_DELAY, DateTime.Now);
-            }
-        }
-
         // Define the event handlers.
         /// <summary>
         /// The directory created callback
@@ -83,7 +62,7 @@ namespace Status.Services
                 // Check directory contents complete
                 if (StaticClass.CheckDirectoryReady(jobDirectory) == true)
                 {
-                    AddJobToList(job);
+                    StaticClass.AddJobToList(job);
                 }
                 else
                 {
