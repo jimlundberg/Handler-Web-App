@@ -145,11 +145,12 @@ namespace Status.Services
         {
             Task AddTask = Task.Run(() =>
             {
-                LastJobIndex = GetTotalNumberOfJobs() + 1;
                 InputJobsToRun.Add(LastJobIndex, job);
 
                 Log(string.Format("Unfinished Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
                     job, LastJobIndex, DateTime.Now));
+
+                LastJobIndex++;
             });
 
             TimeSpan timeSpan = TimeSpan.FromMilliseconds(ADD_JOB_DELAY);
