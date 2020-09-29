@@ -137,7 +137,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Add Job to Input Buffer Job list 
+        /// Add Job to Input Buffer Job List 
         /// </summary>
         /// <param name="job"></param>
         /// <returns></returns>
@@ -162,7 +162,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Get Job from the selected list index
+        /// Get Job from the Input Buffer Job List
         /// </summary>
         /// <param name="jobIndex"></param>
         /// <returns>Job string</returns>
@@ -185,7 +185,7 @@ namespace Status.Services
                     {
                         CurrentJobIndex = 1;
 
-                        Logger.LogError("Get Job from list index {0} failed at {1:HH:mm:ss.fff}",
+                        Logger.LogError("Read Job from list index {0} failed at {1:HH:mm:ss.fff}",
                             jobIndex, DateTime.Now);
                     }
                 }
