@@ -184,7 +184,7 @@ namespace Status.Services
                     {
                         // Check for complete jobs and run them first
                         string jobDirectory = StaticClass.IniData.InputDir + @"\" + job;
-                        if (StaticClass.CheckIfJobFilesComplete(jobDirectory))
+                        if (StaticClass.CheckIfJobFilesComplete(jobDirectory) == true)
                         {
                             StaticClass.Log(string.Format("Starting Input Job {0} index {1} at {2:HH:mm:ss.fff}",
                                 jobDirectory, StaticClass.CurrentJobIndex, DateTime.Now));
