@@ -147,7 +147,7 @@ namespace Status.Services
             {
                 InputJobsToRun.Add(LastJobIndex, job);
 
-                Log(string.Format("Unfinished Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
+                Log(string.Format("Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
                     job, LastJobIndex, DateTime.Now));
 
                 LastJobIndex++;
