@@ -162,7 +162,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Get Job from the Input Buffer Job List
+        /// Get Job from the Input Buffer List
         /// </summary>
         /// <param name="jobIndex"></param>
         /// <returns>Job string</returns>
