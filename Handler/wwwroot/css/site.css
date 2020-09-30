@@ -86,7 +86,11 @@ div.container {
 table {
     margin-left: auto;
     margin-right: auto;
-    width: 100%;
+    word-wrap: break-word;
+    table-layout: fixed;
+    font-size: smaller;
+    overflow: scroll;
+    width: 110%;
     padding: 5px;
 }
 

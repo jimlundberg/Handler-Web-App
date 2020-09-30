@@ -191,7 +191,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="job"></param>
         /// <param name="monitorData"></param>
-        public void RunJobFileProcessing(string job, StatusMonitorData monitorData)
+        public void RunJobCompleteProcessing(string job, StatusMonitorData monitorData)
         {
             string repositoryDirectory = StaticClass.IniData.RepositoryDir;
             string finishedDirectory = StaticClass.IniData.FinishedDir;
@@ -260,7 +260,7 @@ namespace Status.Services
         /// <param name="jobXmlData"></param>
         public void RunJob(JobXmlData jobXmlData, DirectoryScanType dirScanType)
         {
-            // Increment number of Jobs executing in only one place!
+            // Increment number of Jobs executing at very beginning of Job
             StaticClass.NumberOfJobsExecuting++;
 
             // Create the Job Run common strings
@@ -377,10 +377,10 @@ namespace Status.Services
                 Thread.Sleep(StaticClass.SHUTDOWN_PROCESS_WAIT);
             }
 
-            // Run the Job Complete handler
-            RunJobFileProcessing(job, monitorData);
+            // Run the Job Complete handling
+            RunJobCompleteProcessing(job, monitorData);
 
-            // Add entry to status list
+            // Add job complete entry to status list
             StaticClass.StatusDataEntry(job, JobStatus.COMPLETE, JobType.TIME_COMPLETE);
 
             // Show Job Complete message
@@ -388,7 +388,7 @@ namespace Status.Services
             StaticClass.Log(string.Format("Job {0} Complete taking {1:hh\\:mm\\:ss}. Decrementing Job count to {2} at {3:HH:mm:ss.fff}",
                 job, timeSpan, StaticClass.NumberOfJobsExecuting - 1, DateTime.Now));
 
-            // Decrement the number of Jobs executing in one place!
+            // Decrement the number of Jobs executing at very end of Job
             StaticClass.NumberOfJobsExecuting--;
         }
     }
