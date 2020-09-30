@@ -177,15 +177,7 @@ namespace Status.Services
         {
             if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
             {
-                int numberOfJobs = StaticClass.GetTotalNumberOfJobs();
-                if (numberOfJobs != StaticClass.TotalNumberOfJobs)
-                {
-                    StaticClass.Log(string.Format("Input Job handler sees {0} jobs at {1:HH:mm:ss.fff}",
-                        StaticClass.TotalNumberOfJobs, DateTime.Now));
-                    StaticClass.TotalNumberOfJobs = numberOfJobs;
-                }
-
-                if (StaticClass.TotalNumberOfJobs > 0)
+                if (StaticClass.GetTotalNumberOfJobs() > 0)
                 {
                     string job = StaticClass.GetJobFromList(StaticClass.CurrentJobIndex);
 
