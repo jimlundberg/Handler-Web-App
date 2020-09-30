@@ -1,126 +1,126 @@
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 call FullTest
-timeout 300
+timeout 350
 call MixedTest
-timeout 500
+timeout 150
 
 
