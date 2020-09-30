@@ -120,16 +120,9 @@ namespace Status.Services
         public static int GetTotalNumberOfJobs()
         {
             int jobCount = 0;
-            int entryCount = 0;
             Task AddTask = Task.Run(() =>
             {
                 jobCount = InputJobsToRun.Count;
-                entryCount = InputJobsToRun.CountEntries;
-                if (jobCount != entryCount)
-                {
-                    Log(string.Format("Get Total Number diff inputJobCount {0} entriesCount {1} at {2:HH:mm:ss.fff}",
-                        jobCount, entryCount, DateTime.Now));
-                }
             });            
 
             TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_DELAY);
