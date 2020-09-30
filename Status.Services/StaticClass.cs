@@ -46,7 +46,6 @@ namespace Status.Services
 		public static int LogFileSizeLimit = 0;
         public static int TotalNumberOfJobs = 0;
         public static int CurrentJobIndex = 1;
-        public static int LastJobIndex = 1;
 
         // Thread handles
         public static Thread InputJobsScanThreadHandle;
@@ -120,11 +119,18 @@ namespace Status.Services
         /// </summary>
         public static int GetTotalNumberOfJobs()
         {
-            int inputJobCount = 0;
+            int jobCount = 0;
+            int entryCount = 0;
             Task AddTask = Task.Run(() =>
             {
-                inputJobCount = InputJobsToRun.Count;
-            });
+                jobCount = InputJobsToRun.Count;
+                entryCount = InputJobsToRun.CountEntries;
+                if (jobCount != entryCount)
+                {
+                    Log(string.Format("Get Total Number diff inputJobCount {0} entriesCount {1} at {2:HH:mm:ss.fff}",
+                        jobCount, entryCount, DateTime.Now));
+                }
+            });            
 
             TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_DELAY);
             if (!AddTask.Wait(timeSpan))
@@ -133,7 +139,7 @@ namespace Status.Services
                     GET_TOTAL_NUM_DELAY, DateTime.Now);
             }
 
-            return inputJobCount;
+            return jobCount;
         }
 
         /// <summary>
@@ -145,12 +151,10 @@ namespace Status.Services
         {
             Task AddTask = Task.Run(() =>
             {
-                InputJobsToRun.Add(LastJobIndex, job);
-
+                int index = InputJobsToRun.Count + 1;
+                InputJobsToRun.Add(index, job);
                 Log(string.Format("Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
-                    job, LastJobIndex, DateTime.Now));
-
-                LastJobIndex++;
+                    job, index, DateTime.Now));
             });
 
             TimeSpan timeSpan = TimeSpan.FromMilliseconds(ADD_JOB_DELAY);
@@ -177,7 +181,6 @@ namespace Status.Services
                     try
                     {
                         job = InputJobsToRun.Read(jobIndex);
-
                         Log(string.Format("\nGot next Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
                             job, jobIndex, DateTime.Now));
                     }
@@ -214,7 +217,7 @@ namespace Status.Services
                 InputJobsToRun.Delete(jobIndex);
 
                 // If there are more jobs in the list, increment current Job index
-                if (CurrentJobIndex < LastJobIndex)
+                if (CurrentJobIndex < InputJobsToRun.Count)
                 {
                     CurrentJobIndex++;
                 }

@@ -29,7 +29,17 @@ namespace Status.Services
         /// The cache count
         /// </summary>
         public int Count
-        { get { return innerCache.Count; } }
+        {
+            get { return innerCache.Count; }
+        }
+
+        /// <summary>
+        /// The number of entries count
+        /// </summary>
+        public int CountEntries
+        {
+            get { return innerCache.Values.Count; }
+        }
 
         /// <summary>
         /// Read a key entry

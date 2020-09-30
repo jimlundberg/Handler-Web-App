@@ -14,6 +14,7 @@ namespace Status.Services
     public class InputJobsScanThread
     {
         private static readonly Object RemoveLock = new Object();
+        private static int CurrentJobIndex = 1;
 
         /// <summary>
         /// New jobs Scan thread
@@ -170,16 +171,30 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Check for unfinished Input Buffer jobs
+        /// Check for new Input Buffer jobs
         /// </summary>
         public void RunInputJobsFound()
         {
             if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
             {
-                StaticClass.TotalNumberOfJobs = StaticClass.GetTotalNumberOfJobs();
+                int numberOfJobs = StaticClass.GetTotalNumberOfJobs();
+                if (numberOfJobs != StaticClass.TotalNumberOfJobs)
+                {
+                    StaticClass.Log(string.Format("Input Job handler sees {0} jobs at {1:HH:mm:ss.fff}",
+                        StaticClass.TotalNumberOfJobs, DateTime.Now));
+                    StaticClass.TotalNumberOfJobs = numberOfJobs;
+                }
+
                 if (StaticClass.TotalNumberOfJobs > 0)
                 {
                     string job = StaticClass.GetJobFromList(StaticClass.CurrentJobIndex);
+
+                    if (job != string.Empty)
+                    {
+                        StaticClass.Log(string.Format("Input Job handler got Job {0} from list index {1} at {2:HH:mm:ss.fff}",
+                            job, StaticClass.CurrentJobIndex, DateTime.Now));
+                    }
+
                     if (job != string.Empty)
                     {
                         // Check for complete jobs and run them first
@@ -196,7 +211,7 @@ namespace Status.Services
                         else // Partial Job handling
                         {
                             // Skip Partial Job if there are more in the list
-                            if ((StaticClass.TotalNumberOfJobs > 1) && (StaticClass.CurrentJobIndex < StaticClass.LastJobIndex - 1))
+                            if ((StaticClass.TotalNumberOfJobs > 1) && (StaticClass.CurrentJobIndex < StaticClass.GetTotalNumberOfJobs()))
                             {
                                 StaticClass.Log(string.Format("Input Directory skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
                                     job, StaticClass.CurrentJobIndex, DateTime.Now));
@@ -205,7 +220,7 @@ namespace Status.Services
                             }
                             else // Run last job in list
                             {
-                                StaticClass.Log(string.Format("\nStarting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}",
+                                StaticClass.Log(string.Format("Starting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}",
                                     jobDirectory, StaticClass.CurrentJobIndex, DateTime.Now));
 
                                 StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
@@ -217,8 +232,13 @@ namespace Status.Services
                 }
                 else
                 {
-                    StaticClass.CurrentJobIndex = 1;
-                    StaticClass.LastJobIndex = 1;
+                    if (CurrentJobIndex != StaticClass.CurrentJobIndex)
+                    {
+                        StaticClass.Log(string.Format("Input Jobs Scanner Resetting Indicies when CurrentJobIndex = {0} at {1:HH:mm:ss.fff}",
+                            StaticClass.CurrentJobIndex, DateTime.Now));
+                        StaticClass.CurrentJobIndex = 1;
+                        CurrentJobIndex = StaticClass.CurrentJobIndex;
+                    }
                 }
             }
         }
