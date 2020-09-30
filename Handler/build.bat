@@ -30,6 +30,7 @@ copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\Tcp.bat C:\SSMChar
 copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\PartialTest.bat C:\SSMCharacterizationHandler
 copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\FullTest.bat C:\SSMCharacterizationHandler
 copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\MixedTest.bat C:\SSMCharacterizationHandler
+copy /Y C:\SSMCharacterizationHandler\Handler\Handler\Handler\NotReadyTest.bat C:\SSMCharacterizationHandler
 
 REM Delete the Handler bin directory build files after we are done with them...
 rmdir /Q /S C:\SSMCharacterizationHandler\Handler\Handler\Handler\bin
