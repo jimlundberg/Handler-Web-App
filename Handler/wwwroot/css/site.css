@@ -86,11 +86,7 @@ div.container {
 table {
     margin-left: auto;
     margin-right: auto;
-    word-wrap: break-word;
-    table-layout: fixed;
-    font-size: smaller;
-    overflow: scroll;
-    width: 110%;
+    width: 100%;
     padding: 5px;
 }
 
@@ -105,5 +101,5 @@ th {
 }
 
 td {
-    font-size: 14px;
+    font-size: 15px;
 }

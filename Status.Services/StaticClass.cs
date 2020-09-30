@@ -181,7 +181,7 @@ namespace Status.Services
                     {
                         CurrentJobIndex = 1;
 
-                        Logger.LogError("Read Job from list index {0} failed at {1:HH:mm:ss.fff}",
+                        Logger.LogError("Read Job from invalid list index {0} failed at {1:HH:mm:ss.fff}",
                             jobIndex, DateTime.Now);
                     }
                 }
@@ -209,14 +209,16 @@ namespace Status.Services
                 // Delete job being run next from the Input Jobs List
                 InputJobsToRun.Delete(jobIndex);
 
-                // If there are more jobs in the list, increment current Job index
-                if (CurrentJobIndex < InputJobsToRun.Count)
-                {
-                    CurrentJobIndex++;
-                }
-
                 Log(string.Format("Deleted Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
                     job, jobIndex, DateTime.Now));
+
+                // If there are more jobs in the list, increment current Job index
+                if (CurrentJobIndex < InputJobsToRun.Count - 1)
+                {
+                    CurrentJobIndex++;
+                    Log(string.Format("Incremented the Current Job index to {0} at {1:HH:mm:ss.fff}",
+                        CurrentJobIndex, DateTime.Now));
+                }
             });
 
             TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(DELETE_JOB_DELAY);
