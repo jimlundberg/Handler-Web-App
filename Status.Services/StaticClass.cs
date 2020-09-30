@@ -29,7 +29,7 @@ namespace Status.Services
         public const int FILE_WAIT_DELAY = 2500;
         public const int FILE_READY_WAIT = 250;
         public const int ADD_JOB_DELAY = 2000;
-        public const int GET_TOTAL_NUM_DELAY = 1000;
+        public const int GET_TOTAL_NUM_OF_JOBS_DELAY = 1000;
         public const int READ_JOB_DELAY = 1500;
         public const int DELETE_JOB_DELAY = 1500;
         public const int NUM_JOB_CHECK_RETRIES = 10;
@@ -125,11 +125,11 @@ namespace Status.Services
                 jobCount = InputJobsToRun.Count;
             });            
 
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_DELAY);
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_OF_JOBS_DELAY);
             if (!AddTask.Wait(timeSpan))
             {
                 Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
-                    GET_TOTAL_NUM_DELAY, DateTime.Now);
+                    GET_TOTAL_NUM_OF_JOBS_DELAY, DateTime.Now);
             }
 
             return jobCount;
