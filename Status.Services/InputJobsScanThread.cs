@@ -221,7 +221,6 @@ namespace Status.Services
                         }
                     }
                 }
-                else
             }
         }
 
