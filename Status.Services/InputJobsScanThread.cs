@@ -14,6 +14,7 @@ namespace Status.Services
     public class InputJobsScanThread
     {
         private static readonly Object RemoveLock = new Object();
+        private static int CurrentJobIndex = 1;
 
         /// <summary>
         /// New jobs Scan thread
@@ -219,6 +220,15 @@ namespace Status.Services
                                 StartInputJob(jobDirectory);
                             }
                         }
+                    }
+                }
+                else
+                {
+                    if (CurrentJobIndex != StaticClass.CurrentJobIndex)
+                    {
+                        StaticClass.Log(string.Format("Input Jobs Scanner Resetting Current Job Index from {0} at {1:HH:mm:ss.fff}",
+                            StaticClass.CurrentJobIndex, DateTime.Now));
+                        CurrentJobIndex = StaticClass.CurrentJobIndex = 1;
                     }
                 }
             }
