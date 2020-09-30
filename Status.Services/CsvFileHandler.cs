@@ -287,7 +287,7 @@ namespace Status.Services
 
                         // Check Time Complete if older than history limit
                         DateTime timeCompleted = Convert.ToDateTime(rowData[4]);
-                        if ((timeCompleted < DateTime.Now.AddDays(-StaticClass.IniData.LogFileHistoryLimit)) && (timeStarted != DateTime.MinValue))
+                        if ((timeCompleted < DateTime.Now.AddDays(-StaticClass.IniData.LogFileHistoryLimit)) && (timeCompleted != DateTime.MinValue))
                         {
                             oldRecord = true;
                         }
