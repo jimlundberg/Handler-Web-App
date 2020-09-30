@@ -40,7 +40,7 @@ namespace Status.Services
         /// </summary>
         public int GetLastIndex
         {
-            get { return innerCache.Keys.Last(); }
+            get { if (innerCache.Count > 0) { return innerCache.Keys.Last(); } else { return 0; } }
         }
 
         /// <summary>
