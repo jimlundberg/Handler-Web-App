@@ -144,7 +144,7 @@ namespace Status.Services
             int jobIndex = 1;
             Task AddTask = Task.Run(() =>
             {
-                jobIndex = InputJobsToRun.GetLastIndex + 1;
+                jobIndex = InputJobsToRun.LastIndex + 1;
                 InputJobsToRun.Add(jobIndex, job);
                 Log(string.Format("Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
                     job, jobIndex, DateTime.Now));
@@ -211,7 +211,7 @@ namespace Status.Services
                     job, jobIndex, DateTime.Now));
 
                 // If there are more jobs in the list, increment current Job index
-                if (CurrentJobIndex < InputJobsToRun.Count - 1)
+                if (CurrentJobIndex < InputJobsToRun.LastIndex)
                 {
                     CurrentJobIndex++;
                     Log(string.Format("Incremented the Current Job index to {0} at {1:HH:mm:ss.fff}",

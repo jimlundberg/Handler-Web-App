@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace Status.Services
@@ -38,7 +37,7 @@ namespace Status.Services
         /// <summary>
         /// The last index of the list
         /// </summary>
-        public int GetLastIndex
+        public int LastIndex
         {
             get { if (innerCache.Count > 0) { return innerCache.Keys.Last(); } else { return 0; } }
         }
