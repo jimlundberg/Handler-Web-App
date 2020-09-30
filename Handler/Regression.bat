@@ -1,126 +1,126 @@
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 call FullTest
 timeout 360
 call MixedTest
-timeout 150
+timeout 140
 
 
