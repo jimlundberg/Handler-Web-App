@@ -113,7 +113,6 @@ namespace Status.Services
             CsvFileHandlerHandle.WriteToCsvFile(job, status, timeSlot);
         }
 
-
         /// <summary>
         /// Get total number of Jobs in the Input Buffer Job list
         /// </summary>
@@ -142,12 +141,13 @@ namespace Status.Services
         /// <returns></returns>
         public static void AddJobToList(string job)
         {
+            int jobIndex = 1;
             Task AddTask = Task.Run(() =>
             {
-                int index = InputJobsToRun.Count + 1;
-                InputJobsToRun.Add(index, job);
+                jobIndex = InputJobsToRun.GetLastIndex + 1;
+                InputJobsToRun.Add(jobIndex, job);
                 Log(string.Format("Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
-                    job, index, DateTime.Now));
+                    job, jobIndex, DateTime.Now));
             });
 
             TimeSpan timeSpan = TimeSpan.FromMilliseconds(ADD_JOB_DELAY);
@@ -180,8 +180,7 @@ namespace Status.Services
                     catch (KeyNotFoundException)
                     {
                         CurrentJobIndex = 1;
-
-                        Logger.LogError("Read Job from invalid list index {0} failed at {1:HH:mm:ss.fff}",
+                        Logger.LogError("Read Job from invalid list index {0} failed resetting Current Index to 1 at {1:HH:mm:ss.fff}",
                             jobIndex, DateTime.Now);
                     }
                 }
@@ -208,7 +207,6 @@ namespace Status.Services
             {
                 // Delete job being run next from the Input Jobs List
                 InputJobsToRun.Delete(jobIndex);
-
                 Log(string.Format("Deleted Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
                     job, jobIndex, DateTime.Now));
 
@@ -258,7 +256,7 @@ namespace Status.Services
                     DirectoryInfo InputJobInfo = new DirectoryInfo(directory);
                     if (InputJobInfo == null)
                     {
-                        Logger.LogError("StaticClass InputJobInfo failed to instantiate");
+                        Logger.LogError("InputJobInfo failed to instantiate");
                     }
                     int numberOfFilesFound = InputJobInfo.GetFiles().Length;
 
@@ -447,7 +445,7 @@ namespace Status.Services
                 DirectoryInfo[] dirs = dirInfo.GetDirectories();
                 if (dirs != null)
                 {
-                    StaticClass.Log(string.Format("Directory {0} accessibility check passed at {1:HH:mm:ss.fff}",
+                    Log(string.Format("Directory {0} accessibility check passed at {1:HH:mm:ss.fff}",
                         directory, DateTime.Now));
 
                     return true;

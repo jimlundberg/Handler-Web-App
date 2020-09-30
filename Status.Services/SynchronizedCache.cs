@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace Status.Services
@@ -26,7 +28,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// The cache count
+        /// The list count
         /// </summary>
         public int Count
         {
@@ -34,11 +36,11 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// The number of entries count
+        /// The last index of the list
         /// </summary>
-        public int CountEntries
+        public int GetLastIndex
         {
-            get { return innerCache.Values.Count; }
+            get { return innerCache.Keys.Last(); }
         }
 
         /// <summary>
