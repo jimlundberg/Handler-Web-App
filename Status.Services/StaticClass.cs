@@ -180,7 +180,7 @@ namespace Status.Services
                     catch (KeyNotFoundException)
                     {
                         CurrentJobIndex = 1;
-                        Logger.LogError("Read Job from invalid list index {0} failed resetting Current Index to 1 at {1:HH:mm:ss.fff}",
+                        Logger.LogWarning("Read Job from invalid list index {0} failed resetting Current Index to 1 at {1:HH:mm:ss.fff}",
                             jobIndex, DateTime.Now);
                     }
                 }
