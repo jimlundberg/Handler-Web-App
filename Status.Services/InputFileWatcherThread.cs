@@ -67,7 +67,7 @@ namespace Status.Services
             string fullDirectory = e.FullPath;
             string jobDirectory = fullDirectory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
             string jobFile = jobDirectory.Substring(jobDirectory.LastIndexOf('\\') + 1);
-            string job = jobDirectory.Substring(0, jobDirectory.LastIndexOf('\\'));         
+            string job = jobDirectory.Substring(0, jobDirectory.LastIndexOf('\\'));
 
             // If Number of files is not complete
             if (StaticClass.NumberOfInputFilesFound[job] < StaticClass.NumberOfInputFilesNeeded[job])

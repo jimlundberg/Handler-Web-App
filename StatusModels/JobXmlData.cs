@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Status.Models
+﻿namespace Status.Models
 {
     /// <summary>
     /// Job Xml Data

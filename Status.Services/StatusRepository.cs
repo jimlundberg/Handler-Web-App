@@ -159,13 +159,13 @@ namespace Status.Services
             StaticClass.TcpListenerThreadHandle.Join();
 
             // Set all thread handles to null
-            StaticClass.InputJobsScanThreadHandle= null;
-            StaticClass.ProcessingFileWatcherThreadHandle= null;
-            StaticClass.ProcessingJobsScanThreadHandle= null;
-            StaticClass.DirectoryWatcherThreadHandle= null;
-            StaticClass.InputFileWatcherThreadHandle= null;
-            StaticClass.JobRunThreadHandle= null;
-            StaticClass.TcpListenerThreadHandle= null;
+            StaticClass.InputJobsScanThreadHandle = null;
+            StaticClass.ProcessingFileWatcherThreadHandle = null;
+            StaticClass.ProcessingJobsScanThreadHandle = null;
+            StaticClass.DirectoryWatcherThreadHandle = null;
+            StaticClass.InputFileWatcherThreadHandle = null;
+            StaticClass.JobRunThreadHandle = null;
+            StaticClass.TcpListenerThreadHandle = null;
 
             // Clear the Dictionaries after Modeler shutdowns complete
             StaticClass.ProcessHandles.Clear();

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using Status.Services;
 using Status.Models;
+using Status.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,9 +65,9 @@ namespace Handler.Pages
             /// <summary>
             /// History Button
             /// </summary>
-            History = 6 
+            History = 6
         };
-         
+
         private void SetButtonState(ButtonPress buttonPress)
         {
             // Watch the following settings.  Because disabled=disabled we have to invert the intuitive logic upside down.

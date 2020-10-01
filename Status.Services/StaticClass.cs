@@ -14,7 +14,7 @@ namespace Status.Services
     /// Static Data with global access
     /// </summary>
     public static class StaticClass
-	{
+    {
         // Common definitions
         public const int TCP_IP_STARTUP_WAIT = 60000;
         public const int STARTING_TCP_IP_WAIT = 15000;
@@ -41,9 +41,9 @@ namespace Status.Services
         // Common counters
         public static double MaxJobTimeLimitSeconds = 0.0;
         public static int ScanWaitTime = 0;
-		public static int NumberOfJobsExecuting = 0;
-		public static int JobPortIndex = 0;
-		public static int LogFileSizeLimit = 0;
+        public static int NumberOfJobsExecuting = 0;
+        public static int JobPortIndex = 0;
+        public static int LogFileSizeLimit = 0;
         public static int TotalNumberOfJobs = 0;
         public static int CurrentJobIndex = 1;
 
@@ -60,7 +60,7 @@ namespace Status.Services
         public static volatile bool ShutdownFlag = false;
         public static volatile bool PauseFlag = false;
         public static volatile bool UnfinishedProcessingJobsScanComplete = false;
-        
+
         // Job state tracking
         public static Dictionary<string, DateTime> JobStartTime = new Dictionary<string, DateTime>();
         public static Dictionary<string, bool> InputFileScanComplete = new Dictionary<string, bool>();
@@ -71,13 +71,13 @@ namespace Status.Services
         public static Dictionary<string, bool> TcpIpScanComplete = new Dictionary<string, bool>();
 
         // Job number of files tracking
-		public static Dictionary<string, int> NumberOfInputFilesFound = new Dictionary<string, int>();
-		public static Dictionary<string, int> NumberOfInputFilesNeeded = new Dictionary<string, int>();
-		public static Dictionary<string, int> NumberOfProcessingFilesFound = new Dictionary<string, int>();
-		public static Dictionary<string, int> NumberOfProcessingFilesNeeded = new Dictionary<string, int>();
+        public static Dictionary<string, int> NumberOfInputFilesFound = new Dictionary<string, int>();
+        public static Dictionary<string, int> NumberOfInputFilesNeeded = new Dictionary<string, int>();
+        public static Dictionary<string, int> NumberOfProcessingFilesFound = new Dictionary<string, int>();
+        public static Dictionary<string, int> NumberOfProcessingFilesNeeded = new Dictionary<string, int>();
 
         // Modeler process handle list
-		public static Dictionary<string, Process> ProcessHandles = new Dictionary<string, Process>();
+        public static Dictionary<string, Process> ProcessHandles = new Dictionary<string, Process>();
 
         // Common objects
         internal static LoggingToFile FileLoggerObject;
@@ -93,7 +93,7 @@ namespace Status.Services
         /// </summary>
         /// <param name="msg"></param>
         public static void Log(string msg)
-		{
+        {
             FileLoggerObject.WriteToLogFile(msg);
             Console.WriteLine(msg);
         }
@@ -122,7 +122,7 @@ namespace Status.Services
             Task AddTask = Task.Run(() =>
             {
                 jobCount = InputJobsToRun.Count;
-            });            
+            });
 
             TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_OF_JOBS_DELAY);
             if (!AddTask.Wait(timeSpan))

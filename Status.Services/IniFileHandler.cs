@@ -13,7 +13,7 @@ namespace Status.Services
     {
         private readonly string Path;
         private readonly string EXE = Assembly.GetExecutingAssembly().GetName().Name;
-        
+
         /// <summary>
         /// Write Private Profile string
         /// </summary>
@@ -66,7 +66,7 @@ namespace Status.Services
             }
 
             GetPrivateProfileString(Section ?? EXE, Key, "", RetVal, 255, Path);
-          
+
             return RetVal.ToString();
         }
 
