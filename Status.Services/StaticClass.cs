@@ -144,10 +144,20 @@ namespace Status.Services
             int jobIndex = 1;
             Task AddTask = Task.Run(() =>
             {
-                jobIndex = InputJobsToRun.LastIndex + 1;
-                InputJobsToRun.Add(jobIndex, job);
-                Log(string.Format("Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
-                    job, jobIndex, DateTime.Now));
+                try
+                {
+                    jobIndex = InputJobsToRun.LastIndex + 1;
+                    InputJobsToRun.Add(jobIndex, job);
+                    Log(string.Format("Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
+                        job, jobIndex, DateTime.Now));
+                }
+                catch (ArgumentException)
+                {
+                    jobIndex++;
+                    Logger.LogWarning("Add Job to list retry to add {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
+                        job, jobIndex, DateTime.Now);
+                    InputJobsToRun.Add(jobIndex, job);
+                }
             });
 
             TimeSpan timeSpan = TimeSpan.FromMilliseconds(ADD_JOB_DELAY);
