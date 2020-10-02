@@ -196,14 +196,13 @@ namespace Status.Services
                             StaticClass.Log(string.Format("Starting Input Job {0} index {1} at {2:HH:mm:ss.fff}",
                                 jobDirectory, StaticClass.CurrentJobIndex, DateTime.Now));
 
-                            StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
+                            StartInputJob(jobDirectory);
 
+                            StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
                             if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
                             {
                                 StaticClass.DisplayJobList();
                             }
-
-                            StartInputJob(jobDirectory);
                         }
                         else // Partial Job handling
                         {
@@ -220,14 +219,13 @@ namespace Status.Services
                                 StaticClass.Log(string.Format("Starting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}",
                                     jobDirectory, StaticClass.CurrentJobIndex, DateTime.Now));
 
-                                StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
+                                StartInputJob(jobDirectory);
 
+                                StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
                                 if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
                                 {
                                     StaticClass.DisplayJobList();
                                 }
-
-                                StartInputJob(jobDirectory);
                             }
                         }
                     }
