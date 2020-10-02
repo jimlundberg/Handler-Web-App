@@ -285,7 +285,7 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Find the last index in the 
+        /// Find the last index in the Input Buffer Job list from inside a task only
         /// </summary>
         public static int FindLastIndex()
         {
