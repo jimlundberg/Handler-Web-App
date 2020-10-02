@@ -238,6 +238,42 @@ namespace Status.Services
         }
 
         /// <summary>
+        /// Display the Input Buffer Job List
+        /// </summary>
+        public static void DisplayJobList()
+        {
+            Dictionary<int, string> jobList = new Dictionary<int, string>();
+            string job;
+            int index;
+            Task AddTask = Task.Run(() =>
+            {
+                for (index = 1; index <= InputJobsToRun.LastIndex; index++)
+                    try
+                    {
+                        job = InputJobsToRun.Read(index);
+                        jobList.Add(index, job);
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                    }
+            });
+
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_OF_JOBS_DELAY);
+            if (!AddTask.Wait(timeSpan))
+            {
+                Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
+                    GET_TOTAL_NUM_OF_JOBS_DELAY, DateTime.Now);
+            }
+
+            Log("\nCurrent Input Buffer Job List:");
+            foreach (var entry in jobList)
+            {
+                Log(string.Format("{0}", entry));
+            }
+            Log("");
+        }
+
+        /// <summary>
         /// Check if a Job directory is complete
         /// </summary>
         /// <param name="directory"></param>
@@ -411,20 +447,23 @@ namespace Status.Services
                     {
                         if (fileService.CanRead && fileService.CanWrite)
                         {
-#if FALSE
-                            Log(string.Format("File {0} ready at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
-#endif
+                            if ((StaticClass.IniData.DebugMode & (1 << (byte)DebugModeState.CHECK_FILE)) > 0)
+                            {
+                                Log(string.Format("File {0} ready at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
+                            }
+
                             return true;
                         }
                     }
                 }
                 catch (IOException)
                 {
-#if FALSE
-                    Log(string.Format("File {0} ready retry {1} at {2:HH:mm:ss.fff}", fileName, numOfRetries, DateTime.Now));
-#endif
+                    if ((StaticClass.IniData.DebugMode & (1 << (byte)DebugModeState.CHECK_FILE)) > 0)
+                    {
+                        Log(string.Format("File {0} ready retry {1} at {2:HH:mm:ss.fff}", fileName, numOfRetries, DateTime.Now));
+                    }
 
-                    Thread.Sleep(FILE_READY_WAIT);
+                     Thread.Sleep(FILE_READY_WAIT);
                 }
 
                 // Check for shutdown or pause

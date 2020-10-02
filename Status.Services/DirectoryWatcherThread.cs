@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Status.Models;
 using System;
 using System.IO;
 using System.Security.Permissions;
@@ -62,6 +63,11 @@ namespace Status.Services
                 if (StaticClass.CheckDirectoryReady(jobDirectory) == true)
                 {
                     StaticClass.AddJobToList(job);
+
+                    if ((StaticClass.IniData.DebugMode & (1 << (byte)DebugModeState.JOB_LIST)) > 0)
+                    {
+                        StaticClass.DisplayJobList();
+                    }
                 }
                 else
                 {

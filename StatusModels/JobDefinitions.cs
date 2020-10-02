@@ -52,4 +52,12 @@
         STEP_6,
         STEP_COMPLETE
     };
+
+    public enum DebugModeState : byte
+    {
+        NONE = 0,
+        JOB_LIST = 1,
+        CHECK_FILE = 2,
+        CHECK_TCP_IP = 3
+    }
 }

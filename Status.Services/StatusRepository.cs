@@ -65,6 +65,13 @@ namespace Status.Services
             string logFileMaxSize = IniParser.Read("Process", "logFileMaxSize");
             StaticClass.IniData.LogFileMaxSize = int.Parse(logFileMaxSize.Substring(0, logFileMaxSize.IndexOf("#")));
 
+            string debugModeString = IniParser.Read("Process", "DebugMode");
+            string[] debugModes = debugModeString.Split('&');
+            foreach (var mode in debugModes)
+            {
+                StaticClass.IniData.DebugMode |= (byte)(Enum.Parse(typeof(DebugModeState), mode));
+            }
+
             // Set the static class data needed for global use
             StaticClass.ScanWaitTime = StaticClass.IniData.ScanWaitTime;
             StaticClass.LogFileSizeLimit = StaticClass.IniData.LogFileMaxSize;
@@ -91,6 +98,7 @@ namespace Status.Services
             StaticClass.Log($"Max Job Time Limit             : {StaticClass.IniData.MaxJobTimeLimit} Hours");
             StaticClass.Log($"Log File History Limit         : {StaticClass.IniData.LogFileHistoryLimit} Days");
             StaticClass.Log($"Log File Max Size              : {StaticClass.IniData.LogFileMaxSize} Megabytes");
+            StaticClass.Log($"Debug Mode                     : {StaticClass.IniData.DebugMode}");
         }
 
         /// <summary>

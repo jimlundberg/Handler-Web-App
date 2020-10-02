@@ -198,6 +198,11 @@ namespace Status.Services
 
                             StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
 
+                            if ((StaticClass.IniData.DebugMode & (1 << (byte)DebugModeState.JOB_LIST)) > 0)
+                            {
+                                StaticClass.DisplayJobList();
+                            }
+
                             StartInputJob(jobDirectory);
                         }
                         else // Partial Job handling
@@ -216,6 +221,11 @@ namespace Status.Services
                                     jobDirectory, StaticClass.CurrentJobIndex, DateTime.Now));
 
                                 StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
+
+                                if ((StaticClass.IniData.DebugMode & (1 << (byte)DebugModeState.JOB_LIST)) > 0)
+                                {
+                                    StaticClass.DisplayJobList();
+                                }
 
                                 StartInputJob(jobDirectory);
                             }

@@ -22,5 +22,6 @@
         public int LogFileHistoryLimit { get; set; }
         public int InputBufferTimeLimit { get; set; }
         public int LogFileMaxSize { get; set; }
+        public byte DebugMode { get; set; }
     }
 }

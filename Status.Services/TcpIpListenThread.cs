@@ -305,10 +305,12 @@ namespace Status.Services
                         }
                         else
                         {
-#if FALSE
-                            StaticClass.Log(string.Format("TCP/IP retry {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
+                            if ((StaticClass.IniData.DebugMode & (1 << (byte)DebugModeState.CHECK_TCP_IP)) > 0)
+                            {
+                                StaticClass.Log(string.Format("TCP/IP retry {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
                                  numOfRetries, job, port, ModelerCurrentStepState, DateTime.Now));
-#endif
+                            }
+
                             // Wait 250 msec between 480 Data Available checks (2 min) CanRead is set for session
                             Thread.Sleep(StaticClass.READ_AVAILABLE_RETRY_DELAY);
                         }
