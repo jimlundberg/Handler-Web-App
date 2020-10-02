@@ -147,7 +147,7 @@ namespace Status.Services
             {
                 try
                 {
-                    jobIndex = InputJobsToRun.LastIndex + 1;
+                    jobIndex = FindLastIndex() + 1;
                     InputJobsToRun.Add(jobIndex, job);
                     Log(string.Format("Input Jobs Scan added new Job {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
                         job, jobIndex, DateTime.Now));
@@ -222,7 +222,7 @@ namespace Status.Services
                     job, jobIndex, DateTime.Now));
 
                 // If there are more jobs in the list, increment current Job index
-                if (CurrentJobIndex < InputJobsToRun.LastIndex)
+                if (CurrentJobIndex < FindLastIndex())
                 {
                     CurrentJobIndex++;
                     Log(string.Format("Incremented the Current Job index to {0} at {1:HH:mm:ss.fff}",
@@ -243,15 +243,13 @@ namespace Status.Services
         /// </summary>
         public static void DisplayJobList()
         {
-            // Small pause for the list to populate
-            Thread.Sleep(StaticClass.LIST_PAUSE);
-
             Dictionary<int, string> jobList = new Dictionary<int, string>();
             string job;
             int index;
             Task AddTask = Task.Run(() =>
             {
-                for (index = 1; index <= InputJobsToRun.Count; index++)
+                int lastIndex = CurrentJobIndex + InputJobsToRun.Count;
+                for (index = CurrentJobIndex; index <= lastIndex; index++)
                 {
                     try
                     {
@@ -284,6 +282,37 @@ namespace Status.Services
                 Log("Empty List");
             }
             Log("");
+        }
+
+        /// <summary>
+        /// Find the last index in the 
+        /// </summary>
+        public static int FindLastIndex()
+        {
+            int index;
+            int lastIndex = 0;
+            for (index = 1; index < InputJobsToRun.Count; index++)
+            {
+                try
+                {
+                    string job = InputJobsToRun.Read(index);
+                    if (job != string.Empty)
+                    {
+                        lastIndex = index;
+                    }
+                }
+                catch (KeyNotFoundException)
+                {
+                }
+            }
+
+            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
+            {
+                Log(string.Format("Current Index = {0} Last Index = {1} at {2:HH:mm:ss.fff}",
+                    CurrentJobIndex, lastIndex, DateTime.Now));
+            }
+
+            return lastIndex;
         }
 
         /// <summary>
