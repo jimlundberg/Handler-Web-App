@@ -65,7 +65,7 @@ namespace Status.Services
                 StaticClass.Logger.LogError("IniFileHandler RetVal failed to instantiate");
             }
 
-            GetPrivateProfileString(Section ?? EXE, Key, "", RetVal, 255, Path);
+            GetPrivateProfileString(Section ?? EXE, Key, " ", RetVal, 255, Path);
 
             return RetVal.ToString();
         }

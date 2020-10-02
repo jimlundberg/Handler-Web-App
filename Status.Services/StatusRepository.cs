@@ -66,10 +66,13 @@ namespace Status.Services
             StaticClass.IniData.LogFileMaxSize = int.Parse(logFileMaxSize.Substring(0, logFileMaxSize.IndexOf("#")));
 
             string debugModeString = IniParser.Read("Process", "DebugMode");
-            string[] debugModes = debugModeString.Split('&');
-            foreach (var mode in debugModes)
+            if (debugModeString != string.Empty)
             {
-                StaticClass.IniData.DebugMode |= (byte)(Enum.Parse(typeof(DebugModeState), mode));
+                string[] debugModes = debugModeString.Split('&');
+                foreach (var mode in debugModes)
+                {
+                    StaticClass.IniData.DebugMode |= (byte)(Enum.Parse(typeof(DebugModeState), mode));
+                }
             }
 
             // Set the static class data needed for global use

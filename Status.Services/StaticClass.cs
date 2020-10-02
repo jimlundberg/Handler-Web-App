@@ -269,6 +269,9 @@ namespace Status.Services
                     GET_TOTAL_NUM_OF_JOBS_DELAY, DateTime.Now);
             }
 
+            // Small pause for list display coordination
+            Thread.Sleep(StaticClass.LIST_PAUSE);
+
             Log("\nCurrent Input Buffer Job List:");
             if (jobList.Count > 0)
             {
