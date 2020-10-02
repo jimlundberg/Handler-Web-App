@@ -37,6 +37,7 @@ namespace Status.Services
         public const int NUM_XML_ACCESS_RETRIES = 100;
         public const int NUM_RESULTS_ENTRY_RETRIES = 100;
         public const int NUM_REQUESTS_TILL_TCPIP_SLOWDOWN = 5;
+        public const int LIST_PAUSE = 10;
 
         // Common counters
         public static double MaxJobTimeLimitSeconds = 0.0;
@@ -242,6 +243,9 @@ namespace Status.Services
         /// </summary>
         public static void DisplayJobList()
         {
+            // Small pause for the list to populate
+            Thread.Sleep(StaticClass.LIST_PAUSE);
+
             Dictionary<int, string> jobList = new Dictionary<int, string>();
             string job;
             int index;
