@@ -185,7 +185,7 @@ namespace Status.Services
                     try
                     {
                         job = InputJobsToRun.Read(jobIndex);
-                        Log(string.Format("\nGot next Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
+                        Log(string.Format("\nRead next Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
                             job, jobIndex, DateTime.Now));
                     }
                     catch (KeyNotFoundException)
