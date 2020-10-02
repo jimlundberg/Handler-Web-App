@@ -64,7 +64,7 @@ namespace Status.Services
                 {
                     StaticClass.AddJobToList(job);
 
-                    if ((StaticClass.IniData.DebugMode & (1 << (byte)DebugModeState.JOB_LIST)) > 0)
+                    if ((StaticClass.IniData.DebugMode & (1 << (byte)DebugModeState.JOB_LIST)) != 0)
                     {
                         StaticClass.DisplayJobList();
                     }
