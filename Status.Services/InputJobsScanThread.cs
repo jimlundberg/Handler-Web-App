@@ -198,7 +198,7 @@ namespace Status.Services
 
                             StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
 
-                            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.CHECK_JOB_LIST) != 0)
+                            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
                             {
                                 StaticClass.DisplayJobList();
                             }
@@ -222,7 +222,7 @@ namespace Status.Services
 
                                 StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
 
-                                if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.CHECK_JOB_LIST) != 0)
+                                if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
                                 {
                                     StaticClass.DisplayJobList();
                                 }

@@ -456,7 +456,7 @@ namespace Status.Services
                     {
                         if (fileService.CanRead && fileService.CanWrite)
                         {
-                            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.CHECK_FILE) != 0)
+                            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.FILE) != 0)
                             {
                                 Log(string.Format("File {0} ready at {1:HH:mm:ss.fff}", fileName, DateTime.Now));
                             }
@@ -467,7 +467,7 @@ namespace Status.Services
                 }
                 catch (IOException)
                 {
-                    if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.CHECK_FILE) != 0)
+                    if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.FILE) != 0)
                     {
                         Log(string.Format("File {0} ready retry {1} at {2:HH:mm:ss.fff}", fileName, numOfRetries, DateTime.Now));
                     }

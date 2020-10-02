@@ -305,7 +305,7 @@ namespace Status.Services
                         }
                         else
                         {
-                            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.CHECK_TCP_IP) != 0)
+                            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.TCP_IP) != 0)
                             {
                                 StaticClass.Log(string.Format("TCP/IP retry {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
                                  numOfRetries, job, port, ModelerCurrentStepState, DateTime.Now));
