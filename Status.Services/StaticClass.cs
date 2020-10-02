@@ -473,7 +473,7 @@ namespace Status.Services
                 {
                     if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.FILE) != 0)
                     {
-                        Log(string.Format("File {0} check shows not ready {1} at {2:HH:mm:ss.fff}", fileName, numOfRetries, DateTime.Now));
+                        Log(string.Format("File {0} check {1} shows not ready at {2:HH:mm:ss.fff}", fileName, numOfRetries, DateTime.Now));
                     }
 
                      Thread.Sleep(FILE_READY_WAIT);
