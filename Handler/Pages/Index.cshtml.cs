@@ -215,7 +215,7 @@ namespace Handler.Pages
             StatusData = MonitorDataRepository.GetHistoryData();
             if (StatusData == null)
             {
-                Logger.LogError("OnPostHistoryButton StatusData return null");
+                Logger.LogWarning("No History Data");
             }
         }
     }
