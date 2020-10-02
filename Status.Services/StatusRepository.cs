@@ -98,7 +98,7 @@ namespace Status.Services
             StaticClass.Log($"Max Job Time Limit             : {StaticClass.IniData.MaxJobTimeLimit} Hours");
             StaticClass.Log($"Log File History Limit         : {StaticClass.IniData.LogFileHistoryLimit} Days");
             StaticClass.Log($"Log File Max Size              : {StaticClass.IniData.LogFileMaxSize} Megabytes");
-            StaticClass.Log($"Debug Mode                     : {StaticClass.IniData.DebugMode}");
+            StaticClass.Log($"Debug Mode                     : {debugModeString}");
         }
 
         /// <summary>
