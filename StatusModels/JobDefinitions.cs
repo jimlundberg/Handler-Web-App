@@ -54,10 +54,11 @@
     };
 
     public enum DebugModeState : byte
-    {
+     {
         NONE = 0,
         JOB_LIST = 1,
         FILE = 2,
-        TCP_IP = 4
+        TCP_IP = 4,
+        MODELER = 8
     }
 }
