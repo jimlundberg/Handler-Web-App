@@ -147,7 +147,8 @@ namespace Status.Services
             }
             else
             {
-                StaticClass.Log(string.Format("\nJob {0} Modeler execution started with base priority {0}", job, modelerProcess.BasePriority));
+                StaticClass.Log(string.Format("\nJob {0} Modeler execution started with base priority {1} at {2:HH:mm:ss.fff}\n",
+                    job, modelerProcess.BasePriority, modelerProcess.StartTime));
             }
         }
 
