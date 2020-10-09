@@ -28,6 +28,7 @@ namespace Status.Services
         public const int READ_AVAILABLE_RETRY_DELAY = 250;
         public const int FILE_WAIT_DELAY = 2500;
         public const int FILE_READY_WAIT = 250;
+        public const int JOB_XML_FILE_READY_WAIT = 250;
         public const int ADD_JOB_WAIT = 2000;
         public const int DISPLAY_JOB_LIST_DELAY = 2000;
         public const int GET_TOTAL_NUM_OF_JOBS_WAIT = 2000;
@@ -436,7 +437,7 @@ namespace Status.Services
 
             Log(string.Format("Job {0} waiting for it's Job xml file at {1:HH:mm:ss.fff}", job, DateTime.Now));
 
-            // Check if the Job xml file is present
+            // Wait until Job xml file is present to continue partial job
             bool xmlFileFound = false;
             do
             {
@@ -447,7 +448,7 @@ namespace Status.Services
                     xmlFileFound = true;
                 }
 
-                Thread.Yield();
+                Thread.Sleep(StaticClass.JOB_XML_FILE_READY_WAIT);
             }
             while (xmlFileFound == false);
 
