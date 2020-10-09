@@ -11,7 +11,7 @@
     <Copyright>2020 Advanced Energy</Copyright>
     <Platforms>x64</Platforms>
     <UserSecretsId>59ca0c47-63b9-4238-b036-db167c4fd3e8</UserSecretsId>
-    <Version>1.1.1</Version>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
