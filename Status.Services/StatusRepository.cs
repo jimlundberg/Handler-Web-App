@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 
 /// <summary>
 /// Status data repository services
@@ -37,6 +38,7 @@ namespace Status.Services
             }
 
             IniFileHandler IniParser = new IniFileHandler(IniFileName);
+            StaticClass.IniData.Version = FileVersionInfo.GetVersionInfo(typeof(Status.Services.IStatusRepository).Assembly.Location).ProductVersion;
             StaticClass.IniData.IniFileName = IniFileName;
             StaticClass.IniData.InputDir = IniParser.Read("Paths", "Input");
             StaticClass.IniData.ProcessingDir = IniParser.Read("Paths", "Processing");
@@ -86,6 +88,7 @@ namespace Status.Services
 
             // Output the Data.ini informatino found
             StaticClass.Log($"\nConfig.ini data found:\n");
+            StaticClass.Log($"Version Number                 : {StaticClass.IniData.Version}");
             StaticClass.Log($"Input Dir                      : {StaticClass.IniData.InputDir}");
             StaticClass.Log($"Processing Dir                 : {StaticClass.IniData.ProcessingDir}");
             StaticClass.Log($"Repository Dir                 : {StaticClass.IniData.RepositoryDir}");

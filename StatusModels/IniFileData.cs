@@ -5,6 +5,7 @@
     /// </summary>
     public class IniFileData
     {
+        public string Version { get; set; }
         public string IniFileName { get; set; }
         public string InputDir { get; set; }
         public string ProcessingDir { get; set; }
