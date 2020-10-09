@@ -29,12 +29,14 @@ namespace Status.Services
         public const int FILE_WAIT_DELAY = 2500;
         public const int FILE_READY_WAIT = 250;
         public const int ADD_JOB_DELAY = 2000;
-        public const int GET_TOTAL_NUM_OF_JOBS_DELAY = 1500;
+        public const int GET_TOTAL_NUM_OF_JOBS_DELAY = 2000;
+        public const int GET_PREVIOUS_INDEX_DELAY = 2000;
         public const int READ_JOB_DELAY = 2000;
         public const int DELETE_JOB_DELAY = 2000;
         public const int NUM_JOB_CHECK_RETRIES = 10;
         public const int NUM_TCP_IP_RETRIES = 240;
-        public const int NUM_XML_ACCESS_RETRIES = 100;
+        public const int NUM_DATA_XML_ACCESS_RETRIES = 100;
+        public const int NUM_JOB_XML_ACCESS_RETRIES = 10;
         public const int NUM_RESULTS_ENTRY_RETRIES = 100;
         public const int NUM_REQUESTS_TILL_TCPIP_SLOWDOWN = 5;
         public const int LIST_PAUSE = 10;
@@ -221,6 +223,11 @@ namespace Status.Services
                 Log(string.Format("Deleted Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
                     job, jobIndex, DateTime.Now));
 
+                if ((IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
+                {
+                    DisplayJobList();
+                }
+
                 // If there are more jobs in the list, increment current Job index
                 if (CurrentJobIndex < FindLastIndex())
                 {
@@ -288,25 +295,35 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Find the last index in the Input Buffer Job list from inside a task only
+        /// Find the last index in the Input Buffer Job list
         /// </summary>
         public static int FindLastIndex()
         {
             int index;
             int lastIndex = 0;
-            for (index = CurrentJobIndex; index <= CurrentJobIndex + InputJobsToRun.Count; index++)
+            Task AddTask = Task.Run(() =>
             {
-                try
+                for (index = CurrentJobIndex; index <= CurrentJobIndex + InputJobsToRun.Count; index++)
                 {
-                    string job = InputJobsToRun.Read(index);
-                    if (job != string.Empty)
+                    try
                     {
-                        lastIndex = index;
+                        string job = InputJobsToRun.Read(index);
+                        if (job != string.Empty)
+                        {
+                            lastIndex = index;
+                        }
+                    }
+                    catch (KeyNotFoundException)
+                    {
                     }
                 }
-                catch (KeyNotFoundException)
-                {
-                }
+            });
+
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_OF_JOBS_DELAY);
+            if (!AddTask.Wait(timeSpan))
+            {
+                Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
+                    GET_TOTAL_NUM_OF_JOBS_DELAY, DateTime.Now);
             }
 
             if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
@@ -316,6 +333,48 @@ namespace Status.Services
             }
 
             return lastIndex;
+        }
+
+        /// <summary>
+        /// Find the previous index in the Input Buffer Job list
+        /// </summary>
+        public static int FindPreviousIndex()
+        {
+            int index;
+            int previousIndex = 0;
+            Task AddTask = Task.Run(() =>
+            {
+                for (index = CurrentJobIndex - 1; index >= 1; index--)
+                {
+                    try
+                    {
+                        string job = InputJobsToRun.Read(index);
+                        if (job != string.Empty)
+                        {
+                            previousIndex = index;
+                            break;
+                        }
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                    }
+                }
+            });
+
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_PREVIOUS_INDEX_DELAY);
+            if (!AddTask.Wait(timeSpan))
+            {
+                Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
+                    GET_PREVIOUS_INDEX_DELAY, DateTime.Now);
+            }
+
+            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
+            {
+                Log(string.Format("Current Index = {0} get Previous Index = {1} at {2:HH:mm:ss.fff}",
+                    CurrentJobIndex, previousIndex, DateTime.Now));
+            }
+
+            return previousIndex;
         }
 
         /// <summary>
@@ -376,8 +435,9 @@ namespace Status.Services
             int start = job.IndexOf("_") + 1;
             jobScanXmlData.TimeStamp = job.Substring(start, job.Length - start);
 
-            // Wait until the Xml file shows up
+            // Check if the Job xml file is present
             bool xmlFileFound = false;
+            int numOfRetries = 0;
             do
             {
                 string[] files = Directory.GetFiles(directory, "*.xml");
@@ -389,7 +449,13 @@ namespace Status.Services
 
                 Thread.Yield();
             }
-            while (xmlFileFound == false);
+            while ((numOfRetries++ < StaticClass.NUM_JOB_XML_ACCESS_RETRIES) && (xmlFileFound == false));
+
+            if (numOfRetries == StaticClass.NUM_JOB_XML_ACCESS_RETRIES)
+            {
+                Log(string.Format("Job {0} waiting for it's Job xml file at {1:HH:mm:ss.fff}",
+                    CurrentJobIndex, DateTime.Now));
+            }
 
             return jobScanXmlData;
         }
@@ -519,7 +585,7 @@ namespace Status.Services
 
                 Thread.Yield();
             }
-            while (numOfRetries++ < NUM_XML_ACCESS_RETRIES);
+            while (numOfRetries++ < NUM_DATA_XML_ACCESS_RETRIES);
 
             return false;
         }

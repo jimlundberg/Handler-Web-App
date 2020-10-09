@@ -99,13 +99,13 @@ namespace Status.Services
             {
                 if (StaticClass.NumberOfJobsExecuting < StaticClass.IniData.ExecutionLimit)
                 {
-                    string directory = dirInfo.ToString();
-                    string job = directory.ToString().Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
+                    string jobDirectory = dirInfo.ToString();
+                    string job = jobDirectory.ToString().Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
 
                     // Check if the directory has a full set of Job files
-                    if (StaticClass.CheckIfJobFilesComplete(directory) == true)
+                    if (StaticClass.CheckIfJobFilesComplete(jobDirectory) == true)
                     {
-                        StaticClass.Log(string.Format("Starting Input Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                        StaticClass.Log(string.Format("Starting Input Job {0} at {1:HH:mm:ss.fff}", jobDirectory, DateTime.Now));
 
                         // Remove job run from Input Job directory list
                         lock (RemoveLock)
@@ -123,7 +123,7 @@ namespace Status.Services
                         StaticClass.InputFileScanComplete[job] = false;
 
                         // Start an Input Buffer Job
-                        StartInputJob(directory);
+                        StartInputJob(jobDirectory);
 
                         // Throttle the Job startups
                         Thread.Sleep(StaticClass.ScanWaitTime);
@@ -148,6 +148,9 @@ namespace Status.Services
 
                 // Clear the Directory Info List after done with it
                 inputDirectoryInfoList.Clear();
+
+                // Display new job list
+                StaticClass.DisplayJobList();
             }
 
             StaticClass.Log("\nStarted Watching for new Input Jobs...");
@@ -180,15 +183,11 @@ namespace Status.Services
                 if (StaticClass.GetTotalNumberOfJobs() > 0)
                 {
                     string job = StaticClass.GetJobFromList(StaticClass.CurrentJobIndex);
-
                     if (job != string.Empty)
                     {
                         StaticClass.Log(string.Format("Input Job handler got Job {0} from list index {1} at {2:HH:mm:ss.fff}",
                             job, StaticClass.CurrentJobIndex, DateTime.Now));
-                    }
 
-                    if (job != string.Empty)
-                    {
                         // Check for complete jobs and run them first
                         string jobDirectory = StaticClass.IniData.InputDir + @"\" + job;
                         if (StaticClass.CheckIfJobFilesComplete(jobDirectory) == true)
@@ -196,13 +195,11 @@ namespace Status.Services
                             StaticClass.Log(string.Format("Starting Input Job {0} index {1} at {2:HH:mm:ss.fff}",
                                 jobDirectory, StaticClass.CurrentJobIndex, DateTime.Now));
 
+                            // Start the new completely ready Job
                             StartInputJob(jobDirectory);
 
+                            // Delete the job from the list and display the new list
                             StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
-                            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
-                            {
-                                StaticClass.DisplayJobList();
-                            }
                         }
                         else // Partial Job handling
                         {
@@ -212,19 +209,28 @@ namespace Status.Services
                                 StaticClass.Log(string.Format("Input Directory skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
                                     job, StaticClass.CurrentJobIndex, DateTime.Now));
 
-                                StaticClass.CurrentJobIndex++;
+                                // If there are more jobs, increment Job index
+                                if (StaticClass.CurrentJobIndex < StaticClass.FindLastIndex())
+                                {
+                                    StaticClass.CurrentJobIndex++;
+                                }
                             }
                             else // Run last job in list
                             {
                                 StaticClass.Log(string.Format("Starting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}",
                                     jobDirectory, StaticClass.CurrentJobIndex, DateTime.Now));
 
+                                // Start the new partial Job
                                 StartInputJob(jobDirectory);
 
+                                // Delete the job from the list
                                 StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
-                                if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
+
+                                // If there is a skipped partial job, start it next
+                                int previousIndex = StaticClass.FindPreviousIndex();
+                                if ((StaticClass.CurrentJobIndex > previousIndex) && (previousIndex > 1))
                                 {
-                                    StaticClass.DisplayJobList();
+                                    StaticClass.CurrentJobIndex = previousIndex;
                                 }
                             }
                         }
