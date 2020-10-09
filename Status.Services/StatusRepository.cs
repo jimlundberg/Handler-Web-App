@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using Microsoft.Extensions.Logging;
 using Status.Models;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace Status.Services
         /// <summary>
         /// Get the Config.ini file data from the working directory
         /// </summary>
-        public void GetIniFileData()
+        public void GetIniFileData(string versionNumber)
         {
             // Check that Config.ini file exists
             string IniFileName = "Config.ini";
@@ -38,7 +39,7 @@ namespace Status.Services
             }
 
             IniFileHandler IniParser = new IniFileHandler(IniFileName);
-            StaticClass.IniData.Version = FileVersionInfo.GetVersionInfo(typeof(Status.Services.IStatusRepository).Assembly.Location).ProductVersion;
+            StaticClass.IniData.Version = versionNumber;
             StaticClass.IniData.IniFileName = IniFileName;
             StaticClass.IniData.InputDir = IniParser.Read("Paths", "Input");
             StaticClass.IniData.ProcessingDir = IniParser.Read("Paths", "Processing");

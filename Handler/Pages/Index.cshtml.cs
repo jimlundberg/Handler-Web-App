@@ -4,6 +4,7 @@ using Status.Models;
 using Status.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Handler.Pages
@@ -20,6 +21,7 @@ namespace Handler.Pages
         private readonly ILogger<IndexModel> Logger;
         private readonly IStatusRepository MonitorDataRepository;
         private static bool firstTime = true;
+        private static string VersionNumber = FileVersionInfo.GetVersionInfo(typeof(IndexModel).Assembly.Location).ProductVersion;
 
         /// <summary>
         /// Index Model CTOR
@@ -132,7 +134,7 @@ namespace Handler.Pages
             SetButtonState(ButtonPress.Home);
             if (firstTime)
             {
-                MonitorDataRepository.GetIniFileData();
+                MonitorDataRepository.GetIniFileData(VersionNumber);
                 MonitorDataRepository.CheckLogFileHistory();
                 firstTime = false;
             }
