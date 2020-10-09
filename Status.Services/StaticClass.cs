@@ -34,10 +34,8 @@ namespace Status.Services
         public const int GET_PREVIOUS_INDEX_WAIT = 2000;
         public const int READ_JOB_WAIT = 2000;
         public const int DELETE_JOB_WAIT = 2000;
-        public const int NUM_JOB_CHECK_RETRIES = 10;
         public const int NUM_TCP_IP_RETRIES = 240;
         public const int NUM_DATA_XML_ACCESS_RETRIES = 100;
-        public const int NUM_JOB_XML_ACCESS_RETRIES = 10;
         public const int NUM_RESULTS_ENTRY_RETRIES = 100;
         public const int NUM_REQUESTS_TILL_TCPIP_SLOWDOWN = 5;
         public const int LIST_PAUSE = 10;
@@ -436,9 +434,10 @@ namespace Status.Services
             int start = job.IndexOf("_") + 1;
             jobScanXmlData.TimeStamp = job.Substring(start, job.Length - start);
 
+            Log(string.Format("Job {0} waiting for it's Job xml file at {1:HH:mm:ss.fff}", job, DateTime.Now));
+
             // Check if the Job xml file is present
             bool xmlFileFound = false;
-            int numOfRetries = 0;
             do
             {
                 string[] files = Directory.GetFiles(directory, "*.xml");
@@ -450,13 +449,7 @@ namespace Status.Services
 
                 Thread.Yield();
             }
-            while ((numOfRetries++ < StaticClass.NUM_JOB_XML_ACCESS_RETRIES) && (xmlFileFound == false));
-
-            if (numOfRetries == StaticClass.NUM_JOB_XML_ACCESS_RETRIES)
-            {
-                Log(string.Format("Job {0} waiting for it's Job xml file at {1:HH:mm:ss.fff}",
-                    CurrentJobIndex, DateTime.Now));
-            }
+            while (xmlFileFound == false);
 
             return jobScanXmlData;
         }
