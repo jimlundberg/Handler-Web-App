@@ -445,8 +445,9 @@ namespace Status.Services
                 string[] files = Directory.GetFiles(directory, "*.xml");
                 if (files.Length > 0)
                 {
-                    Log(string.Format("Job {0} found it's Job xml file {1} at {2:HH:mm:ss.fff}", job, directory, DateTime.Now));
                     jobScanXmlData.XmlFileName = Path.GetFileName(files[0]);
+                    Log(string.Format("Job {0} found it's Job xml file {1} at {2:HH:mm:ss.fff}",
+                        job, jobScanXmlData.XmlFileName, DateTime.Now));
                     xmlFileFound = true;
                 }
 
