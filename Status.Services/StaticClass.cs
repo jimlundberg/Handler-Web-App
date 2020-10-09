@@ -52,6 +52,7 @@ namespace Status.Services
 
         // Thread handles
         public static Thread InputJobsScanThreadHandle;
+        public static Thread InputJobStartThreadHandle;
         public static Thread ProcessingFileWatcherThreadHandle;
         public static Thread ProcessingJobsScanThreadHandle;
         public static Thread DirectoryWatcherThreadHandle;

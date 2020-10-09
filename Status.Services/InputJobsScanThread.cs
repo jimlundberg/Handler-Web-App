@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using Status.Models;
+﻿using Handler.Services;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -254,35 +254,13 @@ namespace Status.Services
         /// <param name="directory"></param>
         public void StartInputJob(string directory)
         {
-            // Reset Input job file scan flag
-            string job = directory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
-
-            StaticClass.InputFileScanComplete[job] = false;
-
-            // Get data found in Job xml file
-            JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(directory, DirectoryScanType.INPUT_BUFFER);
-            if (jobXmlData == null)
+            // Start the Input Job Thread class to start a new Input Buffer job and continue
+            StartInputJobThread startInputJobThread = new StartInputJobThread(directory);
+            if (startInputJobThread == null)
             {
-                StaticClass.Logger.LogError("InputJobsScanThread GetJobXmlData failed");
+                StaticClass.Logger.LogError("InputJobsScanThread StartInputJobThread failed to instantiate");
             }
-
-            // Display job xml data found
-            StaticClass.Log("Input Job                      : " + jobXmlData.Job);
-            StaticClass.Log("Input Job Directory            : " + jobXmlData.JobDirectory);
-            StaticClass.Log("Input Job Serial Number        : " + jobXmlData.JobSerialNumber);
-            StaticClass.Log("Input Job Time Stamp           : " + jobXmlData.TimeStamp);
-            StaticClass.Log("Input Job Xml File             : " + jobXmlData.XmlFileName);
-
-            StaticClass.Log(string.Format("Started Input Job {0} executing Slot {1} at {2:HH:mm:ss.fff}",
-                jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
-
-            // Create a thread to run the job, and then start the thread
-            JobRunThread jobRunThread = new JobRunThread(jobXmlData, DirectoryScanType.INPUT_BUFFER);
-            if (jobRunThread == null)
-            {
-                StaticClass.Logger.LogError("InputJobsScanThread jobRunThread failed to instantiate");
-            }
-            jobRunThread.ThreadProc();
+            startInputJobThread.ThreadProc();
         }
     }
 }
