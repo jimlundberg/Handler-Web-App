@@ -28,11 +28,12 @@ namespace Status.Services
         public const int READ_AVAILABLE_RETRY_DELAY = 250;
         public const int FILE_WAIT_DELAY = 2500;
         public const int FILE_READY_WAIT = 250;
-        public const int ADD_JOB_DELAY = 2000;
-        public const int GET_TOTAL_NUM_OF_JOBS_DELAY = 2000;
-        public const int GET_PREVIOUS_INDEX_DELAY = 2000;
-        public const int READ_JOB_DELAY = 2000;
-        public const int DELETE_JOB_DELAY = 2000;
+        public const int ADD_JOB_WAIT = 2000;
+        public const int DISPLAY_JOB_LIST_DELAY = 2000;
+        public const int GET_TOTAL_NUM_OF_JOBS_WAIT = 2000;
+        public const int GET_PREVIOUS_INDEX_WAIT = 2000;
+        public const int READ_JOB_WAIT = 2000;
+        public const int DELETE_JOB_WAIT = 2000;
         public const int NUM_JOB_CHECK_RETRIES = 10;
         public const int NUM_TCP_IP_RETRIES = 240;
         public const int NUM_DATA_XML_ACCESS_RETRIES = 100;
@@ -127,11 +128,11 @@ namespace Status.Services
                 jobCount = InputJobsToRun.Count;
             });
 
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_OF_JOBS_DELAY);
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_OF_JOBS_WAIT);
             if (!AddTask.Wait(timeSpan))
             {
                 Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
-                    GET_TOTAL_NUM_OF_JOBS_DELAY, DateTime.Now);
+                    GET_TOTAL_NUM_OF_JOBS_WAIT, DateTime.Now);
             }
 
             return jobCount;
@@ -163,11 +164,11 @@ namespace Status.Services
                 }
             });
 
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(ADD_JOB_DELAY);
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(ADD_JOB_WAIT);
             if (!AddTask.Wait(timeSpan))
             {
                 Logger.LogError("InputJobScanThread Add Job {0} timed out at {1} msec at {2:HH:mm:ss.fff}",
-                    job, ADD_JOB_DELAY, DateTime.Now);
+                    job, ADD_JOB_WAIT, DateTime.Now);
             }
         }
 
@@ -199,11 +200,11 @@ namespace Status.Services
                 }
             });
 
-            TimeSpan readJobtimeSpan = TimeSpan.FromMilliseconds(READ_JOB_DELAY);
+            TimeSpan readJobtimeSpan = TimeSpan.FromMilliseconds(READ_JOB_WAIT);
             if (!ReadJobTask.Wait(readJobtimeSpan))
             {
                 Logger.LogError("InputJobScanThread Read Job {0} timed out adding as index {1} at {2} msec at {2:HH:mm:ss.fff}",
-                    job, jobIndex, READ_JOB_DELAY, DateTime.Now);
+                    job, jobIndex, READ_JOB_WAIT, DateTime.Now);
             }
 
             return job;
@@ -237,11 +238,11 @@ namespace Status.Services
                 }
             });
 
-            TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(DELETE_JOB_DELAY);
+            TimeSpan deleteTimeSpan = TimeSpan.FromMilliseconds(DELETE_JOB_WAIT);
             if (!deleteJobTask.Wait(deleteTimeSpan))
             {
                 Logger.LogError("InputJobScanThread Delete Job {0} index {1} timed out at {2} msec at {3:HH:mm:ss.fff}",
-                    job, jobIndex, DELETE_JOB_DELAY, DateTime.Now);
+                    job, jobIndex, DELETE_JOB_WAIT, DateTime.Now);
             }
         }
 
@@ -269,11 +270,11 @@ namespace Status.Services
                 }
             });
 
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_OF_JOBS_DELAY);
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(DISPLAY_JOB_LIST_DELAY);
             if (!AddTask.Wait(timeSpan))
             {
                 Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
-                    GET_TOTAL_NUM_OF_JOBS_DELAY, DateTime.Now);
+                    DISPLAY_JOB_LIST_DELAY, DateTime.Now);
             }
 
             // Small pause for list display coordination
@@ -319,11 +320,11 @@ namespace Status.Services
                 }
             });
 
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_OF_JOBS_DELAY);
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_OF_JOBS_WAIT);
             if (!AddTask.Wait(timeSpan))
             {
                 Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
-                    GET_TOTAL_NUM_OF_JOBS_DELAY, DateTime.Now);
+                    GET_TOTAL_NUM_OF_JOBS_WAIT, DateTime.Now);
             }
 
             if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
@@ -361,11 +362,11 @@ namespace Status.Services
                 }
             });
 
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_PREVIOUS_INDEX_DELAY);
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_PREVIOUS_INDEX_WAIT);
             if (!AddTask.Wait(timeSpan))
             {
                 Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
-                    GET_PREVIOUS_INDEX_DELAY, DateTime.Now);
+                    GET_PREVIOUS_INDEX_WAIT, DateTime.Now);
             }
 
             if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
