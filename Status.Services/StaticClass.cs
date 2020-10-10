@@ -304,7 +304,7 @@ namespace Status.Services
             int lastIndex = 0;
             Task AddTask = Task.Run(() =>
             {
-                for (index = CurrentJobIndex; index <= CurrentJobIndex + InputJobsToRun.Count; index++)
+                for (index = CurrentJobIndex; index <= CurrentJobIndex + InputJobsToRun.Count; index--)
                 {
                     try
                     {

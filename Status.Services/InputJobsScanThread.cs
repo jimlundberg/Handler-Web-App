@@ -204,16 +204,12 @@ namespace Status.Services
                         else // Partial Job handling
                         {
                             // Skip Partial Job if there are more in the list
-                            if ((StaticClass.TotalNumberOfJobs > 1) && (StaticClass.CurrentJobIndex < StaticClass.GetTotalNumberOfJobs()))
+                            if (StaticClass.CurrentJobIndex < StaticClass.FindLastIndex())
                             {
                                 StaticClass.Log(string.Format("Input Directory skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
                                     job, StaticClass.CurrentJobIndex, DateTime.Now));
 
-                                // If there are more jobs, increment Job index
-                                if (StaticClass.CurrentJobIndex < StaticClass.FindLastIndex())
-                                {
-                                    StaticClass.CurrentJobIndex++;
-                                }
+                                StaticClass.CurrentJobIndex++;
                             }
                             else // Run last job in list
                             {
@@ -228,7 +224,7 @@ namespace Status.Services
 
                                 // If there is a skipped partial job, start it next
                                 int previousIndex = StaticClass.FindPreviousIndex();
-                                if ((StaticClass.CurrentJobIndex > previousIndex) && (previousIndex > 1))
+                                if ((StaticClass.CurrentJobIndex > previousIndex))
                                 {
                                     StaticClass.CurrentJobIndex = previousIndex;
                                 }
