@@ -305,14 +305,15 @@ namespace Status.Services
                         }
                         else
                         {
+                            // Wait 250 msec between 480 read retry checks for about 2 min CanRead is set for session
+                            Thread.Sleep(StaticClass.READ_AVAILABLE_RETRY_DELAY);
+
+                            // Display TCP/IP read retries if TCP_IP debug flag set
                             if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.TCP_IP) != 0)
                             {
                                   StaticClass.Log(string.Format("TCP/IP read retry {0} in {1} for Job {2} on Port {3} at {4:HH:mm:ss.fff}",
                                     numOfRetries, ModelerCurrentStepState, job, port, DateTime.Now));
                             }
-
-                            // Wait 250 msec between 480 Data Available checks (2 min) CanRead is set for session
-                            Thread.Sleep(StaticClass.READ_AVAILABLE_RETRY_DELAY);
                         }
                     }
                     while ((numOfRetries++ < StaticClass.NUM_TCP_IP_RETRIES) && (messageReceived == false));
