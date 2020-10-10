@@ -325,7 +325,7 @@ namespace Status.Services
                         client.Close();
 
                         StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} because Retry count exceeded {2} at {3:HH:mm:ss.fff}",
-                            job, port, numOfRetries, DateTime.Now));
+                            job, port, StaticClass.NUM_TCP_IP_RETRIES, DateTime.Now));
 
                         StaticClass.Log(string.Format("No Job Complete received for Job {0} but it is in Step 6 so forcing complete on Port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));
