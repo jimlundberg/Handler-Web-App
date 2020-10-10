@@ -169,7 +169,7 @@ namespace Status.Services
 
                     // Check if TCP/IP stream is readable and data is available
                     int adjustableSleepTime = StaticClass.STARTING_TCP_IP_WAIT;
-                    int numOfRetries = 0;
+                    int numOfRetries = 1;
                     bool messageReceived = false;
                     do
                     {
@@ -307,8 +307,8 @@ namespace Status.Services
                         {
                             if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.TCP_IP) != 0)
                             {
-                                StaticClass.Log(string.Format("TCP/IP retry {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
-                                 numOfRetries, job, port, ModelerCurrentStepState, DateTime.Now));
+                                  StaticClass.Log(string.Format("TCP/IP read retry {0} in {1} for Job {2} on Port {3} at {4:HH:mm:ss.fff}",
+                                    numOfRetries, ModelerCurrentStepState, job, port, DateTime.Now));
                             }
 
                             // Wait 250 msec between 480 Data Available checks (2 min) CanRead is set for session
