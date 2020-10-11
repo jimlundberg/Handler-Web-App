@@ -30,8 +30,9 @@ namespace Status.Services
         public const int FILE_READY_WAIT = 250;
         public const int JOB_XML_FILE_READY_WAIT = 250;
         public const int ADD_JOB_WAIT = 2000;
-        public const int DISPLAY_JOB_LIST_DELAY = 2000;
+        public const int DISPLAY_JOB_LIST_WAIT = 2000;
         public const int GET_TOTAL_NUM_OF_JOBS_WAIT = 2000;
+        public const int LAST_INDEX_WAIT = 2000;
         public const int GET_PREVIOUS_INDEX_WAIT = 2000;
         public const int READ_JOB_WAIT = 2000;
         public const int DELETE_JOB_WAIT = 2000;
@@ -256,8 +257,7 @@ namespace Status.Services
             int index;
             Task AddTask = Task.Run(() =>
             {
-                int lastIndex = FindLastIndex();
-                for (index = CurrentJobIndex; index <= lastIndex; index++)
+                for (index = CurrentJobIndex; index <= FindLastIndex(); index++)
                 {
                     try
                     {
@@ -270,11 +270,11 @@ namespace Status.Services
                 }
             });
 
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(DISPLAY_JOB_LIST_DELAY);
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(DISPLAY_JOB_LIST_WAIT);
             if (!AddTask.Wait(timeSpan))
             {
                 Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
-                    DISPLAY_JOB_LIST_DELAY, DateTime.Now);
+                    DISPLAY_JOB_LIST_WAIT, DateTime.Now);
             }
 
             // Small pause for list display coordination
@@ -304,7 +304,7 @@ namespace Status.Services
             int lastIndex = 0;
             Task AddTask = Task.Run(() =>
             {
-                for (index = CurrentJobIndex; index <= CurrentJobIndex + InputJobsToRun.Count; index--)
+                for (index = CurrentJobIndex; index >= 1; index--)
                 {
                     try
                     {
@@ -312,6 +312,12 @@ namespace Status.Services
                         if (job != string.Empty)
                         {
                             lastIndex = index;
+                            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
+                            {
+                                Log(string.Format("Current Index = {0} Last Index = {1} at {2:HH:mm:ss.fff}",
+                                    CurrentJobIndex, lastIndex, DateTime.Now));
+                            }
+                            break;
                         }
                     }
                     catch (KeyNotFoundException)
@@ -320,17 +326,11 @@ namespace Status.Services
                 }
             });
 
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_OF_JOBS_WAIT);
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(LAST_INDEX_WAIT);
             if (!AddTask.Wait(timeSpan))
             {
-                Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
-                    GET_TOTAL_NUM_OF_JOBS_WAIT, DateTime.Now);
-            }
-
-            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
-            {
-                Log(string.Format("Current Index = {0} Last Index = {1} at {2:HH:mm:ss.fff}",
-                    CurrentJobIndex, lastIndex, DateTime.Now));
+                Logger.LogError("StaticClass Find LaSt Index timed out at {0} msec at {1:HH:mm:ss.fff}",
+                    LAST_INDEX_WAIT, DateTime.Now);
             }
 
             return lastIndex;
@@ -353,6 +353,11 @@ namespace Status.Services
                         if (job != string.Empty)
                         {
                             previousIndex = index;
+                            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
+                            {
+                                Log(string.Format("Current Index = {0} get Previous Index = {1} at {2:HH:mm:ss.fff}",
+                                    CurrentJobIndex, previousIndex, DateTime.Now));
+                            }
                             break;
                         }
                     }
@@ -367,12 +372,6 @@ namespace Status.Services
             {
                 Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
                     GET_PREVIOUS_INDEX_WAIT, DateTime.Now);
-            }
-
-            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
-            {
-                Log(string.Format("Current Index = {0} get Previous Index = {1} at {2:HH:mm:ss.fff}",
-                    CurrentJobIndex, previousIndex, DateTime.Now));
             }
 
             return previousIndex;
@@ -436,7 +435,7 @@ namespace Status.Services
             int start = job.IndexOf("_") + 1;
             jobScanXmlData.TimeStamp = job.Substring(start, job.Length - start);
 
-            Log(string.Format("Job {0} waiting for it's Job xml file at {1:HH:mm:ss.fff}", job, DateTime.Now));
+            Log(string.Format("Job {0} checking for it's Job xml file at {1:HH:mm:ss.fff}", job, DateTime.Now));
 
             // Wait until Job xml file is present to continue partial job
             bool xmlFileFound = false;
@@ -449,6 +448,12 @@ namespace Status.Services
                     Log(string.Format("Job {0} found it's Job xml file {1} at {2:HH:mm:ss.fff}",
                         job, jobScanXmlData.XmlFileName, DateTime.Now));
                     xmlFileFound = true;
+                }
+
+                // Check if the shutdown flag is set, exit method
+                if (StaticClass.ShutDownPauseCheck("GetJobXmlFileInfo") == true)
+                {
+                    return null;
                 }
 
                 Thread.Sleep(StaticClass.JOB_XML_FILE_READY_WAIT);
@@ -576,7 +581,7 @@ namespace Status.Services
                 }
 
                 // Check for shutdown or pause
-                if (ShutDownPauseCheck("IsFileReady") == true)
+                if (ShutDownPauseCheck("CheckFileReady") == true)
                 {
                     return false;
                 }

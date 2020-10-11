@@ -110,10 +110,10 @@ namespace Status.Services
                         return;
                     }
 
-                    // Check if the stream is writable, if not, exit
+                    // Check if the stream is writable, if not, shutdown and exit
                     if (stream.CanWrite)
                     {
-                        if (StaticClass.ShutDownPauseCheck(job) == false)
+                        if (StaticClass.ShutDownPauseCheck("TCP/IP before write") == false)
                         {
                             try
                             {

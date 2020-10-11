@@ -159,7 +159,7 @@ namespace Status.Services
             do
             {
                 // Check if the shutdown flag is set, exit method
-                if (StaticClass.ShutDownPauseCheck("CheckForUnfinishedInputJobs") == true)
+                if (StaticClass.ShutDownPauseCheck("CheckForNewInputJobs") == true)
                 {
                     return;
                 }
