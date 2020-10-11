@@ -257,7 +257,8 @@ namespace Status.Services
             int index;
             Task AddTask = Task.Run(() =>
             {
-                for (index = CurrentJobIndex; index <= FindLastIndex(); index++)
+                int lastIndex = FindLastIndex();
+                for (index = CurrentJobIndex; index <= lastIndex; index++)
                 {
                     try
                     {
@@ -314,7 +315,7 @@ namespace Status.Services
                             lastIndex = index;
                             if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
                             {
-                                Log(string.Format("Current Index = {0} Last Index = {1} at {2:HH:mm:ss.fff}",
+                                Log(string.Format("FindLastIndex Current Index = {0} Last Index = {1} at {2:HH:mm:ss.fff}",
                                     CurrentJobIndex, lastIndex, DateTime.Now));
                             }
                             break;
@@ -342,7 +343,7 @@ namespace Status.Services
         public static int FindPreviousIndex()
         {
             int index;
-            int previousIndex = 0;
+            int previousIndex = 1;
             Task AddTask = Task.Run(() =>
             {
                 for (index = CurrentJobIndex - 1; index >= 1; index--)
@@ -355,7 +356,7 @@ namespace Status.Services
                             previousIndex = index;
                             if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
                             {
-                                Log(string.Format("Current Index = {0} get Previous Index = {1} at {2:HH:mm:ss.fff}",
+                                Log(string.Format("FindPreviousIndex Current Index = {0} Previous Index = {1} at {2:HH:mm:ss.fff}",
                                     CurrentJobIndex, previousIndex, DateTime.Now));
                             }
                             break;
