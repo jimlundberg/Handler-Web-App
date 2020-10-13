@@ -204,9 +204,9 @@ namespace Status.Services
                         else // Partial Job handling
                         {
                             // Skip Partial Job if there are more in the list
-                            if (StaticClass.CurrentJobIndex < StaticClass.FindLastIndex())
+                            if (StaticClass.CurrentJobIndex < StaticClass.LastJobIndex)
                             {
-                                StaticClass.Log(string.Format("Input Directory skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
+                                StaticClass.Log(string.Format("Input Job scanner skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
                                     job, StaticClass.CurrentJobIndex, DateTime.Now));
 
                                 StaticClass.CurrentJobIndex++;
@@ -222,11 +222,10 @@ namespace Status.Services
                                 // Delete the job from the list
                                 StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
 
-                                // If there is a skipped partial job, start it next
-                                int previousIndex = StaticClass.FindPreviousIndex();
-                                if ((StaticClass.CurrentJobIndex > previousIndex))
+                                // If there is a skipped partial job, start it next by setting index to previous one
+                                if ((StaticClass.CurrentJobIndex > StaticClass.PreviousJobIndex))
                                 {
-                                    StaticClass.CurrentJobIndex = previousIndex;
+                                    StaticClass.CurrentJobIndex = StaticClass.PreviousJobIndex;
                                 }
                             }
                         }

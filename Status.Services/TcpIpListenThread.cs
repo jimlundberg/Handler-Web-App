@@ -318,8 +318,9 @@ namespace Status.Services
                     }
                     while ((numOfRetries++ < StaticClass.NUM_TCP_IP_RETRIES) && (messageReceived == false));
 
-                    // Check if retry count exceeded in STEP_6 mode
-                    if ((numOfRetries >= StaticClass.NUM_TCP_IP_RETRIES) && (ModelerCurrentStepState == ModelerStepState.STEP_6))
+                    // Check if retry count exceeded in STEP 5 or 6, if so, force TCP/IP Complete
+                    if ((numOfRetries >= StaticClass.NUM_TCP_IP_RETRIES) &&
+                       ((ModelerCurrentStepState == ModelerStepState.STEP_5) || (ModelerCurrentStepState == ModelerStepState.STEP_6)))
                     {
                         // Make sure to close TCP/IP socket
                         stream.Close();

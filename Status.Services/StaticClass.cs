@@ -30,12 +30,12 @@ namespace Status.Services
         public const int FILE_READY_WAIT = 250;
         public const int JOB_XML_FILE_READY_WAIT = 250;
         public const int ADD_JOB_WAIT = 2000;
-        public const int DISPLAY_JOB_LIST_WAIT = 2000;
-        public const int GET_TOTAL_NUM_OF_JOBS_WAIT = 2000;
-        public const int LAST_INDEX_WAIT = 2000;
-        public const int GET_PREVIOUS_INDEX_WAIT = 2000;
-        public const int READ_JOB_WAIT = 2000;
-        public const int DELETE_JOB_WAIT = 2000;
+        public const int DISPLAY_JOB_LIST_WAIT = 2500;
+        public const int GET_TOTAL_NUM_OF_JOBS_WAIT = 2500;
+        public const int LAST_INDEX_WAIT = 2500;
+        public const int GET_PREVIOUS_INDEX_WAIT = 2500;
+        public const int READ_JOB_WAIT = 2500;
+        public const int DELETE_JOB_WAIT = 2500;
         public const int NUM_TCP_IP_RETRIES = 240;
         public const int NUM_DATA_XML_ACCESS_RETRIES = 100;
         public const int NUM_RESULTS_ENTRY_RETRIES = 100;
@@ -50,6 +50,9 @@ namespace Status.Services
         public static int LogFileSizeLimit = 0;
         public static int TotalNumberOfJobs = 0;
         public static int CurrentJobIndex = 1;
+        public static int LastJobIndex = 0;
+        public static int PreviousJobIndex = 0;
+
 
         // Thread handles
         public static Thread InputJobsScanThreadHandle;
@@ -188,15 +191,15 @@ namespace Status.Services
                 {
                     try
                     {
-                        job = InputJobsToRun.Read(jobIndex);
+                        job = InputJobsToRun.Read(JobIndex);
                         Log(string.Format("\nRead next Job {0} from Input Job list index {1} at {2:HH:mm:ss.fff}",
-                            job, jobIndex, DateTime.Now));
+                            job, JobIndex, DateTime.Now));
                     }
                     catch (KeyNotFoundException)
                     {
                         CurrentJobIndex = 1;
                         Logger.LogWarning("Read Job from invalid list index {0} failed resetting Current Index to 1 at {1:HH:mm:ss.fff}",
-                            jobIndex, DateTime.Now);
+                            JobIndex, DateTime.Now);
                     }
                 }
             });
@@ -301,40 +304,28 @@ namespace Status.Services
         /// </summary>
         public static int FindLastIndex()
         {
-            int index;
-            int lastIndex = 0;
-            Task AddTask = Task.Run(() =>
+            for (int index = CurrentJobIndex; index >= 1; index--)
             {
-                for (index = CurrentJobIndex; index >= 1; index--)
+                try
                 {
-                    try
+                    string job = InputJobsToRun.Read(index);
+                    if (job != string.Empty)
                     {
-                        string job = InputJobsToRun.Read(index);
-                        if (job != string.Empty)
+                        LastJobIndex = index;
+                        if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
                         {
-                            lastIndex = index;
-                            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
-                            {
-                                Log(string.Format("FindLastIndex Current Index = {0} Last Index = {1} at {2:HH:mm:ss.fff}",
-                                    CurrentJobIndex, lastIndex, DateTime.Now));
-                            }
-                            break;
+                            Log(string.Format("FindLastIndex Current Index = {0} Last Index = {1} at {2:HH:mm:ss.fff}",
+                                CurrentJobIndex, LastJobIndex, DateTime.Now));
                         }
-                    }
-                    catch (KeyNotFoundException)
-                    {
+                        break;
                     }
                 }
-            });
-
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(LAST_INDEX_WAIT);
-            if (!AddTask.Wait(timeSpan))
-            {
-                Logger.LogError("StaticClass Find LaSt Index timed out at {0} msec at {1:HH:mm:ss.fff}",
-                    LAST_INDEX_WAIT, DateTime.Now);
+                catch (KeyNotFoundException)
+                {
+                }
             }
 
-            return lastIndex;
+            return LastJobIndex;
         }
 
         /// <summary>
@@ -342,40 +333,28 @@ namespace Status.Services
         /// </summary>
         public static int FindPreviousIndex()
         {
-            int index;
-            int previousIndex = 1;
-            Task AddTask = Task.Run(() =>
+            for (int index = CurrentJobIndex - 1; index >= 1; index--)
             {
-                for (index = CurrentJobIndex - 1; index >= 1; index--)
+                try
                 {
-                    try
+                    string job = InputJobsToRun.Read(index);
+                    if (job != string.Empty)
                     {
-                        string job = InputJobsToRun.Read(index);
-                        if (job != string.Empty)
+                        PreviousJobIndex = index;
+                        if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
                         {
-                            previousIndex = index;
-                            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
-                            {
-                                Log(string.Format("FindPreviousIndex Current Index = {0} Previous Index = {1} at {2:HH:mm:ss.fff}",
-                                    CurrentJobIndex, previousIndex, DateTime.Now));
-                            }
-                            break;
+                            Log(string.Format("FindPreviousIndex Current Index = {0} Previous Index = {1} at {2:HH:mm:ss.fff}",
+                                CurrentJobIndex, PreviousJobIndex, DateTime.Now));
                         }
-                    }
-                    catch (KeyNotFoundException)
-                    {
+                        break;
                     }
                 }
-            });
-
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_PREVIOUS_INDEX_WAIT);
-            if (!AddTask.Wait(timeSpan))
-            {
-                Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
-                    GET_PREVIOUS_INDEX_WAIT, DateTime.Now);
+                catch (KeyNotFoundException)
+                {
+                }
             }
 
-            return previousIndex;
+            return PreviousJobIndex;
         }
 
         /// <summary>
