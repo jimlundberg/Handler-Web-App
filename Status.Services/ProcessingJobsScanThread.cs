@@ -85,7 +85,7 @@ namespace Status.Services
                     string directory = dirInfo.ToString();
                     string job = directory.ToString().Replace(StaticClass.IniData.ProcessingDir, "").Remove(0, 1);
 
-                    StaticClass.Log(string.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                    StaticClass.Log(string.Format("Starting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                     // Remove job run from Processing Job list
                     lock (RemoveLock)
@@ -165,7 +165,7 @@ namespace Status.Services
                 {
                     string directory = StaticClass.IniData.ProcessingDir + @"\" + job;
 
-                    StaticClass.Log(string.Format("\nStarting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
+                    StaticClass.Log(string.Format("Starting Processing Job {0} at {1:HH:mm:ss.fff}", directory, DateTime.Now));
 
                     // Remove job run from Processing Job list
                     lock (RemoveLock)
@@ -220,7 +220,7 @@ namespace Status.Services
             StaticClass.Log("Processing Job Time Stamp      : " + jobXmlData.TimeStamp);
             StaticClass.Log("Processing Job Xml File        : " + jobXmlData.XmlFileName);
 
-            StaticClass.Log(string.Format("\nStarting Processing directory Job {0} Executing Slot {1} at {2:HH:mm:ss.fff}",
+            StaticClass.Log(string.Format("Starting Processing directory Job {0} Executing Slot {1} at {2:HH:mm:ss.fff}",
                 jobXmlData.Job, StaticClass.NumberOfJobsExecuting + 1, DateTime.Now));
 
             // Create a thread to run the job, and then start the thread

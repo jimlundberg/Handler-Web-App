@@ -110,10 +110,10 @@ namespace Status.Services
                         return;
                     }
 
-                    // Check if the stream is writable, if not, exit
+                    // Check if the stream is writable, if not, shutdown and exit
                     if (stream.CanWrite)
                     {
-                        if (StaticClass.ShutDownPauseCheck(job) == false)
+                        if (StaticClass.ShutDownPauseCheck("TCP/IP before write") == false)
                         {
                             try
                             {
@@ -169,7 +169,7 @@ namespace Status.Services
 
                     // Check if TCP/IP stream is readable and data is available
                     int adjustableSleepTime = StaticClass.STARTING_TCP_IP_WAIT;
-                    int numOfRetries = 0;
+                    int numOfRetries = 1;
                     bool messageReceived = false;
                     do
                     {
@@ -305,27 +305,29 @@ namespace Status.Services
                         }
                         else
                         {
+                            // Wait 250 msec between 480 read retry checks for about 2 min CanRead is set for session
+                            Thread.Sleep(StaticClass.READ_AVAILABLE_RETRY_DELAY);
+
+                            // Display TCP/IP read retries if TCP_IP debug flag set
                             if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.TCP_IP) != 0)
                             {
-                                StaticClass.Log(string.Format("TCP/IP retry {0} for Job {1} on Port {2} in state {3} at {4:HH:mm:ss.fff}",
-                                 numOfRetries, job, port, ModelerCurrentStepState, DateTime.Now));
+                                  StaticClass.Log(string.Format("TCP/IP read retry {0} in {1} for Job {2} on Port {3} at {4:HH:mm:ss.fff}",
+                                    numOfRetries, ModelerCurrentStepState, job, port, DateTime.Now));
                             }
-
-                            // Wait 250 msec between 480 Data Available checks (2 min) CanRead is set for session
-                            Thread.Sleep(StaticClass.READ_AVAILABLE_RETRY_DELAY);
                         }
                     }
                     while ((numOfRetries++ < StaticClass.NUM_TCP_IP_RETRIES) && (messageReceived == false));
 
-                    // Check if retry count exceeded in STEP_6 mode
-                    if ((numOfRetries >= StaticClass.NUM_TCP_IP_RETRIES) && (ModelerCurrentStepState == ModelerStepState.STEP_6))
+                    // Check if retry count exceeded in STEP 5 or 6, if so, force TCP/IP Complete
+                    if ((numOfRetries >= StaticClass.NUM_TCP_IP_RETRIES) &&
+                       ((ModelerCurrentStepState == ModelerStepState.STEP_5) || (ModelerCurrentStepState == ModelerStepState.STEP_6)))
                     {
                         // Make sure to close TCP/IP socket
                         stream.Close();
                         client.Close();
 
                         StaticClass.Log(string.Format("Closed TCP/IP Socket for Job {0} on Port {1} because Retry count exceeded {2} at {3:HH:mm:ss.fff}",
-                            job, port, numOfRetries, DateTime.Now));
+                            job, port, StaticClass.NUM_TCP_IP_RETRIES, DateTime.Now));
 
                         StaticClass.Log(string.Format("No Job Complete received for Job {0} but it is in Step 6 so forcing complete on Port {1} at {2:HH:mm:ss.fff}",
                             job, port, DateTime.Now));

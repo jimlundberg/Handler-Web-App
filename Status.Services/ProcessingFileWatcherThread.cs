@@ -161,7 +161,7 @@ namespace Status.Services
                 do
                 {
                     // Check for shutdown or pause
-                    if (StaticClass.ShutDownPauseCheck("Processing File Watcher Thread") == true)
+                    if (StaticClass.ShutDownPauseCheck("ProcessingWatchFiles") == true)
                     {
                         return;
                     }
