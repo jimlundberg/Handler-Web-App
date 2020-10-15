@@ -210,7 +210,7 @@ namespace Status.Services
                                     job, StaticClass.CurrentJobIndex, DateTime.Now));
 
                                 // If there are more jobs, increment Job index
-                                if (StaticClass.CurrentJobIndex < StaticClass.FindLastIndex())
+                                if (StaticClass.CurrentJobIndex < StaticClass.GetLastIndex())
                                 {
                                     StaticClass.CurrentJobIndex++;
                                 }
@@ -227,7 +227,7 @@ namespace Status.Services
                                 StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
 
                                 // If there is a skipped partial job, start it next
-                                int previousIndex = StaticClass.FindPreviousIndex();
+                                int previousIndex = StaticClass.GetPreviousIndex();
                                 if ((StaticClass.CurrentJobIndex > previousIndex) && (previousIndex > 1))
                                 {
                                     StaticClass.CurrentJobIndex = previousIndex;

@@ -30,11 +30,12 @@ namespace Status.Services
         public const int FILE_READY_WAIT = 250;
         public const int JOB_XML_FILE_READY_WAIT = 250;
         public const int ADD_JOB_WAIT = 2000;
-        public const int DISPLAY_JOB_LIST_DELAY = 2000;
-        public const int GET_TOTAL_NUM_OF_JOBS_WAIT = 2000;
-        public const int GET_PREVIOUS_INDEX_WAIT = 2000;
-        public const int READ_JOB_WAIT = 2000;
-        public const int DELETE_JOB_WAIT = 2000;
+        public const int DISPLAY_JOB_LIST_DELAY = 2500;
+        public const int GET_TOTAL_NUM_OF_JOBS_WAIT = 2500;
+        public const int GET_LAST_INDEX_WAIT = 2500;
+        public const int GET_PREVIOUS_INDEX_WAIT = 2500;
+        public const int READ_JOB_WAIT = 2500;
+        public const int DELETE_JOB_WAIT = 2500;
         public const int NUM_TCP_IP_RETRIES = 240;
         public const int NUM_DATA_XML_ACCESS_RETRIES = 100;
         public const int NUM_RESULTS_ENTRY_RETRIES = 100;
@@ -295,36 +296,47 @@ namespace Status.Services
             Log("");
         }
 
+
+        /// <summary>
+        /// Get the last index in the Input Buffer Job list
+        /// </summary>
+        public static int GetLastIndex()
+        {
+            int lastIndex = 0;
+            Task AddTask = Task.Run(() =>
+            {
+                lastIndex = FindLastIndex();
+            });
+
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_LAST_INDEX_WAIT);
+            if (!AddTask.Wait(timeSpan))
+            {
+                Logger.LogError("InputJobScanThread get last index timed out at {0} msec at {1:HH:mm:ss.fff}",
+                    GET_LAST_INDEX_WAIT, DateTime.Now);
+            }
+
+            return lastIndex;
+        }
+
         /// <summary>
         /// Find the last index in the Input Buffer Job list
         /// </summary>
         public static int FindLastIndex()
         {
-            int index;
             int lastIndex = 0;
-            Task AddTask = Task.Run(() =>
+            for (int index = CurrentJobIndex; index <= CurrentJobIndex + InputJobsToRun.Count; index++)
             {
-                for (index = CurrentJobIndex; index <= CurrentJobIndex + InputJobsToRun.Count; index++)
+                try
                 {
-                    try
+                    string job = InputJobsToRun.Read(index);
+                    if (job != string.Empty)
                     {
-                        string job = InputJobsToRun.Read(index);
-                        if (job != string.Empty)
-                        {
-                            lastIndex = index;
-                        }
-                    }
-                    catch (KeyNotFoundException)
-                    {
+                        lastIndex = index;
                     }
                 }
-            });
-
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_TOTAL_NUM_OF_JOBS_WAIT);
-            if (!AddTask.Wait(timeSpan))
-            {
-                Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
-                    GET_TOTAL_NUM_OF_JOBS_WAIT, DateTime.Now);
+                catch (KeyNotFoundException)
+                {
+                }
             }
 
             if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
@@ -337,9 +349,9 @@ namespace Status.Services
         }
 
         /// <summary>
-        /// Find the previous index in the Input Buffer Job list
+        /// Get the previous index in the Input Buffer Job list
         /// </summary>
-        public static int FindPreviousIndex()
+        public static int GetPreviousIndex()
         {
             int index;
             int previousIndex = 0;
