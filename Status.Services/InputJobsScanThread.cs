@@ -159,7 +159,7 @@ namespace Status.Services
             do
             {
                 // Check if the shutdown flag is set, exit method
-                if (StaticClass.ShutDownPauseCheck("CheckForUnfinishedInputJobs") == true)
+                if (StaticClass.ShutDownPauseCheck("CheckForNewInputJobs") == true)
                 {
                     return;
                 }
@@ -204,16 +204,12 @@ namespace Status.Services
                         else // Partial Job handling
                         {
                             // Skip Partial Job if there are more in the list
-                            if ((StaticClass.TotalNumberOfJobs > 1) && (StaticClass.CurrentJobIndex < StaticClass.GetTotalNumberOfJobs()))
+                            if (StaticClass.CurrentJobIndex < StaticClass.LastJobIndex)
                             {
-                                StaticClass.Log(string.Format("Input Directory skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
+                                StaticClass.Log(string.Format("Input Job scanner skipping Job {0} index {1} as not ready at {2:HH:mm:ss.fff}",
                                     job, StaticClass.CurrentJobIndex, DateTime.Now));
 
-                                // If there are more jobs, increment Job index
-                                if (StaticClass.CurrentJobIndex < StaticClass.GetLastIndex())
-                                {
-                                    StaticClass.CurrentJobIndex++;
-                                }
+                                StaticClass.CurrentJobIndex++;
                             }
                             else // Run last job in list
                             {
@@ -226,11 +222,10 @@ namespace Status.Services
                                 // Delete the job from the list
                                 StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
 
-                                // If there is a skipped partial job, start it next
-                                int previousIndex = StaticClass.GetPreviousIndex();
-                                if ((StaticClass.CurrentJobIndex > previousIndex) && (previousIndex > 1))
+                                // If there is a skipped partial job, start it next by setting index to previous one
+                                if ((StaticClass.CurrentJobIndex > StaticClass.PreviousJobIndex))
                                 {
-                                    StaticClass.CurrentJobIndex = previousIndex;
+                                    StaticClass.CurrentJobIndex = StaticClass.PreviousJobIndex;
                                 }
                             }
                         }

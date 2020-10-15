@@ -80,7 +80,7 @@ namespace Status.Services
                 // Wait for Input file scan to complete
                 do
                 {
-                    if (StaticClass.ShutDownPauseCheck("Run Job") == true)
+                    if (StaticClass.ShutDownPauseCheck("RunInputBufferScan") == true)
                     {
                         return;
                     }
@@ -175,7 +175,7 @@ namespace Status.Services
                     }
 
                     // Check for shutdown or pause
-                    if (StaticClass.ShutDownPauseCheck("Overall Result Entry Check") == true)
+                    if (StaticClass.ShutDownPauseCheck("OverallResultEntryCheck") == true)
                     {
                         return false;
                     }
@@ -292,7 +292,7 @@ namespace Status.Services
             }
 
             // If the shutdown flag is set, exit method
-            if (StaticClass.ShutDownPauseCheck("Run Job") == true)
+            if (StaticClass.ShutDownPauseCheck("RunJob before start") == true)
             {
                 return;
             }
@@ -344,7 +344,7 @@ namespace Status.Services
             // Wait for the Processing job scan complete or shut down
             do
             {
-                if (StaticClass.ShutDownPauseCheck("Run Job") == true)
+                if (StaticClass.ShutDownPauseCheck("RunJob Processing Job") == true)
                 {
                     return;
                 }
