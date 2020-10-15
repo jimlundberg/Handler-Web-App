@@ -324,7 +324,7 @@ namespace Status.Services
         public static int FindLastIndex()
         {
             int lastIndex = 0;
-            for (int index = CurrentJobIndex; index <= CurrentJobIndex + InputJobsToRun.Count; index++)
+            for (int index = CurrentJobIndex; index <= InputJobsToRun.Count; index++)
             {
                 try
                 {
