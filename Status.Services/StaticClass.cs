@@ -29,7 +29,7 @@ namespace Status.Services
         public const int FILE_WAIT_DELAY = 2500;
         public const int FILE_READY_WAIT = 250;
         public const int JOB_XML_FILE_READY_WAIT = 250;
-        public const int ADD_JOB_WAIT = 2000;
+        public const int ADD_JOB_WAIT = 2500;
         public const int DISPLAY_JOB_LIST_DELAY = 2500;
         public const int GET_TOTAL_NUM_OF_JOBS_WAIT = 2500;
         public const int GET_LAST_INDEX_WAIT = 2500;
