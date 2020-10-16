@@ -39,7 +39,7 @@ SET JOB=1178352_202005050818
 echo Copying ALL %JOB% Job files
 xcopy /S /I /Q "test\%JOB%" "%buffer%\%JOB%"
 
-timeout 30
+timeout 60
 
 SET JOB=1178350_202006030856
 echo Copying the rest of %JOB% Job files
