@@ -250,8 +250,6 @@ namespace Status.Services
         /// Run Input Buffer Scan
         /// </summary>
         /// <param name="jobDirectory"></param>
-        /// <param name="job"></param>
-        /// <param name="jobXmlData"></param>
         public void RunInputBufferPartialJob(string jobDirectory)
         {
             string job = jobDirectory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
