@@ -1,5 +1,6 @@
 ﻿using Handler.Services;
 using Microsoft.Extensions.Logging;
+using Status.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -217,8 +218,8 @@ namespace Status.Services
                                 StaticClass.Log(string.Format("Starting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}",
                                     jobDirectory, StaticClass.CurrentJobIndex, DateTime.Now));
 
-                                // Start the new partial Job
-                                StartInputJob(jobDirectory);
+                                // Start scanning new partial Job
+                                RunInputBufferPartialJob(jobDirectory);
 
                                 // Delete the job from the list
                                 StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
@@ -243,6 +244,63 @@ namespace Status.Services
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Run Input Buffer Scan
+        /// </summary>
+        /// <param name="jobDirectory"></param>
+        /// <param name="job"></param>
+        /// <param name="jobXmlData"></param>
+        public void RunInputBufferPartialJob(string jobDirectory)
+        {
+            string job = jobDirectory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
+
+            // Add initial entry to status list
+            StaticClass.StatusDataEntry(job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
+
+            JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(jobDirectory, DirectoryScanType.INPUT_BUFFER);
+
+            // Monitor the Input Buffer job directory until it has the total number of consumed files
+            if (StaticClass.CheckIfJobFilesComplete(jobDirectory))
+            {
+                string inputJobFileDir = StaticClass.IniData.InputDir + @"\" + job;
+
+                // Register with the File Watcher class event and start its thread
+                InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(inputJobFileDir, jobXmlData.NumberOfFilesNeeded);
+                if (inputFileWatch == null)
+                {
+                    StaticClass.Logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
+                }
+                inputFileWatch.ThreadProc();
+
+                // Wait for Input file scan to complete
+                do
+                {
+                    if (StaticClass.ShutDownPauseCheck("InputJobsScanThread") == true)
+                    {
+                        return;
+                    }
+
+                    Thread.Yield();
+                }
+                while (StaticClass.InputFileScanComplete[job] == false);
+
+                StaticClass.Log(string.Format("Finished Running Input file scan loop for Job {0} at {1:HH:mm:ss.fff}",
+                    inputJobFileDir, DateTime.Now));
+
+                // Add copying entry to status list
+                StaticClass.StatusDataEntry(job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
+
+                // Move files from Input directory to the Processing directory, creating it first if needed
+                FileHandling.CopyFolderContents(inputJobFileDir, jobDirectory, true, true);
+            }
+            else
+            {
+                StaticClass.Logger.LogError("Could not find Input Buffer Directory");
+            }
+
+            StartInputJob(jobDirectory);
         }
 
         /// <summary>

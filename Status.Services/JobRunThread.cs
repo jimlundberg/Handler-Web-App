@@ -101,7 +101,6 @@ namespace Status.Services
             else
             {
                 StaticClass.Logger.LogError("Could not find Input Buffer Directory");
-                throw new InvalidOperationException("Could not find Input Buffer Directory");
             }
         }
 
