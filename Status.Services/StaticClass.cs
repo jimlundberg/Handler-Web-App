@@ -315,6 +315,12 @@ namespace Status.Services
                     GET_LAST_INDEX_WAIT, DateTime.Now);
             }
 
+            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
+            {
+                Log(string.Format("Current Index = {0} Last Index = {1} at {2:HH:mm:ss.fff}",
+                    CurrentJobIndex, lastIndex, DateTime.Now));
+            }
+
             return lastIndex;
         }
 
@@ -337,12 +343,6 @@ namespace Status.Services
                 catch (KeyNotFoundException)
                 {
                 }
-            }
-
-            if ((StaticClass.IniData.DebugMode & (byte)DebugModeState.JOB_LIST) != 0)
-            {
-                Log(string.Format("Current Index = {0} Last Index = {1} at {2:HH:mm:ss.fff}",
-                    CurrentJobIndex, lastIndex, DateTime.Now));
             }
 
             return lastIndex;
