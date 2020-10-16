@@ -1,5 +1,6 @@
 ﻿using Handler.Services;
 using Microsoft.Extensions.Logging;
+using Remotion.Linq.Parsing.Structure;
 using Status.Models;
 using System;
 using System.Collections.Generic;
@@ -257,49 +258,52 @@ namespace Status.Services
             // Add initial entry to status list
             StaticClass.StatusDataEntry(job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
 
-            JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(jobDirectory, DirectoryScanType.INPUT_BUFFER);
-
-            // Monitor the Input Buffer job directory until it has the total number of consumed files
-            if (StaticClass.CheckIfJobFilesComplete(jobDirectory))
+            int numOfRetries = 1;
+            do
             {
-                string inputJobFileDir = StaticClass.IniData.InputDir + @"\" + job;
+                JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(jobDirectory, DirectoryScanType.INPUT_BUFFER);
 
-                // Register with the File Watcher class event and start its thread
-                InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(inputJobFileDir, jobXmlData.NumberOfFilesNeeded);
-                if (inputFileWatch == null)
+                // Monitor the Input Buffer job directory until it has the total number of consumed files
+                if (StaticClass.CheckIfJobFilesComplete(jobDirectory))
                 {
-                    StaticClass.Logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
-                }
-                inputFileWatch.ThreadProc();
+                    string inputJobFileDir = StaticClass.IniData.InputDir + @"\" + job;
 
-                // Wait for Input file scan to complete
-                do
-                {
-                    if (StaticClass.ShutDownPauseCheck("InputJobsScanThread") == true)
+                    // Register with the File Watcher class event and start its thread
+                    InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(inputJobFileDir, jobXmlData.NumberOfFilesNeeded);
+                    if (inputFileWatch == null)
                     {
-                        return;
+                        StaticClass.Logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
                     }
+                    inputFileWatch.ThreadProc();
 
-                    Thread.Yield();
+                    // Wait for Input file scan to complete
+                    do
+                    {
+                        if (StaticClass.ShutDownPauseCheck("InputJobsScanThread") == true)
+                        {
+                            return;
+                        }
+
+                        Thread.Yield();
+                    }
+                    while (StaticClass.InputFileScanComplete[job] == false);
+
+                    StaticClass.Log(string.Format("Finished Running Input file scan loop for Job {0} at {1:HH:mm:ss.fff}",
+                        inputJobFileDir, DateTime.Now));
+
+                    // Add copying entry to status list
+                    StaticClass.StatusDataEntry(job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
+
+                    // Move files from Input directory to the Processing directory, creating it first if needed
+                    FileHandling.CopyFolderContents(inputJobFileDir, jobDirectory, true, true);
+
+                    // Now start the new job
+                    StartInputJob(jobDirectory);
                 }
-                while (StaticClass.InputFileScanComplete[job] == false);
-
-                StaticClass.Log(string.Format("Finished Running Input file scan loop for Job {0} at {1:HH:mm:ss.fff}",
-                    inputJobFileDir, DateTime.Now));
-
-                // Add copying entry to status list
-                StaticClass.StatusDataEntry(job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
-
-                // Move files from Input directory to the Processing directory, creating it first if needed
-                FileHandling.CopyFolderContents(inputJobFileDir, jobDirectory, true, true);
             }
-            else
-            {
-                StaticClass.Log(string.Format("Job {0} not ready at {1:HH:mm:ss.fff}", job, DateTime.Now));
-                return;
-            }
+            while (numOfRetries++ > StaticClass.NUM_DATA_XML_ACCESS_RETRIES);
 
-            StartInputJob(jobDirectory);
+            StaticClass.Log(string.Format("Partial Input Scan for Job {0} failed Job file check at {1:HH:mm:ss.fff}", job, DateTime.Now));
         }
 
         /// <summary>
