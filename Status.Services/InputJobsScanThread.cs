@@ -300,6 +300,8 @@ namespace Status.Services
                     // Now start the new job
                     StartInputJob(jobDirectory);
                 }
+
+                Thread.Sleep(StaticClass.IniData.ScanWaitTime);
             }
             while (numOfRetries++ > StaticClass.NUM_DATA_XML_ACCESS_RETRIES);
 
