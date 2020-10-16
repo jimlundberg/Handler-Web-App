@@ -30,7 +30,7 @@ namespace Status.Services
         public const int FILE_READY_WAIT = 250;
         public const int JOB_XML_FILE_READY_WAIT = 250;
         public const int ADD_JOB_WAIT = 2500;
-        public const int DISPLAY_JOB_LIST_DELAY = 2500;
+        public const int DISPLAY_JOB_LIST_WAIT = 2500;
         public const int GET_TOTAL_NUM_OF_JOBS_WAIT = 2500;
         public const int GET_LAST_INDEX_WAIT = 2500;
         public const int GET_PREVIOUS_INDEX_WAIT = 2500;
@@ -158,9 +158,9 @@ namespace Status.Services
                 }
                 catch (ArgumentException)
                 {
-                    jobIndex = GetPreviousIndex();
-                    Logger.LogWarning("Add Job to invalid list index {0} so resetting Current Index to Previous Index {1} at {2:HH:mm:ss.fff}",
-                        jobIndex, CurrentJobIndex, DateTime.Now);
+                    Logger.LogWarning("Add Job failed with invalid list index {0} so Adding Job to Index {1} at {2:HH:mm:ss.fff}",
+                        jobIndex, 1, DateTime.Now);
+                    jobIndex = 1;
                     InputJobsToRun.Add(jobIndex, job);
                 }
             });
@@ -271,11 +271,11 @@ namespace Status.Services
                 }
             });
 
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(DISPLAY_JOB_LIST_DELAY);
+            TimeSpan timeSpan = TimeSpan.FromMilliseconds(DISPLAY_JOB_LIST_WAIT);
             if (!AddTask.Wait(timeSpan))
             {
                 Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
-                    DISPLAY_JOB_LIST_DELAY, DateTime.Now);
+                    DISPLAY_JOB_LIST_WAIT, DateTime.Now);
             }
 
             // Small pause for list display coordination
@@ -324,7 +324,7 @@ namespace Status.Services
         public static int FindLastIndex()
         {
             int lastIndex = 0;
-            for (int index = CurrentJobIndex; index <= InputJobsToRun.Count; index++)
+            for (int index = CurrentJobIndex; index <= CurrentJobIndex + InputJobsToRun.Count; index++)
             {
                 try
                 {
@@ -353,25 +353,10 @@ namespace Status.Services
         /// </summary>
         public static int GetPreviousIndex()
         {
-            int index;
             int previousIndex = 0;
             Task AddTask = Task.Run(() =>
             {
-                for (index = CurrentJobIndex - 1; index >= 1; index--)
-                {
-                    try
-                    {
-                        string job = InputJobsToRun.Read(index);
-                        if (job != string.Empty)
-                        {
-                            previousIndex = index;
-                            break;
-                        }
-                    }
-                    catch (KeyNotFoundException)
-                    {
-                    }
-                }
+                previousIndex = FindPreviousIndex();
             });
 
             TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_PREVIOUS_INDEX_WAIT);
@@ -385,6 +370,30 @@ namespace Status.Services
             {
                 Log(string.Format("Current Index = {0} get Previous Index = {1} at {2:HH:mm:ss.fff}",
                     CurrentJobIndex, previousIndex, DateTime.Now));
+            }
+
+            return previousIndex;
+        }
+
+        /// <summary>
+        /// Find the previous index in the Input Buffer Job list
+        /// </summary>
+        public static int FindPreviousIndex()
+        {
+            int previousIndex = 0;
+            for (int index = CurrentJobIndex - 1; index >= 1; index--)
+            {
+                try
+                {
+                    string job = InputJobsToRun.Read(index);
+                    if (job != string.Empty)
+                    {
+                        previousIndex = index;
+                    }
+                }
+                catch (KeyNotFoundException)
+                {
+                }
             }
 
             return previousIndex;
