@@ -158,9 +158,9 @@ namespace Status.Services
                 }
                 catch (ArgumentException)
                 {
-                    jobIndex++;
-                    Logger.LogWarning("Add Job to list retry to add {0} to Input Job List index {1} at {2:HH:mm:ss.fff}",
-                        job, jobIndex, DateTime.Now);
+                    jobIndex = GetPreviousIndex();
+                    Logger.LogWarning("Add Job to invalid list index {0} so resetting Current Index to Previous Index {1} at {2:HH:mm:ss.fff}",
+                        jobIndex, CurrentJobIndex, DateTime.Now);
                     InputJobsToRun.Add(jobIndex, job);
                 }
             });
@@ -194,9 +194,9 @@ namespace Status.Services
                     }
                     catch (KeyNotFoundException)
                     {
-                        CurrentJobIndex = 1;
-                        Logger.LogWarning("Read Job from invalid list index {0} failed resetting Current Index to 1 at {1:HH:mm:ss.fff}",
-                            jobIndex, DateTime.Now);
+                        CurrentJobIndex = GetLastIndex();
+                        Logger.LogWarning("Read Job from invalid list index {0} so resetting Current Index to Last Index {1} at {2:HH:mm:ss.fff}",
+                            jobIndex, CurrentJobIndex, DateTime.Now);
                     }
                 }
             });
@@ -558,7 +558,7 @@ namespace Status.Services
         /// <returns>Returns if file is ready to access</returns>
         public static bool CheckFileReady(string fileName)
         {
-            int numOfRetries = 0;
+            int numOfRetries = 1;
             do
             {
                 try

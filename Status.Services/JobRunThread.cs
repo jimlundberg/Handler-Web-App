@@ -159,7 +159,7 @@ namespace Status.Services
         /// <returns></returns>
         public bool OverallResultEntryCheck(string dataXmlFileName)
         {
-            int numOfRetries = 0;
+            int numOfRetries = 1;
             do
             {
                 // Check for data.xml file to be ready
