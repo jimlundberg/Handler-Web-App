@@ -295,7 +295,8 @@ namespace Status.Services
             }
             else
             {
-                StaticClass.Logger.LogError("Could not find Input Buffer Directory");
+                StaticClass.Log(string.Format("Job {0} not ready at {1:HH:mm:ss.fff}", job, DateTime.Now));
+                return;
             }
 
             StartInputJob(jobDirectory);
