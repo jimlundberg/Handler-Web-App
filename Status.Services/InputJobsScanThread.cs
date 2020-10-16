@@ -237,8 +237,8 @@ namespace Status.Services
                 {
                     if (CurrentJobIndex != StaticClass.CurrentJobIndex)
                     {
-                        StaticClass.Log(string.Format("Input Jobs Scanner Resetting Current Job Index from {0} at {1:HH:mm:ss.fff}",
-                            StaticClass.CurrentJobIndex, DateTime.Now));
+                        StaticClass.Log(string.Format("Input Jobs Scanner Resetting Current Job Index from {0} to {1} at {2:HH:mm:ss.fff}",
+                            StaticClass.CurrentJobIndex, 1, DateTime.Now));
                         CurrentJobIndex = StaticClass.CurrentJobIndex = 1;
                     }
                 }
