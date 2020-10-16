@@ -7,8 +7,7 @@ REM 3. Interspaces Full directory addes between Partial adds
 
 :ConfigureTest
 
-REM set buffer=\\ftcsrv01\ENG_GROUPS\TESTDATA\Navigator\NavII_FastCap\ModelerData\Input Buffer
-set buffer=Input Buffer
+set buffer=\\ftcsrv01\ENG_GROUPS\TESTDATA\Navigator\NavII_FastCap\ModelerData\Input Buffer
 
 :RunTest
 
