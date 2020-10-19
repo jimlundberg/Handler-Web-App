@@ -301,7 +301,7 @@ namespace Status.Services
                     StartInputJob(jobDirectory);
                 }
 
-                Thread.Sleep(StaticClass.IniData.ScanWaitTime);
+                Thread.Sleep(StaticClass.JOB_XML_FILE_READY_WAIT);
             }
             while (numOfRetries++ > StaticClass.NUM_DATA_XML_ACCESS_RETRIES);
 
