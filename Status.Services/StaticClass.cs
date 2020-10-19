@@ -194,9 +194,13 @@ namespace Status.Services
                     }
                     catch (KeyNotFoundException)
                     {
-                        CurrentJobIndex = GetLastIndex();
-                        Logger.LogWarning("Read Job from invalid list index {0} so resetting Current Index to Last Index {1} at {2:HH:mm:ss.fff}",
-                            jobIndex, CurrentJobIndex, DateTime.Now);
+                        int lastIndex = GetLastIndex();
+                        if (lastIndex >= 1)
+                        {
+                            CurrentJobIndex = lastIndex;
+                            Logger.LogWarning("Read Job from invalid list index {0} so resetting Current Index to Last Index {1} at {2:HH:mm:ss.fff}",
+                                jobIndex, CurrentJobIndex, DateTime.Now);
+                        }
                     }
                 }
             });
