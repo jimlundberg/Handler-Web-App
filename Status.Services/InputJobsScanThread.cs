@@ -1,5 +1,6 @@
 ﻿using Handler.Services;
 using Microsoft.Extensions.Logging;
+using Remotion.Linq.Parsing.Structure;
 using Status.Models;
 using System;
 using System.Collections.Generic;
@@ -257,48 +258,59 @@ namespace Status.Services
             // Add initial entry to status list
             StaticClass.StatusDataEntry(job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
 
-            JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(jobDirectory, DirectoryScanType.INPUT_BUFFER);
-
-            // Monitor the Input Buffer job directory until it has the total number of consumed files
-            if (StaticClass.CheckIfJobFilesComplete(jobDirectory))
+            do
             {
-                string inputJobFileDir = StaticClass.IniData.InputDir + @"\" + job;
-
-                // Register with the File Watcher class event and start its thread
-                InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(inputJobFileDir, jobXmlData.NumberOfFilesNeeded);
-                if (inputFileWatch == null)
-                {
-                    StaticClass.Logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
-                }
-                inputFileWatch.ThreadProc();
-
-                // Wait for Input file scan to complete
+                int numOfRetries = 1;
                 do
                 {
-                    if (StaticClass.ShutDownPauseCheck("InputJobsScanThread") == true)
+                    JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(jobDirectory, DirectoryScanType.INPUT_BUFFER);
+
+                    // Monitor the Input Buffer job directory until it has the total number of consumed files
+                    if (StaticClass.CheckIfJobFilesComplete(jobDirectory))
                     {
+                        string inputJobFileDir = StaticClass.IniData.InputDir + @"\" + job;
+
+                        // Register with the File Watcher class event and start its thread
+                        InputFileWatcherThread inputFileWatch = new InputFileWatcherThread(inputJobFileDir, jobXmlData.NumberOfFilesNeeded);
+                        if (inputFileWatch == null)
+                        {
+                            StaticClass.Logger.LogError("Job Run Thread inputFileWatch failed to instantiate");
+                        }
+                        inputFileWatch.ThreadProc();
+
+                        // Wait for Input file scan to complete
+                        do
+                        {
+                            if (StaticClass.ShutDownPauseCheck("InputJobsScanThread") == true)
+                            {
+                                return;
+                            }
+
+                            Thread.Yield();
+                        }
+                        while (StaticClass.InputFileScanComplete[job] == false);
+
+                        StaticClass.Log(string.Format("Finished Running Input file scan loop for Job {0} at {1:HH:mm:ss.fff}",
+                            inputJobFileDir, DateTime.Now));
+
+                        // Add copying entry to status list
+                        StaticClass.StatusDataEntry(job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
+
+                        // Move files from Input directory to the Processing directory, creating it first if needed
+                        FileHandling.CopyFolderContents(inputJobFileDir, jobDirectory, true, true);
+
+                        // Now start the new job
+                        StartInputJob(jobDirectory);
                         return;
                     }
 
-                    Thread.Yield();
+                    Thread.Sleep(StaticClass.JOB_XML_FILE_READY_WAIT);
                 }
-                while (StaticClass.InputFileScanComplete[job] == false);
+                while (numOfRetries++ > StaticClass.NUM_DATA_XML_ACCESS_RETRIES);
 
-                StaticClass.Log(string.Format("Finished Running Input file scan loop for Job {0} at {1:HH:mm:ss.fff}",
-                    inputJobFileDir, DateTime.Now));
-
-                // Add copying entry to status list
-                StaticClass.StatusDataEntry(job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
-
-                // Move files from Input directory to the Processing directory, creating it first if needed
-                FileHandling.CopyFolderContents(inputJobFileDir, jobDirectory, true, true);
+                StaticClass.Log(string.Format("Partial Input Scan for Job {0} waiting for the job xml file at {1:HH:mm:ss.fff}", job, DateTime.Now));
             }
-            else
-            {
-                StaticClass.Logger.LogError("Could not find Input Buffer Directory");
-            }
-
-            StartInputJob(jobDirectory);
+            while (true);
         }
 
         /// <summary>
