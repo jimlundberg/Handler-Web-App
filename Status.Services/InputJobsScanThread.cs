@@ -216,14 +216,19 @@ namespace Status.Services
                             }
                             else // Run last job in list
                             {
-                                StaticClass.Log(string.Format("Starting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}",
-                                    jobDirectory, StaticClass.CurrentJobIndex, DateTime.Now));
+                                // Wait for the job xml file
+                                JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(jobDirectory, DirectoryScanType.INPUT_BUFFER);
+                                if (jobXmlData.XmlFileName != string.Empty)
+                                {
+                                    StaticClass.Log(string.Format("Starting Partial Input Job {0} index {1} at {2:HH:mm:ss.fff}",
+                                        jobDirectory, StaticClass.CurrentJobIndex, DateTime.Now));
 
-                                // Start scanning new partial Job
-                                RunInputBufferPartialJob(jobDirectory);
+                                    // Start the new partial job
+                                    StartInputJob(jobDirectory);
 
-                                // Delete the job from the list
-                                StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
+                                    // Delete the job from the list
+                                    StaticClass.DeleteJobFromList(StaticClass.CurrentJobIndex);
+                                }
 
                                 // If there is a skipped partial job, start it next by setting index to previous one
                                 int previousJobIndex = StaticClass.GetPreviousIndex();
@@ -253,53 +258,27 @@ namespace Status.Services
         /// <param name="jobDirectory"></param>
         public void RunInputBufferPartialJob(string jobDirectory)
         {
-            string job = jobDirectory.Replace(StaticClass.IniData.InputDir, "").Remove(0, 1);
-            string inputJobDirectory = StaticClass.IniData.InputDir + @"\" + job;
-            string processingJobDirectory = StaticClass.IniData.ProcessingDir + @"\" + job;
-
-            // Add initial entry to status list
-            StaticClass.StatusDataEntry(job, JobStatus.MONITORING_INPUT, JobType.TIME_START);
-
             JobXmlData jobXmlData = StaticClass.GetJobXmlFileInfo(jobDirectory, DirectoryScanType.INPUT_BUFFER);
-
-            // Add copying entry to status list
-            StaticClass.StatusDataEntry(job, JobStatus.COPYING_TO_PROCESSING, JobType.TIME_START);
-
-            // Move files from Input directory to the Processing directory, creating it first if needed
-            FileHandling.CopyFolderContents(inputJobDirectory, processingJobDirectory, true, true);
-
-            // Now start the new job
-            StartProcessingJob(jobXmlData);
+            if (jobXmlData.XmlFileName != string.Empty)
+            {
+                // Now start the new job
+                StartInputJob(jobDirectory);
+            }
         }
 
         /// <summary>
         /// Start Input Job
         /// </summary>
-        /// <param name="directory"></param>
-        public void StartInputJob(string directory)
+        /// <param name="jobDirectory"></param>
+        public void StartInputJob(string jobDirectory)
         {
-            // Start the Input Job Thread class to start a new Input Buffer job and continue
-            StartInputJobThread startInputJobThread = new StartInputJobThread(directory);
+            // Start the Input Job Thread class to complete scan for Input Buffer job
+            StartInputJobThread startInputJobThread = new StartInputJobThread(jobDirectory);
             if (startInputJobThread == null)
             {
                 StaticClass.Logger.LogError("InputJobsScanThread StartInputJobThread failed to instantiate");
             }
             startInputJobThread.ThreadProc();
-        }
-
-        /// <summary>
-        /// Start Processing Job
-        /// </summary>
-        /// <param name="jobXmlData"></param>
-        public void StartProcessingJob(JobXmlData jobXmlData)
-        {
-            // Start a Processing Job Thread
-            JobRunThread startProcessingJobThread = new JobRunThread(jobXmlData, DirectoryScanType.PROCESSING_BUFFER);
-            if (startProcessingJobThread == null)
-            {
-                StaticClass.Logger.LogError("InputJobsScanThread startProcessingJobThread failed to instantiate");
-            }
-            startProcessingJobThread.ThreadProc();
         }
     }
 }

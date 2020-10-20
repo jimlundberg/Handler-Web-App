@@ -158,9 +158,9 @@ namespace Status.Services
                 }
                 catch (ArgumentException)
                 {
+                    jobIndex = InputJobsToRun.Count + 1;
                     Logger.LogWarning("Add Job failed with invalid list index {0} so Adding Job to Index {1} at {2:HH:mm:ss.fff}",
                         jobIndex, 1, DateTime.Now);
-                    jobIndex = 1;
                     InputJobsToRun.Add(jobIndex, job);
                 }
             });
