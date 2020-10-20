@@ -25,7 +25,7 @@ namespace Status.Services
         public const int DISPLAY_PROCESS_DATA_WAIT = 45000;
         public const int DISPLAY_PROCESS_TITLE_WAIT = 1000;
         public const int SHUTDOWN_PROCESS_WAIT = 5000;
-        public const int READ_AVAILABLE_RETRY_DELAY = 250;
+        public const int READ_AVAILABLE_RETRY_DELAY = 500;
         public const int FILE_WAIT_DELAY = 2500;
         public const int FILE_READY_WAIT = 250;
         public const int JOB_XML_FILE_READY_WAIT = 250;
@@ -36,7 +36,7 @@ namespace Status.Services
         public const int GET_PREVIOUS_INDEX_WAIT = 2500;
         public const int READ_JOB_WAIT = 2500;
         public const int DELETE_JOB_WAIT = 2500;
-        public const int NUM_TCP_IP_RETRIES = 240;
+        public const int NUM_TCP_IP_RETRIES = 120;
         public const int NUM_DATA_XML_ACCESS_RETRIES = 100;
         public const int NUM_RESULTS_ENTRY_RETRIES = 100;
         public const int NUM_REQUESTS_TILL_TCPIP_SLOWDOWN = 5;
