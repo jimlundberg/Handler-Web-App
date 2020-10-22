@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using Status.Models;
-using Status.Services;
 using System;
 using System.Threading;
 
-namespace Handler.Services
+namespace Status.Services
 {
     /// <summary>
     /// Start Input Job Thread
