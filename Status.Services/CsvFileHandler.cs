@@ -13,6 +13,8 @@ namespace Status.Services
     /// </summary>
     public class CsvFileHandler
     {
+        private static readonly Object CsvLock = new Object();
+
         /// <summary>
         /// CSV File Handler default constructor
         /// </summary>
@@ -26,44 +28,47 @@ namespace Status.Services
         /// <param name="timeSlot"></param>
         public void WriteToCsvFile(string job, JobStatus status, JobType timeSlot)
         {
-            using (StreamWriter writer = File.AppendText(StaticClass.IniData.StatusLogFile))
+            lock (CsvLock)
             {
-                DateTime timeReceived = new DateTime();
-                if (timeReceived == null)
+                using (StreamWriter writer = File.AppendText(StaticClass.IniData.StatusLogFile))
                 {
-                    StaticClass.Logger.LogError("WriteToCsvFile timeReceived failed to instantiate");
+                    DateTime timeReceived = new DateTime();
+                    if (timeReceived == null)
+                    {
+                        StaticClass.Logger.LogError("WriteToCsvFile timeReceived failed to instantiate");
+                    }
+
+                    DateTime timeStarted = new DateTime();
+                    if (timeStarted == null)
+                    {
+                        StaticClass.Logger.LogError("WriteToCsvFile timeStarted failed to instantiate");
+                    }
+
+                    DateTime timeCompleted = new DateTime();
+                    if (timeCompleted == null)
+                    {
+                        StaticClass.Logger.LogError("WriteToCsvFile timeCompleted failed to instantiate");
+                    }
+
+                    switch (timeSlot)
+                    {
+                        case JobType.TIME_RECEIVED:
+                            timeReceived = DateTime.Now;
+                            break;
+
+                        case JobType.TIME_START:
+                            timeStarted = DateTime.Now;
+                            break;
+
+                        case JobType.TIME_COMPLETE:
+                            timeCompleted = DateTime.Now;
+                            break;
+                    }
+
+                    string line = string.Format("{0},{1},{2},{3},{4}", job, status.ToString(), timeReceived, timeStarted, timeCompleted);
+
+                    writer.WriteLineAsync(line);
                 }
-
-                DateTime timeStarted = new DateTime();
-                if (timeStarted == null)
-                {
-                    StaticClass.Logger.LogError("WriteToCsvFile timeStarted failed to instantiate");
-                }
-
-                DateTime timeCompleted = new DateTime();
-                if (timeCompleted == null)
-                {
-                    StaticClass.Logger.LogError("WriteToCsvFile timeCompleted failed to instantiate");
-                }
-
-                switch (timeSlot)
-                {
-                    case JobType.TIME_RECEIVED:
-                        timeReceived = DateTime.Now;
-                        break;
-
-                    case JobType.TIME_START:
-                        timeStarted = DateTime.Now;
-                        break;
-
-                    case JobType.TIME_COMPLETE:
-                        timeCompleted = DateTime.Now;
-                        break;
-                }
-
-                string line = string.Format("{0},{1},{2},{3},{4}", job, status.ToString(), timeReceived, timeStarted, timeCompleted);
-
-                writer.WriteLineAsync(line);
             }
         }
 
