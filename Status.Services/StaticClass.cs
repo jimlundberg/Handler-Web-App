@@ -278,7 +278,7 @@ namespace Status.Services
             TimeSpan timeSpan = TimeSpan.FromMilliseconds(DISPLAY_JOB_LIST_WAIT);
             if (!AddTask.Wait(timeSpan))
             {
-                Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
+                Logger.LogError("InputJobScanThread display Job List timed out at {0} msec at {1:HH:mm:ss.fff}",
                     DISPLAY_JOB_LIST_WAIT, DateTime.Now);
             }
 
@@ -366,7 +366,7 @@ namespace Status.Services
             TimeSpan timeSpan = TimeSpan.FromMilliseconds(GET_PREVIOUS_INDEX_WAIT);
             if (!AddTask.Wait(timeSpan))
             {
-                Logger.LogError("InputJobScanThread get total number of Jobs timed out at {0} msec at {1:HH:mm:ss.fff}",
+                Logger.LogError("InputJobScanThread get Previous Index timed out at {0} msec at {1:HH:mm:ss.fff}",
                     GET_PREVIOUS_INDEX_WAIT, DateTime.Now);
             }
 
