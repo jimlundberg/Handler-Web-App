@@ -48,7 +48,6 @@ namespace Status.Services
         public static int NumberOfJobsExecuting = 0;
         public static int JobPortIndex = 0;
         public static int LogFileSizeLimit = 0;
-        public static int TotalNumberOfJobs = 0;
         public static int CurrentJobIndex = 1;
 
         // Thread handles
@@ -334,7 +333,7 @@ namespace Status.Services
         public static int FindLastIndex()
         {
             int lastIndex = 0;
-            for (int index = CurrentJobIndex; index <= CurrentJobIndex + InputJobsToRun.Count; index++)
+            for (int index = 1; index <= CurrentJobIndex + InputJobsToRun.Count; index++)
             {
                 try
                 {
