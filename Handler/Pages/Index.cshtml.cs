@@ -5,6 +5,7 @@ using Status.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -135,8 +136,8 @@ namespace Handler.Pages
             SetButtonState(ButtonPress.Home);
             if (firstTime)
             {
-                Assembly assembly = Assembly.GetExecutingAssembly();
-                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+                string currentDir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(Path.Combine(currentDir, "Handler.exe"));
                 string VersionNumber = fvi.ProductVersion.ToString();
                 MonitorDataRepository.GetIniFileData(VersionNumber);
                 MonitorDataRepository.CheckLogFileHistory();
