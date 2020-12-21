@@ -165,24 +165,50 @@ namespace Status.Services
             }
 
             // Make sure threads are shut down
-            StaticClass.InputJobsScanThreadHandle.Join();
-            StaticClass.ProcessingFileWatcherThreadHandle.Join();
-            StaticClass.ProcessingJobsScanThreadHandle.Join();
-            StaticClass.DirectoryWatcherThreadHandle.Join();
-            StaticClass.InputFileWatcherThreadHandle.Join();
-            StaticClass.JobRunThreadHandle.Join();
-            StaticClass.TcpListenerThreadHandle.Join();
+            if (StaticClass.InputJobsScanThreadHandle != null)
+            {
+                StaticClass.InputJobsScanThreadHandle.Join();
+                StaticClass.InputJobsScanThreadHandle = null;
+            }
 
-            // Set all thread handles to null
-            StaticClass.InputJobsScanThreadHandle = null;
-            StaticClass.ProcessingFileWatcherThreadHandle = null;
-            StaticClass.ProcessingJobsScanThreadHandle = null;
-            StaticClass.DirectoryWatcherThreadHandle = null;
-            StaticClass.InputFileWatcherThreadHandle = null;
-            StaticClass.JobRunThreadHandle = null;
-            StaticClass.TcpListenerThreadHandle = null;
+            if (StaticClass.ProcessingFileWatcherThreadHandle != null)
+            {
+                StaticClass.ProcessingFileWatcherThreadHandle.Join();
+                StaticClass.ProcessingFileWatcherThreadHandle = null;
+            }
+
+            if (StaticClass.ProcessingJobsScanThreadHandle != null)
+            {
+                StaticClass.ProcessingJobsScanThreadHandle.Join();
+                StaticClass.ProcessingJobsScanThreadHandle = null;
+            }
+
+            if (StaticClass.DirectoryWatcherThreadHandle != null)
+            {
+                StaticClass.DirectoryWatcherThreadHandle.Join();
+                StaticClass.DirectoryWatcherThreadHandle = null;
+            }
+
+            if (StaticClass.InputFileWatcherThreadHandle != null)
+            {
+                StaticClass.InputFileWatcherThreadHandle.Join();
+                StaticClass.InputFileWatcherThreadHandle = null;
+            }
+
+            if (StaticClass.JobRunThreadHandle != null)
+            {
+                StaticClass.JobRunThreadHandle.Join();
+                StaticClass.JobRunThreadHandle = null;
+            }
+
+            if (StaticClass.TcpListenerThreadHandle != null)
+            {
+                StaticClass.TcpListenerThreadHandle.Join();
+                StaticClass.TcpListenerThreadHandle = null;
+            }
 
             // Clear the Dictionaries after Modeler shutdowns complete
+            
             StaticClass.ProcessHandles.Clear();
             StaticClass.ProcessHandles.Clear();
             StaticClass.InputFileScanComplete.Clear();
