@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 
 namespace Handler.Pages
 {
@@ -23,7 +22,8 @@ namespace Handler.Pages
 
         private readonly ILogger<IndexModel> Logger;
         private readonly IStatusRepository MonitorDataRepository;
-        private static bool firstTime = true;
+        private static bool FirstTime = true;
+        private static bool MonitorProcessStarted = false;
 
         /// <summary>
         /// Index Model CTOR
@@ -134,14 +134,14 @@ namespace Handler.Pages
         public void OnGet()
         {
             SetButtonState(ButtonPress.Home);
-            if (firstTime)
+            if (FirstTime)
             {
                 string currentDir = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
                 FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(Path.Combine(currentDir, "Handler.exe"));
                 string VersionNumber = fvi.ProductVersion.ToString();
                 MonitorDataRepository.GetIniFileData(VersionNumber);
                 MonitorDataRepository.CheckLogFileHistory();
-                firstTime = false;
+                FirstTime = false;
             }
             else
             {
@@ -151,7 +151,7 @@ namespace Handler.Pages
             StatusData = MonitorDataRepository.GetJobStatus().Reverse();
             if (StatusData == null)
             {
-                Logger.LogError("OnPostHistoryButton StatusData return null");
+                Logger.LogError("OnGet StatusData return null");
             }
         }
 
@@ -164,7 +164,7 @@ namespace Handler.Pages
             StatusData = MonitorDataRepository.GetJobStatus().Reverse();
             if (StatusData == null)
             {
-                Logger.LogError("OnPostHistoryButton StatusData return null");
+                Logger.LogError("OnPostHomeButton StatusData return null");
             }
         }
 
@@ -173,12 +173,17 @@ namespace Handler.Pages
         /// </summary>
         public void OnPostStartButton()
         {
-            SetButtonState(ButtonPress.Start);
-            MonitorDataRepository.StartMonitorProcess();
+            if (MonitorProcessStarted == false)
+            {
+                SetButtonState(ButtonPress.Start);
+                MonitorDataRepository.StartMonitorProcess();
+                MonitorProcessStarted = true;
+            }
+
             StatusData = MonitorDataRepository.GetJobStatus().Reverse();
             if (StatusData == null)
             {
-                Logger.LogError("OnPostHistoryButton StatusData return null");
+                Logger.LogError("OnPostStartButton StatusData return null");
             }
         }
 
@@ -191,7 +196,7 @@ namespace Handler.Pages
             StatusData = MonitorDataRepository.GetJobStatus().Reverse();
             if (StatusData == null)
             {
-                Logger.LogError("OnPostHistoryButton StatusData return null");
+                Logger.LogError("OnPostRefreshButton StatusData return null");
             }
         }
 
