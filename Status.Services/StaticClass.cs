@@ -29,13 +29,13 @@ namespace Status.Services
         public const int FILE_WAIT_DELAY = 2500;
         public const int FILE_READY_WAIT = 250;
         public const int JOB_XML_FILE_READY_WAIT = 250;
-        public const int ADD_JOB_WAIT = 2500;
-        public const int DISPLAY_JOB_LIST_WAIT = 2500;
-        public const int GET_TOTAL_NUM_OF_JOBS_WAIT = 2500;
-        public const int GET_LAST_INDEX_WAIT = 2500;
-        public const int GET_PREVIOUS_INDEX_WAIT = 2500;
-        public const int READ_JOB_WAIT = 2500;
-        public const int DELETE_JOB_WAIT = 2500;
+        public const int ADD_JOB_WAIT = 3000;
+        public const int DISPLAY_JOB_LIST_WAIT = 3000;
+        public const int GET_TOTAL_NUM_OF_JOBS_WAIT = 3000;
+        public const int GET_LAST_INDEX_WAIT = 3000;
+        public const int GET_PREVIOUS_INDEX_WAIT = 3000;
+        public const int READ_JOB_WAIT = 3000;
+        public const int DELETE_JOB_WAIT = 3000;
         public const int NUM_TCP_IP_RETRIES = 120;
         public const int NUM_DATA_XML_ACCESS_RETRIES = 100;
         public const int NUM_RESULTS_ENTRY_RETRIES = 100;
@@ -207,7 +207,7 @@ namespace Status.Services
             TimeSpan readJobtimeSpan = TimeSpan.FromMilliseconds(READ_JOB_WAIT);
             if (!ReadJobTask.Wait(readJobtimeSpan))
             {
-                Logger.LogError("InputJobScanThread Read Job {0} timed out adding as index {1} at {2} msec at {2:HH:mm:ss.fff}",
+                Logger.LogError("InputJobScanThread Read Job {0} timed out reading from index {1} at {2} msec at {2:HH:mm:ss.fff}",
                     job, jobIndex, READ_JOB_WAIT, DateTime.Now);
             }
 
