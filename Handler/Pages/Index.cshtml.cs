@@ -216,6 +216,7 @@ namespace Handler.Pages
         {
             SetButtonState(ButtonPress.Stop);
             MonitorDataRepository.StopMonitor();
+            MonitorProcessStarted = false;
         }
 
         /// <summary>
